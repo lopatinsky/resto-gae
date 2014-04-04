@@ -30,6 +30,7 @@ class Order(ndb.Model):
 
     def update_with_dict(self, obj):
         self.status = obj['status'].replace(u'Новая', u'Подтверждена')
+        self.status = obj['status'].replace(u'Закрыта', u'Закрыт')
 
     @classmethod
     def order_by_id(cls, order_id):

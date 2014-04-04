@@ -63,7 +63,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
 
         order.order_id = result['orderId']
         order.number = result['number']
-        order.status = result['status']
+        order.status = result['status'].replace(u'Не подтверждена', u'Не подтвержден')
 
         order.put()
 
@@ -79,7 +79,8 @@ class VenueOrderInfoRequestHandler(base.BaseHandler):
         order = iiko.Order.order_by_id(order_id)
 
         result = iiko.order_info1(order_id, venue_id)
-        result['status'] = result['status'].replace(u'Новая', u'Подтверждена')
+        result['status'] = result['status'].replace(u'Новая', u'Подтвержден')
+        result['status'] = result['status'].replace(u'Закрыта', u'Закрыт')
 
         self.render_json({
             'order': result
