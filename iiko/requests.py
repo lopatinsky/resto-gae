@@ -103,5 +103,5 @@ def get_menu(venue_id, token=None):
                 del categories[cat_id]
 
         menu = [cat[1] for cat in categories.items()]
-        memcache.get('iiko_menu_%s' % venue_id, menu)
+        memcache.set('iiko_menu_%s' % venue_id, menu)
     return menu
