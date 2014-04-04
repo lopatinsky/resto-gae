@@ -144,6 +144,7 @@ def place_order(order, customer):
     if order.is_delivery:
         obj['order']['address'] = order.address
     result = __post_request('/orders/add?request_timeout=30&access_token=%s' % get_access_token(), obj)
+    logging.info(result)
     return json.loads(result)
 
 

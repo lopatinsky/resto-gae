@@ -55,7 +55,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         order.sum = int(self.request.get('sum'))
         order.date = datetime.datetime.fromtimestamp(int(self.request.get('date')))
         order.venue_id = venue_id
-        order.items = self.request.get('items')
+        order.items = json.loads(self.request.get('items'))
         order.customer = customer.key
 
         result = iiko.place_order(order, customer)
