@@ -25,7 +25,8 @@ class MainHandler(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/api/venues', api.venues.VenuesHandler),
     ('/api/venue/(.*)/menu', api.menu.MenuRequestHandler),
-    ('/api/order/new', api.orders.PlaceOrderRequestHandler),
+    ('/api/venue/(.*)/order/new', api.orders.PlaceOrderRequestHandler),
+    ('/api/venue/(.*)/order/(.*)', api.orders.OrderInfoRequestHandler),
 
     ('/', MainHandler)
 ], debug=True)

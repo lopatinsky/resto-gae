@@ -145,3 +145,23 @@ def place_order(order, customer):
         obj['order']['address'] = order.address
     result = __post_request('/orders/add?request_timeout=30&access_token=%s' % get_access_token(), obj)
     return json.loads(result)
+
+
+def order_info(order):
+    result = __get_request('/orders/info', {
+        'access_token': get_access_token(),
+        'organization': order.venue_id,
+        'order': order.order_id,
+        'request_timeout': '30'
+    })
+    return json.loads(result)
+
+
+def order_info1(order_id, venue_id):
+    result = __get_request('/orders/info', {
+        'access_token': get_access_token(),
+        'organization': venue_id,
+        'order': order_id,
+        'request_timeout': '30'
+    })
+    return json.loads(result)

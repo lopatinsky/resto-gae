@@ -8,6 +8,7 @@ __author__ = 'quiker'
 class Customer(ndb.Model):
     phone = ndb.StringProperty()
     name = ndb.StringProperty(indexed=False)
+    customer_id = ndb.StringProperty()
 
     @classmethod
     def customer_by_phone(cls, phone):
@@ -25,6 +26,19 @@ class Order(ndb.Model):
     order_id = ndb.StringProperty()
     number = ndb.StringProperty()
     status = ndb.StringProperty()
+
+    @classmethod
+    def order_by_id(cls, order_id):
+        return cls.query(cls.order_id == order_id).get()
+
+    def to_dict(self):
+        return {
+            'orderId': self.order_id,
+            'number': self.number,
+            'status': self.status,
+            'sum': self.sum,
+            'items': self.items
+        }
 
 
 class Venue(ndb.Model):
