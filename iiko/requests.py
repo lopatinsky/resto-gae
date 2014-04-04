@@ -1,4 +1,5 @@
 import json
+import logging
 import urllib
 from google.appengine.api import memcache, urlfetch
 import model
@@ -12,6 +13,7 @@ def __make_request(api_path, params):
     url = '%s%s' % (IIKO_BASE_URL, api_path)
     if params:
         url = '%s?%s' % (url, urllib.urlencode(params))
+    logging.info(url)
     return urlfetch.fetch(url, deadline=30, validate_certificate=False).content
 
 
@@ -83,7 +85,23 @@ def get_menu(venue_id, token=None):
                 'id': cat['id'],
                 'name': cat['name'].capitalize(),
                 'products': products,
-                'parent': cat['parentGroup']
+                'parent': cat['parentGroup'],
+                'children': []
             }
-        menu = list()
+
+        for cat_id, cat in categories.items():
+            cat_parent_id = cat.get('parent')
+            if cat_parent_id:
+                parent = categories[cat_parent_id]
+                parent['children'].append(cat)
+                if parent.get('products'):
+                    parent['products'] = []
+
+        for cat_id, cat in categories.items():
+            cat_parent_id = cat.get('parent')
+            if cat_parent_id:
+                del categories[cat_id]
+
+        menu = [cat[1] for cat in categories.items()]
+
     return menu
