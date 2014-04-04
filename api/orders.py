@@ -73,11 +73,21 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         })
 
 
-class OrderInfoRequestHandler(base.BaseHandler):
+class VenueOrderInfoRequestHandler(base.BaseHandler):
     """ /api/venue/%s/order/%s """
     def get(self, venue_id, order_id):
         order = iiko.Order.order_by_id(order_id)
 
         self.render_json({
             'order': iiko.order_info1(order_id, venue_id)
+        })
+
+
+class OrderInfoRequestHandler(base.BaseHandler):
+    """ /api/order/%s """
+    def get(self, order_id):
+        order = iiko.Order.order_by_id(order_id)
+
+        self.render_json({
+            'order': iiko.order_info(order)
         })
