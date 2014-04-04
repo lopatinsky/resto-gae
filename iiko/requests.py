@@ -117,6 +117,7 @@ def get_menu(venue_id, token=None):
         memcache.set('iiko_menu_%s' % venue_id, menu)
     return menu
 
+
 def place_order(order, customer):
     obj = {
         'restaurantId': order.venue_id,
