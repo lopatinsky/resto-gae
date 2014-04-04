@@ -33,8 +33,13 @@ class PlaceOrderRequestHandler(base.BaseHandler):
             }
         ]
 
+
         result = iiko.place_order(order, customer)
-        result['status'] = result['status'].encode('utf-8')
+        order.order_id = result['orderId']
+        order.number = result['number']
+        order.set_status(result['status'])
+
+        order.put()
 
         self.render_json(result)
 
@@ -66,7 +71,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
 
         order.order_id = result['orderId']
         order.number = result['number']
-        order.status = result['status'].replace(u'Не подтверждена', u'Не подтвержден')
+        order.set_status(result['status'])
 
         order.put()
 
@@ -96,7 +101,7 @@ class OrderInfoRequestHandler(base.BaseHandler):
         order = iiko.Order.order_by_id(order_id)
 
         result = iiko.order_info(order)
-        order.update_with_dict(result)
+        order.set_status(result['status'])
         order.put()
 
         self.render_json({

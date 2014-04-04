@@ -17,8 +17,15 @@ class Customer(ndb.Model):
 
 
 class Order(ndb.Model):
+    # statuses
+    UNKNOWN = -1
+    NOT_APPROVED = 1
+    APPROVED = 2
+    CLOSED = 3
+    CANCELED = 4
+
     date = ndb.DateTimeProperty()
-    sum = ndb.IntegerProperty()
+    sum = ndb.IntegerProperty(indexed=False)
     items = ndb.JsonProperty()
     is_delivery = ndb.BooleanProperty(default=False)
     address = ndb.JsonProperty()
@@ -26,11 +33,19 @@ class Order(ndb.Model):
     customer = ndb.KeyProperty()
     order_id = ndb.StringProperty()
     number = ndb.StringProperty()
-    status = ndb.StringProperty()
+    status = ndb.IntegerProperty()
 
-    def update_with_dict(self, obj):
-        self.status = obj['status'].replace(u'Новая', u'Подтверждена')
-        self.status = obj['status'].replace(u'Закрыта', u'Закрыт')
+    def set_status(self, status):
+        if status == u'Не подтверждена':
+            self.status = self.NOT_APPROVED
+        elif status == u'Новая':
+            self.status = self.APPROVED
+        elif status == u'Закрыта':
+            self.status = self.CLOSED
+        elif status == u'Отменена':
+            self.status = self.CANCELED
+        else:
+            self.status = self.UNKNOWN
 
     @classmethod
     def order_by_id(cls, order_id):
