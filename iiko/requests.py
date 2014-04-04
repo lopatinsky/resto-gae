@@ -107,7 +107,6 @@ def get_menu(venue_id, token=None):
                 if parent.get('products'):
                     parent['products'] = []
 
-
         for cat_id, cat in categories.items():
             cat_parent_id = cat.get('parent')
             if cat_parent_id:

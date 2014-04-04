@@ -3,11 +3,12 @@ import json
 import datetime
 import webapp2
 import iiko
+import base
 
 __author__ = 'quiker'
 
 
-class PlaceOrderRequestHandler(webapp2.RequestHandler):
+class PlaceOrderRequestHandler(base.BaseHandler):
     """ /api/order/new """
     def get(self):
         customer = iiko.Customer()
@@ -34,8 +35,7 @@ class PlaceOrderRequestHandler(webapp2.RequestHandler):
         result = iiko.place_order(order, customer)
         result['status'] = result['status'].encode('utf-8')
 
-        self.response.headers['Content-Type'] = 'application/json'
-        self.response.out.write(json.dumps(result))
+        self.render_json(result)
 
     def post(self):
         name = self.request.get('name')
@@ -60,3 +60,5 @@ class PlaceOrderRequestHandler(webapp2.RequestHandler):
         order.order_id = result['orderId']
         order.number = result['number']
         order.status = result['status'].encode('utf-8')
+
+        order.put()

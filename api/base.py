@@ -3,6 +3,7 @@ import webapp2
 
 __author__ = 'phil'
 
+
 class BaseHandler(webapp2.RequestHandler):
     def render_json(self, d):
         self.response.headers['Content-Type'] = 'application/json'
