@@ -86,7 +86,8 @@ def get_menu(venue_id, token=None):
                 'name': cat['name'].capitalize(),
                 'products': products,
                 'parent': cat['parentGroup'],
-                'children': []
+                'children': [],
+                'hasChildren': False
             }
 
         for cat_id, cat in categories.items():
@@ -94,8 +95,10 @@ def get_menu(venue_id, token=None):
             if cat_parent_id:
                 parent = categories[cat_parent_id]
                 parent['children'].append(cat)
+                parent['hasChildren'] = True
                 if parent.get('products'):
                     parent['products'] = []
+
 
         for cat_id, cat in categories.items():
             cat_parent_id = cat.get('parent')
