@@ -27,6 +27,9 @@ class Order(ndb.Model):
     number = ndb.StringProperty()
     status = ndb.StringProperty()
 
+    def update_with_dict(self, obj):
+        self.status = obj['status'].encode('utf-8')
+
     @classmethod
     def order_by_id(cls, order_id):
         return cls.query(cls.order_id == order_id).get()

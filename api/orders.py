@@ -88,6 +88,10 @@ class OrderInfoRequestHandler(base.BaseHandler):
     def get(self, order_id):
         order = iiko.Order.order_by_id(order_id)
 
+        result = iiko.order_info(order)
+        order.update_with_dict(result)
+        order.put()
+
         self.render_json({
-            'order': iiko.order_info(order)
+            'order': order.to_dict()
         })
