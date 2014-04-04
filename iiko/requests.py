@@ -1,3 +1,5 @@
+# coding=utf-8
+import datetime
 import json
 import urllib
 from google.appengine.api import memcache, urlfetch
@@ -8,11 +10,17 @@ __author__ = 'quiker'
 IIKO_BASE_URL = 'https://iiko.net:9900/api/0'
 
 
-def __make_request(api_path, params):
+def __get_request(api_path, params):
     url = '%s%s' % (IIKO_BASE_URL, api_path)
     if params:
         url = '%s?%s' % (url, urllib.urlencode(params))
     return urlfetch.fetch(url, deadline=30, validate_certificate=False).content
+
+
+def __post_request(api_path, params):
+    url = '%s%s' % (IIKO_BASE_URL, api_path)
+    payload = json.dumps(params)
+    return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=payload, deadline=30, validate_certificate=False).content
 
 
 def get_access_token():
@@ -24,7 +32,7 @@ def get_access_token():
 
 
 def _fetch_access_token():
-    result = __make_request('/auth/access_token', {
+    result = __get_request('/auth/access_token', {
         'user_id': 'Empatika',
         'user_secret': 'i33yMr7W17l0Ic3'
     })
@@ -36,7 +44,7 @@ def get_venues(token=None):
     if not venues:
         if not token:
             token = get_access_token()
-        result = __make_request('/organization/list', {
+        result = __get_request('/organization/list', {
             'access_token': token
         })
         obj = json.loads(result)
@@ -52,7 +60,7 @@ def get_menu(venue_id, token=None):
     if not menu:
         if not token:
             token = get_access_token()
-        result = __make_request('/nomenclature/%s' % venue_id, {
+        result = __get_request('/nomenclature/%s' % venue_id, {
             'access_token': token
         })
         obj = json.loads(result)
@@ -85,5 +93,35 @@ def get_menu(venue_id, token=None):
                 'products': products,
                 'parent': cat['parentGroup']
             }
-        menu = list()
+        menu = product_by_categories
     return menu
+
+
+def place_order(order, customer):
+    obj = {
+        'restaurantId': order.venue_id,
+        'deliveryTerminalId': 'dd121a59-a43e-0690-0144-f47bced50158',
+        'customer': {
+            'name': customer.name,
+            'phone': customer.phone
+        },
+        'order': {
+            'date': order.date.strftime('%Y-%m-%d %H:%M:%S'),
+            'isSelfService': '1',
+            #'paymentItems': {
+            #    'paymentType': {
+            #        'id': 'bf2fd2db-cc75-46fa-97af-4f9dc68bb34b',
+            #        'code': 333,
+            #        'name': u'Банковские карты'
+            #    },
+            #    'sum': order.sum,
+            #    'isProcessedExternally': 1
+            #},
+            'phone': customer.phone,
+            'items': order.items
+        }
+    }
+    if order.is_delivery:
+        obj['order']['address'] = order.address
+    result = __post_request('/orders/add?request_timeout=30&access_token=%s' % get_access_token(), obj)
+    return json.loads(result)

@@ -5,6 +5,28 @@ from lib import geocoding
 __author__ = 'quiker'
 
 
+class Customer(ndb.Model):
+    phone = ndb.StringProperty()
+    name = ndb.StringProperty(indexed=False)
+
+    @classmethod
+    def customer_by_phone(cls, phone):
+        return cls.query(cls.phone == phone).get()
+
+
+class Order(ndb.Model):
+    date = ndb.DateTimeProperty()
+    sum = ndb.IntegerProperty()
+    items = ndb.JsonProperty()
+    is_delivery = ndb.BooleanProperty(default=False)
+    address = ndb.JsonProperty()
+    venue_id = ndb.StringProperty()
+    customer = ndb.KeyProperty()
+    order_id = ndb.StringProperty()
+    number = ndb.StringProperty()
+    status = ndb.StringProperty()
+
+
 class Venue(ndb.Model):
     venue_id = ndb.StringProperty()
     name = ndb.StringProperty()
