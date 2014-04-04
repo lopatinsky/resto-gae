@@ -1,3 +1,4 @@
+# coding=utf-8
 from google.appengine.ext import ndb
 from google.appengine.api import memcache
 from lib import geocoding
@@ -28,7 +29,7 @@ class Order(ndb.Model):
     status = ndb.StringProperty()
 
     def update_with_dict(self, obj):
-        self.status = obj['status'].encode('utf-8')
+        self.status = obj['status'].replace(u'Новая', u'Подтверждена')
 
     @classmethod
     def order_by_id(cls, order_id):

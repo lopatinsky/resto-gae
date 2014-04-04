@@ -63,7 +63,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
 
         order.order_id = result['orderId']
         order.number = result['number']
-        order.status = result['status'].encode('utf-8')
+        order.status = result['status']
 
         order.put()
 
@@ -78,8 +78,11 @@ class VenueOrderInfoRequestHandler(base.BaseHandler):
     def get(self, venue_id, order_id):
         order = iiko.Order.order_by_id(order_id)
 
+        result = iiko.order_info1(order_id, venue_id)
+        result['status'] = result['status'].replace(u'Новая', u'Подтверждена')
+
         self.render_json({
-            'order': iiko.order_info1(order_id, venue_id)
+            'order': result
         })
 
 
