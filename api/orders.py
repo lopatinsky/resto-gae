@@ -1,5 +1,6 @@
 # coding=utf-8
 import json
+import logging
 import datetime
 import webapp2
 import iiko
@@ -38,6 +39,8 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         self.render_json(result)
 
     def post(self, venue_id):
+        logging.info(self.request.body)
+
         name = self.request.get('name')
         phone = self.request.get('phone')
 
@@ -49,8 +52,8 @@ class PlaceOrderRequestHandler(base.BaseHandler):
             customer.put()
 
         order = iiko.Order()
-        order.sum = self.request.get('sum')
-        order.date = datetime.datetime.fromtimestamp(self.request.get('date'))
+        order.sum = int(self.request.get('sum'))
+        order.date = datetime.datetime.fromtimestamp(int(self.request.get('date')))
         order.venue_id = venue_id
         order.items = self.request.get('items')
         order.customer = customer.key
