@@ -36,13 +36,13 @@ class Order(ndb.Model):
     status = ndb.IntegerProperty()
 
     def set_status(self, status):
-        if status == u'Не подтверждена':
+        if status.find(u'Не подтверждена') >= 0:
             self.status = self.NOT_APPROVED
-        elif status == u'Новая':
+        elif status.find(u'Новая') >= 0:
             self.status = self.APPROVED
-        elif status == u'Закрыта':
+        elif status.find(u'Закрыта') >= 0:
             self.status = self.CLOSED
-        elif status == u'Отменена':
+        elif status.find(u'Отменена') >= 0:
             self.status = self.CANCELED
         else:
             self.status = self.UNKNOWN
