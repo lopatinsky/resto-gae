@@ -57,7 +57,8 @@ class Order(ndb.Model):
             'number': self.number,
             'status': self.status,
             'sum': self.sum,
-            'items': self.items
+            'items': self.items,
+            'venueId': self.venue_id
         }
 
 

@@ -1,3 +1,5 @@
-- description: update orders
-  url: /cron/update_orders
-  schedule: every 1 minutes synchronized
+cron:
+
+#- description: update orders
+#  url: /cron/update_orders
+#  schedule: every  minutes synchronized
