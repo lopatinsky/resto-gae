@@ -113,7 +113,7 @@ def get_menu(venue_id, token=None):
                 del categories[cat_id]
 
         menu = [cat[1] for cat in categories.items()]
-        memcache.set('iiko_menu_%s' % venue_id, menu)
+        memcache.set('iiko_menu_%s' % venue_id, menu, time=1*3600)
     return menu
 
 
@@ -123,7 +123,8 @@ def place_order(order, customer):
         'deliveryTerminalId': 'dd121a59-a43e-0690-0144-f47bced50158',
         'customer': {
             'name': customer.name,
-            'phone': customer.phone
+            'phone': customer.phone,
+            'id': str(customer.key.id())
         },
         'order': {
             'date': order.date.strftime('%Y-%m-%d %H:%M:%S'),
