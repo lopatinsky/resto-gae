@@ -48,12 +48,14 @@ class PlaceOrderRequestHandler(base.BaseHandler):
 
         name = self.request.get('name')
         phone = self.request.get('phone')
+        customer_id = self.request.get('customer_id')
 
-        customer = iiko.Customer.customer_by_phone(phone)
+        customer = iiko.Customer.customer_by_customer_id(customer_id)
         if not customer:
             customer = iiko.Customer()
             customer.phone = phone
             customer.name = name
+            customer.customer_id = customer_id
             customer.put()
 
         order = iiko.Order()
@@ -64,10 +66,6 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         order.customer = customer.key
 
         result = iiko.place_order(order, customer)
-
-        if not customer.customer_id:
-            customer.customer_id = result['customerId']
-            customer.put()
 
         order.order_id = result['orderId']
         order.number = result['number']

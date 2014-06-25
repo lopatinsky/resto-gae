@@ -124,7 +124,7 @@ def place_order(order, customer):
         'customer': {
             'name': customer.name,
             'phone': customer.phone,
-            'id': str(customer.key.id())
+            'id': customer.customer_id
         },
         'order': {
             'date': order.date.strftime('%Y-%m-%d %H:%M:%S'),

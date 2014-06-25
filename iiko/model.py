@@ -15,6 +15,10 @@ class Customer(ndb.Model):
     def customer_by_phone(cls, phone):
         return cls.query(cls.phone == phone).get()
 
+    @classmethod
+    def customer_by_customer_id(cls, customer_id):
+        return cls.query(cls.customer_id == customer_id).get()
+
 
 class Order(ndb.Model):
     # statuses
