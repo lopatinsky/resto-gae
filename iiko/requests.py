@@ -129,15 +129,15 @@ def place_order(order, customer):
         'order': {
             'date': order.date.strftime('%Y-%m-%d %H:%M:%S'),
             'isSelfService': '1',
-            #'paymentItems': {
-            #    'paymentType': {
-            #        'id': 'bf2fd2db-cc75-46fa-97af-4f9dc68bb34b',
-            #        'code': 333,
-            #        'name': u'Банковские карты'
-            #    },
-            #    'sum': order.sum,
-            #    'isProcessedExternally': 1
-            #},
+            'paymentItems': {
+                'paymentType': {
+                    'id': 'bf2fd2db-cc75-46fa-97af-4f9dc68bb34b',
+                    'code': 333,
+                    'name': u'Банковские карты'
+                },
+                'sum': order.sum,
+                'isProcessedExternally': 1
+            },
             'phone': customer.phone,
             'items': order.items
         }

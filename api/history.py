@@ -9,7 +9,7 @@ __author__ = 'Rustemr'
 class HistoryRequestHandler(BaseHandler):
     """ /api/history/%s/venue/%s """
     def get(self, client_id,venue_id):
-
+        client_id= client_id[:8] + '-' + client_id[8:12]+'-'+ client_id[12:16]+'-'+client_id[16:20]+'-'+client_id[20:]
         history = iiko.get_history(client_id,venue_id)
         orders_history=list()
         for order in history['historyOrders']:
