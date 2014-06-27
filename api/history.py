@@ -17,6 +17,7 @@ class HistoryRequestHandler(BaseHandler):
                             client_id[20:]
             history = iiko.get_history(client_id, venue.venue_id)
             orders_history = list()
+            self.overall_history = list()
             for order in history['historyOrders']:
 
                 items_list = list()

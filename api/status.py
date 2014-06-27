@@ -11,6 +11,7 @@ class StatusRequestHandler(BaseHandler):
     status_list = list()
 
     def get(self, json_orders):
+        self.status_list = list()
         #parce data
         arr = json.loads(json_orders)
 
