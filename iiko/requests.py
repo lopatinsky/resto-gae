@@ -168,7 +168,8 @@ def order_info1(order_id, venue_id):
     })
     return json.loads(result)
 
-def get_history(client_id,venue_id,token=None):
+
+def get_history(client_id, venue_id, token=None):
     if not token:
         token = get_access_token()
     result = __get_request('/orders/deliveryHistory', {
@@ -177,5 +178,5 @@ def get_history(client_id,venue_id,token=None):
         'customer': client_id
 
     })
-    obj= json.loads(result)
+    obj = json.loads(result)
     return obj
