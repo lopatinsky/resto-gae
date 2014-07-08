@@ -11,7 +11,6 @@ class HistoryRequestHandler(BaseHandler):
     overall_history = list()
 
     def get(self, client_id):
-
         for venue in iiko.get_venues():
             client_id = client_id[:8] + '-' + client_id[8:12] + '-' + client_id[12:16] + '-' + client_id[16:20] + '-' + \
                             client_id[20:]
@@ -44,7 +43,6 @@ class HistoryRequestHandler(BaseHandler):
                     'order_total': order['sum'],
                     'order_items': items_list
                 })
-
             self.overall_history.append({
                 'venueId': venue.venue_id,
                 'address': venue.address,
