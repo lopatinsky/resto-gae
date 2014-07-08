@@ -29,7 +29,7 @@ class Order(ndb.Model):
     CANCELED = 4
 
     date = ndb.DateTimeProperty()
-    sum = ndb.IntegerProperty(indexed=False)
+    sum = ndb.FloatProperty(indexed=False)
     items = ndb.JsonProperty()
     is_delivery = ndb.BooleanProperty(default=False)
     address = ndb.JsonProperty()
