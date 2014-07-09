@@ -10,7 +10,8 @@ class HistoryRequestHandler(BaseHandler):
     """ /api/history """
     overall_history = list()
 
-    def get(self, client_id):
+    def get(self):
+        client_id = self.request.get('client_id')
         for venue in iiko.get_venues():
             client_id = client_id[:8] + '-' + client_id[8:12] + '-' + client_id[12:16] + '-' + client_id[16:20] + '-' + \
                             client_id[20:]
