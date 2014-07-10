@@ -16,6 +16,8 @@
 #
 import webapp2
 import api
+from api.adress_input import AddressInputRequestHandler
+from api.get_info import GetInfoRequestHandler
 
 
 class MainHandler(webapp2.RequestHandler):
@@ -26,6 +28,8 @@ app = webapp2.WSGIApplication([
     ('/api/venues', api.venues.VenuesHandler),
     ('/api/venue/(.*)/menu', api.menu.MenuRequestHandler),
     ('/api/history', api.history.HistoryRequestHandler),
+    ('/api/address', AddressInputRequestHandler),
+    ('/api/get_info', GetInfoRequestHandler),
     ('/api/venue/(.*)/order/new', api.orders.PlaceOrderRequestHandler),
     ('/api/venue/(.*)/order/(.*)', api.orders.VenueOrderInfoRequestHandler),
     ('/api/order/(.*)', api.orders.OrderInfoRequestHandler),
