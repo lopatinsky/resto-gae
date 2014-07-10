@@ -17,6 +17,7 @@
 import webapp2
 import api
 from api.adress_input import AddressInputRequestHandler
+from api.check_delivery import GetDeliveryRestrictionsRequestHandler
 from api.get_info import GetInfoRequestHandler
 
 
@@ -30,6 +31,7 @@ app = webapp2.WSGIApplication([
     ('/api/history', api.history.HistoryRequestHandler),
     ('/api/address', AddressInputRequestHandler),
     ('/api/get_info', GetInfoRequestHandler),
+    ('/api/check_delivery', GetDeliveryRestrictionsRequestHandler),
     ('/api/venue/(.*)/order/new', api.orders.PlaceOrderRequestHandler),
     ('/api/venue/(.*)/order/(.*)', api.orders.VenueOrderInfoRequestHandler),
     ('/api/order/(.*)', api.orders.OrderInfoRequestHandler),

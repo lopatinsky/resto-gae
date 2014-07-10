@@ -183,6 +183,17 @@ def get_history(client_id, venue_id, token=None):
     return obj
 
 
+def get_delivery_restrictions(venue_id, token=None):
+    if not token:
+        token = get_access_token()
+    result = __get_request('/orders/getDeliveryTerminals', {
+        'access_token': token,
+        'organization': venue_id,
+    })
+    print result
+    return json.loads(result)
+
+
 def complete_address_input(address):
     url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json'
     payload = urllib.urlencode({
