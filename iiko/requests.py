@@ -9,7 +9,7 @@ import model
 __author__ = 'quiker'
 
 IIKO_BASE_URL = 'https://iiko.net:9900/api/0'
-PLACES_API_KEY = 'AIzaSyCFCmb9MGL22ulEXiHHo6hs3XANIUNrnEI'
+PLACES_API_KEY = 'AIzaSyAUCbsYSIouu5ksA35CFNl2b_DbRF4nCpg'  # 'AIzaSyCFCmb9MGL22ulEXiHHo6hs3XANIUNrnEI'
 
 
 def __get_request(api_path, params):
@@ -34,10 +34,19 @@ def get_access_token():
     return token
 
 
+def get_organization_token(org_id):
+    if not memcache.get('iiko_company'):
+        memcache.set('iiko_company', org_id, time=24*3600)
+
+
 def _fetch_access_token():
+    org_id = memcache.get('iiko_company')
+    if not org_id:
+        return ValueError('Unable to get organization')
+    company = model.Company.get_by_id(int(org_id))
     result = __get_request('/auth/access_token', {
-        'user_id': 'Empatika',
-        'user_secret': 'i33yMr7W17l0Ic3'
+        'user_id': company.name,  # 'Empatika'
+        'user_secret': company.password  # 'i33yMr7W17l0Ic3'
     })
     return result.strip('"')
 
@@ -97,6 +106,7 @@ def get_menu(venue_id, token=None):
                 'parent': cat['parentGroup'],
                 'children': [],
                 'hasChildren': False
+                #TODO: image (пункт 13 в доках) -> url
             }
 
         for cat_id, cat in categories.items():
@@ -132,7 +142,7 @@ def place_order(order, customer):
             'isSelfService': '1',
             'paymentItems': [{
                 'paymentType': {
-                    'id': 'bf2fd2db-cc75-46fa-97af-4f9dc68bb34b',
+                    'id': 'bf2fd2db-cc75-46fa-97af-4f9dc68bb34b',  #
                     'code': 333,
                     'name': u'Банковские карты'
                 },
@@ -186,7 +196,7 @@ def get_history(client_id, venue_id, token=None):
 def get_delivery_restrictions(venue_id, token=None):
     if not token:
         token = get_access_token()
-    result = __get_request('/orders/getDeliveryTerminals', {
+    result = __get_request('/deliverySettings/getDeliveryRestrictions', {
         'access_token': token,
         'organization': venue_id,
     })

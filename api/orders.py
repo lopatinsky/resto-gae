@@ -64,6 +64,8 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         order.venue_id = venue_id
         order.items = json.loads(self.request.get('items'))
         order.customer = customer.key
+        #TODO: property delivery_type (deliveryType)
+        #TODO: payment_type
 
         result = iiko.place_order(order, customer)
 

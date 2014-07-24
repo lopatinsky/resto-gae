@@ -19,6 +19,7 @@ import api
 from api.adress_input import AddressInputRequestHandler
 from api.check_delivery import GetDeliveryRestrictionsRequestHandler
 from api.get_info import GetInfoRequestHandler
+from api.company import AddCompanyRequestHandler
 
 
 class MainHandler(webapp2.RequestHandler):
@@ -26,7 +27,7 @@ class MainHandler(webapp2.RequestHandler):
         self.response.write('Hello world!')
 
 app = webapp2.WSGIApplication([
-    ('/api/venues', api.venues.VenuesHandler),
+    ('/api/venues/(.*)', api.venues.VenuesHandler),
     ('/api/venue/(.*)/menu', api.menu.MenuRequestHandler),
     ('/api/history', api.history.HistoryRequestHandler),
     ('/api/address', AddressInputRequestHandler),
@@ -36,5 +37,6 @@ app = webapp2.WSGIApplication([
     ('/api/venue/(.*)/order/(.*)', api.orders.VenueOrderInfoRequestHandler),
     ('/api/order/(.*)', api.orders.OrderInfoRequestHandler),
     ('/api/status', api.status.StatusRequestHandler),
+    ('/api/add_company', AddCompanyRequestHandler),
     ('/', MainHandler)
 ], debug=True)

@@ -115,3 +115,11 @@ class Venue(ndb.Model):
             'logoUrl': self.logo_url,
             'phone': self.phone
         }
+
+
+class Company(ndb.Model):
+    name = ndb.StringProperty()
+    password = ndb.StringProperty()
+
+    def get_id(self):
+        return self.key.id()
