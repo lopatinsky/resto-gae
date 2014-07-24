@@ -91,7 +91,9 @@ def get_menu(venue_id, token=None):
                 'name': product['name'].capitalize(),
                 'productId': product['id'],
                 'weight': product['weight'],
-                'code': product['code']
+                'code': product['code'],
+                'images': [img['imageUrl'].replace('\\', '') for img in product.get('images', [])],
+                'description': product['description']
             })
 
         categories = dict()
