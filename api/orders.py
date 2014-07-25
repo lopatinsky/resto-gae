@@ -49,14 +49,17 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         name = self.request.get('name')
         phone = self.request.get('phone')
         customer_id = self.request.get('customer_id')
+        delivery_type = self.request.get('deliveryType')
 
         customer = iiko.Customer.customer_by_customer_id(customer_id)
         if not customer:
             customer = iiko.Customer()
             customer.phone = phone
             customer.name = name
-            customer.customer_id = customer_id
+            if customer_id:
+                customer.customer_id = customer_id
             customer.put()
+
 
         order = iiko.Order()
         order.sum = float(self.request.get('sum'))
@@ -64,10 +67,13 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         order.venue_id = venue_id
         order.items = json.loads(self.request.get('items'))
         order.customer = customer.key
-        #TODO: property delivery_type (deliveryType)
+        order.delivery_type = delivery_type
         #TODO: payment_type
 
         result = iiko.place_order(order, customer)
+        if not customer_id:
+            customer.customer_id = result['customerId']
+            customer.put()
 
         order.order_id = result['orderId']
         order.number = result['number']

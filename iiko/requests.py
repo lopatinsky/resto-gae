@@ -26,23 +26,22 @@ def __post_request(api_path, params):
     return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=payload, deadline=30, validate_certificate=False).content
 
 
-def get_access_token():
-    token = memcache.get('iiko_token')
+def get_access_token(org_id):
+    token = memcache.get('iiko_token_%s' % org_id)
     if not token:
-        token = _fetch_access_token()
-        memcache.set('iiko_token', token, time=10*60)
+        token = _fetch_access_token(org_id)
+        memcache.set('iiko_token_%s' % org_id, token, time=10*60)
     return token
 
 
 def get_organization_token(org_id):
-    if not memcache.get('iiko_company'):
-        memcache.set('iiko_company', org_id, time=24*3600)
+    memcache.set('iiko_company_%s' % org_id, org_id, time=24*3600)
 
 
-def _fetch_access_token():
-    org_id = memcache.get('iiko_company')
-    if not org_id:
-        return ValueError('Unable to get organization')
+def _fetch_access_token(org_id):
+    organisation_id = memcache.get('iiko_company_%s' % org_id)
+    if not organisation_id:
+        get_organization_token(organisation_id)
     company = model.Company.get_by_id(int(org_id))
     result = __get_request('/auth/access_token', {
         'user_id': company.name,  # 'Empatika'
@@ -51,27 +50,28 @@ def _fetch_access_token():
     return result.strip('"')
 
 
-def get_venues(token=None):
-    venues = memcache.get('iiko_venues')
+def get_venues(org_id, token=None):
+    venues = memcache.get('iiko_venues_%s' % org_id)
     if not venues:
         if not token:
-            token = get_access_token()
+            token = get_access_token(org_id)
         result = __get_request('/organization/list', {
             'access_token': token
         })
         obj = json.loads(result)
         venues = list()
         for v in obj:
-            venues.append(model.Venue.venue_with_dict(v))
-        memcache.set('iiko_venues', venues, time=30*60)
+            venues.append(model.Venue.venue_with_dict(v, org_id))
+        memcache.set('iiko_venues_%s' % org_id, venues, time=30*60)
     return venues
 
 
 def get_menu(venue_id, token=None):
     menu = memcache.get('iiko_menu_%s' % venue_id)
+    org_id = model.Venue.venue_by_id(venue_id).company_id
     if not menu:
         if not token:
-            token = get_access_token()
+            token = get_access_token(org_id)
         result = __get_request('/nomenclature/%s' % venue_id, {
             'access_token': token
         })
@@ -137,11 +137,10 @@ def place_order(order, customer):
         'customer': {
             'name': customer.name,
             'phone': customer.phone,
-            'id': customer.customer_id
         },
         'order': {
             'date': order.date.strftime('%Y-%m-%d %H:%M:%S'),
-            'isSelfService': '1',
+            'isSelfService': order.delivery_type,
             'paymentItems': [{
                 'paymentType': {
                     'id': 'bf2fd2db-cc75-46fa-97af-4f9dc68bb34b',  #
@@ -155,16 +154,21 @@ def place_order(order, customer):
             'items': order.items
         }
     }
+    customer_id = customer.customer_id
+    if customer_id:
+        obj['customer']['id'] = customer_id
     if order.is_delivery:
         obj['order']['address'] = order.address
-    result = __post_request('/orders/add?request_timeout=30&access_token=%s' % get_access_token(), obj)
+    org_id = model.Venue.venue_by_id(order.venue_id).company_id
+    result = __post_request('/orders/add?request_timeout=30&access_token=%s' % get_access_token(org_id), obj)
     logging.info(result)
     return json.loads(result)
 
 
 def order_info(order):
+    org_id = model.Venue.venue_by_id(order.venue_id).company_id
     result = __get_request('/orders/info', {
-        'access_token': get_access_token(),
+        'access_token': get_access_token(org_id),
         'organization': order.venue_id,
         'order': order.order_id,
         'request_timeout': '30'
@@ -173,8 +177,9 @@ def order_info(order):
 
 
 def order_info1(order_id, venue_id):
+    org_id = model.Venue.venue_by_id(venue_id).company_id
     result = __get_request('/orders/info', {
-        'access_token': get_access_token(),
+        'access_token': get_access_token(org_id),
         'organization': venue_id,
         'order': order_id,
         'request_timeout': '30'
@@ -183,8 +188,9 @@ def order_info1(order_id, venue_id):
 
 
 def get_history(client_id, venue_id, token=None):
+    org_id = model.Venue.venue_by_id(venue_id).company_id
     if not token:
-        token = get_access_token()
+        token = get_access_token(org_id)
     result = __get_request('/orders/deliveryHistory', {
         'access_token': token,
         'organization': venue_id,
@@ -196,8 +202,9 @@ def get_history(client_id, venue_id, token=None):
 
 
 def get_delivery_restrictions(venue_id, token=None):
+    org_id = model.Venue.venue_by_id(venue_id).company_id
     if not token:
-        token = get_access_token()
+        token = get_access_token(org_id)
     result = __get_request('/deliverySettings/getDeliveryRestrictions', {
         'access_token': token,
         'organization': venue_id,

@@ -1,6 +1,6 @@
 import logging
 from api.base import BaseHandler
-from iiko.model import Order
+from iiko.model import Order, Venue
 import iiko
 import json
 
@@ -25,7 +25,8 @@ class StatusRequestHandler(BaseHandler):
             order_id = item['order_id']
 
             order_info = iiko.order_info1(order_id, venue_id)
-            venues = iiko.get_venues()
+            org_id = Venue.venue_by_id(venue_id).company_id
+            venues = iiko.get_venues(org_id)
             print venues
             address = ""
             name = ""

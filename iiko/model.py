@@ -38,6 +38,7 @@ class Order(ndb.Model):
     order_id = ndb.StringProperty()
     number = ndb.StringProperty()
     status = ndb.IntegerProperty()
+    delivery_type = ndb.IntegerProperty()
 
     def set_status(self, status):
         if status.find(u'Не подтверждена') >= 0:
@@ -75,6 +76,7 @@ class Venue(ndb.Model):
     latitude = ndb.FloatProperty(indexed=False)
     longitude = ndb.FloatProperty(indexed=False)
     source = ndb.StringProperty()
+    company_id = ndb.IntegerProperty()
 
     @classmethod
     def venue_by_id(cls, venue_id):
@@ -84,7 +86,7 @@ class Venue(ndb.Model):
         return venue
 
     @classmethod
-    def venue_with_dict(cls, dict_venue):
+    def venue_with_dict(cls, dict_venue, org_id):
         venue = cls.venue_by_id(dict_venue['id'])
         should_put = False
         if not venue:
@@ -93,6 +95,7 @@ class Venue(ndb.Model):
             venue.venue_id = dict_venue['id']
             venue.name = dict_venue['name']
             venue.source = 'iiko'
+            venue.company_id = org_id
         venue.logo_url = dict_venue['logo']
         venue.phone = dict_venue['contact'].get('phone')
         address = dict_venue['contact']['location']
@@ -100,6 +103,9 @@ class Venue(ndb.Model):
             should_put = True
             venue.address = address
             venue.latitude, venue.longitude = geocoding.get_address_coordinates(address)
+        if not venue.company_id:
+            should_put = True
+            venue.company_id = org_id
         if should_put:
             venue.put()
             memcache.set('venue_%s' % venue.venue_id, venue, time=30*60)
