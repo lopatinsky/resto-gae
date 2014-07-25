@@ -107,8 +107,8 @@ def get_menu(venue_id, token=None):
                 'products': products,
                 'parent': cat['parentGroup'],
                 'children': [],
-                'hasChildren': False
-                #TODO: image (пункт 13 в доках) -> url
+                'hasChildren': False,
+                'image': cat['images']['imageUrl']
             }
 
         for cat_id, cat in categories.items():
