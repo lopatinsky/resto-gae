@@ -72,7 +72,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
 
         result = iiko.place_order(order, customer)
         if not customer_id:
-            customer.customer_id = result['customerId']
+            customer.customer_id = result['customer']['id']
             customer.put()
 
         order.order_id = result['orderId']
