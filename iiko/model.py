@@ -38,7 +38,7 @@ class Order(ndb.Model):
     order_id = ndb.StringProperty()
     number = ndb.StringProperty()
     status = ndb.IntegerProperty()
-    delivery_type = ndb.IntegerProperty()
+    delivery_type = ndb.StringProperty()
 
     def set_status(self, status):
         if status.find(u'Не подтверждена') >= 0:

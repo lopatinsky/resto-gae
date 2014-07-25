@@ -66,6 +66,19 @@ def get_venues(org_id, token=None):
     return venues
 
 
+def get_all_items_in_modifier(result, modif_id, min_amount):
+    res = []
+    for item in result['products']:
+        if item['groupId']:
+            if item['groupId'] == modif_id and min_amount != 0:
+                res.append({
+                    'id': item['id'],
+                    'name': item['name'],
+                    'amount': min_amount
+                })
+    return res
+
+
 def get_menu(venue_id, token=None):
     menu = memcache.get('iiko_menu_%s' % venue_id)
     org_id = model.Venue.venue_by_id(venue_id).company_id
@@ -86,6 +99,12 @@ def get_menu(venue_id, token=None):
             if not lst:
                 lst = list()
                 product_by_categories[product['parentGroup']] = lst
+            grp_modifiers = list()
+            if product['groupModifiers']:
+                for modif in product['groupModifiers']:
+                    items = get_all_items_in_modifier(obj, modif['modifierId'], modif['minAmount'])
+                    if items:
+                        grp_modifiers.append(items)
             lst.append({
                 'price': product['price'],
                 'name': product['name'].capitalize(),
@@ -93,7 +112,8 @@ def get_menu(venue_id, token=None):
                 'weight': product['weight'],
                 'code': product['code'],
                 'images': [img['imageUrl'].replace('\\', '') for img in product.get('images', [])],
-                'description': product['description']
+                'description': product['description'],
+                'modifiers': grp_modifiers
             })
 
         categories = dict()
@@ -108,7 +128,7 @@ def get_menu(venue_id, token=None):
                 'parent': cat['parentGroup'],
                 'children': [],
                 'hasChildren': False,
-                'image': cat['images']['imageUrl']
+                'image': cat['images']
             }
 
         for cat_id, cat in categories.items():
