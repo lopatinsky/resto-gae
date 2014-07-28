@@ -38,7 +38,6 @@ class Order(ndb.Model):
     order_id = ndb.StringProperty()
     number = ndb.StringProperty()
     status = ndb.IntegerProperty()
-    delivery_type = ndb.StringProperty()
 
     def set_status(self, status):
         if status.find(u'Не подтверждена') >= 0:
@@ -57,7 +56,7 @@ class Order(ndb.Model):
         return cls.query(cls.order_id == order_id).get()
 
     def to_dict(self):
-        return {
+        serialized =  {
             'orderId': self.order_id,
             'number': self.number,
             'status': self.status,
@@ -65,6 +64,8 @@ class Order(ndb.Model):
             'items': self.items,
             'venueId': self.venue_id
         }
+
+        return serialized
 
 
 class Venue(ndb.Model):

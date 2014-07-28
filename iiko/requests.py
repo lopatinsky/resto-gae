@@ -23,6 +23,7 @@ def __get_request(api_path, params):
 def __post_request(api_path, params):
     url = '%s%s' % (IIKO_BASE_URL, api_path)
     payload = json.dumps(params)
+    logging.info(payload)
     return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=payload, deadline=30, validate_certificate=False).content
 
 
@@ -68,6 +69,7 @@ def get_venues(org_id, token=None):
 
 def get_all_items_in_modifier(result, modif_id, min_amount):
     res = []
+    name = ''
     for item in result['products']:
         if item['groupId']:
             if item['groupId'] == modif_id and min_amount != 0:
@@ -76,7 +78,14 @@ def get_all_items_in_modifier(result, modif_id, min_amount):
                     'name': item['name'],
                     'amount': min_amount
                 })
-    return res
+    for item in result['groups']:
+        if item['id'] == modif_id:
+            name = item['name']
+            break
+    return {
+        'items': res,
+        'name': name
+    }
 
 
 def get_menu(venue_id, token=None):
@@ -160,7 +169,7 @@ def place_order(order, customer):
         },
         'order': {
             'date': order.date.strftime('%Y-%m-%d %H:%M:%S'),
-            'isSelfService': order.delivery_type,
+            'isSelfService': 0 if order.is_delivery else 1,
             'paymentItems': [{
                 'paymentType': {
                     'id': 'bf2fd2db-cc75-46fa-97af-4f9dc68bb34b',  #
@@ -180,6 +189,10 @@ def place_order(order, customer):
     if order.is_delivery:
         obj['order']['address'] = order.address
     org_id = model.Venue.venue_by_id(order.venue_id).company_id
+    if org_id==5717119551406080:
+        del obj['order']['paymentItems']
+        del obj['deliveryTerminalId']
+        
     result = __post_request('/orders/add?request_timeout=30&access_token=%s' % get_access_token(org_id), obj)
     logging.info(result)
     return json.loads(result)
@@ -240,7 +253,7 @@ def complete_address_input(address):
         'sensor': 'false',
         'input': address.encode('utf-8'),
         'types': 'geocode',
-        'language': 'en'
+        'language': 'ru'
     })
     result = urlfetch.fetch(url='%s?%s' % (url, payload), method=urlfetch.GET, deadline=30)
     if result.status_code != 200 or not result.content:
