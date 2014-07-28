@@ -20,6 +20,7 @@ from api.adress_input import AddressInputRequestHandler
 from api.check_delivery import GetDeliveryRestrictionsRequestHandler
 from api.get_info import GetInfoRequestHandler
 from api.company import AddCompanyRequestHandler
+from api.payment_type import GetPaymentType
 
 
 class MainHandler(webapp2.RequestHandler):
@@ -38,5 +39,6 @@ app = webapp2.WSGIApplication([
     ('/api/order/(.*)', api.orders.OrderInfoRequestHandler),
     ('/api/status', api.status.StatusRequestHandler),
     ('/api/add_company', AddCompanyRequestHandler),
+    ('/api/payment_types/(.*)', GetPaymentType),
     ('/', MainHandler)
 ], debug=True)

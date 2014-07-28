@@ -23,8 +23,9 @@ def __get_request(api_path, params):
 def __post_request(api_path, params):
     url = '%s%s' % (IIKO_BASE_URL, api_path)
     payload = json.dumps(params)
-    return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=payload, deadline=30, validate_certificate=False).content
-
+    data = urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=payload, deadline=30, validate_certificate=False).content
+    logging.info(data)
+    return data
 
 def get_access_token(org_id):
     token = memcache.get('iiko_token_%s' % org_id)
@@ -68,6 +69,7 @@ def get_venues(org_id, token=None):
 
 def get_all_items_in_modifier(result, modif_id, min_amount):
     res = []
+    name = ''
     for item in result['products']:
         if item['groupId']:
             if item['groupId'] == modif_id and min_amount != 0:
@@ -76,7 +78,15 @@ def get_all_items_in_modifier(result, modif_id, min_amount):
                     'name': item['name'],
                     'amount': min_amount
                 })
-    return res
+    for item in result['groups']:
+        if item['id'] == modif_id:
+            name = item['name']
+            break
+    return {
+        'items': res,
+        'name': name
+    }
+
 
 
 def get_menu(venue_id, token=None):
@@ -151,6 +161,7 @@ def get_menu(venue_id, token=None):
 
 
 def place_order(order, customer):
+
     obj = {
         'restaurantId': order.venue_id,
         'deliveryTerminalId': 'dd121a59-a43e-0690-0144-f47bced50158',
@@ -160,7 +171,7 @@ def place_order(order, customer):
         },
         'order': {
             'date': order.date.strftime('%Y-%m-%d %H:%M:%S'),
-            'isSelfService': order.delivery_type,
+            'isSelfService': 0 if order.is_delivery else 1,
             'paymentItems': [{
                 'paymentType': {
                     'id': 'bf2fd2db-cc75-46fa-97af-4f9dc68bb34b',  #
@@ -174,12 +185,15 @@ def place_order(order, customer):
             'items': order.items
         }
     }
+    logging.info(obj)
     customer_id = customer.customer_id
     if customer_id:
         obj['customer']['id'] = customer_id
     if order.is_delivery:
         obj['order']['address'] = order.address
     org_id = model.Venue.venue_by_id(order.venue_id).company_id
+    # pre_check = __post_request('/orders/checkCreate?access_token=%s&request_timeout=30' % get_access_token(org_id), obj)
+    # logging.info(pre_check)
     result = __post_request('/orders/add?request_timeout=30&access_token=%s' % get_access_token(org_id), obj)
     logging.info(result)
     return json.loads(result)
@@ -215,7 +229,18 @@ def get_history(client_id, venue_id, token=None):
         'access_token': token,
         'organization': venue_id,
         'customer': client_id
+    })
+    obj = json.loads(result)
+    return obj
 
+
+def get_payment_types(venue_id, token=None):
+    org_id = model.Venue.venue_by_id(venue_id).company_id
+    if not token:
+        token = get_access_token(org_id)
+    result = __get_request('/paymentTypes/getPaymentTypes', {
+        'access_token': token,
+        'organization': venue_id
     })
     obj = json.loads(result)
     return obj
