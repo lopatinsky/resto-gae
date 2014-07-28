@@ -56,13 +56,14 @@ class Order(ndb.Model):
         return cls.query(cls.order_id == order_id).get()
 
     def to_dict(self):
-        serialized =  {
+        serialized = {
             'orderId': self.order_id,
             'number': self.number,
             'status': self.status,
             'sum': self.sum,
             'items': self.items,
-            'venueId': self.venue_id
+            'venueId': self.venue_id,
+            'address': self.address
         }
 
         return serialized

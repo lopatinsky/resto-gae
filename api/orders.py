@@ -78,6 +78,8 @@ class PlaceOrderRequestHandler(base.BaseHandler):
                 self.abort(400)
 
         result = iiko.place_order(order, customer)
+        if 'error' in result.keys():
+            return result
         if not customer_id:
             customer.customer_id = result['customerId']
             customer.put()
@@ -89,8 +91,8 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         order.put()
 
         resp = {
-             'customerId': customer.customer_id,
-             'order': order.to_dict()
+            'customerId': customer.customer_id,
+            'order': order.to_dict()
         }
 
         """

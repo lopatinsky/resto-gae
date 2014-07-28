@@ -26,6 +26,7 @@ def __post_request(api_path, params):
     logging.info(payload)
     return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=payload, deadline=30, validate_certificate=False).content
 
+
 def get_access_token(org_id):
     token = memcache.get('iiko_token_%s' % org_id)
     if not token:
@@ -87,6 +88,15 @@ def get_all_items_in_modifier(result, modif_id, min_amount):
     }
 
 
+def get_stop_list(venue_id):
+    org_id = model.Venue.venue_by_id(venue_id).company_id
+    result = __get_request('/stopLists/getDeliveryStopList', {
+        'access_token': get_access_token(org_id),
+        'organization': venue_id,
+    })
+    return json.loads(result)
+
+
 def get_menu(venue_id, token=None):
     menu = memcache.get('iiko_menu_%s' % venue_id)
     org_id = model.Venue.venue_by_id(venue_id).company_id
@@ -118,6 +128,10 @@ def get_menu(venue_id, token=None):
                 'name': product['name'].capitalize(),
                 'productId': product['id'],
                 'weight': product['weight'],
+                'carbohydrateAmount': product['carbohydrateAmount'],
+                'energyAmount': product['energyAmount'],
+                'fatAmount': product['fatAmount'],
+                'fiberAmount': product['fiberAmount'],
                 'code': product['code'],
                 'images': [img['imageUrl'].replace('\\', '') for img in product.get('images', [])],
                 'description': product['description'],
@@ -158,6 +172,14 @@ def get_menu(venue_id, token=None):
     return menu
 
 
+def check_food(venue_id, items):
+    stop_list = get_stop_list(venue_id)
+    for item in stop_list['stopList']:
+        if item['productId'] in [x['id'] for x in items]:
+            return True
+    return False
+
+
 def place_order(order, customer):
 
     obj = {
@@ -183,15 +205,20 @@ def place_order(order, customer):
             'items': order.items
         }
     }
-    logging.info(obj)
+
     customer_id = customer.customer_id
     if customer_id:
         obj['customer']['id'] = customer_id
     if order.is_delivery:
         obj['order']['address'] = order.address
     org_id = model.Venue.venue_by_id(order.venue_id).company_id
-    # pre_check = __post_request('/orders/checkCreate?access_token=%s&request_timeout=30' % get_access_token(org_id), obj)
-    # logging.info(pre_check)
+    if check_food(order.venue_id, order.items):
+        return json.loads({
+            'error': "Item in items doesn't exist",
+            'code': 404
+        })
+    pre_check = __post_request('/orders/checkCreate?access_token=%s&request_timeout=30' % get_access_token(org_id), obj)
+    logging.info(pre_check)
     if org_id == 5717119551406080:
         del obj['order']['paymentItems']
         del obj['deliveryTerminalId']
