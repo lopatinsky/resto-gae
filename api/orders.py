@@ -77,7 +77,6 @@ class PlaceOrderRequestHandler(base.BaseHandler):
             except:
                 self.abort(400)
 
-
         result = iiko.place_order(order, customer)
         if not customer_id:
             customer.customer_id = result['customerId']
@@ -115,7 +114,6 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         }
         """
         self.render_json(resp)
-
 
 
 class VenueOrderInfoRequestHandler(base.BaseHandler):

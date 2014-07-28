@@ -23,9 +23,8 @@ def __get_request(api_path, params):
 def __post_request(api_path, params):
     url = '%s%s' % (IIKO_BASE_URL, api_path)
     payload = json.dumps(params)
-    data = urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=payload, deadline=30, validate_certificate=False).content
-    logging.info(data)
-    return data
+    logging.info(payload)
+    return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=payload, deadline=30, validate_certificate=False).content
 
 def get_access_token(org_id):
     token = memcache.get('iiko_token_%s' % org_id)
@@ -86,7 +85,6 @@ def get_all_items_in_modifier(result, modif_id, min_amount):
         'items': res,
         'name': name
     }
-
 
 
 def get_menu(venue_id, token=None):
@@ -194,6 +192,9 @@ def place_order(order, customer):
     org_id = model.Venue.venue_by_id(order.venue_id).company_id
     # pre_check = __post_request('/orders/checkCreate?access_token=%s&request_timeout=30' % get_access_token(org_id), obj)
     # logging.info(pre_check)
+    if org_id == 5717119551406080:
+        del obj['order']['paymentItems']
+        del obj['deliveryTerminalId']
     result = __post_request('/orders/add?request_timeout=30&access_token=%s' % get_access_token(org_id), obj)
     logging.info(result)
     return json.loads(result)
@@ -265,7 +266,7 @@ def complete_address_input(address):
         'sensor': 'false',
         'input': address.encode('utf-8'),
         'types': 'geocode',
-        'language': 'en'
+        'language': 'ru'
     })
     result = urlfetch.fetch(url='%s?%s' % (url, payload), method=urlfetch.GET, deadline=30)
     if result.status_code != 200 or not result.content:
