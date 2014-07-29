@@ -121,7 +121,7 @@ def get_menu(venue_id, token=None):
             if product['groupModifiers']:
                 for modif in product['groupModifiers']:
                     items = get_all_items_in_modifier(obj, modif['modifierId'], modif['minAmount'])
-                    if items:
+                    if items['items']:
                         grp_modifiers.append(items)
             lst.append({
                 'price': product['price'],
