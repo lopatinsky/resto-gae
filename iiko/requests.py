@@ -202,7 +202,7 @@ def place_order(order, customer):
             'isSelfService': 0 if order.is_delivery else 1,
             'paymentItems': [{
                 'paymentType': {
-                    'id': 'bf2fd2db-cc75-46fa-97af-4f9dc68bb34b',  #
+                    'id': 'bf2fd2db-cc75-46fa-97af-4f9dc68bb34b',
                     'code': 333,
                     'name': u'Банковские карты'
                 },
@@ -220,11 +220,11 @@ def place_order(order, customer):
     if order.is_delivery:
         obj['order']['address'] = order.address
     org_id = model.Venue.venue_by_id(order.venue_id).company_id
-    # if check_food(order.venue_id, order.items):
-    #     return json.loads({
-    #         'error': "Item in items doesn't exist",
-    #         'code': 404
-    #     })
+    if check_food(order.venue_id, order.items):
+        return json.loads({
+            'error': "Item in items doesn't exist",
+            'code': 404
+        })
     pre_check = __post_request('/orders/checkCreate?access_token=%s&request_timeout=30' % get_access_token(org_id), obj)
     logging.info(pre_check)
     if org_id == 5717119551406080:
