@@ -4,6 +4,7 @@ import json
 import logging
 import urllib
 from google.appengine.api import memcache, urlfetch
+import operator
 import model
 
 __author__ = 'quiker'
@@ -150,7 +151,8 @@ def get_menu(venue_id, token=None):
                 'parent': cat['parentGroup'],
                 'children': [],
                 'hasChildren': False,
-                'image': cat['images']
+                'image': cat['images'],
+                'order': cat['order']
             }
 
         for cat_id, cat in categories.items():
@@ -167,14 +169,20 @@ def get_menu(venue_id, token=None):
             if cat_parent_id:
                 del categories[cat_id]
 
+        for cat_id, cat in categories.items():
+            children = cat.get('children')
+            if children:
+                cat['children'] = sorted(children, key=operator.itemgetter('order'), reverse=True)
+
         menu = [cat[1] for cat in categories.items()]
         memcache.set('iiko_menu_%s' % venue_id, menu, time=1*3600)
-    return menu
+    return sorted(menu, key=operator.itemgetter('order'), reverse=True)
 
 
 def check_food(venue_id, items):
     stop_list = get_stop_list(venue_id)
-    for item in stop_list['stopList']:
+    print stop_list['stopList'][0]
+    for item in stop_list['stopList'][0]['items']:
         if item['productId'] in [x['id'] for x in items]:
             return True
     return False

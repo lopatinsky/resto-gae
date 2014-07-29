@@ -1,4 +1,5 @@
 import json
+import logging
 import webapp2
 from api.base import BaseHandler
 import iiko
@@ -18,7 +19,7 @@ class HistoryRequestHandler(BaseHandler):
             #                 client_id[20:]
             history = iiko.get_history(client_id, venue.venue_id)
             orders_history = list()
-            if not history:
+            if not 'historyOrders' in history or not history['historyOrders']:
                 orders_history.append({
                     'client_id': client_id,
                     'orders_quantity': 0
@@ -37,6 +38,7 @@ class HistoryRequestHandler(BaseHandler):
                         })
 
                     current_time = iiko.order_info1(order['orderId'], venue.venue_id)['createdTime']
+                    logging.info(current_time)
 
                     orders_history.append({
                         'self': order['isSelfService'],
