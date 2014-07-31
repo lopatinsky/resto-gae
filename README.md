@@ -255,3 +255,98 @@ Parameters:
     "organization_id": organization_id, // int
 }
 ```
+
+### Add new payment type
+
+POST `/api/payment_type/add`
+
+Parameters:
+
+* `name (string)`
+* `venue_id (string)`
+* `type_id (int)`
+* `iiko_uuid (string)`
+* `available (bool)`
+
+```
+#!js
+{
+    "venue_id": venue_id,   // string
+    "payment_type": type_id // int
+}
+```
+
+### Edit payment type
+
+POST `/api/payment_type/edit`
+
+Parameters:
+
+* `name (string)`
+* `type_id (int)`
+* `iiko_uuid (string)`
+* `available (bool)`
+
+```
+#!js
+{
+    "error": error,     // string
+    "code": status code // int
+}
+```
+
+### Get payment types
+
+GET `/api/payment_type/<venue_id>`
+
+No parameters
+
+```
+#!js
+{
+    "types": [
+        "type_id": type_id,     // int
+        "name": name,           // string
+        "iiko_uuid": iiko_uuid, // string
+        "available": available  // bool
+    ]
+}
+```
+
+### Get delivery types
+
+GET `/api/delivery_types`
+
+Parameters:
+
+* `organization_id (string)`
+
+```
+#!js
+{
+    "types": [
+        "type_id": type_id,     // int
+        "name": name,           // string
+        "available": available  // bool
+    ]
+}
+```
+
+### Add new delivery type
+
+POST `/api/delivery_type/add`
+
+Parameters:
+
+* `organization_id (string)`
+* `venue_id (string)`
+* `type_id (int)`
+* `available (bool)`
+
+```
+#!js
+{
+    "venue_id": venue_id,   // string
+    "payment_type": type_id // int
+}
+```
