@@ -34,6 +34,7 @@ class HistoryRequestHandler(BaseHandler):
                             'item_sum': order_items['sum'],
                             'item_amount': order_items['amount'],
                             'item_title': order_items['name'],
+                            'item_modifiers':order_items['modifiers'],
                         })
 
                     current_time = iiko.order_info1(order['orderId'], venue.venue_id)['createdTime']
@@ -49,7 +50,8 @@ class HistoryRequestHandler(BaseHandler):
                         'order_phone': order['phone'],
                         'order_discount': order['discount'],
                         'order_total': order['sum'],
-                        'order_items': items_list
+                        'order_items': items_list, 
+                    
                     })
             self.overall_history.append({
                 'venueId': venue.venue_id,
