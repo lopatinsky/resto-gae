@@ -1,11 +1,11 @@
 # coding=utf-8
-import datetime
+from datetime import datetime
 import json
 import logging
 import urllib
 from google.appengine.api import memcache, urlfetch
 import operator
-import model
+from iiko.model import Venue, Company
 
 __author__ = 'quiker'
 
@@ -44,7 +44,7 @@ def _fetch_access_token(org_id):
     organisation_id = memcache.get('iiko_company_%s' % org_id)
     if not organisation_id:
         get_organization_token(organisation_id)
-    company = model.Company.get_by_id(int(org_id))
+    company = Company.get_by_id(int(org_id))
     result = __get_request('/auth/access_token', {
         'user_id': company.name,  # 'Empatika'
         'user_secret': company.password  # 'i33yMr7W17l0Ic3'
@@ -60,10 +60,11 @@ def get_venues(org_id, token=None):
         result = __get_request('/organization/list', {
             'access_token': token
         })
+        logging.info(result)
         obj = json.loads(result)
         venues = list()
         for v in obj:
-            venues.append(model.Venue.venue_with_dict(v, org_id))
+            venues.append(Venue.venue_with_dict(v, org_id))
         memcache.set('iiko_venues_%s' % org_id, venues, time=30*60)
     return venues
 
@@ -71,26 +72,30 @@ def get_venues(org_id, token=None):
 def get_all_items_in_modifier(result, modif_id, min_amount):
     res = []
     name = ''
+    group_id = ''
     for item in result['products']:
         if item['groupId']:
             if item['groupId'] == modif_id and min_amount != 0:
                 res.append({
                     'id': item['id'],
                     'name': item['name'],
-                    'amount': min_amount
+                    'amount': min_amount,
                 })
+
     for item in result['groups']:
         if item['id'] == modif_id:
             name = item['name']
+            group_id = item['id']
             break
     return {
         'items': res,
-        'name': name
+        'name': name,
+        'groupId': group_id
     }
 
 
 def get_stop_list(venue_id):
-    org_id = model.Venue.venue_by_id(venue_id).company_id
+    org_id = Venue.venue_by_id(venue_id).company_id
     result = __get_request('/stopLists/getDeliveryStopList', {
         'access_token': get_access_token(org_id),
         'organization': venue_id,
@@ -98,9 +103,72 @@ def get_stop_list(venue_id):
     return json.loads(result)
 
 
+def create_order_with_bonus(venue_id, order):
+    org_id = Venue.venue_by_id(venue_id).company_id
+    result = __post_request('/orders/create_order/access_token=%s&request_timeout=30&organization=%s' %
+                            (get_access_token(org_id), venue_id), order)
+    return json.loads(result)
+
+
+def get_orders_with_payments(venue_id):
+    org_id = Venue.venue_by_id(venue_id).company_id
+    result = __get_request('/orders/get_orders_with_payments', {
+        'access_token': get_access_token(org_id),
+        'organization': venue_id,
+        'from': datetime.fromtimestamp(1406550552)  # TODO: timestamp
+    })
+    return json.loads(result)
+
+
+def update_bonus_order(venue_id, order):
+    org_id = Venue.venue_by_id(venue_id).company_id
+    result = __post_request('/orders/update_order/access_token=%s&request_timeout=30&organization=%s' %
+                            (get_access_token(org_id), venue_id), order)
+    return json.loads(result)
+
+
+def get_iiko_net_payments(venue_id, order_id):
+    org_id = Venue.venue_by_id(venue_id).company_id
+    result = __get_request('/orders/get_iiko_net_payment', {
+        'access_token': get_access_token(org_id),
+        'organization': venue_id,
+        'order_id': order_id
+    })
+    return json.loads(result)
+
+
+def pay_order(venue_id, payment_sum, order):
+    org_id = Venue.venue_by_id(venue_id).company_id
+    result = __post_request('/orders/pay_order/access_token=%s&'
+                            'request_timeout=30&organization=%s&payment_sum=%d' %
+                            (get_access_token(org_id), venue_id, payment_sum), order)
+    return json.loads(result)
+
+
+def confirm_order(venue_id, sum_for_bonus, order_id):
+    org_id = Venue.venue_by_id(venue_id).company_id
+    result = __get_request('/orders/confirm_order', {
+        'access_token': get_access_token(org_id),
+        'organization': venue_id,
+        'order_id': order_id,
+        'sum_for_bonus': sum_for_bonus
+    })
+    return json.loads(result)
+
+
+def abort_order(venue_id, order_id):
+    org_id = Venue.venue_by_id(venue_id).company_id
+    result = __get_request('/orders/abort_order', {
+        'access_token': get_access_token(org_id),
+        'organization': venue_id,
+        'order_id': order_id,
+    })
+    return json.loads(result)
+
+
 def get_menu(venue_id, token=None):
     menu = memcache.get('iiko_menu_%s' % venue_id)
-    org_id = model.Venue.venue_by_id(venue_id).company_id
+    org_id = Venue.venue_by_id(venue_id).company_id
     if not menu:
         if not token:
             token = get_access_token(org_id)
@@ -219,14 +287,20 @@ def place_order(order, customer):
         obj['customer']['id'] = customer_id
     if order.is_delivery:
         obj['order']['address'] = order.address
-    org_id = model.Venue.venue_by_id(order.venue_id).company_id
-    if check_food(order.venue_id, order.items):
-        return json.loads({
-            'error': "Item in items doesn't exist",
-            'code': 404
-        })
+    org_id = Venue.venue_by_id(order.venue_id).company_id
+    # if check_food(order.venue_id, order.items):
+    #     return json.loads({
+    #         'error': "Item in items doesn't exist",
+    #         'code': 404
+    #     })
     pre_check = __post_request('/orders/checkCreate?access_token=%s&request_timeout=30' % get_access_token(org_id), obj)
     logging.info(pre_check)
+    pre_check_obj = json.loads(pre_check)
+    if pre_check_obj['code']:
+        return json.loads({
+            'code': pre_check_obj['code'],
+            'description': pre_check_obj['description']
+        })
     if org_id == 5717119551406080:
         del obj['order']['paymentItems']
         del obj['deliveryTerminalId']
@@ -236,7 +310,7 @@ def place_order(order, customer):
 
 
 def order_info(order):
-    org_id = model.Venue.venue_by_id(order.venue_id).company_id
+    org_id = Venue.venue_by_id(order.venue_id).company_id
     result = __get_request('/orders/info', {
         'access_token': get_access_token(org_id),
         'organization': order.venue_id,
@@ -247,7 +321,7 @@ def order_info(order):
 
 
 def order_info1(order_id, venue_id):
-    org_id = model.Venue.venue_by_id(venue_id).company_id
+    org_id = Venue.venue_by_id(venue_id).company_id
     result = __get_request('/orders/info', {
         'access_token': get_access_token(org_id),
         'organization': venue_id,
@@ -258,7 +332,7 @@ def order_info1(order_id, venue_id):
 
 
 def get_history(client_id, venue_id, token=None):
-    org_id = model.Venue.venue_by_id(venue_id).company_id
+    org_id = Venue.venue_by_id(venue_id).company_id
     if not token:
         token = get_access_token(org_id)
     result = __get_request('/orders/deliveryHistory', {
@@ -271,7 +345,7 @@ def get_history(client_id, venue_id, token=None):
 
 
 def get_payment_types(venue_id, token=None):
-    org_id = model.Venue.venue_by_id(venue_id).company_id
+    org_id = Venue.venue_by_id(venue_id).company_id
     if not token:
         token = get_access_token(org_id)
     result = __get_request('/paymentTypes/getPaymentTypes', {
@@ -283,7 +357,7 @@ def get_payment_types(venue_id, token=None):
 
 
 def get_delivery_restrictions(venue_id, token=None):
-    org_id = model.Venue.venue_by_id(venue_id).company_id
+    org_id = Venue.venue_by_id(venue_id).company_id
     if not token:
         token = get_access_token(org_id)
     result = __get_request('/deliverySettings/getDeliveryRestrictions', {

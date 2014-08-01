@@ -15,17 +15,13 @@ class HistoryRequestHandler(BaseHandler):
         client_id = self.request.get('client_id')
         org_id = self.request.get('organisation_id')
         for venue in iiko.get_venues(org_id):
-            # client_id = client_id[:8] + '-' + client_id[8:12] + '-' + client_id[12:16] + '-' + client_id[16:20] + '-' + \
-            #                 client_id[20:]
             history = iiko.get_history(client_id, venue.venue_id)
             orders_history = list()
+            self.overall_history = list()
             if not 'historyOrders' in history or not history['historyOrders']:
-                orders_history.append({
-                    'client_id': client_id,
-                    'orders_quantity': 0
-                })
+                pass
             else:
-                self.overall_history = list()
+
                 for order in history['historyOrders']:
 
                     items_list = list()

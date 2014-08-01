@@ -78,8 +78,11 @@ class PlaceOrderRequestHandler(base.BaseHandler):
                 self.abort(400)
 
         result = iiko.place_order(order, customer)
-        if 'error' in result.keys():
-            return result
+        logging.info(result)
+        if 'code' in result.keys():
+            self.response.set_status(500)
+            self.response.status_message(result)
+            return self.render_json(result)
         if not customer_id:
             customer.customer_id = result['customerId']
             customer.put()

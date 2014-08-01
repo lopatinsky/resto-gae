@@ -1,9 +1,52 @@
 # coding=utf-8
+import logging
 from google.appengine.ext import ndb
 from google.appengine.api import memcache
 from lib import geocoding
 
 __author__ = 'quiker'
+
+
+class PaymentType(ndb.Model):
+    name = ndb.StringProperty()
+    type_id = ndb.IntegerProperty()
+    iiko_uuid = ndb.StringProperty()
+    available = ndb.BooleanProperty()
+
+    def to_dict(self):
+        return {
+            'type_id': self.type_id,
+            'name': self.name,
+            'iiko_uuid': self.iiko_uuid,
+            'available': self.available
+        }
+
+    @classmethod
+    def check_existence(cls, type_id):
+        for typ in PaymentType.query():
+            if typ.type_id == int(type_id):
+                return typ
+        return None
+
+
+class DeliveryType(ndb.Model):
+    delivery_id = ndb.IntegerProperty()
+    name = ndb.StringProperty()
+    available = ndb.BooleanProperty()
+
+    def to_dict(self):
+        return {
+            'type_id': self.delivery_id,
+            'name': self.name,
+            'available': self.available
+        }
+
+    @classmethod
+    def check_existence(cls, delivery_id):
+        for typ in DeliveryType.query():
+            if typ.delivery_id == int(delivery_id):
+                return typ
+        return None
 
 
 class Customer(ndb.Model):
@@ -79,6 +122,21 @@ class Venue(ndb.Model):
     longitude = ndb.FloatProperty(indexed=False)
     source = ndb.StringProperty()
     company_id = ndb.IntegerProperty()
+    payment_types = ndb.KeyProperty(kind=PaymentType, repeated=True)
+
+    @classmethod
+    def get_payment_types(cls, venue_id):
+        venue = cls.venue_by_id(venue_id)
+        output = []
+        for item in ndb.get_multi(venue.payment_types):
+            output.append(item.to_dict())
+        return output
+
+    def check_ext(self, type_id):
+        for item in ndb.get_multi(self.payment_types):
+            if item.type_id == int(type_id):
+                return True
+        return False
 
     @classmethod
     def venue_by_id(cls, venue_id):
@@ -121,13 +179,30 @@ class Venue(ndb.Model):
             'latitude': self.latitude,
             'longitude': self.longitude,
             'logoUrl': self.logo_url,
-            'phone': self.phone
+            'phone': self.phone,
+            'payment_types': [x.to_dict() for x in ndb.get_multi(self.payment_types)]
         }
 
 
 class Company(ndb.Model):
     name = ndb.StringProperty()
     password = ndb.StringProperty()
+    delivery_types = ndb.KeyProperty(kind=DeliveryType, repeated=True)
 
     def get_id(self):
         return self.key.id()
+
+    def check_ext(self, delivery_id):
+        for item in ndb.get_multi(self.delivery_types):
+            if item.delivery_id == int(delivery_id):
+                return True
+        return False
+
+    @classmethod
+    def get_delivery_types(cls, org_id):
+        org = cls.get_by_id(int(org_id))
+        output = []
+        for item in ndb.get_multi(org.delivery_types):
+            if item.available:
+                output.append(item.to_dict())
+        return output
