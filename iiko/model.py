@@ -22,11 +22,15 @@ class PaymentType(ndb.Model):
         }
 
     @classmethod
-    def check_existence(cls, type_id):
+    def check_existence(cls, type_id, iiko_uuid):
         for typ in PaymentType.query():
-            if typ.type_id == int(type_id):
+            if typ.type_id == int(type_id) and typ.iiko_uuid == iiko_uuid:
                 return typ
         return None
+
+    @classmethod
+    def get_by_type_id(cls, type_id):
+        return PaymentType.query().filter(PaymentType.type_id == int(type_id)).get()
 
 
 class DeliveryType(ndb.Model):

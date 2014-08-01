@@ -5,7 +5,7 @@ import logging
 import urllib
 from google.appengine.api import memcache, urlfetch
 import operator
-from iiko.model import Venue, Company
+from iiko.model import Venue, Company, PaymentType
 
 __author__ = 'quiker'
 
@@ -256,8 +256,7 @@ def check_food(venue_id, items):
     return False
 
 
-def place_order(order, customer):
-
+def place_order(order, customer, payment_type):
     obj = {
         'restaurantId': order.venue_id,
         'deliveryTerminalId': 'dd121a59-a43e-0690-0144-f47bced50158',
@@ -270,9 +269,7 @@ def place_order(order, customer):
             'isSelfService': 0 if order.is_delivery else 1,
             'paymentItems': [{
                 'paymentType': {
-                    'id': 'bf2fd2db-cc75-46fa-97af-4f9dc68bb34b',
-                    'code': 333,
-                    'name': u'Банковские карты'
+                    'id': '',
                 },
                 'sum': order.sum,
                 'isProcessedExternally': 1
@@ -287,7 +284,19 @@ def place_order(order, customer):
         obj['customer']['id'] = customer_id
     if order.is_delivery:
         obj['order']['address'] = order.address
+
+    typ = PaymentType.get_by_type_id(payment_type)
+
+    if typ.type_id == 1:
+        obj['order']['paymentItems'][0]['paymentType']['id'] = typ.iiko_uuid
+        obj['order']['paymentItems'][0]['isProcessedExternally'] = 0
+    elif typ.type_id == 2:
+        obj['order']['paymentItems'][0]['paymentType']['id'] = typ.iiko_uuid
+
     org_id = Venue.venue_by_id(order.venue_id).company_id
+    if org_id == 5717119551406080 or obj['order']['paymentItems'][0]['paymentType']['id'] == '':
+        del obj['order']['paymentItems']
+        del obj['deliveryTerminalId']
     # if check_food(order.venue_id, order.items):
     #     return json.loads({
     #         'error': "Item in items doesn't exist",
@@ -301,9 +310,7 @@ def place_order(order, customer):
             'code': pre_check_obj['code'],
             'description': pre_check_obj['description']
         })
-    if org_id == 5717119551406080:
-        del obj['order']['paymentItems']
-        del obj['deliveryTerminalId']
+
     result = __post_request('/orders/add?request_timeout=30&access_token=%s' % get_access_token(org_id), obj)
     logging.info(result)
     return json.loads(result)

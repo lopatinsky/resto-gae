@@ -27,7 +27,8 @@ class AddPaymentType(BaseHandler):
         available = self.request.get('available')
 
         venue = Venue.venue_by_id(venue_id)
-        pt = PaymentType.check_existence(type_id)
+        # pt = PaymentType.check_existence(type_id, iiko_uuid)
+        pt = None
 
         if not pt:
             logging.info('No pt')
@@ -61,7 +62,7 @@ class EditPaymentType(BaseHandler):
         available = self.request.get('available')
         iiko_uuid = self.request.get('iiko_uuid')
 
-        pt = PaymentType.check_existence(type_id)
+        pt = PaymentType.check_existence(type_id, iiko_uuid)
 
         if pt:
             if name:

@@ -50,6 +50,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         phone = self.request.get('phone')
         customer_id = self.request.get('customer_id')
         delivery_type = self.request.get('deliveryType', 0)
+        payment_type = self.request.get('paymentType')
         address = self.request.get('address')
 
         customer = iiko.Customer.customer_by_customer_id(customer_id)
@@ -77,7 +78,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
             except:
                 self.abort(400)
 
-        result = iiko.place_order(order, customer)
+        result = iiko.place_order(order, customer, payment_type)
         logging.info(result)
         if 'code' in result.keys():
             self.response.set_status(500)
