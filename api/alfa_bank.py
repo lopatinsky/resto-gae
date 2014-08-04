@@ -1,6 +1,6 @@
 import random
 from api import BaseHandler
-from iiko import tie_card, check_status, get_back_blocked_sum
+from iiko import tie_card, check_status, get_back_blocked_sum, create_pay, pay_by_card, unbind_card
 
 __author__ = 'mihailnikolaev'
 
@@ -40,3 +40,45 @@ class TieCardHandler(BaseHandler):
                 return self.render_json({"error": "Unable to unblock"})
         else:
             return self.render_json({"error": "Unable to unblock"})
+
+
+class CreateByCardHandler(BaseHandler):
+    def post(self):
+        order_id = self.request.get('order_id')
+        binding_id = self.request.get('binding_id')
+        pay = create_pay(LOGIN, PASSWORD, binding_id, order_id)
+        if pay['errorCode'] == 0:
+            return self.render_json({"message": "success"})
+        else:
+            return self.render_json({"error": pay['errorCode']})
+
+
+class ResetBlockedSumHandler(BaseHandler):
+    def post(self):
+        order_id = self.request.get('order_id')
+        tie = get_back_blocked_sum(LOGIN, PASSWORD, order_id)
+        if tie['errorCode'] == "0":
+            return self.render_json({"message": "success"})
+        else:
+            return self.render_json({"error": tie['errorCode']})
+
+
+class PayByCardHandler(BaseHandler):
+    def post(self):
+        order_id = self.request.get('order_id')
+        amount = self.request.get('amount', 0)
+        pay = pay_by_card(LOGIN, PASSWORD, order_id, amount)
+        if pay['errorCode'] == "0":
+            return self.render_json({"message": "success"})
+        else:
+            return self.render_json({"error": pay['errorCode']})
+
+
+class UnbindCardHandler(BaseHandler):
+    def post(self):
+        binding_id = self.request.get('binding_id')
+        unbind = unbind_card(LOGIN, PASSWORD, binding_id)
+        if unbind['errorCode'] == "0":
+            return self.render_json({"message": "success"})
+        else:
+            return self.render_json({"error": pay['errorCode']})

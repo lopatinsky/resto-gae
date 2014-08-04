@@ -475,3 +475,35 @@ def get_back_blocked_sum(login, password, order_id):
     result = __post_request_alfa('/rest/reverse.do', params)
     print result
     return json.loads(result)
+
+
+def create_pay(login, password, binding_id, order_id):
+    params = {
+        'userName': login,
+        'password': password,
+        'orderId': order_id,
+        'bindingId': binding_id
+    }
+    result = __post_request_alfa('/rest/paymentOrderBinding.do', params)
+    return json.loads(result)
+
+
+def pay_by_card(login, password, order_id, amount):
+    params = {
+        'userName': login,
+        'password': password,
+        'orderId': order_id,
+        'amount': amount
+    }
+    result = __post_request_alfa('/rest/deposit.do', params)
+    return json.loads(result)
+
+
+def unbind_card(login, password, binding_id):
+    params = {
+        'userName': login,
+        'password': password,
+        'bindingId': binding_id
+    }
+    result = __post_request_alfa('/rest/unBindCard.do', params)
+    return json.loads(result)
