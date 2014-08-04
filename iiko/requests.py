@@ -481,10 +481,11 @@ def create_pay(login, password, binding_id, order_id):
     params = {
         'userName': login,
         'password': password,
-        'orderId': order_id,
+        'mdOrder': order_id,
         'bindingId': binding_id
     }
     result = __post_request_alfa('/rest/paymentOrderBinding.do', params)
+    print result
     return json.loads(result)
 
 
@@ -496,6 +497,7 @@ def pay_by_card(login, password, order_id, amount):
         'amount': amount
     }
     result = __post_request_alfa('/rest/deposit.do', params)
+    print result
     return json.loads(result)
 
 
@@ -506,4 +508,5 @@ def unbind_card(login, password, binding_id):
         'bindingId': binding_id
     }
     result = __post_request_alfa('/rest/unBindCard.do', params)
+    print result
     return json.loads(result)

@@ -11,10 +11,11 @@ PASSWORD = 'empatika_autopay'
 class PreCheckHandler(BaseHandler):
     def get(self):
         client_id = self.request.get('client_id')
+        amount = self.request.get('amount', 100)
 
         order_number = random.randrange(1000000000000, 9999999999999)
         print order_number
-        tie = tie_card(LOGIN, PASSWORD, 100, order_number,
+        tie = tie_card(LOGIN, PASSWORD, amount, order_number,
                        'http://127.0.0.1:8080/api/alfa/binding', client_id, 'DESKTOP')
         return self.render_json({'id': tie})
 
@@ -81,4 +82,4 @@ class UnbindCardHandler(BaseHandler):
         if unbind['errorCode'] == "0":
             return self.render_json({"message": "success"})
         else:
-            return self.render_json({"error": pay['errorCode']})
+            return self.render_json({"error": unbind['errorCode']})

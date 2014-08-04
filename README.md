@@ -353,11 +353,12 @@ Parameters:
 
 ### Get web view
 
-GET `/api/alfa/web_view`
+GET `/api/alfa/registration`
 
 Parameters:
 
 * `client_id (string)`
+* `amount (int) -> optional`
 
 ```
 #!js

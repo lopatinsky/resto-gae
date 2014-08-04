@@ -26,7 +26,7 @@ class MainHandler(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/api/venues/(.*)', VenuesHandler),
     ('/api/venue/(.*)/menu', MenuRequestHandler),
-    ('/api/alfa/web_view', PreCheckHandler),
+    ('/api/alfa/registration', PreCheckHandler),
     ('/api/alfa/binding', TieCardHandler),
     ('/api/alfa/create', CreateByCardHandler),
     ('/api/alfa/reset', ResetBlockedSumHandler),
