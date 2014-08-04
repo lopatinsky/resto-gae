@@ -10,6 +10,7 @@ from iiko.model import Venue, Company, PaymentType
 __author__ = 'quiker'
 
 IIKO_BASE_URL = 'https://iiko.net:9900/api/0'
+ALFA_BASE_URL = 'https://test.paymentgate.ru/testpayment'
 PLACES_API_KEY = 'AIzaSyAUCbsYSIouu5ksA35CFNl2b_DbRF4nCpg'  # 'AIzaSyCFCmb9MGL22ulEXiHHo6hs3XANIUNrnEI'
 
 
@@ -26,6 +27,16 @@ def __post_request(api_path, params):
     payload = json.dumps(params)
     logging.info(payload)
     return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=payload, deadline=30, validate_certificate=False).content
+
+
+def __post_request_alfa(api_path, params):
+    url = '%s%s' % (ALFA_BASE_URL, api_path)
+    payload = json.dumps(params)
+    logging.info(payload)
+    if params:
+        url = '%s?%s' % (url, urllib.urlencode(params))
+    logging.info(url)
+    return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, deadline=30, validate_certificate=False).content
 
 
 def get_access_token(org_id):
@@ -105,9 +116,9 @@ def get_stop_list(venue_id):
 
 def create_order_with_bonus(venue_id, order):
     org_id = Venue.venue_by_id(venue_id).company_id
-    result = __post_request('/orders/create_order/access_token=%s&request_timeout=30&organization=%s' %
+    result = __post_request('/orders/create_order?access_token=%s&request_timeout=30&organization=%s' %
                             (get_access_token(org_id), venue_id), order)
-    return json.loads(result)
+    return result
 
 
 def get_orders_with_payments(venue_id):
@@ -297,11 +308,9 @@ def place_order(order, customer, payment_type):
     if org_id == 5717119551406080 or obj['order']['paymentItems'][0]['paymentType']['id'] == '':
         del obj['order']['paymentItems']
         del obj['deliveryTerminalId']
-    # if check_food(order.venue_id, order.items):
-    #     return json.loads({
-    #         'error': "Item in items doesn't exist",
-    #         'code': 404
-    #     })
+
+    print create_order_with_bonus(order.venue_id, obj)
+
     pre_check = __post_request('/orders/checkCreate?access_token=%s&request_timeout=30' % get_access_token(org_id), obj)
     logging.info(pre_check)
     pre_check_obj = json.loads(pre_check)
@@ -428,3 +437,41 @@ def get_address_by_key(key):
         'address': obj['result']['formatted_address'],
         'location': obj['result']['geometry']['location']
     }
+
+
+def tie_card(login, password, amount, orderNumber, returnUrl, client_id, pageView):
+    p = {
+        'userName': login,
+        'password': password,
+        'amount': amount,
+        'orderNumber': orderNumber,
+        'returnUrl': returnUrl,
+        'clientId': client_id,
+        'pageView': pageView
+    }
+    print p
+    result = __post_request_alfa('/rest/registerPreAuth.do', p)
+    print result
+    return json.loads(result)
+
+
+def check_status(login, password, order_id):
+    params = {
+        'userName': login,
+        'password': password,
+        'orderId': order_id
+    }
+    result = __post_request_alfa('/rest/getOrderStatus.do', params)
+    print result
+    return json.loads(result)
+
+
+def get_back_blocked_sum(login, password, order_id):
+    params = {
+        'userName': login,
+        'password': password,
+        'orderId': order_id
+    }
+    result = __post_request_alfa('/rest/reverse.do', params)
+    print result
+    return json.loads(result)

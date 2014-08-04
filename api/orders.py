@@ -5,6 +5,7 @@ import datetime
 import webapp2
 import iiko
 import base
+from iiko.requests import get_iiko_net_payments, create_order_with_bonus
 
 __author__ = 'quiker'
 
@@ -93,7 +94,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         order.set_status(result['status'])
 
         order.put()
-
+        print get_iiko_net_payments(venue_id, order.order_id)
         resp = {
             'customerId': customer.customer_id,
             'order': order.to_dict()

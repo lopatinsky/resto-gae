@@ -10,5 +10,6 @@ from company import *
 from payment_type import *
 from delivery_type import *
 from bonus import *
+from alfa_bank import *
 
 __author__ = 'quiker'

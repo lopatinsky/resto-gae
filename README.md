@@ -350,3 +350,34 @@ Parameters:
     "payment_type": type_id // int
 }
 ```
+
+### Get web view
+
+GET `/api/alfa/web_view`
+
+Parameters:
+
+* `client_id (string)`
+
+```
+#!js
+{
+    "fromUrl": url,         // string
+    "orderId": alfabank id  // string
+}
+```
+
+### Get binding id
+
+GET `/api/alfa/binding`
+
+Parameters:
+
+* `orderId (string)`
+
+```
+#!js
+{
+    "id": binding id        // string
+}
+```
