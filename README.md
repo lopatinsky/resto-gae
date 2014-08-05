@@ -399,13 +399,14 @@ Parameters:
 }
 ```
 
-### Reset order
+### Pay order (2nd stage)
 
-GET `/api/alfa/reset`
+GET `/api/alfa/pay`
 
 Parameters:
 
 * `order_id (string)`
+* `amount (int) -> optional (default: 0 (all sum))`
 
 ```
 #!js
@@ -414,14 +415,13 @@ Parameters:
 }
 ```
 
-### Pay order (2st stage)
+### Reset order
 
-GET `/api/alfa/pay`
+GET `/api/alfa/reset`
 
 Parameters:
 
 * `order_id (string)`
-* `amount (int) -> optional (default: 0 (all sum))`
 
 ```
 #!js
