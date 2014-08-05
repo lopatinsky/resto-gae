@@ -351,7 +351,7 @@ Parameters:
 }
 ```
 
-### Get web view
+### Registration of order
 
 GET `/api/alfa/registration`
 
@@ -380,5 +380,67 @@ Parameters:
 #!js
 {
     "id": binding id        // string
+}
+```
+
+### Create order (1st stage)
+
+GET `/api/alfa/create`
+
+Parameters:
+
+* `order_id (string)`
+* `binding_id (string)`
+
+```
+#!js
+{
+    "message": "success"
+}
+```
+
+### Reset order
+
+GET `/api/alfa/reset`
+
+Parameters:
+
+* `order_id (string)`
+
+```
+#!js
+{
+    "message": "success"
+}
+```
+
+### Pay order (2st stage)
+
+GET `/api/alfa/pay`
+
+Parameters:
+
+* `order_id (string)`
+* `amount (int) -> optional (default: 0 (all sum))`
+
+```
+#!js
+{
+    "message": "success"
+}
+```
+
+### Unbind card
+
+GET `/api/alfa/unbind`
+
+Parameters:
+
+* `binding_id (string)`
+
+```
+#!js
+{
+    "message": "success"
 }
 ```
