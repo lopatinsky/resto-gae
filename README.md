@@ -395,7 +395,7 @@ Parameters:
 ```
 #!js
 {
-    "message": "success"
+    "code": code        // string
 }
 ```
 
@@ -411,7 +411,7 @@ Parameters:
 ```
 #!js
 {
-    "message": "success"
+    "code": code        // string
 }
 ```
 
@@ -426,7 +426,7 @@ Parameters:
 ```
 #!js
 {
-    "message": "success"
+    "code": code        // string
 }
 ```
 
@@ -441,6 +441,6 @@ Parameters:
 ```
 #!js
 {
-    "message": "success"
+    "code": code        // string
 }
 ```

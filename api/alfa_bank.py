@@ -38,9 +38,9 @@ class TieCardHandler(BaseHandler):
                 print binding_id
                 return self.render_json({"id": binding_id})
             else:
-                return self.render_json({"error": "Unable to unblock"})
+                return self.render_json({"error": check['ErrorCode']})
         else:
-            return self.render_json({"error": "Unable to unblock"})
+            return self.render_json({"error": tie['errorCode']})
 
 
 class CreateByCardHandler(BaseHandler):
@@ -49,9 +49,9 @@ class CreateByCardHandler(BaseHandler):
         binding_id = self.request.get('binding_id')
         pay = create_pay(LOGIN, PASSWORD, binding_id, order_id)
         if pay['errorCode'] == 0:
-            return self.render_json({"message": "success"})
+            return self.render_json({"code": pay['errorCode']})
         else:
-            return self.render_json({"error": pay['errorCode']})
+            return self.render_json({"code": pay['errorCode']})
 
 
 class ResetBlockedSumHandler(BaseHandler):
@@ -59,9 +59,9 @@ class ResetBlockedSumHandler(BaseHandler):
         order_id = self.request.get('order_id')
         tie = get_back_blocked_sum(LOGIN, PASSWORD, order_id)
         if tie['errorCode'] == "0":
-            return self.render_json({"message": "success"})
+            return self.render_json({"code": tie['errorCode']})
         else:
-            return self.render_json({"error": tie['errorCode']})
+            return self.render_json({"code": tie['errorCode']})
 
 
 class PayByCardHandler(BaseHandler):
@@ -70,9 +70,9 @@ class PayByCardHandler(BaseHandler):
         amount = self.request.get('amount', 0)
         pay = pay_by_card(LOGIN, PASSWORD, order_id, amount)
         if pay['errorCode'] == "0":
-            return self.render_json({"message": "success"})
+            return self.render_json({"code": pay['errorCode']})
         else:
-            return self.render_json({"error": pay['errorCode']})
+            return self.render_json({"code": pay['errorCode']})
 
 
 class UnbindCardHandler(BaseHandler):
@@ -80,6 +80,6 @@ class UnbindCardHandler(BaseHandler):
         binding_id = self.request.get('binding_id')
         unbind = unbind_card(LOGIN, PASSWORD, binding_id)
         if unbind['errorCode'] == "0":
-            return self.render_json({"message": "success"})
+            return self.render_json({"code": unbind['errorCode']})
         else:
-            return self.render_json({"error": unbind['errorCode']})
+            return self.render_json({"code": unbind['errorCode']})
