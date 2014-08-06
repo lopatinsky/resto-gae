@@ -27,7 +27,7 @@ app = webapp2.WSGIApplication([
     ('/api/venues/(.*)', VenuesHandler),
     ('/api/venue/(.*)/menu', MenuRequestHandler),
     ('/api/alfa/registration', PreCheckHandler),
-    ('/api/alfa/binding', TieCardHandler),
+    ('/api/alfa/check', CheckStatusHandler),
     ('/api/alfa/create', CreateByCardHandler),
     ('/api/alfa/reset', ResetBlockedSumHandler),
     ('/api/alfa/pay', PayByCardHandler),

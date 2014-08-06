@@ -149,6 +149,17 @@ Parameters:
 
 GET `/api/check_delivery`
 
+Parameters:
+
+* `venue_id (string)`
+
+```
+#!js
+{
+    "restrictions": restrictions        // string
+}
+```
+
 ### Create new order
 
 POST `/api/venue/<venue_id>/order/new`
@@ -358,6 +369,7 @@ GET `/api/alfa/registration`
 Parameters:
 
 * `client_id (string)`
+* `return_url (string)`
 * `amount (int) -> optional`
 
 ```
@@ -368,9 +380,9 @@ Parameters:
 }
 ```
 
-### Get binding id
+### Check status
 
-GET `/api/alfa/binding`
+GET `/api/alfa/check`
 
 Parameters:
 
@@ -379,7 +391,23 @@ Parameters:
 ```
 #!js
 {
-    "id": binding id        // string
+    "result": {
+        "expiration": expiration date,      // string
+        "cardholderName": name,             // string
+        "depositAmount": deposit amount,    // int
+        "currency": code of currency,       // string
+        "approvalCode": approval code,      // string
+        "authCode": auth code,              // int
+        "clientId": client id,              // string
+        "bindingId": binding id,            // string
+        "ErrorCode": error code,            // string
+        "ErrorMessage": message,            // string
+        "OrderStatus": status,              // int
+        "OrderNumber": order number,        // string
+        "Pan": pan,                         // string
+        "Amount": amount of money,          // int
+        "Ip": ip address                    // string
+    }
 }
 ```
 
