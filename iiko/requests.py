@@ -23,10 +23,14 @@ def __get_request(api_path, params):
 
 
 def __post_request(api_path, params):
+    print params
     url = '%s%s' % (IIKO_BASE_URL, api_path)
     payload = json.dumps(params)
-    logging.info(payload)
-    return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=payload, deadline=30, validate_certificate=False).content
+    logging.info("PAYLOAD %s" % str(payload))
+    logging.info(url)
+
+    return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=payload, deadline=30,
+                          validate_certificate=False).content
 
 
 def __post_request_alfa(api_path, params):
@@ -286,7 +290,7 @@ def place_order(order, customer, payment_type):
                 'isProcessedExternally': 1
             }],
             'phone': customer.phone,
-            'items': order.items
+            'items': order.items,
         }
     }
 
@@ -297,7 +301,6 @@ def place_order(order, customer, payment_type):
         obj['order']['address'] = order.address
 
     typ = PaymentType.get_by_type_id(payment_type)
-
     if typ.type_id == 1:
         obj['order']['paymentItems'][0]['paymentType']['id'] = typ.iiko_uuid
         obj['order']['paymentItems'][0]['isProcessedExternally'] = 0
@@ -309,18 +312,18 @@ def place_order(order, customer, payment_type):
         del obj['order']['paymentItems']
         del obj['deliveryTerminalId']
 
-    print create_order_with_bonus(order.venue_id, obj)
-
-    pre_check = __post_request('/orders/checkCreate?access_token=%s&request_timeout=30' % get_access_token(org_id), obj)
+    # print create_order_with_bonus(order.venue_id, obj)
+    logging.info("OBJECT %s" % str(json.dumps(obj)))
+    pre_check = __post_request('/orders/checkCreate?access_token=%s&requestTimeout=30' % get_access_token(org_id), obj)
     logging.info(pre_check)
-    pre_check_obj = json.loads(pre_check)
-    if pre_check_obj['code']:
-        return json.loads({
-            'code': pre_check_obj['code'],
-            'description': pre_check_obj['description']
-        })
+    # pre_check_obj = json.loads(pre_check)
+    # if pre_check_obj['code']:
+    #     return json.loads({
+    #         'code': pre_check_obj['code'],
+    #         'description': pre_check_obj['description']
+    #     })
 
-    result = __post_request('/orders/add?request_timeout=30&access_token=%s' % get_access_token(org_id), obj)
+    result = __post_request('/orders/add?requestTimeout=30&access_token=%s' % get_access_token(org_id), obj)
     logging.info(result)
     return json.loads(result)
 
