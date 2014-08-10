@@ -33,7 +33,7 @@ class HistoryRequestHandler(BaseHandler):
                             'item_title': order_items['name'],
                         })
 
-                    current_time = iiko.order_info1(order['orderId'], venue.venue_id)['createdTime']
+                    current_time = iiko.order_info1(order['orderId'], venue.venue_id)
                     logging.info(current_time)
 
                     orders_history.append({

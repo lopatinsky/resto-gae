@@ -169,10 +169,12 @@ Parameters:
 * `name (string)`
 * `phone (string)`
 * `customer_id (string)`
-* `deliveryType (string)`
+* `deliveryType (string) -> default 0`
 * `sum (string)`
-* `date (string)`
+* `date (string (timestamp))`
 * `items (json)`
+* `address (json)`
+* `paymentType (int)`
 
 ```
 #!js
@@ -186,6 +188,40 @@ Parameters:
         "items": items,                // json
         "venueId": venue_id,           // string
     ]
+}
+```
+
+ITEMS
+```
+#!js
+"items": [
+    {
+        "amount": amount,                               // int
+        "modifiers": [
+            {
+                "groupName": name of modifier group,    // string
+                "groupId": id of group,                 // string
+                "amount": amount,                       // int
+                "id": modifier id,                      // string
+            }
+        ],
+        "id": product id,                               // string
+        "name": product name,                           // string
+
+    }, ...
+]
+```
+
+ADDRESS
+```
+#!js
+"address": {
+    "city": city,                                   // string
+    "street": street,                               // string
+    "home": home number,                            // string
+    "housing": housing,                             // string
+    "apartment": apartment number,                  // string
+    "comment": comment                              // string
 }
 ```
 

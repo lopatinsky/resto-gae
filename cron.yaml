@@ -1,5 +1,8 @@
 cron:
 
-#- description: update orders
-#  url: /cron/update_orders
-#  schedule: every  minutes synchronized
+- description: update orders (morning)
+  url: /cron/update_orders
+  schedule: every day 11:00
+- description: update orders (evening)
+  url: /cron/update_orders
+  schedule: every day 22:00
