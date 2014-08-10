@@ -225,6 +225,11 @@ ADDRESS
 }
 ```
 
+DELIVERY TYPES:
+
+* `delivery -> deliveryType=0`
+* `self -> deliveryType=1`
+
 ### Change state flag
 
 GET `/api/venue/<venue_id>/order/<order_id>`
