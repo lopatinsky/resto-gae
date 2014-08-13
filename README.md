@@ -149,6 +149,17 @@ Parameters:
 
 GET `/api/check_delivery`
 
+Parameters:
+
+* `venue_id (string)`
+
+```
+#!js
+{
+    "restrictions": restrictions        // string
+}
+```
+
 ### Create new order
 
 POST `/api/venue/<venue_id>/order/new`
@@ -158,10 +169,12 @@ Parameters:
 * `name (string)`
 * `phone (string)`
 * `customer_id (string)`
-* `deliveryType (string)`
+* `deliveryType (string) -> default 0`
 * `sum (string)`
-* `date (string)`
+* `date (string (timestamp))`
 * `items (json)`
+* `address (json)`
+* `paymentType (int)`
 
 ```
 #!js
@@ -177,6 +190,45 @@ Parameters:
     ]
 }
 ```
+
+ITEMS
+```
+#!js
+"items": [
+    {
+        "amount": amount,                               // int
+        "modifiers": [
+            {
+                "groupName": name of modifier group,    // string
+                "groupId": id of group,                 // string
+                "amount": amount,                       // int
+                "id": modifier id,                      // string
+            }
+        ],
+        "id": product id,                               // string
+        "name": product name,                           // string
+
+    }, ...
+]
+```
+
+ADDRESS
+```
+#!js
+"address": {
+    "city": city,                                   // string
+    "street": street,                               // string
+    "home": home number,                            // string
+    "housing": housing,                             // string
+    "apartment": apartment number,                  // string
+    "comment": comment                              // string
+}
+```
+
+DELIVERY TYPES:
+
+* `delivery -> deliveryType=0`
+* `self -> deliveryType=1`
 
 ### Change state flag
 
@@ -348,5 +400,116 @@ Parameters:
 {
     "venue_id": venue_id,   // string
     "payment_type": type_id // int
+}
+```
+
+### Registration of order
+
+GET `/api/alfa/registration`
+
+Parameters:
+
+* `client_id (string)`
+* `return_url (string)`
+* `amount (int) -> optional`
+
+```
+#!js
+{
+    "fromUrl": url,         // string
+    "orderId": alfabank id  // string
+}
+```
+
+### Check status
+
+GET `/api/alfa/check`
+
+Parameters:
+
+* `orderId (string)`
+
+```
+#!js
+{
+    "result": {
+        "expiration": expiration date,      // string
+        "cardholderName": name,             // string
+        "depositAmount": deposit amount,    // int
+        "currency": code of currency,       // string
+        "approvalCode": approval code,      // string
+        "authCode": auth code,              // int
+        "clientId": client id,              // string
+        "bindingId": binding id,            // string
+        "ErrorCode": error code,            // string
+        "ErrorMessage": message,            // string
+        "OrderStatus": status,              // int
+        "OrderNumber": order number,        // string
+        "Pan": pan,                         // string
+        "Amount": amount of money,          // int
+        "Ip": ip address                    // string
+    }
+}
+```
+
+### Create order (1st stage)
+
+GET `/api/alfa/create`
+
+Parameters:
+
+* `order_id (string)`
+* `binding_id (string)`
+
+```
+#!js
+{
+    "code": code        // string
+}
+```
+
+### Pay order (2nd stage)
+
+GET `/api/alfa/pay`
+
+Parameters:
+
+* `order_id (string)`
+* `amount (int) -> optional (default: 0 (all sum))`
+
+```
+#!js
+{
+    "code": code        // string
+}
+```
+
+### Reset order
+
+GET `/api/alfa/reset`
+
+Parameters:
+
+* `order_id (string)`
+
+```
+#!js
+{
+    "code": code        // string
+}
+```
+
+### Unbind card
+
+GET `/api/alfa/unbind`
+
+Parameters:
+
+* `binding_id (string)`
+
+```
+#!js
+{
+    "code": code        // string
 }
 ```

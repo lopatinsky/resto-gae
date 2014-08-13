@@ -20,15 +20,18 @@ from api import *
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-        for item in PaymentType.query():
-            item.key.delete()
-        for item in Venue.query():
-            item.key.delete()
+        pass
 
 
 app = webapp2.WSGIApplication([
     ('/api/venues/(.*)', VenuesHandler),
     ('/api/venue/(.*)/menu', MenuRequestHandler),
+    ('/api/alfa/registration', PreCheckHandler),
+    ('/api/alfa/check', CheckStatusHandler),
+    ('/api/alfa/create', CreateByCardHandler),
+    ('/api/alfa/reset', ResetBlockedSumHandler),
+    ('/api/alfa/pay', PayByCardHandler),
+    ('/api/alfa/unbind', UnbindCardHandler),
     ('/api/history', HistoryRequestHandler),
     ('/api/address', AddressInputRequestHandler),
     ('/api/get_info', GetInfoRequestHandler),

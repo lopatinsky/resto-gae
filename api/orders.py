@@ -5,6 +5,7 @@ import datetime
 import webapp2
 import iiko
 import base
+from iiko.requests import get_iiko_net_payments, create_order_with_bonus
 
 __author__ = 'quiker'
 
@@ -44,7 +45,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         self.render_json(result)
 
     def post(self, venue_id):
-        logging.info(self.request.body)
+        logging.info(self.request.POST)
 
         name = self.request.get('name')
         phone = self.request.get('phone')
@@ -79,10 +80,8 @@ class PlaceOrderRequestHandler(base.BaseHandler):
                 self.abort(400)
 
         result = iiko.place_order(order, customer, payment_type)
-        logging.info(result)
         if 'code' in result.keys():
             self.response.set_status(500)
-            self.response.status_message(result)
             return self.render_json(result)
         if not customer_id:
             customer.customer_id = result['customerId']
@@ -93,7 +92,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         order.set_status(result['status'])
 
         order.put()
-
+        # print get_iiko_net_payments(venue_id, order.order_id)
         resp = {
             'customerId': customer.customer_id,
             'order': order.to_dict()
