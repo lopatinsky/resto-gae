@@ -274,7 +274,7 @@ def check_food(venue_id, items):
 def place_order(order, customer, payment_type):
     obj = {
         'restaurantId': order.venue_id,
-        'deliveryTerminalId': 'dd121a59-a43e-0690-0144-f47bced50158',
+        #'deliveryTerminalId': 'dd121a59-a43e-0690-0144-f47bced50158',
         'customer': {
             'name': customer.name,
             'phone': customer.phone,
