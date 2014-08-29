@@ -11,11 +11,11 @@ handlers:
 
 - url: /cron/.*
   script: cron.app
-  login: admin
+  #login: admin
 
 - url: .*
   script: main.app
 
 libraries:
 - name: webapp2
-  version: latest
+  version: "2.5.2"

@@ -274,7 +274,7 @@ def check_food(venue_id, items):
 def place_order(order, customer, payment_type):
     obj = {
         'restaurantId': order.venue_id,
-        #'deliveryTerminalId': 'dd121a59-a43e-0690-0144-f47bced50158',
+        'deliveryTerminalId': 'dd121a59-a43e-0690-0144-f47bced50158',
         'customer': {
             'name': customer.name,
             'phone': customer.phone,
@@ -333,8 +333,7 @@ def order_info(order):
     result = __get_request('/orders/info', {
         'access_token': get_access_token(org_id),
         'organization': order.venue_id,
-        'order': order.order_id,
-        'request_timeout': '30'
+        'order': order.order_id
     })
     return json.loads(result)
 
@@ -344,8 +343,7 @@ def order_info1(order_id, venue_id):
     result = __get_request('/orders/info', {
         'access_token': get_access_token(org_id),
         'organization': venue_id,
-        'order': order_id,
-        'request_timeout': '30'
+        'order': order_id
     })
     return json.loads(result)
 

@@ -86,14 +86,15 @@ class Order(ndb.Model):
     number = ndb.StringProperty()
     status = ndb.IntegerProperty()
 
+    #Need to check english statuses(may be incorrect)
     def set_status(self, status):
-        if status.find(u'Не подтверждена') >= 0:
+        if status.find(u'Не подтверждена') >= 0 or status.find(u'Waiting for confirmation') >= 0:
             self.status = self.NOT_APPROVED
-        elif status.find(u'Новая') >= 0:
+        elif status.find(u'Новая') >= 0 or status.find(u'New') >= 0:
             self.status = self.APPROVED
-        elif status.find(u'Закрыта') >= 0:
+        elif status.find(u'Закрыта') >= 0 or status.find(u'Confirmed') >= 0:
             self.status = self.CLOSED
-        elif status.find(u'Отменена') >= 0:
+        elif status.find(u'Отменена') >= 0 or status.find(u'Cancelled') >= 0:
             self.status = self.CANCELED
         else:
             self.status = self.UNKNOWN

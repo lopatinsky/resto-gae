@@ -16,6 +16,7 @@ class HistoryRequestHandler(BaseHandler):
         org_id = self.request.get('organisation_id')
         for venue in iiko.get_venues(org_id):
             history = iiko.get_history(client_id, venue.venue_id)
+            logging.info(history)
             orders_history = list()
             self.overall_history = list()
             if not 'historyOrders' in history or not history['historyOrders']:
@@ -32,16 +33,27 @@ class HistoryRequestHandler(BaseHandler):
                             'item_amount': order_items['amount'],
                             'item_title': order_items['name'],
                             'item_modifiers':order_items['modifiers'],
+                            'item_id':order_items['id'],
                         })
 
                     current_time = iiko.order_info1(order['orderId'], venue.venue_id)
                     logging.info(current_time)
 
+                    order_address = {}
+                    if order['address']:
+                        order_address = {'city': order['address']['city'],
+                                        'street': order['address']['street'],
+                                        'home': order['address']['home'],
+                                        'apartment': order['address']['apartment'],
+                                        'housing': order['address']['housing'],
+                                        'entrance': order['address']['entrance'],
+                                        'floor': order['address']['floor'],}
+
                     orders_history.append({
                         'self': order['isSelfService'],
                         'order_id': order['orderId'],
                         'order_number': order['number'],
-                        'order_adress': order['address'],
+                        'order_address': order_address,
                         # 'order_organization':order['organizationId'],
                         'order_deliver_date': order['date'],
                         'order_current_date': current_time,

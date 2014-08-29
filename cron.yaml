@@ -6,3 +6,6 @@ cron:
 - description: update orders (evening)
   url: /cron/update_orders
   schedule: every day 22:00
+- description: update orders (regular)
+  url: /cron/update_orders
+  schedule: every 10 minutes

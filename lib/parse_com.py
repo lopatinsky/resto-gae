@@ -4,10 +4,10 @@ from google.appengine.api import urlfetch
 
 __author__ = 'phil'
 
-parse_accs = [{'master_key': 'P81paIcQLJ9trZCjZu9ITPAGzc1jKXvtVJUP7Z07',
-               'client_key': 'dzv4U0BiJZIwCoxfss432UyLZkTLYt0rTdpIQPvf',
-               'rest_api_key': '8kKiAG7OBSJTzknzumu6DoXN2NHCIuMTs1RAVdU8',
-               'application_id': '6TwyWBKMXJycL3PbOLhi23Jdz8PlM3u2hPVLrhxH'},
+parse_accs = [{'master_key': 'YaEHCHCURT6qQFYwvWeTsIwho6cJPSDBhDAz4CS1',
+               'client_key': 'CSxzgKDGJwUv7GVySEpkti7nOiHYFJMHR3RYxnU0',
+               'rest_api_key': 'vN10st4XD2AD5gF8ziKCgWbo6tyLNE2scmRaXglU',
+               'application_id': '8EdzRDGVxjOqnHzv7WU7S6XbhIUBsgzqPk6ax77m'},
               ]
 
 url = 'https://api.parse.com/1/push'
