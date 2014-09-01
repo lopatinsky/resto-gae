@@ -291,6 +291,7 @@ def place_order(order, customer, payment_type):
             }],
             'phone': customer.phone,
             'items': order.items,
+            'comment': order.comment
         }
     }
 

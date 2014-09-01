@@ -53,6 +53,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         delivery_type = self.request.get('deliveryType', 0)
         payment_type = self.request.get('paymentType')
         address = self.request.get('address')
+        comment = self.request.get('comment')
 
         customer = iiko.Customer.customer_by_customer_id(customer_id)
         if not customer:
@@ -70,6 +71,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         order.venue_id = venue_id
         order.items = json.loads(self.request.get('items'))
         order.customer = customer.key
+        order.comment = comment
         order.is_delivery = int(delivery_type) == 0
         if order.is_delivery:
             if not address:

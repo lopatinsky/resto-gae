@@ -35,3 +35,4 @@ def send_push(channel, alert='', data=None):
         except:
             logging.warning('parse.com push send fuckup')
     return res
+

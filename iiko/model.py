@@ -85,6 +85,8 @@ class Order(ndb.Model):
     order_id = ndb.StringProperty()
     number = ndb.StringProperty()
     status = ndb.IntegerProperty()
+    comment = ndb.StringProperty()
+
 
     #Need to check english statuses(may be incorrect)
     def set_status(self, status):
