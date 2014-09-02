@@ -23,7 +23,6 @@ def __get_request(api_path, params):
 
 
 def __post_request(api_path, params):
-    print params
     url = '%s%s' % (IIKO_BASE_URL, api_path)
     payload = json.dumps(params)
     logging.info("PAYLOAD %s" % str(payload))
@@ -264,7 +263,6 @@ def get_menu(venue_id, token=None):
 
 def check_food(venue_id, items):
     stop_list = get_stop_list(venue_id)
-    print stop_list['stopList'][0]
     for item in stop_list['stopList'][0]['items']:
         if item['productId'] in [x['id'] for x in items]:
             return True
@@ -382,7 +380,6 @@ def get_delivery_restrictions(venue_id, token=None):
         'access_token': token,
         'organization': venue_id,
     })
-    print result
     return json.loads(result)
 
 
@@ -451,9 +448,7 @@ def tie_card(login, password, amount, orderNumber, returnUrl, client_id, pageVie
         'clientId': client_id,
         'pageView': pageView
     }
-    print p
     result = __post_request_alfa('/rest/registerPreAuth.do', p)
-    print result
     return json.loads(result)
 
 
@@ -464,7 +459,6 @@ def check_status(login, password, order_id):
         'orderId': order_id
     }
     result = __post_request_alfa('/rest/getOrderStatus.do', params)
-    print result
     return json.loads(result)
 
 
@@ -475,7 +469,6 @@ def get_back_blocked_sum(login, password, order_id):
         'orderId': order_id
     }
     result = __post_request_alfa('/rest/reverse.do', params)
-    print result
     return json.loads(result)
 
 
@@ -487,7 +480,6 @@ def create_pay(login, password, binding_id, order_id):
         'bindingId': binding_id
     }
     result = __post_request_alfa('/rest/paymentOrderBinding.do', params)
-    print result
     return json.loads(result)
 
 
@@ -499,7 +491,6 @@ def pay_by_card(login, password, order_id, amount):
         'amount': amount
     }
     result = __post_request_alfa('/rest/deposit.do', params)
-    print result
     return json.loads(result)
 
 
@@ -510,5 +501,4 @@ def unbind_card(login, password, binding_id):
         'bindingId': binding_id
     }
     result = __post_request_alfa('/rest/unBindCard.do', params)
-    print result
     return json.loads(result)

@@ -29,6 +29,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         comment = self.request.get('comment')
         sum = self.request.get('sum');
         binding_id = self.request.get('binding_id')
+        alpha_client_id = self.request.get('alpha_client_id')
 
         customer = iiko.Customer.customer_by_customer_id(customer_id)
         if not customer:
@@ -40,18 +41,21 @@ class PlaceOrderRequestHandler(base.BaseHandler):
             customer.put()
 
         # TODO do it right
-        # Sorry, Misha =(
-        if payment_type == 2:
-            tie_result = tie_card(LOGIN, PASSWORD, sum, time.time(), '',  customer, 'DESKTOP')
+        # Sorry, Misha, shame on me =(
+        if payment_type == '2':
+            tie_result = tie_card(LOGIN, PASSWORD, sum * 100, int(time.time()), 'returnUrl',  alpha_client_id, 'MOBILE')
+            logging.info("registration")
             logging.info(str(tie_result))
-            if 'errorCode' not in tie_result.keys() or tie_result['errorCode'] == 0:
+            if 'errorCode' not in tie_result.keys() or str(tie_result['errorCode']) == '0':
                 order_id = tie_result['orderId']
-                create_result = create_pay(LOGIN, PASSWORD, order_id, binding_id)
+                create_result = create_pay(LOGIN, PASSWORD, binding_id, order_id)
+                logging.info("block")
                 logging.info(str(create_result))
-                if 'errorCode' not in create_result.keys() or create_result['errorCode'] == 0:
+                if 'errorCode' not in create_result.keys() or str(create_result['errorCode']) == '0':
                     pay_result = pay_by_card(LOGIN, PASSWORD, order_id, 0)
+                    logging.info("pay")
                     logging.info(str(pay_result))
-                    if 'errorCode' not in pay_result.keys() or pay_result['errorCode'] == 0:
+                    if 'errorCode' not in pay_result.keys() or str(pay_result['errorCode']) == '0':
                         pass
                     else:
                        self.abort(400)
