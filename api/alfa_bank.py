@@ -1,3 +1,4 @@
+import logging
 import random
 from google.appengine.api import mail
 from api import BaseHandler
@@ -10,22 +11,23 @@ PASSWORD = 'empatika_autopay'
 
 
 class PreCheckHandler(BaseHandler):
-    def get(self):
-        client_id = self.request.get('client_id')
+    def post(self):
+        client_id = self.request.get('clientId')
         amount = self.request.get('amount', 100)
-        returnUrl = self.request.get('return_url')
+        returnUrl = self.request.get('returnUrl')
 
         order_number = random.randrange(1000000000000, 9999999999999)
-        print order_number
         tie = tie_card(LOGIN, PASSWORD, amount, order_number,
-                       returnUrl, client_id, 'DESKTOP')
-        return self.render_json({'id': tie})
+                       returnUrl, client_id, 'MOBILE')
+        logging.info(str(tie))
+        return self.render_json({'result': tie})
 
 
 class CheckStatusHandler(BaseHandler):
-    def get(self):
+    def post(self):
         order_id = self.request.get('orderId')
         check = check_status(LOGIN, PASSWORD, order_id)
+        logging.info(str(check))
         if check['ErrorCode'] == "2":
             sender_email = "Empatika-resto Support <info@resto.com>"
             subject = "Error on binding"
@@ -49,41 +51,33 @@ class CheckStatusHandler(BaseHandler):
 
 class CreateByCardHandler(BaseHandler):
     def post(self):
-        order_id = self.request.get('order_id')
-        binding_id = self.request.get('binding_id')
+        order_id = self.request.get('mdOrder')
+        binding_id = self.request.get('bindingId')
         pay = create_pay(LOGIN, PASSWORD, binding_id, order_id)
-        if pay['errorCode'] == 0:
-            return self.render_json({"code": pay['errorCode']})
-        else:
-            return self.render_json({"code": pay['errorCode']})
+        logging.info(str(pay))
+        return self.render_json({'result': pay})
 
 
 class ResetBlockedSumHandler(BaseHandler):
     def post(self):
-        order_id = self.request.get('order_id')
+        order_id = self.request.get('orderId')
         tie = get_back_blocked_sum(LOGIN, PASSWORD, order_id)
-        if tie['errorCode'] == "0":
-            return self.render_json({"code": tie['errorCode']})
-        else:
-            return self.render_json({"code": tie['errorCode']})
+        logging.info(str(tie))
+        return self.render_json({'result': tie})
 
 
 class PayByCardHandler(BaseHandler):
     def post(self):
-        order_id = self.request.get('order_id')
+        order_id = self.request.get('orderId')
         amount = self.request.get('amount', 0)
         pay = pay_by_card(LOGIN, PASSWORD, order_id, amount)
-        if pay['errorCode'] == "0":
-            return self.render_json({"code": pay['errorCode']})
-        else:
-            return self.render_json({"code": pay['errorCode']})
+        logging.info(str(pay))
+        return self.render_json({'result': pay})
 
 
 class UnbindCardHandler(BaseHandler):
     def post(self):
-        binding_id = self.request.get('binding_id')
+        binding_id = self.request.get('bindingId')
         unbind = unbind_card(LOGIN, PASSWORD, binding_id)
-        if unbind['errorCode'] == "0":
-            return self.render_json({"code": unbind['errorCode']})
-        else:
-            return self.render_json({"code": unbind['errorCode']})
+        logging.info(str(unbind))
+        return self.render_json({'result': unbind})

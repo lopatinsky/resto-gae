@@ -4,13 +4,12 @@ import iiko
 from iiko import Order
 from lib.parse_com import send_push
 
-
+# TODO rework
 class UpdateOrdersHandler(webapp2.RequestHandler):
     def get(self):
         orders = Order.query(Order.status == Order.NOT_APPROVED).fetch(100500)
         orders.extend(Order.query(Order.status == Order.UNKNOWN).fetch(100500))
         orders.extend(Order.query(Order.status == Order.APPROVED).fetch(100500))
-        #orders = Order.query(Order.status == Order.APPROVED).fetch(100500)
         for order in orders:
             current_status = order.status
             result = iiko.order_info(order)

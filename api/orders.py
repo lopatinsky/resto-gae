@@ -2,47 +2,20 @@
 import json
 import logging
 import datetime
-import webapp2
+import time
 import iiko
 import base
-from iiko.requests import get_iiko_net_payments, create_order_with_bonus
+from iiko.requests import tie_card, create_pay, pay_by_card
+from iiko.model import PaymentType
 
 __author__ = 'quiker'
+
+LOGIN = 'empatika_autopay-api'
+PASSWORD = 'empatika_autopay'
 
 
 class PlaceOrderRequestHandler(base.BaseHandler):
     """ /api/venue/%s/order/new """
-    def get(self, venue_id):
-        customer = iiko.Customer()
-        customer.phone = '+79637174789'
-        customer.name = u'Сергей Пронин'
-
-        order = iiko.Order()
-        order.sum = 340
-        order.date = datetime.datetime.utcnow() + datetime.timedelta(hours=4)
-        order.venue_id = venue_id
-        order.items = [
-            {
-                'id': 'b9c6077c-414b-4023-a061-e12d763eb9bd',
-                'name': 'Jagermeister',
-                'amount': '1'
-            },
-            {
-                'id': 'd481b6dd-2966-4090-8628-22e4e7842277',
-                'name': 'Campari',
-                'amount': '1'
-            }
-        ]
-
-
-        result = iiko.place_order(order, customer)
-        order.order_id = result['orderId']
-        order.number = result['number']
-        order.set_status(result['status'])
-
-        order.put()
-
-        self.render_json(result)
 
     def post(self, venue_id):
         logging.info(self.request.POST)
@@ -54,6 +27,8 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         payment_type = self.request.get('paymentType')
         address = self.request.get('address')
         comment = self.request.get('comment')
+        sum = self.request.get('sum');
+        binding_id = self.request.get('binding_id')
 
         customer = iiko.Customer.customer_by_customer_id(customer_id)
         if not customer:
@@ -64,9 +39,29 @@ class PlaceOrderRequestHandler(base.BaseHandler):
                 customer.customer_id = customer_id
             customer.put()
 
+        # TODO do it right
+        # Sorry, Misha =(
+        if payment_type == 2:
+            tie_result = tie_card(LOGIN, PASSWORD, sum, time.time(), '',  customer.customer_id, 'DESKTOP')
+            logging.info(str(tie_result))
+            if 'errorCode' not in tie_result.keys() or tie_result['errorCode'] == 0:
+                order_id = tie_result['orderId']
+                create_result = create_pay(LOGIN, PASSWORD, order_id, binding_id)
+                logging.info(str(create_result))
+                if 'errorCode' not in create_result.keys() or create_result['errorCode'] == 0:
+                    pay_result = pay_by_card(LOGIN, PASSWORD, order_id, 0)
+                    logging.info(str(pay_result))
+                    if 'errorCode' not in pay_result.keys() or pay_result['errorCode'] == 0:
+                        pass
+                    else:
+                       self.abort(400)
+                else:
+                    self.abort(400)
+            else:
+                self.abort(400)
 
         order = iiko.Order()
-        order.sum = float(self.request.get('sum'))
+        order.sum = float(sum)
         order.date = datetime.datetime.fromtimestamp(int(self.request.get('date')))
         order.venue_id = venue_id
         order.items = json.loads(self.request.get('items'))
