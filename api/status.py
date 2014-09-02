@@ -16,7 +16,8 @@ class StatusRequestHandler(BaseHandler):
     def post(self):
         self.status_list = list()
         #parce data
-        print self.request.get('json')
+        # print self.request.get('json')
+        logging.info(self.request.get('json'))
         arr = json.loads(self.request.get('json'))
 
         for item in arr["orders"]:

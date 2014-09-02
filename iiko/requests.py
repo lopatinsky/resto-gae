@@ -19,7 +19,7 @@ def __get_request(api_path, params):
     if params:
         url = '%s?%s' % (url, urllib.urlencode(params))
     logging.info(url)
-    return urlfetch.fetch(url, deadline=30, validate_certificate=False).content
+    return urlfetch.fetch(url, deadline=60, validate_certificate=False).content
 
 
 def __post_request(api_path, params):
