@@ -42,7 +42,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         # TODO do it right
         # Sorry, Misha =(
         if payment_type == 2:
-            tie_result = tie_card(LOGIN, PASSWORD, sum, time.time(), '',  customer.customer_id, 'DESKTOP')
+            tie_result = tie_card(LOGIN, PASSWORD, sum, time.time(), '',  customer, 'DESKTOP')
             logging.info(str(tie_result))
             if 'errorCode' not in tie_result.keys() or tie_result['errorCode'] == 0:
                 order_id = tie_result['orderId']
@@ -59,6 +59,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
                     self.abort(400)
             else:
                 self.abort(400)
+
 
         order = iiko.Order()
         order.sum = float(sum)
@@ -98,7 +99,8 @@ class PlaceOrderRequestHandler(base.BaseHandler):
                       'sum': order.sum,
                       'number': order.number,
                       'venue_id': order.venue_id,
-                      'address': order.address,}
+                      'address': order.address,},
+            'error_code' : 0,
         }
 
         self.render_json(resp)

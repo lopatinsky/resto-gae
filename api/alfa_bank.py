@@ -20,7 +20,10 @@ class PreCheckHandler(BaseHandler):
         tie = tie_card(LOGIN, PASSWORD, amount, order_number,
                        returnUrl, client_id, 'MOBILE')
         logging.info(str(tie))
-        return self.render_json({'result': tie})
+        return self.render_json({'result': {'orderId': tie['orderId'],
+                                            'formUrl': tie['formUrl']},
+                                 'error_code': tie['errorCode'],
+                                })
 
 
 class CheckStatusHandler(BaseHandler):
@@ -46,16 +49,23 @@ class CheckStatusHandler(BaseHandler):
 
             mail.send_mail(sender_email, 'ramazanovrustem@gmail.com', subject, body)
 
-        return self.render_json({"result": check})
+        return self.render_json({'result': {'bindingId': check['bindingId'],
+                                            'pan': check['Pan'],
+                                            'expiration': check['expiration'],
+                                            'orderStatus': check['OrderStatus']},
+                                 'error_code': check['ErrorCode'],
+                                })
 
 
 class CreateByCardHandler(BaseHandler):
     def post(self):
-        order_id = self.request.get('mdOrder')
+        order_id = self.request.get('orderId')
         binding_id = self.request.get('bindingId')
         pay = create_pay(LOGIN, PASSWORD, binding_id, order_id)
         logging.info(str(pay))
-        return self.render_json({'result': pay})
+        return self.render_json({'result': {},
+                                 'error_code': pay['errorCode'],
+                                })
 
 
 class ResetBlockedSumHandler(BaseHandler):
@@ -63,7 +73,9 @@ class ResetBlockedSumHandler(BaseHandler):
         order_id = self.request.get('orderId')
         tie = get_back_blocked_sum(LOGIN, PASSWORD, order_id)
         logging.info(str(tie))
-        return self.render_json({'result': tie})
+        return self.render_json({'result': {},
+                                 'error_code': tie['errorCode'],
+                                })
 
 
 class PayByCardHandler(BaseHandler):
