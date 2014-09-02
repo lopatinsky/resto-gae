@@ -43,7 +43,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         # TODO do it right
         # Sorry, Misha, shame on me =(
         if payment_type == '2':
-            tie_result = tie_card(LOGIN, PASSWORD, sum * 100, int(time.time()), 'returnUrl',  alpha_client_id, 'MOBILE')
+            tie_result = tie_card(LOGIN, PASSWORD, int(sum) * 100, int(time.time()), 'returnUrl',  alpha_client_id, 'MOBILE')
             logging.info("registration")
             logging.info(str(tie_result))
             if 'errorCode' not in tie_result.keys() or str(tie_result['errorCode']) == '0':
