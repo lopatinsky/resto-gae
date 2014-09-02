@@ -22,7 +22,7 @@ class PreCheckHandler(BaseHandler):
         logging.info(str(tie))
         return self.render_json({'result': {'orderId': tie['orderId'],
                                             'formUrl': tie['formUrl']},
-                                 'error_code': tie['errorCode'],
+                                 'error_code': 'errorCode' in tie.keys() if int(tie['errorCode']) else 0,
                                 })
 
 
@@ -53,7 +53,7 @@ class CheckStatusHandler(BaseHandler):
                                             'pan': check['Pan'],
                                             'expiration': check['expiration'],
                                             'orderStatus': check['OrderStatus']},
-                                 'error_code': check['ErrorCode'],
+                                 'error_code': 'errorCode' in check.keys() if int(check['ErrorCode']) else 0,
                                 })
 
 
@@ -64,7 +64,7 @@ class CreateByCardHandler(BaseHandler):
         pay = create_pay(LOGIN, PASSWORD, binding_id, order_id)
         logging.info(str(pay))
         return self.render_json({'result': {},
-                                 'error_code': pay['errorCode'],
+                                 'error_code': 'errorCode' in pay.keys() if int(pay['errorCode']) else 0,
                                 })
 
 
@@ -74,7 +74,7 @@ class ResetBlockedSumHandler(BaseHandler):
         tie = get_back_blocked_sum(LOGIN, PASSWORD, order_id)
         logging.info(str(tie))
         return self.render_json({'result': {},
-                                 'error_code': tie['errorCode'],
+                                 'error_code': 'errorCode' in tie.keys() if int(tie['errorCode']) else 0,
                                 })
 
 
