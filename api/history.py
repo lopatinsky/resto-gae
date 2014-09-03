@@ -60,7 +60,7 @@ class HistoryRequestHandler(BaseHandler):
                         'discount': order['discount'],
                         'sum': order['sum'],
                         'items': items_list,
-
+                        'venue_id': venue.venue_id,
                     })
             self.overall_history.append({
                 'venue_id': venue.venue_id,
