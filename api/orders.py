@@ -104,7 +104,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
                       'number': order.number,
                       'venue_id': order.venue_id,
                       'address': order.address,
-                      'date': int(self.request.get('date'))},
+                      'date': int(self.request.get('date')),},
             'error_code' : 0,
         }
 

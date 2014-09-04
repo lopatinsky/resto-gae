@@ -31,30 +31,33 @@ class CheckStatusHandler(BaseHandler):
         order_id = self.request.get('orderId')
         check = check_status(LOGIN, PASSWORD, order_id)
         logging.info(str(check))
-        if check['ErrorCode'] == "2":
-            sender_email = "Empatika-resto Support <info@resto.com>"
-            subject = "Error on binding"
-            client = Customer.customer_by_customer_id(check['clientId'])
-            body = """
+        # if check['ErrorCode'] == "2":
+        #     sender_email = "Empatika-resto Support <info@resto.com>"
+        #     subject = "Error on binding"
+        #     client = Customer.customer_by_customer_id(check['clientId'])
+        #     body = """
+        #
+        #     Error on binding card %s.
+        #
+        #     Message: %s
+        #
+        #     Client id: %s
+        #
+        #     Client phone: %s
+        #     Client name: %s
+        #     """ % (check['Pan'][-4:], check['ErrorMessage'], check['clientId'], client.phone, client.name)
+        #
+        #     mail.send_mail(sender_email, 'ramazanovrustem@gmail.com', subject, body)
 
-            Error on binding card %s.
-
-            Message: %s
-
-            Client id: %s
-
-            Client phone: %s
-            Client name: %s
-            """ % (check['Pan'][-4:], check['ErrorMessage'], check['clientId'], client.phone, client.name)
-
-            mail.send_mail(sender_email, 'ramazanovrustem@gmail.com', subject, body)
-
-        return self.render_json({'result': {'bindingId': check['bindingId'],
+        if check.get('ErrorCode', '0') == '0':
+            return self.render_json({'result': {'bindingId': check['bindingId'],
                                             'pan': check['Pan'],
                                             'expiration': check['expiration'],
                                             'orderStatus': check['OrderStatus']},
-                                 'error_code': int(check.get('errorCode', 0)),
+                                 'error_code': int(check.get('ErrorCode', 0)),
                                 })
+        else:
+            return self.render_json({'error_code': int(check.get('ErrorCode', 0))})
 
 
 class CreateByCardHandler(BaseHandler):
