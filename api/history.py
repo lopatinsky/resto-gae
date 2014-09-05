@@ -21,7 +21,7 @@ class HistoryRequestHandler(BaseHandler):
             history = iiko.get_history(client_id, venue.venue_id)
             orders_history = list()
             self.overall_history = list()
-            if not 'historyOrders' in history or not history['historyOrders']:
+            if 'historyOrders' not in history or not history['historyOrders']:
                 pass
             else:
                 for order in history['historyOrders']:
