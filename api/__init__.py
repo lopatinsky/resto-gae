@@ -11,5 +11,6 @@ from payment_type import *
 from delivery_type import *
 from bonus import *
 from alfa_bank import *
+from image_proxy import *
 
 __author__ = 'quiker'

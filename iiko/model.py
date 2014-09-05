@@ -214,3 +214,10 @@ class Company(ndb.Model):
             if item.available:
                 output.append(item.to_dict())
         return output
+
+
+class ImageCache(ndb.Model):
+    # key name is urlsafe_b64encoded image URL
+    updated = ndb.DateTimeProperty(auto_now=True)
+    last_modified = ndb.StringProperty(indexed=False)
+    serving_url = ndb.StringProperty(indexed=False)
