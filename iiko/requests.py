@@ -210,6 +210,7 @@ def get_menu(venue_id, token=None):
                 'price': product['price'],
                 'name': product['name'].capitalize(),
                 'productId': product['id'],
+                'order': product['order'],
                 'weight': product['weight'],
                 'carbohydrateAmount': product['carbohydrateAmount'],
                 'energyAmount': product['energyAmount'],
