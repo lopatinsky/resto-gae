@@ -17,7 +17,8 @@ class UpdateOrdersHandler(webapp2.RequestHandler):
             logging.info("number: %s, current_status: %d, new_status: %d" % (order.number, current_status, order.status))
             if order.status != current_status:
                 data = {'order_id': order.order_id,
-                        'order_status': order.status}
+                        'order_status': order.status,
+                        'action': 'com.empatika.iiko'}
                 #format_string = u'Статус заказа №{0} был изменен на {1}'
                 #alert_message = format_string.format(order.number, result['status'])
                 alert_message = u"\u0421\u0442\u0430\u0442\u0443\u0441 \u0437\u0430\u043a\u0430\u0437\u0430 \u2116{0} \u0431\u044b\u043b \u0438\u0437\u043c\u0435\u043d\u0435\u043d \u043d\u0430 {1}".format(order.number, result['status'])
