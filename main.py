@@ -47,5 +47,6 @@ app = webapp2.WSGIApplication([
     ('/api/delivery_types', GetAvailableDeliveryTypesHandler),
     ('/api/delivery_type/add', AddDeliveryType),
     ('/api/get_orders_with_bonuses', GetOrdersWithBonuses),
+    ('/img/(.*)', ImageProxyHandler),
     ('/', MainHandler)
 ], debug=True)

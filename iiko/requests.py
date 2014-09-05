@@ -5,7 +5,9 @@ import logging
 import urllib
 from google.appengine.api import memcache, urlfetch
 import operator
+import webapp2
 from iiko.model import Venue, Company, PaymentType
+from lib.image_cache import convert_url
 
 __author__ = 'quiker'
 
@@ -217,7 +219,7 @@ def get_menu(venue_id, token=None):
                 'fatAmount': product['fatAmount'],
                 'fiberAmount': product['fiberAmount'],
                 'code': product['code'],
-                'images': [img['imageUrl'].replace('\\', '') for img in product.get('images', [])],
+                'images': [convert_url(webapp2.get_request(), img['imageUrl']) for img in product.get('images', [])],
                 'description': product['description'],
                 'modifiers': grp_modifiers
             })
@@ -237,6 +239,8 @@ def get_menu(venue_id, token=None):
                 'image': cat['images'],
                 'order': cat['order']
             }
+            for image in categories[cat['id']]['image']:
+                image['imageUrl'] = convert_url(webapp2.get_request(), image['imageUrl'])
 
         for cat_id, cat in categories.items():
             cat_parent_id = cat.get('parent')
