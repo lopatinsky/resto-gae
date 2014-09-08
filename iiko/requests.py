@@ -1,5 +1,5 @@
 # coding=utf-8
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import logging
 import urllib
@@ -275,6 +275,9 @@ def check_food(venue_id, items):
 
 
 def place_order(order, customer, payment_type):
+    venue = Venue.venue_by_id(order.venue_id)
+    local_date = order.date + timedelta(seconds=venue.get_timezone_offset())
+
     obj = {
         'restaurantId': order.venue_id,
         'deliveryTerminalId': '2ecfd7dd-19e8-c7f4-0147-ec886f9c2aa1',
@@ -283,7 +286,7 @@ def place_order(order, customer, payment_type):
             'phone': customer.phone,
         },
         'order': {
-            'date': order.date.strftime('%Y-%m-%d %H:%M:%S'),
+            'date': local_date.strftime('%Y-%m-%d %H:%M:%S'),
             'isSelfService': 0 if order.is_delivery else 1,
             'paymentItems': [{
                 'paymentType': {
@@ -311,7 +314,7 @@ def place_order(order, customer, payment_type):
     elif typ.type_id == 2:
         obj['order']['paymentItems'][0]['paymentType']['id'] = typ.iiko_uuid
 
-    org_id = Venue.venue_by_id(order.venue_id).company_id
+    org_id = venue.company_id
     if org_id == 5717119551406080 or obj['order']['paymentItems'][0]['paymentType']['id'] == '':
         del obj['order']['paymentItems']
         del obj['deliveryTerminalId']

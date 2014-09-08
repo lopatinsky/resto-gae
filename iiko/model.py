@@ -179,6 +179,13 @@ class Venue(ndb.Model):
             memcache.set('venue_%s' % venue.venue_id, venue, time=30*60)
         return venue
 
+    def get_timezone_offset(self):
+        result = memcache.get('venue_%s_timezone' % self.venue_id)
+        if not result:
+            result = geocoding.get_timezone_by_coords(self.latitude, self.longitude)
+            memcache.set('venue_%s_timezone', result, time=24*3600)
+        return result
+
     def to_dict(self):
         return {
             'venueId': self.venue_id,
