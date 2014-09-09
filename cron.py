@@ -1,8 +1,19 @@
+# coding=utf-8
+
 import logging
 import webapp2
 import iiko
 from iiko import Order
 from lib.parse_com import send_push
+
+STATUS_TEXTS = {
+    Order.UNKNOWN: u"Неизвестно",
+    Order.NOT_APPROVED: u"Ожидает подтверждения",
+    Order.APPROVED: u"Подтвержден",
+    Order.CANCELED: u"Отменен",
+    Order.CLOSED: u"Выполнен"
+}
+
 
 # TODO rework
 class UpdateOrdersHandler(webapp2.RequestHandler):
@@ -11,17 +22,18 @@ class UpdateOrdersHandler(webapp2.RequestHandler):
         orders.extend(Order.query(Order.status == Order.UNKNOWN).fetch(100500))
         orders.extend(Order.query(Order.status == Order.APPROVED).fetch(100500))
         for order in orders:
+            logging.info("order number: %s" % order.number)
             current_status = order.status
             result = iiko.order_info(order)
             order.set_status(result['status'])
-            logging.info("number: %s, current_status: %d, new_status: %d" % (order.number, current_status, order.status))
+            logging.info("current_status: %d, new_status: %d" % (current_status, order.status))
             if order.status != current_status:
                 data = {'order_id': order.order_id,
                         'order_status': order.status,
                         'action': 'com.empatika.iiko'}
-                #format_string = u'Статус заказа №{0} был изменен на {1}'
-                #alert_message = format_string.format(order.number, result['status'])
-                alert_message = u"\u0421\u0442\u0430\u0442\u0443\u0441 \u0437\u0430\u043a\u0430\u0437\u0430 \u2116{0} \u0431\u044b\u043b \u0438\u0437\u043c\u0435\u043d\u0435\u043d \u043d\u0430 {1}".format(order.number, result['status'])
+                format_string = u'Статус заказа №{0} был изменен на {1}'
+                alert_message = format_string.format(order.number, STATUS_TEXTS[order.status])
+                #alert_message = u"\u0421\u0442\u0430\u0442\u0443\u0441 \u0437\u0430\u043a\u0430\u0437\u0430 \u2116{0} \u0431\u044b\u043b \u0438\u0437\u043c\u0435\u043d\u0435\u043d \u043d\u0430 {1}".format(order.number, result['status'])
                 logging.info(alert_message)
                 send_push("order_%s" % order.order_id, alert=alert_message, data=data)
                 order.put()
