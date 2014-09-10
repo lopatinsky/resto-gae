@@ -378,7 +378,7 @@ def get_new_orders(venue_id, token=None):
         'organization': venue_id,
         'dateFrom': '2000-01-01 00:00:00',
         'dateTo': local_date.strftime('%Y-%m-%d %H:%M:%S'),
-        'deliveryStatus': 'NEW'
+        'deliveryStatus': 'UNCONFIRMED'
     })
     obj = json.loads(result)
     return obj
