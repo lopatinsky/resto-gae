@@ -172,6 +172,7 @@ class VenueNewOrderListHandler(base.BaseHandler):
                 'address': address,
                 'createdDate': time.mktime(datetime.datetime.strptime(order['createdTime'], "%Y-%m-%d %H:%M:%S").timetuple()),
                 'deliveryDate': time.mktime(datetime.datetime.strptime(order['deliveryDate'], "%Y-%m-%d %H:%M:%S").timetuple()),
+                'client_id': order['customer']['id'],
                 'phone': order['customer']['phone'],
                 'discount': order['discount'],
                 'sum': order['sum'],
