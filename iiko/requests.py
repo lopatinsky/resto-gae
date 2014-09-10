@@ -368,6 +368,22 @@ def get_history(client_id, venue_id, token=None):
     return obj
 
 
+def get_new_orders(venue_id, token=None):
+    venue = Venue.venue_by_id(venue_id)
+    if not token:
+        token = get_access_token(venue.company_id)
+    local_date = datetime.now() + timedelta(seconds=venue.get_timezone_offset())
+    result = __get_request('/orders/deliveryOrders', {
+        'access_token': token,
+        'organization': venue_id,
+        'dateFrom': '2000-01-01 00:00:00',
+        'dateTo': local_date.strftime('%Y-%m-%d %H:%M:%S'),
+        'deliveryStatus': 'NEW'
+    })
+    obj = json.loads(result)
+    return obj
+
+
 def get_payment_types(venue_id, token=None):
     org_id = Venue.venue_by_id(venue_id).company_id
     if not token:

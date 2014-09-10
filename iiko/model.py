@@ -89,18 +89,22 @@ class Order(ndb.Model):
 
 
     # TODO Need to check english statuses(may be incorrect)
-    def set_status(self, status):
+    @classmethod
+    def parse_status(cls, status):
         status = status.lower()
         if status.find(u'не подтверждена') >= 0 or status.find('waiting for confirmation') >= 0:
-            self.status = self.NOT_APPROVED
+            return cls.NOT_APPROVED
         elif status.find(u'новая') >= 0 or status.find('new') >= 0:
-            self.status = self.APPROVED
+            return cls.APPROVED
         elif status.find(u'закрыта') >= 0 or status.find('closed') >= 0:
-            self.status = self.CLOSED
+            return cls.CLOSED
         elif status.find(u'отменена') >= 0 or status.find('cancelled') >= 0:
-            self.status = self.CANCELED
+            return cls.CANCELED
         else:
-            self.status = self.UNKNOWN
+            return cls.UNKNOWN
+
+    def set_status(self, status):
+        self.status = self.parse_status(status)
 
     @classmethod
     def order_by_id(cls, order_id):

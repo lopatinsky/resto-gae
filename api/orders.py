@@ -6,7 +6,7 @@ import time
 import iiko
 import base
 from iiko.requests import tie_card, create_pay, pay_by_card
-from iiko.model import PaymentType
+from iiko.model import Order
 
 __author__ = 'quiker'
 
@@ -137,3 +137,47 @@ class OrderInfoRequestHandler(base.BaseHandler):
         self.render_json({
             'order': order.to_dict()
         })
+
+
+class VenueNewOrderListHandler(base.BaseHandler):
+    """ /api/venue/%s/new_orders """
+    def get(self, venue_id):
+        orders = iiko.get_new_orders(venue_id)
+        logging.info(orders)
+        order_list = []
+        for order in orders['deliveryOrders']:
+            order_items = []
+            for item in order['items']:
+                order_items.append({
+                    'sum': item['sum'],
+                    'amount': item['amount'],
+                    'name': item['name'],
+                    'modifiers': item['modifiers'],
+                    'id': item['id']
+                })
+
+            address = {}
+            if order['address']:
+                address = {'city': order['address']['city'],
+                           'street': order['address']['street'],
+                           'home': order['address']['home'],
+                           'apartment': order['address']['apartment'],
+                           'housing': order['address']['housing'],
+                           'entrance': order['address']['entrance'],
+                           'floor': order['address']['floor'], }
+
+            order_list.append({
+                'order_id': order['orderId'],
+                'number': order['number'],
+                'address': address,
+                'createdDate': time.mktime(datetime.datetime.strptime(order['createdTime'], "%Y-%m-%d %H:%M:%S").timetuple()),
+                'deliveryDate': time.mktime(datetime.datetime.strptime(order['deliveryDate'], "%Y-%m-%d %H:%M:%S").timetuple()),
+                'phone': order['customer']['phone'],
+                'discount': order['discount'],
+                'sum': order['sum'],
+                'items': order_items,
+                'venue_id': venue_id,
+                'status': Order.parse_status(order['status'])
+            })
+        logging.info(len(order_list))
+        self.render_json({'orders': order_list})

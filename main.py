@@ -39,6 +39,7 @@ app = webapp2.WSGIApplication([
     ('/api/venue/(.*)/order/new', PlaceOrderRequestHandler),
     ('/api/venue/(.*)/order/(.*)', VenueOrderInfoRequestHandler),
     ('/api/order/(.*)', OrderInfoRequestHandler),
+    ('/api/venue/(.*)/new_orders', VenueNewOrderListHandler),
     ('/api/status', StatusRequestHandler),
     ('/api/add_company', AddCompanyRequestHandler),
     ('/api/payment_types/(.*)', GetPaymentType),
