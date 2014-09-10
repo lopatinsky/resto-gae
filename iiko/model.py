@@ -187,7 +187,7 @@ class Venue(ndb.Model):
         result = memcache.get('venue_%s_timezone' % self.venue_id)
         if not result:
             result = geocoding.get_timezone_by_coords(self.latitude, self.longitude)
-            memcache.set('venue_%s_timezone', result, time=24*3600)
+            memcache.set('venue_%s_timezone' % self.venue_id, result, time=24*3600)
         return result
 
     def to_dict(self):
