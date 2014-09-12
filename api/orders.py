@@ -148,6 +148,18 @@ class VenueNewOrderListHandler(base.BaseHandler):
         end_date = datetime.datetime.fromtimestamp(end) if end else None
         orders = iiko.get_new_orders(venue_id, start_date, end_date)
         logging.info(orders)
+
+        menu = iiko.get_menu(venue_id)
+        images_map = {}
+
+        def process_category(category):
+            for product in category['products']:
+                images_map[product['productId']] = product['images']
+            for subcategory in category['children']:
+                process_category(subcategory)
+        for c in menu:
+            process_category(c)
+
         order_list = []
         for order in orders['deliveryOrders']:
             order_items = []
@@ -157,7 +169,8 @@ class VenueNewOrderListHandler(base.BaseHandler):
                     'amount': item['amount'],
                     'name': item['name'],
                     'modifiers': item['modifiers'],
-                    'id': item['id']
+                    'id': item['id'],
+                    'images': images_map.get(item['id'], [])
                 })
 
             address = {}
