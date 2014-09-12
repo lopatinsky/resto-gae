@@ -10,9 +10,6 @@ from iiko.model import Order
 
 __author__ = 'quiker'
 
-LOGIN = 'empatika_autopay-api'
-PASSWORD = 'empatika_autopay'
-
 
 class PlaceOrderRequestHandler(base.BaseHandler):
     """ /api/venue/%s/order/new """
@@ -43,22 +40,16 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         # TODO do it right
         # Sorry, Misha, shame on me =(
         if payment_type == '2':
-            tie_result = tie_card(LOGIN, PASSWORD, int(sum) * 100, int(time.time()), 'returnUrl',  alpha_client_id, 'MOBILE')
+            tie_result = tie_card(int(sum) * 100, int(time.time()), 'returnUrl',  alpha_client_id, 'MOBILE')
             logging.info("registration")
             logging.info(str(tie_result))
             if 'errorCode' not in tie_result.keys() or str(tie_result['errorCode']) == '0':
                 order_id = tie_result['orderId']
-                create_result = create_pay(LOGIN, PASSWORD, binding_id, order_id)
+                create_result = create_pay(binding_id, order_id)
                 logging.info("block")
                 logging.info(str(create_result))
                 if 'errorCode' not in create_result.keys() or str(create_result['errorCode']) == '0':
-                    pay_result = pay_by_card(LOGIN, PASSWORD, order_id, 0)
-                    logging.info("pay")
-                    logging.info(str(pay_result))
-                    if 'errorCode' not in pay_result.keys() or str(pay_result['errorCode']) == '0':
-                        pass
-                    else:
-                       self.abort(400)
+                    pass
                 else:
                     self.abort(400)
             else:
@@ -73,6 +64,8 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         order.customer = customer.key
         order.comment = comment
         order.is_delivery = int(delivery_type) == 0
+        order.payment_type = payment_type
+        order.alfa_order_id = order_id
         if order.is_delivery:
             if not address:
                 self.abort(400)

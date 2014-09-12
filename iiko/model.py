@@ -86,6 +86,8 @@ class Order(ndb.Model):
     number = ndb.StringProperty()
     status = ndb.IntegerProperty()
     comment = ndb.StringProperty()
+    payment_type = ndb.StringProperty()
+    alfa_order_id = ndb.StringProperty()
 
 
     # TODO Need to check english statuses(may be incorrect)

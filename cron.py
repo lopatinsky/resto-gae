@@ -3,7 +3,7 @@
 import logging
 import webapp2
 import iiko
-from iiko import Order
+from iiko import Order, PaymentType
 from lib.parse_com import send_push
 
 STATUS_TEXTS = {
@@ -28,6 +28,26 @@ class UpdateOrdersHandler(webapp2.RequestHandler):
             order.set_status(result['status'])
             logging.info("current_status: %d, new_status: %d" % (current_status, order.status))
             if order.status != current_status:
+                if order.payment_type == '2':
+                    logging.info("order paid by card")
+                    if order.status == Order.CLOSED:
+                        pay_result = iiko.pay_by_card(order.alfa_order_id, 0)
+                        logging.info("pay")
+                        logging.info(str(pay_result))
+                        if 'errorCode' not in pay_result.keys() or str(pay_result['errorCode']) == '0':
+                            logging.info("pay succeeded")
+                        else:
+                            logging.warning("pay failed")
+
+                    elif order.status == Order.CANCELED:
+                        cancel_result = iiko.get_back_blocked_sum(order.alfa_order_id)
+                        logging.info("cancel")
+                        logging.info(str(cancel_result))
+                        if 'errorCode' not in cancel_result or str(cancel_result['errorCode']) == '0':
+                            logging.info("cancel succeeded")
+                        else:
+                            logging.warning("cancel failed")
+
                 data = {'order_id': order.order_id,
                         'order_status': order.status,
                         'action': 'com.empatika.iiko'}

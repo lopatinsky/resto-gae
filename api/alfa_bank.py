@@ -6,9 +6,6 @@ from iiko import tie_card, check_status, get_back_blocked_sum, create_pay, pay_b
 
 __author__ = 'mihailnikolaev'
 
-LOGIN = 'empatika_autopay-api'
-PASSWORD = 'empatika_autopay'
-
 
 class PreCheckHandler(BaseHandler):
     def post(self):
@@ -17,7 +14,7 @@ class PreCheckHandler(BaseHandler):
         returnUrl = self.request.get('returnUrl')
 
         order_number = random.randrange(1000000000000, 9999999999999)
-        tie = tie_card(LOGIN, PASSWORD, amount, order_number,
+        tie = tie_card(amount, order_number,
                        returnUrl, client_id, 'MOBILE')
         logging.info(str(tie))
         return self.render_json({'result': {'orderId': tie['orderId'],
@@ -29,7 +26,7 @@ class PreCheckHandler(BaseHandler):
 class CheckStatusHandler(BaseHandler):
     def post(self):
         order_id = self.request.get('orderId')
-        check = check_status(LOGIN, PASSWORD, order_id)
+        check = check_status(order_id)
         logging.info(str(check))
         # if check['ErrorCode'] == "2":
         #     sender_email = "Empatika-resto Support <info@resto.com>"
@@ -64,7 +61,7 @@ class CreateByCardHandler(BaseHandler):
     def post(self):
         order_id = self.request.get('orderId')
         binding_id = self.request.get('bindingId')
-        pay = create_pay(LOGIN, PASSWORD, binding_id, order_id)
+        pay = create_pay(binding_id, order_id)
         logging.info(str(pay))
         return self.render_json({'result': {},
                                  'error_code': int(pay.get('errorCode', 0)),
@@ -74,7 +71,7 @@ class CreateByCardHandler(BaseHandler):
 class ResetBlockedSumHandler(BaseHandler):
     def post(self):
         order_id = self.request.get('orderId')
-        tie = get_back_blocked_sum(LOGIN, PASSWORD, order_id)
+        tie = get_back_blocked_sum(order_id)
         logging.info(str(tie))
         return self.render_json({'result': {},
                                  'error_code': int(tie.get('errorCode', 0)),
@@ -85,7 +82,7 @@ class PayByCardHandler(BaseHandler):
     def post(self):
         order_id = self.request.get('orderId')
         amount = self.request.get('amount', 0)
-        pay = pay_by_card(LOGIN, PASSWORD, order_id, amount)
+        pay = pay_by_card(order_id, amount)
         logging.info(str(pay))
         return self.render_json({'result': pay})
 
@@ -93,6 +90,6 @@ class PayByCardHandler(BaseHandler):
 class UnbindCardHandler(BaseHandler):
     def post(self):
         binding_id = self.request.get('bindingId')
-        unbind = unbind_card(LOGIN, PASSWORD, binding_id)
+        unbind = unbind_card(binding_id)
         logging.info(str(unbind))
         return self.render_json({'result': unbind})

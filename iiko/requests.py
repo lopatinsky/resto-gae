@@ -15,6 +15,9 @@ IIKO_BASE_URL = 'https://iiko.net:9900/api/0'
 ALFA_BASE_URL = 'https://test.paymentgate.ru/testpayment'
 PLACES_API_KEY = 'AIzaSyAUCbsYSIouu5ksA35CFNl2b_DbRF4nCpg'  # 'AIzaSyCFCmb9MGL22ulEXiHHo6hs3XANIUNrnEI'
 
+ALFA_LOGIN = 'empatika_autopay-api'
+ALFA_PASSWORD = 'empatika_autopay'
+
 
 def __get_request(api_path, params):
     url = '%s%s' % (IIKO_BASE_URL, api_path)
@@ -469,10 +472,10 @@ def get_address_by_key(key):
     }
 
 
-def tie_card(login, password, amount, orderNumber, returnUrl, client_id, pageView):
+def tie_card(amount, orderNumber, returnUrl, client_id, pageView):
     p = {
-        'userName': login,
-        'password': password,
+        'userName': ALFA_LOGIN,
+        'password': ALFA_PASSWORD,
         'amount': amount,
         'orderNumber': orderNumber,
         'returnUrl': returnUrl,
@@ -483,30 +486,30 @@ def tie_card(login, password, amount, orderNumber, returnUrl, client_id, pageVie
     return json.loads(result)
 
 
-def check_status(login, password, order_id):
+def check_status(order_id):
     params = {
-        'userName': login,
-        'password': password,
+        'userName': ALFA_LOGIN,
+        'password': ALFA_PASSWORD,
         'orderId': order_id
     }
     result = __post_request_alfa('/rest/getOrderStatus.do', params)
     return json.loads(result)
 
 
-def get_back_blocked_sum(login, password, order_id):
+def get_back_blocked_sum(order_id):
     params = {
-        'userName': login,
-        'password': password,
+        'userName': ALFA_LOGIN,
+        'password': ALFA_PASSWORD,
         'orderId': order_id
     }
     result = __post_request_alfa('/rest/reverse.do', params)
     return json.loads(result)
 
 
-def create_pay(login, password, binding_id, order_id):
+def create_pay(binding_id, order_id):
     params = {
-        'userName': login,
-        'password': password,
+        'userName': ALFA_LOGIN,
+        'password': ALFA_PASSWORD,
         'mdOrder': order_id,
         'bindingId': binding_id
     }
@@ -514,10 +517,10 @@ def create_pay(login, password, binding_id, order_id):
     return json.loads(result)
 
 
-def pay_by_card(login, password, order_id, amount):
+def pay_by_card(order_id, amount):
     params = {
-        'userName': login,
-        'password': password,
+        'userName': ALFA_LOGIN,
+        'password': ALFA_PASSWORD,
         'orderId': order_id,
         'amount': amount
     }
@@ -525,10 +528,10 @@ def pay_by_card(login, password, order_id, amount):
     return json.loads(result)
 
 
-def unbind_card(login, password, binding_id):
+def unbind_card(binding_id):
     params = {
-        'userName': login,
-        'password': password,
+        'userName': ALFA_LOGIN,
+        'password': ALFA_PASSWORD,
         'bindingId': binding_id
     }
     result = __post_request_alfa('/rest/unBindCard.do', params)
