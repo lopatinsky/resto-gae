@@ -368,16 +368,23 @@ def get_history(client_id, venue_id, token=None):
     return obj
 
 
-def get_new_orders(venue_id, token=None):
+def get_new_orders(venue_id, start_date, end_date, token=None):
     venue = Venue.venue_by_id(venue_id)
+    offset = timedelta(seconds=venue.get_timezone_offset())
+    if not start_date:
+        start_date = datetime(2000, 1, 1, 0, 0, 0)
+    start_date += offset
+    if not end_date:
+        end_date = datetime.now()
+    end_date += offset
+
     if not token:
         token = get_access_token(venue.company_id)
-    local_date = datetime.now() + timedelta(seconds=venue.get_timezone_offset())
     result = __get_request('/orders/deliveryOrders', {
         'access_token': token,
         'organization': venue_id,
-        'dateFrom': '2000-01-01 00:00:00',
-        'dateTo': local_date.strftime('%Y-%m-%d %H:%M:%S'),
+        'dateFrom': start_date.strftime('%Y-%m-%d %H:%M:%S'),
+        'dateTo': end_date.strftime('%Y-%m-%d %H:%M:%S'),
         'deliveryStatus': 'UNCONFIRMED'
     })
     obj = json.loads(result)

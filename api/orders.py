@@ -142,7 +142,11 @@ class OrderInfoRequestHandler(base.BaseHandler):
 class VenueNewOrderListHandler(base.BaseHandler):
     """ /api/venue/%s/new_orders """
     def get(self, venue_id):
-        orders = iiko.get_new_orders(venue_id)
+        start = self.request.get_range("start")
+        end = self.request.get_range("end")
+        start_date = datetime.datetime.fromtimestamp(start) if start else None
+        end_date = datetime.datetime.fromtimestamp(end) if end else None
+        orders = iiko.get_new_orders(venue_id, start_date, end_date)
         logging.info(orders)
         order_list = []
         for order in orders['deliveryOrders']:
