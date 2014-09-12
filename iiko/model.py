@@ -224,8 +224,7 @@ class Company(ndb.Model):
         org = cls.get_by_id(int(org_id))
         output = []
         for item in ndb.get_multi(org.delivery_types):
-            if item.available:
-                output.append(item.to_dict())
+            output.append(item.to_dict())
         return output
 
 
