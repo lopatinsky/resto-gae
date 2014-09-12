@@ -54,6 +54,8 @@ class PlaceOrderRequestHandler(base.BaseHandler):
                     self.abort(400)
             else:
                 self.abort(400)
+        else:
+            order_id = None
 
 
         order = iiko.Order()
