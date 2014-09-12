@@ -17,7 +17,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
     def post(self, venue_id):
         logging.info(self.request.POST)
 
-        name = self.request.get('name')
+        name = self.request.get('name').strip()
         phone = self.request.get('phone')
         customer_id = self.request.get('customer_id')
         delivery_type = self.request.get('deliveryType', 0)
