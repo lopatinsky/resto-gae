@@ -293,10 +293,10 @@ def place_order(order, customer, payment_type):
             'isSelfService': 0 if order.is_delivery else 1,
             'paymentItems': [{
                 'paymentType': {
-                    'id': '',
+                    'code': '',
                 },
                 'sum': order.sum,
-                'isProcessedExternally': 1
+                'isProcessedExternally': 0
             }],
             'phone': customer.phone,
             'items': order.items,
@@ -312,13 +312,15 @@ def place_order(order, customer, payment_type):
 
     typ = PaymentType.get_by_type_id(payment_type)
     if typ.type_id == 1:
-        obj['order']['paymentItems'][0]['paymentType']['id'] = typ.iiko_uuid
-        obj['order']['paymentItems'][0]['isProcessedExternally'] = 0
+        obj['order']['paymentItems'][0]['paymentType']['code'] = typ.iiko_uuid
     elif typ.type_id == 2:
-        obj['order']['paymentItems'][0]['paymentType']['id'] = typ.iiko_uuid
+        obj['order']['paymentItems'][0]['paymentType']['code'] = typ.iiko_uuid
+        obj['order']['paymentItems'][0]['isProcessedExternally'] = 1
+    elif typ.type_id == 3:
+        obj['order']['paymentItems'][0]['paymentType']['code'] = typ.iiko_uuid
 
     org_id = venue.company_id
-    if org_id == 5717119551406080 or obj['order']['paymentItems'][0]['paymentType']['id'] == '':
+    if org_id == 5717119551406080 or obj['order']['paymentItems'][0]['paymentType']['code'] == '':
         del obj['order']['paymentItems']
         del obj['deliveryTerminalId']
 
