@@ -283,7 +283,8 @@ def place_order(order, customer, payment_type):
 
     obj = {
         'restaurantId': order.venue_id,
-        'deliveryTerminalId': '2ecfd7dd-19e8-c7f4-0147-ec886f9c2aa1',
+        #TODO terminal id
+        # 'deliveryTerminalId': '2ecfd7dd-19e8-c7f4-0147-ec886f9c2aa1',
         'customer': {
             'name': customer.name,
             'phone': customer.phone,
