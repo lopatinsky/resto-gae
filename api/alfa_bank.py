@@ -1,8 +1,7 @@
 import logging
 import random
-from google.appengine.api import mail
 from api import BaseHandler
-from iiko import tie_card, check_status, get_back_blocked_sum, create_pay, pay_by_card, unbind_card, Customer
+from methods.alfa_bank import tie_card, check_status, get_back_blocked_sum, create_pay, pay_by_card, unbind_card
 
 __author__ = 'mihailnikolaev'
 

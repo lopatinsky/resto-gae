@@ -1,5 +1,5 @@
 from .base import BaseHandler
-from lib import image_cache
+from methods import image_cache
 
 
 class ImageProxyHandler(BaseHandler):

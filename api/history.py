@@ -1,8 +1,6 @@
-import json
 import logging
-import webapp2
 from api.base import BaseHandler
-import iiko
+from methods import iiko_api
 import time
 from datetime import datetime
 
@@ -16,9 +14,9 @@ class HistoryRequestHandler(BaseHandler):
     def get(self):
         client_id = self.request.get('client_id')
         org_id = self.request.get('organisation_id')
-        for venue in iiko.get_venues(org_id):
+        for venue in iiko_api.get_venues(org_id):
             logging.info(str(venue))
-            history = iiko.get_history(client_id, venue.venue_id)
+            history = iiko_api.get_history(client_id, venue.venue_id)
             orders_history = list()
             self.overall_history = list()
             if 'historyOrders' not in history or not history['historyOrders']:
