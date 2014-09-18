@@ -4,8 +4,8 @@ import logging
 
 import webapp2
 
-import models
-from models import Order
+from models.iiko import Order
+from methods import iiko_api
 from methods.alfa_bank import get_back_blocked_sum, pay_by_card
 from methods.parse_com import send_push
 
@@ -29,7 +29,7 @@ class UpdateOrdersHandler(webapp2.RequestHandler):
             try:
                 logging.info("order number: %s" % order.number)
                 current_status = order.status
-                result = models.order_info(order)
+                result = iiko_api.order_info(order)
                 order.set_status(result['status'])
                 logging.info("current_status: %d, new_status: %d" % (current_status, order.status))
                 if order.status != current_status:
