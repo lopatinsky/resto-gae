@@ -42,6 +42,7 @@ class AddPaymentType(BaseHandler):
         if not venue.check_ext(type_id):
             venue.payment_types.append(pt.key)
             venue.put()
+            memcache.set('venue_%s' % venue.venue_id, venue, time=30*60)
             return self.render_json({
                 'venue_id': venue.key.id(),
                 'payment_type': type_id
