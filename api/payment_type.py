@@ -1,4 +1,5 @@
 import logging
+from google.appengine.api import memcache
 from api.base import BaseHandler
 from iiko import get_payment_types, PaymentType
 from iiko.model import Venue
