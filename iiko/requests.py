@@ -284,7 +284,7 @@ def place_order(order, customer, payment_type):
     obj = {
         'restaurantId': order.venue_id,
         #TODO terminal id
-        # 'deliveryTerminalId': '2ecfd7dd-19e8-c7f4-0147-ec886f9c2aa1',
+        'deliveryTerminalId': '2ecfd7dd-19e8-c7f4-0147-ec886f9c2aa1',
         'customer': {
             'name': customer.name,
             'phone': customer.phone,
@@ -321,7 +321,7 @@ def place_order(order, customer, payment_type):
         obj['order']['paymentItems'][0]['paymentType']['code'] = typ.iiko_uuid
 
     org_id = venue.company_id
-    if org_id == 5717119551406080 or obj['order']['paymentItems'][0]['paymentType']['code'] == '':
+    if org_id == 5717119551406080 or org_id == 5700553057239040:
         del obj['order']['paymentItems']
         del obj['deliveryTerminalId']
 
