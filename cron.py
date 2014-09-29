@@ -1,5 +1,6 @@
 # coding=utf-8
 
+from methods import memcache_fix  # TODO remove
 import logging
 
 import webapp2
