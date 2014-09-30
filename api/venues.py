@@ -1,7 +1,10 @@
 import json
+
 import webapp2
-import iiko
-from iiko import Company, requests
+
+from models.iiko import Company
+from methods import iiko_api
+
 
 __author__ = 'quiker'
 
@@ -15,8 +18,8 @@ class VenuesHandler(webapp2.RequestHandler):
         if not company:
             return self.abort(403)
 
-        requests.get_organization_token(company.get_id())
-        venues = iiko.get_venues(company.get_id())
+        iiko_api.get_organization_token(company.get_id())
+        venues = iiko_api.get_venues(company.get_id())
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(json.dumps({
             'venues': [venue.to_dict() for venue in venues]

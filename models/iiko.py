@@ -1,8 +1,8 @@
 # coding=utf-8
-import logging
 from google.appengine.ext import ndb
 from google.appengine.api import memcache
-from lib import geocoding
+from methods import maps
+
 
 __author__ = 'quiker'
 
@@ -177,7 +177,7 @@ class Venue(ndb.Model):
         if venue.address != address:
             should_put = True
             venue.address = address
-            venue.latitude, venue.longitude = geocoding.get_address_coordinates(address)
+            venue.latitude, venue.longitude = maps.get_address_coordinates(address)
         if not venue.company_id:
             should_put = True
             venue.company_id = org_id
@@ -189,7 +189,7 @@ class Venue(ndb.Model):
     def get_timezone_offset(self):
         result = memcache.get('venue_%s_timezone' % self.venue_id)
         if not result:
-            result = geocoding.get_timezone_by_coords(self.latitude, self.longitude)
+            result = maps.get_timezone_by_coords(self.latitude, self.longitude)
             memcache.set('venue_%s_timezone' % self.venue_id, result, time=24*3600)
         return result
 

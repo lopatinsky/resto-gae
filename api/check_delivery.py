@@ -1,6 +1,5 @@
-import json
 from api.base import BaseHandler
-from iiko import get_delivery_restrictions, order_info1
+from methods.iiko_api import get_delivery_restrictions
 
 __author__ = 'mihailnikolaev'
 

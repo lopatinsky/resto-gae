@@ -1,5 +1,5 @@
 from api.base import BaseHandler
-from iiko import complete_address_input
+from methods.maps import complete_address_input
 
 __author__ = 'mihailnikolaev'
 

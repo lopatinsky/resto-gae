@@ -1,5 +1,5 @@
 from api import BaseHandler
-from iiko import Company, DeliveryType
+from models.iiko import Company, DeliveryType
 
 __author__ = 'mihailnikolaev'
 

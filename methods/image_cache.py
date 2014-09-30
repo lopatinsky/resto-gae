@@ -4,7 +4,7 @@ import StringIO
 import logging
 from PIL import Image
 from google.appengine.api import app_identity, blobstore, images, urlfetch
-from iiko.model import ImageCache
+from models.iiko import ImageCache
 from lib import cloudstorage
 
 MAX_SIZE = 400.

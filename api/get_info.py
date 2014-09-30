@@ -1,5 +1,5 @@
 from api.base import BaseHandler
-from iiko import get_address_by_key
+from methods.maps import get_address_by_key
 
 __author__ = 'mihailnikolaev'
 

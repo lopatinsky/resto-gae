@@ -1,5 +1,5 @@
 from api.base import BaseHandler
-from iiko import Company
+from models.iiko import Company
 
 __author__ = 'mihailnikolaev'
 

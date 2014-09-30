@@ -1,5 +1,5 @@
 from api import BaseHandler
-from iiko import get_orders_with_payments
+from methods.iiko_api import get_orders_with_payments
 
 __author__ = 'mihailnikolaev'
 

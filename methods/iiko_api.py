@@ -3,20 +3,18 @@ from datetime import datetime, timedelta
 import json
 import logging
 import urllib
-from google.appengine.api import memcache, urlfetch
 import operator
+
+from google.appengine.api import memcache, urlfetch
 import webapp2
-from iiko.model import Venue, Company, PaymentType
-from lib.image_cache import convert_url
+
+from models.iiko import Venue, Company, PaymentType
+from methods.image_cache import convert_url
+
 
 __author__ = 'quiker'
 
 IIKO_BASE_URL = 'https://iiko.net:9900/api/0'
-ALFA_BASE_URL = 'https://test.paymentgate.ru/testpayment'
-PLACES_API_KEY = 'AIzaSyAUCbsYSIouu5ksA35CFNl2b_DbRF4nCpg'  # 'AIzaSyCFCmb9MGL22ulEXiHHo6hs3XANIUNrnEI'
-
-ALFA_LOGIN = 'empatika_autopay-api'
-ALFA_PASSWORD = 'empatika_autopay'
 
 
 def __get_request(api_path, params):
@@ -35,16 +33,6 @@ def __post_request(api_path, params):
 
     return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=payload, deadline=30,
                           validate_certificate=False).content
-
-
-def __post_request_alfa(api_path, params):
-    url = '%s%s' % (ALFA_BASE_URL, api_path)
-    payload = json.dumps(params)
-    logging.info(payload)
-    if params:
-        url = '%s?%s' % (url, urllib.urlencode(params))
-    logging.info(url)
-    return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, deadline=30, validate_certificate=False).content
 
 
 def get_access_token(org_id):
@@ -417,125 +405,4 @@ def get_delivery_restrictions(venue_id, token=None):
         'access_token': token,
         'organization': venue_id,
     })
-    return json.loads(result)
-
-
-def complete_address_input(address):
-    url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json'
-    payload = urllib.urlencode({
-        'key': PLACES_API_KEY,
-        'sensor': 'false',
-        'input': address.encode('utf-8'),
-        'types': 'geocode',
-        'language': 'ru'
-    })
-    result = urlfetch.fetch(url='%s?%s' % (url, payload), method=urlfetch.GET, deadline=30)
-    if result.status_code != 200 or not result.content:
-        return []
-    try:
-        logging.info(result.content)
-        obj = json.loads(result.content)
-    except:
-        return []
-    predictions = obj.get('predictions')
-    results = []
-    for prediction in predictions:
-        if not 'route' in prediction.get('types', []):
-            continue
-        terms = prediction.get('terms', [])
-        if len(terms) == 0:
-            continue
-        results.append({
-            'key': prediction.get('reference'),
-            'source': 'google',
-            'title': terms[0].get('value'),
-            'description': ', '.join([t.get('value') for t in terms[1:]]) if len(terms) > 1 else ''
-        })
-    return results
-
-
-def get_address_by_key(key):
-    url = 'https://maps.googleapis.com/maps/api/place/details/json'
-    payload = urllib.urlencode({
-        'key': PLACES_API_KEY,
-        'sensor': 'false',
-        'reference': key
-    })
-    result = urlfetch.fetch(url='%s?%s' % (url, payload), method=urlfetch.GET, deadline=30)
-    if result.status_code != 200 or not result.content:
-        return None
-    try:
-        logging.info(result.content)
-        obj = json.loads(result.content)
-    except:
-        return None
-    return {
-        'address': obj['result']['formatted_address'],
-        'location': obj['result']['geometry']['location']
-    }
-
-
-def tie_card(amount, orderNumber, returnUrl, client_id, pageView):
-    p = {
-        'userName': ALFA_LOGIN,
-        'password': ALFA_PASSWORD,
-        'amount': amount,
-        'orderNumber': orderNumber,
-        'returnUrl': returnUrl,
-        'clientId': client_id,
-        'pageView': pageView
-    }
-    result = __post_request_alfa('/rest/registerPreAuth.do', p)
-    return json.loads(result)
-
-
-def check_status(order_id):
-    params = {
-        'userName': ALFA_LOGIN,
-        'password': ALFA_PASSWORD,
-        'orderId': order_id
-    }
-    result = __post_request_alfa('/rest/getOrderStatus.do', params)
-    return json.loads(result)
-
-
-def get_back_blocked_sum(order_id):
-    params = {
-        'userName': ALFA_LOGIN,
-        'password': ALFA_PASSWORD,
-        'orderId': order_id
-    }
-    result = __post_request_alfa('/rest/reverse.do', params)
-    return json.loads(result)
-
-
-def create_pay(binding_id, order_id):
-    params = {
-        'userName': ALFA_LOGIN,
-        'password': ALFA_PASSWORD,
-        'mdOrder': order_id,
-        'bindingId': binding_id
-    }
-    result = __post_request_alfa('/rest/paymentOrderBinding.do', params)
-    return json.loads(result)
-
-
-def pay_by_card(order_id, amount):
-    params = {
-        'userName': ALFA_LOGIN,
-        'password': ALFA_PASSWORD,
-        'orderId': order_id,
-        'amount': amount
-    }
-    result = __post_request_alfa('/rest/deposit.do', params)
-    return json.loads(result)
-
-
-def unbind_card(binding_id):
-    params = {
-        'userName': ALFA_LOGIN,
-        'password': ALFA_PASSWORD,
-        'bindingId': binding_id
-    }
-    result = __post_request_alfa('/rest/unBindCard.do', params)
     return json.loads(result)

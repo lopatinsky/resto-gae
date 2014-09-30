@@ -3,10 +3,10 @@ import json
 import logging
 import datetime
 import time
-import iiko
 import base
-from iiko.requests import tie_card, create_pay, pay_by_card
-from iiko.model import Order
+from methods import iiko_api
+from methods.alfa_bank import tie_card, create_pay
+from models import iiko
 
 __author__ = 'quiker'
 
@@ -24,7 +24,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         payment_type = self.request.get('paymentType')
         address = self.request.get('address')
         comment = self.request.get('comment')
-        sum = self.request.get('sum');
+        sum = self.request.get('sum')
         binding_id = self.request.get('binding_id')
         alpha_client_id = self.request.get('alpha_client_id')
 
@@ -39,6 +39,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
 
         # TODO do it right
         # Sorry, Misha, shame on me =(
+        order_id = None
         if payment_type == '2':
             tie_result = tie_card(int(sum) * 100, int(time.time()), 'returnUrl',  alpha_client_id, 'MOBILE')
             logging.info("registration")
@@ -54,9 +55,6 @@ class PlaceOrderRequestHandler(base.BaseHandler):
                     self.abort(400)
             else:
                 self.abort(400)
-        else:
-            order_id = None
-
 
         order = iiko.Order()
         order.sum = float(sum)
@@ -76,7 +74,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
             except:
                 self.abort(400)
 
-        result = iiko.place_order(order, customer, payment_type)
+        result = iiko_api.place_order(order, customer, payment_type)
         if 'code' in result.keys():
             self.response.set_status(500)
             return self.render_json(result)
@@ -111,7 +109,7 @@ class VenueOrderInfoRequestHandler(base.BaseHandler):
     def get(self, venue_id, order_id):
         order = iiko.Order.order_by_id(order_id)
 
-        result = iiko.order_info1(order_id, venue_id)
+        result = iiko_api.order_info1(order_id, venue_id)
         result['status'] = result['status'].replace(u'Новая', u'Подтвержден')
         result['status'] = result['status'].replace(u'Закрыта', u'Закрыт')
 
@@ -125,7 +123,7 @@ class OrderInfoRequestHandler(base.BaseHandler):
     def get(self, order_id):
         order = iiko.Order.order_by_id(order_id)
 
-        result = iiko.order_info(order)
+        result = iiko_api.order_info(order)
         order.set_status(result['status'])
         order.put()
 
@@ -141,10 +139,10 @@ class VenueNewOrderListHandler(base.BaseHandler):
         end = self.request.get_range("end")
         start_date = datetime.datetime.fromtimestamp(start) if start else None
         end_date = datetime.datetime.fromtimestamp(end) if end else None
-        orders = iiko.get_new_orders(venue_id, start_date, end_date)
+        orders = iiko_api.get_new_orders(venue_id, start_date, end_date)
         logging.info(orders)
 
-        menu = iiko.get_menu(venue_id)
+        menu = iiko_api.get_menu(venue_id)
         images_map = {}
 
         def process_category(category):
@@ -190,7 +188,7 @@ class VenueNewOrderListHandler(base.BaseHandler):
                 'sum': order['sum'],
                 'items': order_items,
                 'venue_id': venue_id,
-                'status': Order.parse_status(order['status'])
+                'status': iiko.Order.parse_status(order['status'])
             })
         logging.info(len(order_list))
         self.render_json({'orders': order_list})
