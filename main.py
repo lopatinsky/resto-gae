@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 import webapp2
-from methods import memcache_fix  # TODO remove
 from api import *
 
 
