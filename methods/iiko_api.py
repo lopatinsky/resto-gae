@@ -348,6 +348,7 @@ def order_info1(order_id, venue_id):
         'organization': venue_id,
         'order': order_id
     })
+    logging.info(result)
     return json.loads(result)
 
 

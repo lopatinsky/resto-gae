@@ -94,15 +94,14 @@ class Order(ndb.Model):
     @classmethod
     def parse_status(cls, status):
         status = status.lower()
-        if u'не подтверждена' in status or 'waiting for confirmation' in status or u'не обработана' in status:
+        if u'не подтверждена' in status or 'waiting for confirmation':
             return cls.NOT_APPROVED
-        elif u'новая' in status or 'new' in status or u'ожидает' in status or u'пора готовить' in status\
-                or u'готовится' in status or u'приготовлено' in status or u'ждет отправки' in status\
-                or u'в пути' in status or u'доставлен' in status:
+        elif u'новая' in status or 'new' in status or u'ждет отправки' in status\
+                or u'в пути' in status or u'готовится' in status or u'готово' in status:
             return cls.APPROVED
-        elif u'закрыт' in status or 'closed' in status:
+        elif u'закрыта' in status or 'closed' in status or u'доставлена' in status:
             return cls.CLOSED
-        elif u'отменен' in status or 'cancelled' in status:
+        elif u'отменена' in status or 'cancelled' in status:
             return cls.CANCELED
         else:
             return cls.UNKNOWN
