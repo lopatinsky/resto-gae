@@ -157,7 +157,7 @@ class Venue(ndb.Model):
         venue = memcache.get('venue_%s' % venue_id)
         if venue is None:
             venue = cls.query(cls.venue_id == venue_id).get()
-            memcache.set('venue_%s' % venue.venue_id, venue, time=30*60)
+            memcache.set('venue_%s' % venue_id, venue, time=30*60)
         return venue
 
     @classmethod
