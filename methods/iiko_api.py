@@ -71,6 +71,8 @@ def get_venues(org_id, token=None):
         obj = json.loads(result)
         venues = list()
         for v in obj:
+            if v['id'] == "23f9ce79-2dd3-11e4-80c8-0025907e32e9":
+                continue  # TODO demostand_empatika
             venues.append(Venue.venue_with_dict(v, org_id))
         memcache.set('iiko_venues_%s' % org_id, venues, time=30*60)
     return venues
