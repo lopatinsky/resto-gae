@@ -4,7 +4,7 @@ import logging
 
 import webapp2
 
-from models.iiko import Order
+from models.iiko import Order, Venue, Company
 from methods import iiko_api
 from methods.alfa_bank import get_back_blocked_sum, pay_by_card
 from methods.parse_com import send_push
@@ -35,8 +35,12 @@ class UpdateOrdersHandler(webapp2.RequestHandler):
                 if order.status != current_status:
                     if order.payment_type == '2':
                         logging.info("order paid by card")
+
+                        venue = Venue.venue_by_id(order.venue_id)
+                        company = Company.get_by_id(venue.company_id)
+
                         if order.status == Order.CLOSED:
-                            pay_result = pay_by_card(order.alfa_order_id, 0)
+                            pay_result = pay_by_card(company, order.alfa_order_id, 0)
                             logging.info("pay")
                             logging.info(str(pay_result))
                             if 'errorCode' not in pay_result.keys() or str(pay_result['errorCode']) == '0':
@@ -45,7 +49,7 @@ class UpdateOrdersHandler(webapp2.RequestHandler):
                                 logging.warning("pay failed")
 
                         elif order.status == Order.CANCELED:
-                            cancel_result = get_back_blocked_sum(order.alfa_order_id)
+                            cancel_result = get_back_blocked_sum(company, order.alfa_order_id)
                             logging.info("cancel")
                             logging.info(str(cancel_result))
                             if 'errorCode' not in cancel_result or str(cancel_result['errorCode']) == '0':

@@ -5,9 +5,6 @@ from google.appengine.api import urlfetch
 
 ALFA_BASE_URL = 'https://test.paymentgate.ru/testpayment'
 
-ALFA_LOGIN = 'empatika_autopay-api'
-ALFA_PASSWORD = 'empatika_autopay'
-
 
 def __post_request_alfa(api_path, params):
     url = '%s%s' % (ALFA_BASE_URL, api_path)
@@ -19,10 +16,10 @@ def __post_request_alfa(api_path, params):
     return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, deadline=30, validate_certificate=False).content
 
 
-def tie_card(amount, orderNumber, returnUrl, client_id, pageView):
+def tie_card(company, amount, orderNumber, returnUrl, client_id, pageView):
     p = {
-        'userName': ALFA_LOGIN,
-        'password': ALFA_PASSWORD,
+        'userName': company.alpha_login,
+        'password': company.alpha_pass,
         'amount': amount,
         'orderNumber': orderNumber,
         'returnUrl': returnUrl,
@@ -33,30 +30,30 @@ def tie_card(amount, orderNumber, returnUrl, client_id, pageView):
     return json.loads(result)
 
 
-def check_status(order_id):
+def check_status(company, order_id):
     params = {
-        'userName': ALFA_LOGIN,
-        'password': ALFA_PASSWORD,
+        'userName': company.alpha_login,
+        'password': company.alpha_pass,
         'orderId': order_id
     }
     result = __post_request_alfa('/rest/getOrderStatus.do', params)
     return json.loads(result)
 
 
-def get_back_blocked_sum(order_id):
+def get_back_blocked_sum(company, order_id):
     params = {
-        'userName': ALFA_LOGIN,
-        'password': ALFA_PASSWORD,
+        'userName': company.alpha_login,
+        'password': company.alpha_pass,
         'orderId': order_id
     }
     result = __post_request_alfa('/rest/reverse.do', params)
     return json.loads(result)
 
 
-def create_pay(binding_id, order_id):
+def create_pay(company, binding_id, order_id):
     params = {
-        'userName': ALFA_LOGIN,
-        'password': ALFA_PASSWORD,
+        'userName': company.alpha_login,
+        'password': company.alpha_pass,
         'mdOrder': order_id,
         'bindingId': binding_id
     }
@@ -64,10 +61,10 @@ def create_pay(binding_id, order_id):
     return json.loads(result)
 
 
-def pay_by_card(order_id, amount):
+def pay_by_card(company, order_id, amount):
     params = {
-        'userName': ALFA_LOGIN,
-        'password': ALFA_PASSWORD,
+        'userName': company.alpha_login,
+        'password': company.alpha_pass,
         'orderId': order_id,
         'amount': amount
     }
@@ -75,10 +72,10 @@ def pay_by_card(order_id, amount):
     return json.loads(result)
 
 
-def unbind_card(binding_id):
+def unbind_card(company, binding_id):
     params = {
-        'userName': ALFA_LOGIN,
-        'password': ALFA_PASSWORD,
+        'userName': company.alpha_login,
+        'password': company.alpha_pass,
         'bindingId': binding_id
     }
     result = __post_request_alfa('/rest/unBindCard.do', params)

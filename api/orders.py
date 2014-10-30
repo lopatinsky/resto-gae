@@ -7,6 +7,7 @@ import base
 from methods import iiko_api
 from methods.alfa_bank import tie_card, create_pay
 from models import iiko
+from models.iiko import Venue, Company
 
 __author__ = 'quiker'
 
@@ -37,16 +38,21 @@ class PlaceOrderRequestHandler(base.BaseHandler):
                 customer.customer_id = customer_id
             customer.put()
 
+        company = self.company
+        if not company:  # old Android clients
+            venue = Venue.venue_by_id(venue_id)
+            company = Company.get_by_id(venue.company_id)
+
         # TODO do it right
         # Sorry, Misha, shame on me =(
         order_id = None
         if payment_type == '2':
-            tie_result = tie_card(int(sum) * 100, int(time.time()), 'returnUrl',  alpha_client_id, 'MOBILE')
+            tie_result = tie_card(company, int(sum) * 100, int(time.time()), 'returnUrl',  alpha_client_id, 'MOBILE')
             logging.info("registration")
             logging.info(str(tie_result))
             if 'errorCode' not in tie_result.keys() or str(tie_result['errorCode']) == '0':
                 order_id = tie_result['orderId']
-                create_result = create_pay(binding_id, order_id)
+                create_result = create_pay(company, binding_id, order_id)
                 logging.info("block")
                 logging.info(str(create_result))
                 if 'errorCode' not in create_result.keys() or str(create_result['errorCode']) == '0':
