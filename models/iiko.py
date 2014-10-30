@@ -212,6 +212,8 @@ class Company(ndb.Model):
     password = ndb.StringProperty()
     delivery_types = ndb.KeyProperty(kind=DeliveryType, repeated=True)
     app_name = ndb.StringProperty()
+    alpha_login = ndb.StringProperty(indexed=False)
+    alpha_pass = ndb.StringProperty(indexed=False)
 
     def get_id(self):
         return self.key.id()
