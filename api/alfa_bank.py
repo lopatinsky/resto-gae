@@ -7,6 +7,8 @@ __author__ = 'mihailnikolaev'
 
 
 class PreCheckHandler(BaseHandler):
+    _company_required = True
+
     def post(self):
         client_id = self.request.get('clientId')
         amount = self.request.get('amount', 100)
@@ -23,6 +25,8 @@ class PreCheckHandler(BaseHandler):
 
 
 class CheckStatusHandler(BaseHandler):
+    _company_required = True
+
     def post(self):
         order_id = self.request.get('orderId')
         check = check_status(order_id)
@@ -57,6 +61,8 @@ class CheckStatusHandler(BaseHandler):
 
 
 class CreateByCardHandler(BaseHandler):
+    _company_required = True
+
     def post(self):
         order_id = self.request.get('orderId')
         binding_id = self.request.get('bindingId')
@@ -68,6 +74,8 @@ class CreateByCardHandler(BaseHandler):
 
 
 class ResetBlockedSumHandler(BaseHandler):
+    _company_required = True
+
     def post(self):
         order_id = self.request.get('orderId')
         tie = get_back_blocked_sum(order_id)
@@ -78,6 +86,8 @@ class ResetBlockedSumHandler(BaseHandler):
 
 
 class PayByCardHandler(BaseHandler):
+    _company_required = True
+
     def post(self):
         order_id = self.request.get('orderId')
         amount = self.request.get('amount', 0)
@@ -87,6 +97,8 @@ class PayByCardHandler(BaseHandler):
 
 
 class UnbindCardHandler(BaseHandler):
+    _company_required = True
+
     def post(self):
         binding_id = self.request.get('bindingId')
         unbind = unbind_card(binding_id)

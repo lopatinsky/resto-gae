@@ -7,6 +7,7 @@ __author__ = 'phil'
 
 class BaseHandler(webapp2.RequestHandler):
     company = None
+    _company_required = False
 
     def render_json(self, d):
         self.response.headers['Content-Type'] = 'application/json'
@@ -16,6 +17,6 @@ class BaseHandler(webapp2.RequestHandler):
         ua = self.request.headers["User-Agent"]
         name = ua.split('/', 1)[0].lower().strip()
         self.company = Company.query(Company.app_name == name).get()
-        if not self.company:
+        if self._company_required and not self.company:
             self.abort(400)
         return super(BaseHandler, self).dispatch()
