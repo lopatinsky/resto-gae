@@ -211,6 +211,7 @@ class Company(ndb.Model):
     name = ndb.StringProperty()
     password = ndb.StringProperty()
     delivery_types = ndb.KeyProperty(kind=DeliveryType, repeated=True)
+    app_name = ndb.StringProperty()
 
     def get_id(self):
         return self.key.id()
