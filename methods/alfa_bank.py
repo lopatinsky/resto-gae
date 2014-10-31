@@ -2,12 +2,11 @@ import json
 import logging
 import urllib
 from google.appengine.api import urlfetch
-
-ALFA_BASE_URL = 'https://test.paymentgate.ru/testpayment'
+from config import config
 
 
 def __post_request_alfa(api_path, params):
-    url = '%s%s' % (ALFA_BASE_URL, api_path)
+    url = '%s%s' % (config.ALFA_BASE_URL, api_path)
     payload = json.dumps(params)
     logging.info(payload)
     if params:
