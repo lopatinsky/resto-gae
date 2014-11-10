@@ -20,6 +20,8 @@ class PlaceOrderRequestHandler(base.BaseHandler):
 
         name = self.request.get('name').strip()
         phone = self.request.get('phone')
+        if len(phone) == 10 and not phone.startswith("7"):  # old Android version
+            phone = "7" + phone
         customer_id = self.request.get('customer_id')
         delivery_type = self.request.get('deliveryType', 0)
         payment_type = self.request.get('paymentType')
