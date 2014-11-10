@@ -5,7 +5,7 @@ import datetime
 import time
 import base
 from methods import iiko_api
-from methods.alfa_bank import tie_card, create_pay
+from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum
 from models import iiko
 from models.iiko import Venue, Company
 
@@ -84,6 +84,12 @@ class PlaceOrderRequestHandler(base.BaseHandler):
 
         result = iiko_api.place_order(order, customer, payment_type)
         if 'code' in result.keys():
+            logging.error('iiko failure')
+            if payment_type == '2':
+                # return money
+                return_result = get_back_blocked_sum(company, order_id)
+                logging.info('return')
+                logging.info(return_result)
             self.response.set_status(500)
             return self.render_json(result)
         if not customer_id:
