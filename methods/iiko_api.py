@@ -1,4 +1,5 @@
 # coding=utf-8
+from collections import defaultdict
 from datetime import datetime, timedelta
 import json
 import logging
@@ -78,31 +79,6 @@ def get_venues(org_id, token=None):
     return venues
 
 
-def get_all_items_in_modifier(result, modif_id, min_amount):
-    res = []
-    name = ''
-    group_id = ''
-    for item in result['products']:
-        if item['groupId']:
-            if item['groupId'] == modif_id and min_amount != 0:
-                res.append({
-                    'id': item['id'],
-                    'name': item['name'],
-                    'amount': min_amount,
-                })
-
-    for item in result['groups']:
-        if item['id'] == modif_id:
-            name = item['name']
-            group_id = item['id']
-            break
-    return {
-        'items': res,
-        'name': name,
-        'groupId': group_id
-    }
-
-
 def get_stop_list(venue_id):
     org_id = Venue.venue_by_id(venue_id).company_id
     result = __get_request('/stopLists/getDeliveryStopList', {
@@ -175,6 +151,34 @@ def abort_order(venue_id, order_id):
     return json.loads(result)
 
 
+def _get_menu_modifiers(menu):
+    group_modifiers = defaultdict(lambda: {'items': []})
+    modifiers = {}
+    for p in menu['products']:
+        if p['type'] == 'modifier':
+            mod_info = {
+                'id': p['id'],
+                'name': p['name'],
+                'price': p['price']
+            }
+            if p['groupId']:
+                mod_info['groupId'] = p['groupId']
+                group_modifiers[p['groupId']]['items'].append(mod_info)
+            else:
+                modifiers[p['id']] = mod_info
+    for g in menu['groups']:
+        if g['id'] in group_modifiers:
+            group_modifiers[g['id']].update({
+                'groupId': g['id'],
+                'name': g['name'],
+            })
+    return group_modifiers, modifiers
+
+
+def _clone(d):
+    return json.loads(json.dumps(d))
+
+
 def get_menu(venue_id, token=None):
     menu = memcache.get('iiko_menu_%s' % venue_id)
     org_id = Venue.venue_by_id(venue_id).company_id
@@ -184,24 +188,31 @@ def get_menu(venue_id, token=None):
         result = __get_request('/nomenclature/%s' % venue_id, {
             'access_token': token
         })
-        obj = json.loads(result)
-        product_by_categories = dict()
-        for product in obj['products']:
+        iiko_menu = json.loads(result)
+        group_modifiers, modifiers = _get_menu_modifiers(iiko_menu)
+        category_products = defaultdict(list)
+        for product in iiko_menu['products']:
             if product['parentGroup'] is None:
                 continue
-            if product.get('price', 0) == 0:
-                continue
-            lst = product_by_categories.get(product['parentGroup'])
-            if not lst:
-                lst = list()
-                product_by_categories[product['parentGroup']] = lst
-            grp_modifiers = list()
-            if product['groupModifiers']:
-                for modif in product['groupModifiers']:
-                    items = get_all_items_in_modifier(obj, modif['modifierId'], modif['minAmount'])
-                    if items['items']:
-                        grp_modifiers.append(items)
-            lst.append({
+
+            item_modifiers = []
+            for m in product['modifiers']:
+                modifier = _clone(modifiers[m['modifierId']])
+                modifier['minAmount'] = m['minAmount']
+                modifier['maxAmount'] = m['maxAmount']
+                modifier['defaultAmount'] = m['defaultAmount']
+                item_modifiers.append(modifier)
+
+            grp_modifiers = []
+            for m in product['groupModifiers']:
+                group = _clone(group_modifiers[m['modifierId']])
+                group['minAmount'] = m['minAmount']
+                group['maxAmount'] = m['maxAmount']
+                for item in group['items']:
+                    item['amount'] = m['minAmount']  # TODO legacy
+                grp_modifiers.append(group)
+
+            category_products[product['parentGroup']].append({
                 'price': product['price'],
                 'name': product['name'].capitalize(),
                 'productId': product['id'],
@@ -216,14 +227,15 @@ def get_menu(venue_id, token=None):
                            for img in product.get('images', [])
                            if img['imageUrl']],
                 'description': product['description'],
+                'item_modifiers': item_modifiers,
                 'modifiers': grp_modifiers
             })
 
         categories = dict()
-        for cat in obj['groups']:
+        for cat in iiko_menu['groups']:
             if not cat['isIncludedInMenu']:
                 continue
-            products = product_by_categories.get(cat['id'], [])
+            products = category_products[cat['id']]
             categories[cat['id']] = {
                 'id': cat['id'],
                 'name': cat['name'].capitalize(),
@@ -256,9 +268,9 @@ def get_menu(venue_id, token=None):
             if children:
                 cat['children'] = sorted(children, key=operator.itemgetter('order'), reverse=True)
 
-        menu = [cat[1] for cat in categories.items()]
+        menu = sorted(categories.values(), key=operator.itemgetter('order'), reverse=True)
         memcache.set('iiko_menu_%s' % venue_id, menu, time=1*3600)
-    return sorted(menu, key=operator.itemgetter('order'), reverse=True)
+    return menu
 
 
 def check_food(venue_id, items):
