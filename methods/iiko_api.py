@@ -195,13 +195,13 @@ def get_menu(venue_id, token=None):
             if product['parentGroup'] is None:
                 continue
 
-            item_modifiers = []
+            single_modifiers = []
             for m in product['modifiers']:
                 modifier = _clone(modifiers[m['modifierId']])
                 modifier['minAmount'] = m['minAmount']
                 modifier['maxAmount'] = m['maxAmount']
                 modifier['defaultAmount'] = m['defaultAmount']
-                item_modifiers.append(modifier)
+                single_modifiers.append(modifier)
 
             grp_modifiers = []
             for m in product['groupModifiers']:
@@ -227,7 +227,7 @@ def get_menu(venue_id, token=None):
                            for img in product.get('images', [])
                            if img['imageUrl']],
                 'description': product['description'],
-                'item_modifiers': item_modifiers,
+                'single_modifiers': single_modifiers,
                 'modifiers': grp_modifiers
             })
 
