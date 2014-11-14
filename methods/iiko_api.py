@@ -212,7 +212,9 @@ def get_menu(venue_id, token=None):
                 'fatAmount': product['fatAmount'],
                 'fiberAmount': product['fiberAmount'],
                 'code': product['code'],
-                'images': [convert_url(webapp2.get_request(), img['imageUrl']) for img in product.get('images', [])],
+                'images': [convert_url(webapp2.get_request(), img['imageUrl'])
+                           for img in product.get('images', [])
+                           if img['imageUrl']],
                 'description': product['description'],
                 'modifiers': grp_modifiers
             })
@@ -229,7 +231,7 @@ def get_menu(venue_id, token=None):
                 'parent': cat['parentGroup'],
                 'children': [],
                 'hasChildren': False,
-                'image': cat['images'],
+                'image': [image for image in cat['images'] if image['imageUrl']],
                 'order': cat['order']
             }
             for image in categories[cat['id']]['image']:
