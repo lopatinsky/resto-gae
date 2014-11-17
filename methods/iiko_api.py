@@ -161,11 +161,10 @@ def _get_menu_modifiers(menu):
                 'name': p['name'],
                 'price': p['price']
             }
+            modifiers[p['id']] = mod_info
             if p['groupId']:
-                mod_info['groupId'] = p['groupId']
-                group_modifiers[p['groupId']]['items'].append(mod_info)
-            else:
-                modifiers[p['id']] = mod_info
+                group_mod_info = dict(mod_info, groupId=p['groupId'])
+                group_modifiers[p['groupId']]['items'].append(group_mod_info)
     for g in menu['groups']:
         if g['id'] in group_modifiers:
             group_modifiers[g['id']].update({
