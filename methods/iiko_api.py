@@ -178,96 +178,104 @@ def _clone(d):
     return json.loads(json.dumps(d))
 
 
+def load_menu(venue, token=None):
+    org_id = venue.company_id
+    if not token:
+        token = get_access_token(org_id)
+    result = __get_request('/nomenclature/%s' % venue.venue_id, {
+        'access_token': token
+    })
+    iiko_menu = json.loads(result)
+    group_modifiers, modifiers = _get_menu_modifiers(iiko_menu)
+    category_products = defaultdict(list)
+    for product in iiko_menu['products']:
+        if product['parentGroup'] is None:
+            continue
+
+        single_modifiers = []
+        for m in product['modifiers']:
+            modifier = _clone(modifiers[m['modifierId']])
+            modifier['minAmount'] = m['minAmount']
+            modifier['maxAmount'] = m['maxAmount']
+            modifier['defaultAmount'] = m['defaultAmount']
+            single_modifiers.append(modifier)
+
+        grp_modifiers = []
+        for m in product['groupModifiers']:
+            group = _clone(group_modifiers[m['modifierId']])
+            group['minAmount'] = m['minAmount']
+            group['maxAmount'] = m['maxAmount']
+            for item in group['items']:
+                item['amount'] = m['minAmount']  # TODO legacy
+            grp_modifiers.append(group)
+
+        category_products[product['parentGroup']].append({
+            'price': product['price'],
+            'name': product['name'].capitalize(),
+            'productId': product['id'],
+            'order': product['order'],
+            'weight': product['weight'],
+            'carbohydrateAmount': product['carbohydrateAmount'],
+            'energyAmount': product['energyAmount'],
+            'fatAmount': product['fatAmount'],
+            'fiberAmount': product['fiberAmount'],
+            'code': product['code'],
+            'images': [convert_url(webapp2.get_request(), img['imageUrl'])
+                       for img in product.get('images', [])
+                       if img['imageUrl']],
+            'description': product['description'],
+            'single_modifiers': single_modifiers,
+            'modifiers': grp_modifiers
+        })
+
+    categories = dict()
+    for cat in iiko_menu['groups']:
+        if not cat['isIncludedInMenu']:
+            continue
+        products = category_products[cat['id']]
+        categories[cat['id']] = {
+            'id': cat['id'],
+            'name': cat['name'].capitalize(),
+            'products': products,
+            'parent': cat['parentGroup'],
+            'children': [],
+            'hasChildren': False,
+            'image': [image for image in cat['images'] if image['imageUrl']],
+            'order': cat['order']
+        }
+        for image in categories[cat['id']]['image']:
+            image['imageUrl'] = convert_url(webapp2.get_request(), image['imageUrl'])
+
+    for cat_id, cat in categories.items():
+        cat_parent_id = cat.get('parent')
+        if cat_parent_id:
+            parent = categories[cat_parent_id]
+            parent['children'].append(cat)
+            parent['hasChildren'] = True
+            if parent.get('products'):
+                parent['products'] = []
+
+    for cat_id, cat in categories.items():
+        cat_parent_id = cat.get('parent')
+        if cat_parent_id:
+            del categories[cat_id]
+
+    for cat_id, cat in categories.items():
+        children = cat.get('children')
+        if children:
+            cat['children'] = sorted(children, key=operator.itemgetter('order'), reverse=True)
+
+    venue.menu = sorted(categories.values(), key=operator.itemgetter('order'), reverse=True)
+    venue.put()
+
+
 def get_menu(venue_id, token=None):
     menu = memcache.get('iiko_menu_%s' % venue_id)
-    org_id = Venue.venue_by_id(venue_id).company_id
     if not menu:
-        if not token:
-            token = get_access_token(org_id)
-        result = __get_request('/nomenclature/%s' % venue_id, {
-            'access_token': token
-        })
-        iiko_menu = json.loads(result)
-        group_modifiers, modifiers = _get_menu_modifiers(iiko_menu)
-        category_products = defaultdict(list)
-        for product in iiko_menu['products']:
-            if product['parentGroup'] is None:
-                continue
-
-            single_modifiers = []
-            for m in product['modifiers']:
-                modifier = _clone(modifiers[m['modifierId']])
-                modifier['minAmount'] = m['minAmount']
-                modifier['maxAmount'] = m['maxAmount']
-                modifier['defaultAmount'] = m['defaultAmount']
-                single_modifiers.append(modifier)
-
-            grp_modifiers = []
-            for m in product['groupModifiers']:
-                group = _clone(group_modifiers[m['modifierId']])
-                group['minAmount'] = m['minAmount']
-                group['maxAmount'] = m['maxAmount']
-                for item in group['items']:
-                    item['amount'] = m['minAmount']  # TODO legacy
-                grp_modifiers.append(group)
-
-            category_products[product['parentGroup']].append({
-                'price': product['price'],
-                'name': product['name'].capitalize(),
-                'productId': product['id'],
-                'order': product['order'],
-                'weight': product['weight'],
-                'carbohydrateAmount': product['carbohydrateAmount'],
-                'energyAmount': product['energyAmount'],
-                'fatAmount': product['fatAmount'],
-                'fiberAmount': product['fiberAmount'],
-                'code': product['code'],
-                'images': [convert_url(webapp2.get_request(), img['imageUrl'])
-                           for img in product.get('images', [])
-                           if img['imageUrl']],
-                'description': product['description'],
-                'single_modifiers': single_modifiers,
-                'modifiers': grp_modifiers
-            })
-
-        categories = dict()
-        for cat in iiko_menu['groups']:
-            if not cat['isIncludedInMenu']:
-                continue
-            products = category_products[cat['id']]
-            categories[cat['id']] = {
-                'id': cat['id'],
-                'name': cat['name'].capitalize(),
-                'products': products,
-                'parent': cat['parentGroup'],
-                'children': [],
-                'hasChildren': False,
-                'image': [image for image in cat['images'] if image['imageUrl']],
-                'order': cat['order']
-            }
-            for image in categories[cat['id']]['image']:
-                image['imageUrl'] = convert_url(webapp2.get_request(), image['imageUrl'])
-
-        for cat_id, cat in categories.items():
-            cat_parent_id = cat.get('parent')
-            if cat_parent_id:
-                parent = categories[cat_parent_id]
-                parent['children'].append(cat)
-                parent['hasChildren'] = True
-                if parent.get('products'):
-                    parent['products'] = []
-
-        for cat_id, cat in categories.items():
-            cat_parent_id = cat.get('parent')
-            if cat_parent_id:
-                del categories[cat_id]
-
-        for cat_id, cat in categories.items():
-            children = cat.get('children')
-            if children:
-                cat['children'] = sorted(children, key=operator.itemgetter('order'), reverse=True)
-
-        menu = sorted(categories.values(), key=operator.itemgetter('order'), reverse=True)
+        venue = Venue.venue_by_id(venue_id)
+        if not venue.menu:
+            load_menu(venue, token)
+        menu = venue.menu
         memcache.set('iiko_menu_%s' % venue_id, menu, time=1*3600)
     return menu
 

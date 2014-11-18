@@ -3,3 +3,7 @@ cron:
 - description: update orders
   url: /cron/update_orders
   schedule: every 10 minutes
+
+- description: update menu
+  url: /cron/update_menu
+  schedule: every day 00:00

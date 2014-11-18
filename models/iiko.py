@@ -138,6 +138,7 @@ class Venue(ndb.Model):
     source = ndb.StringProperty()
     company_id = ndb.IntegerProperty()
     payment_types = ndb.KeyProperty(kind=PaymentType, repeated=True)
+    menu = ndb.JsonProperty()
 
     @classmethod
     def get_payment_types(cls, venue_id):

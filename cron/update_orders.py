@@ -79,6 +79,3 @@ class UpdateOrdersHandler(webapp2.RequestHandler):
         #logging.info('Send push to order_id: %s, status: %d', order.order_id, order.status)
         #order.put()
 
-app = webapp2.WSGIApplication([
-    ('/cron/update_orders', UpdateOrdersHandler)
-], debug=True)
