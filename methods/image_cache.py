@@ -11,17 +11,14 @@ MAX_SIZE = 400.
 _BUCKET = app_identity.get_default_gcs_bucket_name()
 
 
-def get_image(url_base64):
-    cache_info = ImageCache.get_by_id(url_base64)
+def _fetch_image(url_base64, cache_info):
     url = base64.urlsafe_b64decode(url_base64)
     logging.info("image url: %s", url)
     headers = {}
     if cache_info:
         logging.info("image was cached")
         headers['If-Modified-Since'] = cache_info.last_modified
-        if cache_info.updated > datetime.datetime.now() - datetime.timedelta(hours=1):
-            logging.info("image is fresh")
-            return cache_info.serving_url
+
     response = urlfetch.fetch(url, headers=headers)
     logging.info("image fetched, status is %s", response.status_code)
     if response.status_code == 200:  # new or updated image
@@ -58,7 +55,16 @@ def get_image(url_base64):
     elif response.status_code == 304:
         logging.info("image not modified")
         cache_info.put()  # refresh cache_info.updated
-    else:  # any error
+    else:
+        return None
+    return cache_info
+
+
+def get_image(url_base64, force_fetch=False):
+    cache_info = ImageCache.get_by_id(url_base64)
+    if force_fetch or not cache_info:
+        cache_info = _fetch_image(url_base64, cache_info)
+    if not cache_info:  # error while loading
         return None
     return cache_info.serving_url
 

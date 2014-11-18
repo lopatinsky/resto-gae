@@ -1,8 +1,44 @@
 import logging
 from google.appengine.api import memcache
+from google.appengine.ext import deferred
+from google.appengine.runtime import DeadlineExceededError
 import webapp2
 from methods import iiko_api
+from methods.image_cache import get_image
 from models.iiko import Venue
+
+
+def _get_menu_images(menu):
+    result = []
+
+    def process_category(category):
+        for image in category['image']:
+            result.append(image['imageUrl'])
+        for product in category['products']:
+            result.extend(product['images'])
+        for sub in category['children']:
+            process_category(sub)
+
+    for category in menu:
+        process_category(category)
+
+    for i, url in enumerate(result):
+        result[i] = url.partition('/img/')[2]
+    return result
+
+
+def _defer_load_images(venue_id, image_number):
+    logging.info("starting defer for %s", venue_id)
+    images = _get_menu_images(Venue.venue_by_id(venue_id).menu)
+    count = len(images)
+    logging.info("progress: %s/%s", image_number, count)
+    try:
+        while image_number < count:
+            image_url = str(images[image_number])
+            get_image(image_url, force_fetch=True)
+            image_number += 1
+    except DeadlineExceededError:
+        deferred.defer(_defer_load_images, venue_id, image_number)
 
 
 class UpdateMenuHandler(webapp2.RequestHandler):
@@ -12,5 +48,6 @@ class UpdateMenuHandler(webapp2.RequestHandler):
             try:
                 iiko_api.load_menu(venue)
                 memcache.set('iiko_menu_%s' % venue.venue_id, venue.menu, time=1*3600)
+                deferred.defer(_defer_load_images, venue.venue_id, 0)
             except Exception as e:
                 logging.exception(e)
