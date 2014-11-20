@@ -11,7 +11,7 @@ class PreCheckHandler(BaseHandler):
 
     def post(self):
         client_id = self.request.get('clientId')
-        amount = self.request.get('amount', 100)
+        amount = self.request.get_range('amount', min_value=100, default=100)
         returnUrl = self.request.get('returnUrl')
 
         order_number = random.randrange(1000000000000, 9999999999999)
