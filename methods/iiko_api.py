@@ -178,7 +178,7 @@ def _clone(d):
     return json.loads(json.dumps(d))
 
 
-def load_menu(venue, token=None):
+def _load_menu(venue, token=None):
     org_id = venue.company_id
     if not token:
         token = get_access_token(org_id)
@@ -265,16 +265,15 @@ def load_menu(venue, token=None):
         if children:
             cat['children'] = sorted(children, key=operator.itemgetter('order'), reverse=True)
 
-    venue.menu = sorted(categories.values(), key=operator.itemgetter('order'), reverse=True)
-    venue.put()
+    return sorted(categories.values(), key=operator.itemgetter('order'), reverse=True)
 
 
-def get_menu(venue_id, token=None):
+def get_menu(venue_id, force_reload=False, token=None):
     menu = memcache.get('iiko_menu_%s' % venue_id)
-    if not menu:
+    if not menu or force_reload:
         venue = Venue.venue_by_id(venue_id)
-        if not venue.menu:
-            load_menu(venue, token)
+        if not venue.menu or force_reload:
+            venue.menu = _load_menu(venue, token)
         menu = venue.menu
         memcache.set('iiko_menu_%s' % venue_id, menu, time=1*3600)
     return menu
