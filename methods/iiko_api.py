@@ -224,6 +224,7 @@ def _load_menu(venue, token=None):
                        for img in product.get('images', [])
                        if img['imageUrl']],
             'description': product['description'],
+            'additionalInfo': product['additionalInfo'],
             'single_modifiers': single_modifiers,
             'modifiers': grp_modifiers
         })
