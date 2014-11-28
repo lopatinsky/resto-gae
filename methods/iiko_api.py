@@ -275,6 +275,7 @@ def get_menu(venue_id, force_reload=False, token=None):
         venue = Venue.venue_by_id(venue_id)
         if not venue.menu or force_reload:
             venue.menu = _load_menu(venue, token)
+            venue.put()
         menu = venue.menu
         memcache.set('iiko_menu_%s' % venue_id, menu, time=1*3600)
     return menu
