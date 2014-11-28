@@ -209,6 +209,13 @@ def _load_menu(venue, token=None):
                 item['amount'] = m['minAmount']  # TODO legacy
             grp_modifiers.append(group)
 
+        add_info = None
+        if product['additionalInfo']:
+            try:
+                add_info = json.loads(product['additionalInfo'])
+            except ValueError:
+                pass
+
         category_products[product['parentGroup']].append({
             'price': product['price'],
             'name': product['name'].capitalize(),
@@ -224,7 +231,7 @@ def _load_menu(venue, token=None):
                        for img in product.get('images', [])
                        if img['imageUrl']],
             'description': product['description'],
-            'additionalInfo': product['additionalInfo'],
+            'additionalInfo': add_info,
             'single_modifiers': single_modifiers,
             'modifiers': grp_modifiers
         })
