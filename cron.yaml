@@ -7,3 +7,8 @@ cron:
 - description: update menu
   url: /cron/update_menu
   schedule: every day 00:00
+
+- description: send mivako gift emails
+  url: /cron/mivako_gifts
+  schedule: every 15 minutes from 10:00 to 22:30
+  timezone: Europe/Moscow
