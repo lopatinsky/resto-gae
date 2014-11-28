@@ -16,6 +16,7 @@
 #
 import webapp2
 from api import *
+from api import specials
 
 
 class MainHandler(webapp2.RequestHandler):
@@ -48,6 +49,10 @@ app = webapp2.WSGIApplication([
     ('/api/delivery_types', GetAvailableDeliveryTypesHandler),
     ('/api/delivery_type/add', AddDeliveryType),
     ('/api/get_orders_with_bonuses', GetOrdersWithBonuses),
+
+    ('/api/specials/mivako_gift/info', specials.MivakoPromoInfoHandler),
+    ('/api/specials/mivako_gift/send', specials.MivakoPromoSendGiftHandler),
+
     ('/img/(.*)', ImageProxyHandler),
     ('/', MainHandler)
 ], debug=True)
