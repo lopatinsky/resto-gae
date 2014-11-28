@@ -17,19 +17,31 @@ class MivakoPromoSendGiftHandler(BaseHandler):
     def post(self):
         from_ = self.request.get("from")
         to = self.request.get("to").split(",")
-        if not from_ or not to:
+        names = self.request.get("names").split(",")
+        if not from_ or not to or len(to) != len(names):
             self.abort(400)
 
-        for recipient in to:
-            MivakoGift(sender=from_, recipient=recipient).put()
+        recipients = zip(to, names)
+        for phone, name in recipients:
+            MivakoGift(sender=from_, recipient=phone, recipient_name=name).put()
+
+        recipients_str = "\n\n".join([u"Имя: %s\nТелефон: %s" % (name, phone)
+                                      for phone, name in recipients])
+
         mail_body = u"""Отправитель: %s
+
 Получатели:
+
 %s
-""" % (from_, "\n".join(to))
+""" % (from_, recipients_str)
+
         # TODO send to Mivako
         # mail.send_mail("mivako_gifts@empatika-resto.appspotmail.com", SOME_EMAIL, u"Подарок в Мивако", mail_body)
-        # TODO send to ourselves
-        # mail.send_mail_to_admins("mivako_gifts@empatika-resto.appspotmail.com", u"Подарок в Мивако", mail_body)
-        mail.send_mail("mivako_gifts@empatika-resto.appspotmail.com", "mdburshteyn@gmail.com",
-                       u"Подарок в Мивако", mail_body)
-        self.render_json({})
+        # send to ourselves
+        mail.send_mail_to_admins("mivako_gifts@empatika-resto.appspotmail.com", u"Подарок в Мивако", mail_body)
+
+        self.render_json({
+            "sms": u"""Привет! Дарю тебе ролл "Филадельфия"!
+Получи его при заказе в ресторане www.mivako.ru
+Скачай приложение: http://tiny.cc/_______"""
+        })
