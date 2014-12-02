@@ -216,6 +216,9 @@ def _load_menu(venue, token=None):
             except ValueError:
                 pass
 
+        if product['price'] == 0 and not single_modifiers and not group_modifiers:
+            continue
+
         category_products[product['parentGroup']].append({
             'price': product['price'],
             'name': product['name'].capitalize(),
