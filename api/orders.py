@@ -5,7 +5,7 @@ import datetime
 import time
 import base
 from methods import iiko_api
-from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum
+from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum, check_extended_status
 from models import iiko
 from models.iiko import Venue, Company
 
@@ -81,7 +81,14 @@ class PlaceOrderRequestHandler(base.BaseHandler):
                 logging.info("block")
                 logging.info(str(create_result))
                 if 'errorCode' not in create_result.keys() or str(create_result['errorCode']) == '0':
-                    pass
+                    status_check_result = check_extended_status(company, order_id)['alfa_response']
+                    logging.info("status check")
+                    logging.info(str(status_check_result))
+                    if str(status_check_result.get('errorCode')) == '0' and \
+                            status_check_result['actionCode'] == 0 and status_check_result['orderStatus'] == 1:
+                        pass
+                    else:
+                        self.abort(400)
                 else:
                     self.abort(400)
             else:
