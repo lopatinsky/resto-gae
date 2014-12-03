@@ -333,14 +333,14 @@ def prepare_order(order, customer, payment_type):
     if order.is_delivery:
         obj['order']['address'] = order.address
 
-    typ = PaymentType.get_by_type_id(payment_type)
-    if typ.type_id == 1:
-        obj['order']['paymentItems'][0]['paymentType']['code'] = typ.iiko_uuid
-    elif typ.type_id == 2:
-        obj['order']['paymentItems'][0]['paymentType']['code'] = typ.iiko_uuid
-        obj['order']['paymentItems'][0]['isProcessedExternally'] = 1
-    elif typ.type_id == 3:
-        obj['order']['paymentItems'][0]['paymentType']['code'] = typ.iiko_uuid
+    typ = venue.get_payment_type(payment_type)
+    obj['order']['paymentItems'][0]['paymentType']['code'] = typ.iiko_uuid
+    if typ.type_id == 2:
+        obj['order']['paymentItems'][0].update({
+            'isProcessedExternally': True,
+            'isExternal': True,
+            'isPreliminary': True
+        })
 
     org_id = venue.company_id
     if org_id == 5717119551406080 or org_id == 5700553057239040:

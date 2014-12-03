@@ -44,8 +44,6 @@ app = webapp2.WSGIApplication([
     ('/api/status', StatusRequestHandler),
     ('/api/add_company', AddCompanyRequestHandler),
     ('/api/payment_types/(.*)', GetPaymentType),
-    ('/api/payment_type/add', AddPaymentType),
-    ('/api/payment_type/edit', EditPaymentType),
     ('/api/delivery_types', GetAvailableDeliveryTypesHandler),
     ('/api/delivery_type/add', AddDeliveryType),
     ('/api/get_orders_with_bonuses', GetOrdersWithBonuses),

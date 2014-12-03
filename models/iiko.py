@@ -21,17 +21,6 @@ class PaymentType(ndb.Model):
             'available': self.available
         }
 
-    @classmethod
-    def check_existence(cls, type_id, iiko_uuid):
-        for typ in PaymentType.query():
-            if typ.type_id == int(type_id) and typ.iiko_uuid == iiko_uuid:
-                return typ
-        return None
-
-    @classmethod
-    def get_by_type_id(cls, type_id):
-        return PaymentType.query().filter(PaymentType.type_id == int(type_id)).get()
-
 
 class DeliveryType(ndb.Model):
     delivery_id = ndb.IntegerProperty()
@@ -148,11 +137,11 @@ class Venue(ndb.Model):
             output.append(item.to_dict())
         return output
 
-    def check_ext(self, type_id):
+    def get_payment_type(self, type_id):
         for item in ndb.get_multi(self.payment_types):
             if item.type_id == int(type_id):
-                return True
-        return False
+                return item
+        return None
 
     @classmethod
     def venue_by_id(cls, venue_id):
