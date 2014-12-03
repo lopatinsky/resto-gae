@@ -86,7 +86,8 @@ class Order(ndb.Model):
         if u'не подтверждена' in status or 'waiting for confirmation' in status:
             return cls.NOT_APPROVED
         elif u'новая' in status or 'new' in status or u'ждет отправки' in status\
-                or u'в пути' in status or u'готовится' in status or u'готово' in status:
+                or u'в пути' in status or u'готовится' in status or u'готово' in status\
+                or 'ready' in status:
             return cls.APPROVED
         elif u'закрыта' in status or 'closed' in status or u'доставлена' in status:
             return cls.CLOSED
