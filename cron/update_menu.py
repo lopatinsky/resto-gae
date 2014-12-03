@@ -46,7 +46,7 @@ class UpdateMenuHandler(webapp2.RequestHandler):
         venues = Venue.query().fetch()
         for venue in venues:
             try:
-                iiko_api.get_menu(venue, force_reload=True)
+                iiko_api.get_menu(venue.venue_id, force_reload=True)
                 deferred.defer(_defer_load_images, venue.venue_id, 0)
             except Exception as e:
                 logging.exception(e)
