@@ -1,4 +1,5 @@
 # coding=utf-8
+import logging
 from google.appengine.ext import ndb
 from google.appengine.api import memcache
 from methods import maps
@@ -94,6 +95,7 @@ class Order(ndb.Model):
         elif u'отменена' in status or 'cancelled' in status:
             return cls.CANCELED
         else:
+            logging.warning("Unknown status: %s", status)
             return cls.UNKNOWN
 
     def set_status(self, status):
