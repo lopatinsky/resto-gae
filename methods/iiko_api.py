@@ -207,12 +207,13 @@ def _load_menu(venue, token=None):
                 item['amount'] = m['minAmount']  # TODO legacy
             grp_modifiers.append(group)
 
+        add_info_str = product['additionalInfo']
         add_info = None
-        if product['additionalInfo']:
+        if add_info_str:
             try:
                 add_info = json.loads(product['additionalInfo'])
             except ValueError:
-                pass
+                add_info_str = None  # don't pass through raw info if cannot parse JSON
 
         if product['price'] == 0 and not single_modifiers and not group_modifiers:
             continue
@@ -233,6 +234,7 @@ def _load_menu(venue, token=None):
                        if img['imageUrl']],
             'description': product['description'],
             'additionalInfo': add_info,
+            'additionalInfo1': add_info_str,
             'single_modifiers': single_modifiers,
             'modifiers': grp_modifiers
         })
