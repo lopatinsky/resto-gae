@@ -72,8 +72,6 @@ def get_venues(org_id, token=None):
         obj = json.loads(result)
         venues = list()
         for v in obj:
-            if v['id'] == "23f9ce79-2dd3-11e4-80c8-0025907e32e9":
-                continue  # TODO demostand_empatika
             venues.append(Venue.venue_with_dict(v, org_id))
         memcache.set('iiko_venues_%s' % org_id, venues, time=30*60)
     return venues
@@ -299,7 +297,7 @@ def check_food(venue_id, items):
     return False
 
 
-def place_order(order, customer, payment_type):
+def prepare_order(order, customer, payment_type):
     venue = Venue.venue_by_id(order.venue_id)
     local_date = order.date + timedelta(seconds=venue.get_timezone_offset())
 
@@ -347,18 +345,17 @@ def place_order(order, customer, payment_type):
         del obj['order']['paymentItems']
         del obj['deliveryTerminalId']
 
-    # print create_order_with_bonus(order.venue_id, obj)
-    logging.info("OBJECT %s" % str(json.dumps(obj)))
-    pre_check = __post_request('/orders/checkCreate?access_token=%s&requestTimeout=30' % get_access_token(org_id), obj)
-    logging.info(pre_check)
-    # pre_check_obj = json.loads(pre_check)
-    # if pre_check_obj['code']:
-    #     return json.loads({
-    #         'code': pre_check_obj['code'],
-    #         'description': pre_check_obj['description']
-    #     })
+    return obj
 
-    result = __post_request('/orders/add?requestTimeout=30&access_token=%s' % get_access_token(org_id), obj)
+
+def pre_check_order(company_id, order_dict):
+    pre_check = __post_request('/orders/checkCreate?access_token=%s&requestTimeout=30' % get_access_token(company_id), order_dict)
+    logging.info(pre_check)
+    return json.loads(pre_check)
+
+
+def place_order(company_id, order_dict):
+    result = __post_request('/orders/add?requestTimeout=30&access_token=%s' % get_access_token(company_id), order_dict)
     logging.info(result)
     return json.loads(result)
 

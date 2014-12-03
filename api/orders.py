@@ -44,9 +44,32 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         if not company:  # old Android clients
             venue = Venue.venue_by_id(venue_id)
             company = Company.get_by_id(venue.company_id)
+        company_id = company.key.id()
 
-        # TODO do it right
-        # Sorry, Misha, shame on me =(
+        order = iiko.Order()
+        order.sum = float(sum)
+        order.date = datetime.datetime.fromtimestamp(int(self.request.get('date')))
+        order.venue_id = venue_id
+        order.items = json.loads(self.request.get('items'))
+        order.customer = customer.key
+        order.comment = comment
+        order.is_delivery = int(delivery_type) == 0
+        order.payment_type = payment_type
+        if order.is_delivery:
+            if not address:
+                self.abort(400)
+            try:
+                order.address = json.loads(address)
+            except:
+                self.abort(400)
+
+        order_dict = iiko_api.prepare_order(order, customer, payment_type)
+        pre_check_result = iiko_api.pre_check_order(company_id, order_dict)
+        if 'code' in pre_check_result:
+            logging.warning('iiko pre check failed')
+            self.abort(400)
+
+        # pay after pre check
         order_id = None
         if payment_type == '2':
             tie_result = tie_card(company, int(sum) * 100, int(time.time()), 'returnUrl',  alpha_client_id, 'MOBILE')
@@ -63,26 +86,9 @@ class PlaceOrderRequestHandler(base.BaseHandler):
                     self.abort(400)
             else:
                 self.abort(400)
-
-        order = iiko.Order()
-        order.sum = float(sum)
-        order.date = datetime.datetime.fromtimestamp(int(self.request.get('date')))
-        order.venue_id = venue_id
-        order.items = json.loads(self.request.get('items'))
-        order.customer = customer.key
-        order.comment = comment
-        order.is_delivery = int(delivery_type) == 0
-        order.payment_type = payment_type
         order.alfa_order_id = order_id
-        if order.is_delivery:
-            if not address:
-                self.abort(400)
-            try:
-                order.address = json.loads(address)
-            except:
-                self.abort(400)
 
-        result = iiko_api.place_order(order, customer, payment_type)
+        result = iiko_api.place_order(company_id, order_dict)
         if 'code' in result.keys():
             logging.error('iiko failure')
             if payment_type == '2':
