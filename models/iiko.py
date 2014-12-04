@@ -73,6 +73,7 @@ class Order(ndb.Model):
             'new',
             u'ждет отправки',
             u'в пути',
+            'on the way',
             u'готовится',
             'in progress',
             u'готово',
