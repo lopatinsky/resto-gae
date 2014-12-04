@@ -62,6 +62,33 @@ class Order(ndb.Model):
     CLOSED = 3
     CANCELED = 4
 
+    STATUS_MAPPING = {
+        NOT_APPROVED: [
+            u'не подтверждена',
+            'waiting for confirmation',
+            'not confirmed',
+        ],
+        APPROVED: [
+            u'новая',
+            'new',
+            u'ждет отправки',
+            u'в пути',
+            u'готовится',
+            'in progress',
+            u'готово',
+            'ready',
+        ],
+        CLOSED: [
+            u'закрыта',
+            'closed',
+            u'доставлена',
+        ],
+        CANCELED: [
+            u'отменена',
+            'cancelled',
+        ]
+    }
+
     date = ndb.DateTimeProperty()
     sum = ndb.FloatProperty(indexed=False)
     items = ndb.JsonProperty()
@@ -80,19 +107,14 @@ class Order(ndb.Model):
     @classmethod
     def parse_status(cls, status):
         status = status.lower()
-        if u'не подтверждена' in status or 'waiting for confirmation' in status or 'not confirmed' in status:
-            return cls.NOT_APPROVED
-        elif u'новая' in status or 'new' in status or u'ждет отправки' in status\
-                or u'в пути' in status or u'готовится' in status or u'готово' in status\
-                or 'ready' in status:
-            return cls.APPROVED
-        elif u'закрыта' in status or 'closed' in status or u'доставлена' in status:
-            return cls.CLOSED
-        elif u'отменена' in status or 'cancelled' in status:
-            return cls.CANCELED
-        else:
-            logging.warning("Unknown status: %s", status)
-            return cls.UNKNOWN
+
+        for status_value, strings in cls.STATUS_MAPPING.items():
+            for string in strings:
+                if string in status:
+                    return status_value
+
+        logging.warning("Unknown status: %s", status)
+        return cls.UNKNOWN
 
     def set_status(self, status):
         self.status = self.parse_status(status)
