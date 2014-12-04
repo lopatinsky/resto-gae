@@ -1,3 +1,5 @@
+# coding=utf-8
+
 import json
 import logging
 import urllib
@@ -18,18 +20,19 @@ def __post_request_alfa(api_path, params):
     if params:
         url = '%s?%s' % (url, urllib.urlencode(params))
     logging.info(url)
-    return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, deadline=30, validate_certificate=False).content
+    return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, deadline=30,
+                          validate_certificate=False).content
 
 
-def tie_card(company, amount, orderNumber, returnUrl, client_id, pageView):
+def tie_card(company, amount, order_number, return_url, client_id, page_view):
     p = {
         'userName': company.alpha_login,
         'password': company.alpha_pass,
         'amount': amount,
-        'orderNumber': orderNumber,
-        'returnUrl': returnUrl,
+        'orderNumber': order_number,
+        'returnUrl': return_url,
         'clientId': client_id,
-        'pageView': pageView
+        'pageView': page_view
     }
     result = __post_request_alfa('/rest/registerPreAuth.do', p)
     return json.loads(result)

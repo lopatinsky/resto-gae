@@ -1,25 +1,26 @@
+# coding=utf-8
+
 import logging
 from api.base import BaseHandler
 from models.iiko import Order, Venue
 from methods import iiko_api
 import json
 
-__author__ = 'mihailnikolaev'
 
-#TODO: existing of goods
-#TODO: new endpoint (possibility to deliver)
-#TODO: check time
-class StatusRequestHandler(BaseHandler):
+# TODO: existing of goods
+# TODO: new endpoint (possibility to deliver)
+# TODO: check time
+class OrdersStatusHandler(BaseHandler):
     """ /api/status """
 
     def post(self):
         status_list = list()
-        #parce data
+        # parse data
         logging.info(self.request.get('json'))
         arr = json.loads(self.request.get('json'))
 
         for item in arr["orders"]:
-            #get ids and info
+            # get ids and info
             venue_id = item['venue_id']
             order_id = item['order_id']
 
@@ -29,7 +30,7 @@ class StatusRequestHandler(BaseHandler):
                 address = venue.address
                 name = venue.name
 
-                #make dict
+                # make dict
                 status_list.append({
                     'order_id': order_id,
                     'venue_id': venue_id,

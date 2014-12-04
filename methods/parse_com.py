@@ -1,8 +1,8 @@
+# coding=utf-8
+
 import json
 import logging
 from google.appengine.api import urlfetch
-
-__author__ = 'phil'
 
 parse_accs = [{'master_key': 'YaEHCHCURT6qQFYwvWeTsIwho6cJPSDBhDAz4CS1',
                'client_key': 'CSxzgKDGJwUv7GVySEpkti7nOiHYFJMHR3RYxnU0',
@@ -12,13 +12,13 @@ parse_accs = [{'master_key': 'YaEHCHCURT6qQFYwvWeTsIwho6cJPSDBhDAz4CS1',
 
 url = 'https://api.parse.com/1/push'
 
+
 def send_push(channel, alert='', data=None):
     if not data:
         data = {}
     res = ''
     for parse_acc in parse_accs:
         message = {"where": {
-            # "deviceType": {"$in": ["ios", "winphone", "js"]},
             "channels": {"$in": [channel]}},
             "data": {"alert": alert}  # , "badge": badge}
         }
@@ -33,6 +33,5 @@ def send_push(channel, alert='', data=None):
                                              'Content-Type': 'application/json'})
             res += result.content
         except:
-            logging.warning('parse.com push send fuckup')
+            logging.warning('parse.com push send fail')
     return res
-

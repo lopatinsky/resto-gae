@@ -1,13 +1,13 @@
+# coding=utf-8
+
 import logging
 from api.base import BaseHandler
 from methods import iiko_api
 import time
 from datetime import datetime
 
-__author__ = 'Rustemr'
 
-
-class HistoryRequestHandler(BaseHandler):
+class HistoryHandler(BaseHandler):
     """ /api/history """
     overall_history = list()
 
@@ -38,13 +38,15 @@ class HistoryRequestHandler(BaseHandler):
 
                     address = {}
                     if order['address']:
-                        address = {'city': order['address']['city'],
-                                         'street': order['address']['street'],
-                                         'home': order['address']['home'],
-                                         'apartment': order['address']['apartment'],
-                                         'housing': order['address']['housing'],
-                                         'entrance': order['address']['entrance'],
-                                         'floor': order['address']['floor'], }
+                        address = {
+                            'city': order['address']['city'],
+                            'street': order['address']['street'],
+                            'home': order['address']['home'],
+                            'apartment': order['address']['apartment'],
+                            'housing': order['address']['housing'],
+                            'entrance': order['address']['entrance'],
+                            'floor': order['address']['floor'],
+                        }
 
                     orders_history.append({
                         'self': order['isSelfService'],
@@ -68,5 +70,3 @@ class HistoryRequestHandler(BaseHandler):
             })
 
         self.render_json({'history': self.overall_history})
-
-

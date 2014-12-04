@@ -1,10 +1,10 @@
+# coding=utf-8
+
 import json
 import logging
 import time
 import urllib
 from google.appengine.api import urlfetch
-
-__author__ = 'quiker'
 
 MAPS_API_KEY = 'AIzaSyCFCmb9MGL22ulEXiHHo6hs3XANIUNrnEI'
 
@@ -54,6 +54,7 @@ def get_address_by_key(key):
         'location': obj['result']['geometry']['location']
     }
 
+
 def complete_address_input(address):
     url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json'
     payload = urllib.urlencode({
@@ -74,7 +75,7 @@ def complete_address_input(address):
     predictions = obj.get('predictions')
     results = []
     for prediction in predictions:
-        if not 'route' in prediction.get('types', []):
+        if 'route' not in prediction.get('types', []):
             continue
         terms = prediction.get('terms', [])
         if len(terms) == 0:

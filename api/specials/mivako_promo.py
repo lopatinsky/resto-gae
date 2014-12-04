@@ -8,8 +8,10 @@ class MivakoPromoInfoHandler(BaseHandler):
     def get(self):
         self.render_json({
             "title": u"Подари ролл другу!",
-            "text": u"Укажи номер телефона друга и мы подарим ему ролл \"Филадельфия Люкс\" при первом заказе через мобильное приложение.",
-            "image": "http://lh6.ggpht.com/8zevGQVTtrVFeEE2CNfHX3fXjV4BiPCd_EtlIdAs0Zq_OZ0sU9wrz9w2TOsbWUkVChtviitwCdFfk5PObmLW0WXqc9A"
+            "text": u"Укажи номер телефона друга и мы подарим ему ролл \"Филадельфия Люкс\" "
+                    u"при первом заказе через мобильное приложение.",
+            "image": "http://lh6.ggpht.com/"
+                     "8zevGQVTtrVFeEE2CNfHX3fXjV4BiPCd_EtlIdAs0Zq_OZ0sU9wrz9w2TOsbWUkVChtviitwCdFfk5PObmLW0WXqc9A"
         })
 
 

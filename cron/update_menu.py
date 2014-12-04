@@ -1,5 +1,6 @@
+# coding=utf-8
+
 import logging
-from google.appengine.api import memcache
 from google.appengine.ext import deferred
 from google.appengine.runtime import DeadlineExceededError
 import webapp2
@@ -19,8 +20,8 @@ def _get_menu_images(menu):
         for sub in category['children']:
             process_category(sub)
 
-    for category in menu:
-        process_category(category)
+    for root_category in menu:
+        process_category(root_category)
 
     for i, url in enumerate(result):
         result[i] = url.partition('/img/')[2]

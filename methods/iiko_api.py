@@ -9,11 +9,9 @@ import operator
 from google.appengine.api import memcache, urlfetch
 import webapp2
 
-from models.iiko import Venue, Company, PaymentType
+from models.iiko import Venue, Company
 from methods.image_cache import convert_url
 
-
-__author__ = 'quiker'
 
 IIKO_BASE_URL = 'https://iiko.net:9900/api/0'
 
@@ -32,8 +30,8 @@ def __post_request(api_path, params):
     logging.info("PAYLOAD %s" % str(payload))
     logging.info(url)
 
-    return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=payload, deadline=30,
-                          validate_certificate=False).content
+    return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=payload,
+                          deadline=30, validate_certificate=False).content
 
 
 def get_access_token(org_id):
@@ -305,7 +303,7 @@ def prepare_order(order, customer, payment_type):
 
     obj = {
         'restaurantId': order.venue_id,
-        #TODO terminal id
+        # TODO terminal id
         'deliveryTerminalId': '2ecfd7dd-19e8-c7f4-0147-ec886f9c2aa1',
         'customer': {
             'name': customer.name,
@@ -351,13 +349,15 @@ def prepare_order(order, customer, payment_type):
 
 
 def pre_check_order(company_id, order_dict):
-    pre_check = __post_request('/orders/checkCreate?access_token=%s&requestTimeout=30' % get_access_token(company_id), order_dict)
+    token = get_access_token(company_id)
+    pre_check = __post_request('/orders/checkCreate?access_token=%s&requestTimeout=30' % token, order_dict)
     logging.info(pre_check)
     return json.loads(pre_check)
 
 
 def place_order(company_id, order_dict):
-    result = __post_request('/orders/add?requestTimeout=30&access_token=%s' % get_access_token(company_id), order_dict)
+    token = get_access_token(company_id)
+    result = __post_request('/orders/add?requestTimeout=30&access_token=%s' % token, order_dict)
     logging.info(result)
     return json.loads(result)
 

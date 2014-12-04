@@ -1,56 +1,44 @@
-#!/usr/bin/env python
-#
-# Copyright 2007 Google Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
+# coding=utf-8
+
 import webapp2
 from api import *
 from api import specials
 
 
-class MainHandler(webapp2.RequestHandler):
-    def get(self):
-        pass
-
-
 app = webapp2.WSGIApplication([
-    ('/api/venues/(.*)', VenuesHandler),
-    ('/api/venue/(.*)/menu', MenuRequestHandler),
+    # payment
     ('/api/alfa/registration', PreCheckHandler),
     ('/api/alfa/check', CheckStatusHandler),
     ('/api/alfa/create', CreateByCardHandler),
     ('/api/alfa/reset', ResetBlockedSumHandler),
     ('/api/alfa/pay', PayByCardHandler),
     ('/api/alfa/unbind', UnbindCardHandler),
-    ('/api/history', HistoryRequestHandler),
-    ('/api/address', AddressInputRequestHandler),
-    ('/api/get_info', GetInfoRequestHandler),
-    ('/api/check_delivery', GetDeliveryRestrictionsRequestHandler),
-    ('/api/venue/(.*)/order/new', PlaceOrderRequestHandler),
+
+    # company info
+    ('/api/venues/(.*)', VenuesHandler),
+    ('/api/delivery_types', GetAvailableDeliveryTypesHandler),
+
+    # venue
+    ('/api/venue/(.*)/menu', MenuHandler),
+    ('/api/payment_types/(.*)', GetPaymentTypesHandler),
+    ('/api/venue/(.*)/order/new', PlaceOrderHandler),
+    ('/api/venue/(.*)/new_orders', VenueNewOrderListHandler),
+    ('/api/check_delivery', GetDeliveryRestrictionsHandler),
+
+    # order info
+    ('/api/history', HistoryHandler),
     ('/api/venue/(.*)/order/(.*)', VenueOrderInfoRequestHandler),
     ('/api/order/(.*)', OrderInfoRequestHandler),
-    ('/api/venue/(.*)/new_orders', VenueNewOrderListHandler),
-    ('/api/status', StatusRequestHandler),
-    ('/api/add_company', AddCompanyRequestHandler),
-    ('/api/payment_types/(.*)', GetPaymentType),
-    ('/api/delivery_types', GetAvailableDeliveryTypesHandler),
-    ('/api/delivery_type/add', AddDeliveryType),
-    ('/api/get_orders_with_bonuses', GetOrdersWithBonuses),
+    ('/api/status', OrdersStatusHandler),
+    ('/api/get_orders_with_bonuses', GetOrdersWithBonusesHandler),
 
+    # utility
+    ('/api/address', AddressInputHandler),
+    ('/api/get_info', GetAddressByKeyHandler),
+
+    # specials
     ('/api/specials/mivako_gift/info', specials.MivakoPromoInfoHandler),
     ('/api/specials/mivako_gift/send', specials.MivakoPromoSendGiftHandler),
 
     ('/img/(.*)', ImageProxyHandler),
-    ('/', MainHandler)
 ], debug=True)

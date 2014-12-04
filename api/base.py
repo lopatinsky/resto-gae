@@ -1,8 +1,8 @@
+# coding=utf-8
+
 import json
 import webapp2
 from models.iiko import Company
-
-__author__ = 'phil'
 
 
 class BaseHandler(webapp2.RequestHandler):

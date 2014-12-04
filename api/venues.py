@@ -1,12 +1,11 @@
+# coding=utf-8
+
 import json
 
 import webapp2
 
 from models.iiko import Company
 from methods import iiko_api
-
-
-__author__ = 'quiker'
 
 
 class VenuesHandler(webapp2.RequestHandler):

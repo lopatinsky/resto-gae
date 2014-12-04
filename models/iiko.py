@@ -5,9 +5,6 @@ from google.appengine.api import memcache
 from methods import maps
 
 
-__author__ = 'quiker'
-
-
 class PaymentType(ndb.Model):
     name = ndb.StringProperty()
     type_id = ndb.IntegerProperty()
@@ -78,7 +75,6 @@ class Order(ndb.Model):
     comment = ndb.StringProperty()
     payment_type = ndb.StringProperty()
     alfa_order_id = ndb.StringProperty()
-
 
     # TODO Need to check english statuses(may be incorrect)
     @classmethod
@@ -210,12 +206,6 @@ class Company(ndb.Model):
 
     def get_id(self):
         return self.key.id()
-
-    def check_ext(self, delivery_id):
-        for item in ndb.get_multi(self.delivery_types):
-            if item.delivery_id == int(delivery_id):
-                return True
-        return False
 
     @classmethod
     def get_delivery_types(cls, org_id):

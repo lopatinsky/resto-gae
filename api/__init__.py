@@ -1,16 +1,17 @@
-from venues import *
-from menu import *
-from orders import *
-from history import *
-from status import *
-from adress_input import *
-from check_delivery import *
-from get_info import *
-from company import *
-from payment_type import *
-from delivery_type import *
-from bonus import *
-from alfa_bank import *
-from image_proxy import *
+# coding=utf-8
 
-__author__ = 'quiker'
+from venues import VenuesHandler
+from menu import MenuHandler
+from orders import OrderInfoRequestHandler, PlaceOrderHandler, VenueNewOrderListHandler,\
+    VenueOrderInfoRequestHandler
+from history import HistoryHandler
+from status import OrdersStatusHandler
+from address_input import AddressInputHandler
+from check_delivery import GetDeliveryRestrictionsHandler
+from get_info import GetAddressByKeyHandler
+from payment_type import GetPaymentTypesHandler
+from delivery_type import GetAvailableDeliveryTypesHandler
+from bonus import GetOrdersWithBonusesHandler
+from alfa_bank import CheckStatusHandler, CreateByCardHandler, PayByCardHandler, PreCheckHandler, \
+    ResetBlockedSumHandler, UnbindCardHandler
+from image_proxy import ImageProxyHandler

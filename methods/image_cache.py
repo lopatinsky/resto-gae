@@ -1,5 +1,6 @@
+# coding=utf-8
+
 import base64
-import datetime
 import StringIO
 import logging
 from PIL import Image

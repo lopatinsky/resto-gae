@@ -1,10 +1,10 @@
+# coding=utf-8
+
 from api.base import BaseHandler
 from methods.maps import get_address_by_key
 
-__author__ = 'mihailnikolaev'
 
-
-class GetInfoRequestHandler(BaseHandler):
+class GetAddressByKeyHandler(BaseHandler):
 
     """ /api/get_info """
 

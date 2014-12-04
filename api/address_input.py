@@ -1,10 +1,10 @@
+# coding=utf-8
+
 from api.base import BaseHandler
 from methods.maps import complete_address_input
 
-__author__ = 'mihailnikolaev'
 
-
-class AddressInputRequestHandler(BaseHandler):
+class AddressInputHandler(BaseHandler):
 
     """ /api/address """
 

@@ -1,10 +1,10 @@
+# coding=utf-8
+
 from api.base import BaseHandler
 from methods import iiko_api
 
-__author__ = 'quiker'
 
-
-class MenuRequestHandler(BaseHandler):
+class MenuHandler(BaseHandler):
     """ /api/venue/%s/menu """
     def get(self, venue_id):
         force_reload = "reload" in self.request.params

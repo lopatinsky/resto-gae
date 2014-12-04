@@ -1,3 +1,5 @@
+# coding=utf-8
+
 import webapp2
 from cron.update_menu import UpdateMenuHandler
 from cron.update_orders import UpdateOrdersHandler

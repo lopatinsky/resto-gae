@@ -9,10 +9,8 @@ from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum, check_
 from models import iiko
 from models.iiko import Venue, Company
 
-__author__ = 'quiker'
 
-
-class PlaceOrderRequestHandler(base.BaseHandler):
+class PlaceOrderHandler(base.BaseHandler):
     """ /api/venue/%s/order/new """
 
     def post(self, venue_id):
@@ -27,7 +25,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         payment_type = self.request.get('paymentType')
         address = self.request.get('address')
         comment = self.request.get('comment')
-        sum = self.request.get('sum')
+        order_sum = self.request.get('sum')
         binding_id = self.request.get('binding_id')
         alpha_client_id = self.request.get('alpha_client_id')
 
@@ -47,7 +45,7 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         company_id = company.key.id()
 
         order = iiko.Order()
-        order.sum = float(sum)
+        order.sum = float(order_sum)
         order.date = datetime.datetime.fromtimestamp(int(self.request.get('date')))
         order.venue_id = venue_id
         order.items = json.loads(self.request.get('items'))
@@ -72,7 +70,8 @@ class PlaceOrderRequestHandler(base.BaseHandler):
         # pay after pre check
         order_id = None
         if payment_type == '2':
-            tie_result = tie_card(company, int(sum) * 100, int(time.time()), 'returnUrl',  alpha_client_id, 'MOBILE')
+            tie_result = tie_card(company, int(order_sum) * 100, int(time.time()), 'returnUrl', alpha_client_id,
+                                  'MOBILE')
             logging.info("registration")
             logging.info(str(tie_result))
             if 'errorCode' not in tie_result.keys() or str(tie_result['errorCode']) == '0':
@@ -117,15 +116,17 @@ class PlaceOrderRequestHandler(base.BaseHandler):
 
         resp = {
             'customer_id': customer.customer_id,
-            'order': {'order_id': order.order_id,
-                      'status': order.status,
-                      'items': order.items,
-                      'sum': order.sum,
-                      'number': order.number,
-                      'venue_id': order.venue_id,
-                      'address': order.address,
-                      'date': int(self.request.get('date')),},
-            'error_code' : 0,
+            'order': {
+                'order_id': order.order_id,
+                'status': order.status,
+                'items': order.items,
+                'sum': order.sum,
+                'number': order.number,
+                'venue_id': order.venue_id,
+                'address': order.address,
+                'date': int(self.request.get('date')),
+                },
+            'error_code': 0,
         }
 
         self.render_json(resp)
@@ -134,8 +135,6 @@ class PlaceOrderRequestHandler(base.BaseHandler):
 class VenueOrderInfoRequestHandler(base.BaseHandler):
     """ /api/venue/%s/order/%s """
     def get(self, venue_id, order_id):
-        order = iiko.Order.order_by_id(order_id)
-
         result = iiko_api.order_info1(order_id, venue_id)
         result['status'] = result['status'].replace(u'Новая', u'Подтвержден')
         result['status'] = result['status'].replace(u'Закрыта', u'Закрыт')
