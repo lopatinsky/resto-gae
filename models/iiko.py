@@ -83,6 +83,7 @@ class Order(ndb.Model):
             u'закрыта',
             'closed',
             u'доставлена',
+            'delivered',
         ],
         CANCELED: [
             u'отменена',
