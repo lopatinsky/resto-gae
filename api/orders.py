@@ -70,7 +70,7 @@ class PlaceOrderHandler(base.BaseHandler):
         # pay after pre check
         order_id = None
         if payment_type == '2':
-            tie_result = tie_card(company, int(order_sum) * 100, int(time.time()), 'returnUrl', alpha_client_id,
+            tie_result = tie_card(company, int(float(order_sum) * 100), int(time.time()), 'returnUrl', alpha_client_id,
                                   'MOBILE')
             logging.info("registration")
             logging.info(str(tie_result))
