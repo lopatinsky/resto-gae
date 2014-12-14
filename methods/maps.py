@@ -87,3 +87,75 @@ def complete_address_input(address):
             'description': ', '.join([t.get('value') for t in terms[1:]]) if len(terms) > 1 else ''
         })
     return results
+
+
+def get_cities_by_kladr(number, address):
+    url = 'http://kladr-api.ru/api.php'
+    payload = urllib.urlencode({
+        'token': '548cc93f7c523934798b456f',
+        'query': address.encode('utf-8'),
+        'contentType': 'city',
+        'limit': number
+    })
+    result = urlfetch.fetch(url='%s?%s' % (url, payload), method=urlfetch.GET, deadline=30)
+
+    if result.status_code != 200 or not result.content:
+        return []
+
+    try:
+        logging.info(result.content)
+        obj = json.loads(result.content)
+    except:
+        return []
+
+    predictions = obj.get('result')
+    cities = []
+    for prediction in predictions:
+        cities.append({
+            'city_id': prediction.get('id')
+        })
+    return cities
+
+
+def get_streets_by_kladr(number, city_id, address):
+    url = 'http://kladr-api.ru/api.php'
+    payload = urllib.urlencode({
+        'token': '548cc93f7c523934798b456f',
+        'query': address.encode('utf-8'),
+        'cityId': city_id,
+        'contentType': 'street',
+        'withParent': 1,
+        'limit': number
+    })
+    result = urlfetch.fetch(url='%s?%s' % (url, payload), method=urlfetch.GET, deadline=30)
+
+    if result.status_code != 200 or not result.content:
+        return []
+
+    try:
+        logging.info(result.content)
+        obj = json.loads(result.content)
+    except:
+        return []
+
+    predictions = obj.get('result')
+    streets = []
+    for prediction in predictions:
+        streets.append({
+            'city_id': prediction.get('parents')[1].get('id'),
+            'city_name': prediction.get('parents')[1].get('name'),
+            'street_id': prediction.get('id'),
+            'street_name': prediction.get('name'),
+            'source': 'kladr'
+        })
+    return streets
+
+
+def complete_address_input_by_kladr(address):
+    words = address.split(' ')  # address consist of city and street which are separated by ' '.
+    cities = get_cities_by_kladr(3, words[0])
+    results = []
+    for city in cities:
+        results.extend(get_streets_by_kladr(3, city['city_id'], words[1]))
+
+    return results
