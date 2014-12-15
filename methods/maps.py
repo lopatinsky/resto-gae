@@ -118,6 +118,8 @@ def get_cities_by_kladr(number, address):
 
 
 def get_streets_by_kladr(number, city_id, address):
+    if not address:
+        return []
     url = 'http://kladr-api.ru/api.php'
     payload = urllib.urlencode({
         'token': '548cc93f7c523934798b456f',
@@ -152,12 +154,13 @@ def get_streets_by_kladr(number, city_id, address):
 
 
 def complete_address_input_by_kladr_with_address(address):
+    if ' ' not in address:
+        return []
     words = address.split(' ')  # address consist of city and street which are separated by ' '.
     cities = get_cities_by_kladr(3, words[0])
     results = []
     for city in cities:
         results.extend(get_streets_by_kladr(3, city['city_id'], words[1]))
-
     return results
 
 
