@@ -277,7 +277,26 @@ def _load_menu(venue, token=None):
     return sorted(categories.values(), key=operator.itemgetter('order'), reverse=True)
 
 
-def get_menu(venue_id, force_reload=False, token=None):
+def _filter_menu(menu):
+    def process_category(category):
+        category['products'] = [p
+                                for p in category['products']
+                                if p['price'] > 0 or p['single_modifiers'] or p['groupp_modifiers']]
+        for sub in category['children']:
+            process_category(sub)
+        category['children'] = [c
+                                for c in category['children']
+                                if c['products'] or c['children']]
+
+    for root_category in menu:
+        process_category(root_category)
+
+    menu[:] = [c
+               for c in menu
+               if c['products'] or c['children']]
+
+
+def get_menu(venue_id, force_reload=False, token=None, filtered=True):
     menu = memcache.get('iiko_menu_%s' % venue_id)
     if not menu or force_reload:
         venue = Venue.venue_by_id(venue_id)
@@ -286,6 +305,8 @@ def get_menu(venue_id, force_reload=False, token=None):
             venue.put()
         menu = venue.menu
         memcache.set('iiko_menu_%s' % venue_id, menu, time=1*3600)
+    if filtered:
+        _filter_menu(menu)
     return menu
 
 
