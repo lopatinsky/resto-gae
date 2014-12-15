@@ -144,27 +144,15 @@ def get_streets_by_kladr(number, city_id, address):
     streets = []
     for prediction in predictions:
         streets.append({
-            'city_id': prediction.get('parents')[1].get('id'),
-            'city_name': prediction.get('parents')[1].get('name'),
-            'street_id': prediction.get('id'),
-            'street_name': prediction.get('name'),
-            'source': 'kladr'
+            'key': prediction.get('id'),
+            'source': 'kladr',
+            'title': prediction.get('name'),
+            'description': prediction.get('parents')[1].get('name')
         })
     return streets
 
 
-def complete_address_input_by_kladr_with_address(address):
-    if ' ' not in address:
-        return []
-    words = address.split(' ')  # address consist of city and street which are separated by ' '.
-    cities = get_cities_by_kladr(3, words[0])
-    results = []
-    for city in cities:
-        results.extend(get_streets_by_kladr(3, city['city_id'], words[1]))
-    return results
-
-
-def complete_address_input_by_kladr_with_city_and_street(city, street):
+def complete_address_input_by_kladr(city, street):
     cities = get_cities_by_kladr(3, city)
     results = []
     for city in cities:
