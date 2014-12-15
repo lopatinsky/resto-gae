@@ -213,9 +213,6 @@ def _load_menu(venue, token=None):
             except ValueError:
                 add_info_str = None  # don't pass through raw info if cannot parse JSON
 
-        if product['price'] == 0 and not single_modifiers and not group_modifiers:
-            continue
-
         category_products[product['parentGroup']].append({
             'price': product['price'],
             'name': product['name'].capitalize(),
@@ -281,7 +278,7 @@ def _filter_menu(menu):
     def process_category(category):
         category['products'] = [p
                                 for p in category['products']
-                                if p['price'] > 0 or p['single_modifiers'] or p['groupp_modifiers']]
+                                if p['price'] > 0 or p['single_modifiers'] or p['modifiers']]
         for sub in category['children']:
             process_category(sub)
         category['children'] = [c
