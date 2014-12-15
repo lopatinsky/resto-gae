@@ -151,11 +151,19 @@ def get_streets_by_kladr(number, city_id, address):
     return streets
 
 
-def complete_address_input_by_kladr(address):
+def complete_address_input_by_kladr_with_address(address):
     words = address.split(' ')  # address consist of city and street which are separated by ' '.
     cities = get_cities_by_kladr(3, words[0])
     results = []
     for city in cities:
         results.extend(get_streets_by_kladr(3, city['city_id'], words[1]))
 
+    return results
+
+
+def complete_address_input_by_kladr_with_city_and_street(city, street):
+    cities = get_cities_by_kladr(3, city)
+    results = []
+    for city in cities:
+        results.extend(get_streets_by_kladr(3, city['city_id'], street))
     return results
