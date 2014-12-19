@@ -17,7 +17,6 @@ class VenuesHandler(webapp2.RequestHandler):
         if not company:
             return self.abort(403)
 
-        iiko_api.get_organization_token(company.get_id())
         venues = iiko_api.get_venues(company.get_id())
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(json.dumps({

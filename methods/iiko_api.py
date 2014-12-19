@@ -42,14 +42,7 @@ def get_access_token(org_id):
     return token
 
 
-def get_organization_token(org_id):
-    memcache.set('iiko_company_%s' % org_id, org_id, time=24*3600)
-
-
 def _fetch_access_token(org_id):
-    organisation_id = memcache.get('iiko_company_%s' % org_id)
-    if not organisation_id:
-        get_organization_token(organisation_id)
     company = Company.get_by_id(int(org_id))
     result = __get_request('/auth/access_token', {
         'user_id': company.name,  # 'Empatika'
