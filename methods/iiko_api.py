@@ -464,26 +464,6 @@ def get_venue_promos(venue_id, token=None):
     return json.loads(result)
 
 
-def get_order_by_id(order_id, token=None):
-    venue_id = iiko.Order.order_by_id(order_id).venue_id
-    url = '/orders/get_order_by_id'
-    payload = {
-        'accessToken': token,
-        'organizationId': venue_id,
-        'orderId': order_id
-    }
-    result = __get_request(url, payload)
-    logging.info(result)
-    obj = json.loads(result)
-    return obj.get('Order')
-
-
-def get_customer_by_order(order_id):
-    order = iiko.Order.order_by_id(order_id)
-    info = order_info(order)
-    return info.get('customer')
-
-
 def get_order_promos(order_id, token=None):
 
     order = iiko.Order.order_by_id(order_id)
