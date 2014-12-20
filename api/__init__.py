@@ -8,7 +8,7 @@ from history import HistoryHandler
 from status import OrdersStatusHandler
 from address_input import AddressInputHandler
 from check_delivery import GetDeliveryRestrictionsHandler
-from get_info import GetAddressByKeyHandler
+from get_info import GetAddressByKeyHandler, GetVenuePromosHandler, GetOrderPromosHandler
 from payment_type import GetPaymentTypesHandler
 from delivery_type import GetAvailableDeliveryTypesHandler
 from bonus import GetOrdersWithBonusesHandler
