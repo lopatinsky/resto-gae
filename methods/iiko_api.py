@@ -488,12 +488,20 @@ def get_order_promos(order_id, token=None):
 
     order = iiko.Order.order_by_id(order_id)
     order_request = prepare_order(order, order.customer.get(), order.payment_type)
+    order_request['organization'] = order.venue_id
+    order_request['order']['fullSum'] = order.sum
 
-    url = '/orders/calculate_loyalty_discounts'
-    payload = {
-        'access_token': token,
-        'order_request': order_request
-    }
+    menu = get_menu(order.venue_id, False, token, False)
+    for item in order_request['order']['items']:
+        for category in menu:
+            for product in category['products']:
+                if item['id'] == product['productId']:
+                    item['code'] = product['code']
+                    item['sum'] = product['price'] * item['amount']
+                    continue
+
+    url = '/orders/calculate_loyalty_discounts?access_token=%s' % token
+    payload = order_request
 
     result = __post_request(url, payload)
     return json.loads(result)
