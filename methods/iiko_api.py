@@ -334,7 +334,10 @@ def prepare_order(order, customer, payment_type):
             }],
             'phone': customer.phone,
             'items': order.items,
-            'comment': order.comment
+            'comment': order.comment,
+            'address': {
+                'home': 0
+            }
         }
     }
 
@@ -344,14 +347,15 @@ def prepare_order(order, customer, payment_type):
     if order.is_delivery:
         obj['order']['address'] = order.address
 
-    typ = venue.get_payment_type(payment_type)
-    obj['order']['paymentItems'][0]['paymentType']['code'] = typ.iiko_uuid
-    if typ.type_id == 2:
-        obj['order']['paymentItems'][0].update({
-            'isProcessedExternally': True,
-            'isExternal': True,
-            'isPreliminary': True
-        })
+    if payment_type:
+        typ = venue.get_payment_type(payment_type)
+        obj['order']['paymentItems'][0]['paymentType']['code'] = typ.iiko_uuid
+        if typ.type_id == 2:
+            obj['order']['paymentItems'][0].update({
+                'isProcessedExternally': True,
+                'isExternal': True,
+                'isPreliminary': True
+            })
 
     org_id = venue.company_id
     if org_id == 5717119551406080 or org_id == 5700553057239040:
@@ -464,10 +468,9 @@ def get_venue_promos(venue_id, token=None):
     return json.loads(result)
 
 
-def get_order_promos(order_id, token=None):
+def get_order_promos(order, token=None):
 
-    order = iiko.Order.order_by_id(order_id)
-    order_request = prepare_order(order, order.customer.get(), order.payment_type)
+    order_request = prepare_order(order, order.customer.get(), None)
     order_request['organization'] = order.venue_id
     order_request['order']['fullSum'] = order.sum
 
