@@ -486,5 +486,11 @@ def get_order_promos(order, token=None):
     url = '/orders/calculate_loyalty_discounts?access_token=%s' % token
     payload = order_request
 
-    result = __post_request(url, payload)
-    return json.loads(result)
+    result = json.loads(__post_request(url, payload))
+    for free_product in result.get('availableFreeProducts'):
+        code = free_product.get('productCode')
+        for category in menu:
+            for product in category['products']:
+                if code == product['code']:
+                    free_product['id'] = product['productId']
+    return result
