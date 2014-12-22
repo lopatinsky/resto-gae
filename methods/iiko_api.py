@@ -5,6 +5,7 @@ import json
 import logging
 import urllib
 import operator
+from models import iiko
 
 from google.appengine.api import memcache, urlfetch
 import webapp2
@@ -43,6 +44,7 @@ def get_access_token(org_id):
 
 
 def _fetch_access_token(org_id):
+    logging.info(org_id)
     company = Company.get_by_id(int(org_id))
     result = __get_request('/auth/access_token', {
         'user_id': company.name,  # 'Empatika'
@@ -376,9 +378,9 @@ def place_order(company_id, order_dict):
 def order_info(order):
     org_id = Venue.venue_by_id(order.venue_id).company_id
     result = __get_request('/orders/info', {
-        'access_token': get_access_token(org_id),
+        'accessToken': get_access_token(org_id),
         'organization': order.venue_id,
-        'order': order.order_id
+        'orderId': order.order_id
     })
     return json.loads(result)
 
@@ -450,4 +452,36 @@ def get_delivery_restrictions(venue_id, token=None):
         'access_token': token,
         'organization': venue_id,
     })
+    return json.loads(result)
+
+
+def get_venue_promos(venue_id, token=None):
+    url = '/organization/%s/marketing_campaigns' % venue_id
+    payload = {
+        'access_token': token
+    }
+    result = __get_request(url, payload)
+    return json.loads(result)
+
+
+def get_order_promos(order_id, token=None):
+
+    order = iiko.Order.order_by_id(order_id)
+    order_request = prepare_order(order, order.customer.get(), order.payment_type)
+    order_request['organization'] = order.venue_id
+    order_request['order']['fullSum'] = order.sum
+
+    menu = get_menu(order.venue_id, False, token, False)
+    for item in order_request['order']['items']:
+        for category in menu:
+            for product in category['products']:
+                if item['id'] == product['productId']:
+                    item['code'] = product['code']
+                    item['sum'] = product['price'] * item['amount']
+                    continue
+
+    url = '/orders/calculate_loyalty_discounts?access_token=%s' % token
+    payload = order_request
+
+    result = __post_request(url, payload)
     return json.loads(result)

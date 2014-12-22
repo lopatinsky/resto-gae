@@ -24,6 +24,7 @@ app = webapp2.WSGIApplication([
     ('/api/venue/(.*)/order/new', PlaceOrderHandler),
     ('/api/venue/(.*)/new_orders', VenueNewOrderListHandler),
     ('/api/check_delivery', GetDeliveryRestrictionsHandler),
+    ('/api/iiko_promos', GetVenuePromosHandler),
 
     # order info
     ('/api/history', HistoryHandler),
@@ -31,6 +32,7 @@ app = webapp2.WSGIApplication([
     ('/api/order/(.*)', OrderInfoRequestHandler),
     ('/api/status', OrdersStatusHandler),
     ('/api/get_orders_with_bonuses', GetOrdersWithBonusesHandler),
+    ('/api/get_order_promo', GetOrderPromosHandler),
 
     # utility
     ('/api/address', AddressInputHandler),
