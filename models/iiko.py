@@ -2,6 +2,7 @@
 import logging
 from google.appengine.ext import ndb
 from google.appengine.api import memcache
+import time
 from methods import maps
 
 
@@ -227,6 +228,7 @@ class Company(ndb.Model):
     app_name = ndb.StringProperty()
     alpha_login = ndb.StringProperty(indexed=False)
     alpha_pass = ndb.StringProperty(indexed=False)
+    card_button_text = ndb.StringProperty()
 
     def get_id(self):
         return self.key.id()
@@ -239,9 +241,26 @@ class Company(ndb.Model):
             output.append(item.to_dict())
         return output
 
+    def get_news(self):
+        return News.query(News.company_id == self.key.id(), News.active == True).get()
+
 
 class ImageCache(ndb.Model):
     # key name is urlsafe_b64encoded image URL
     updated = ndb.DateTimeProperty(auto_now=True)
     last_modified = ndb.StringProperty(indexed=False)
     serving_url = ndb.StringProperty(indexed=False)
+
+
+class News(ndb.Model):
+    company_id = ndb.IntegerProperty(required=True)
+    text = ndb.StringProperty(required=True, indexed=False)
+    active = ndb.BooleanProperty(required=True, default=True)
+    created_at = ndb.DateTimeProperty(auto_now_add=True, indexed=False)
+
+    def dict(self):
+        return {
+            "id": self.key.id(),
+            "text": self.text,
+            "created_at": int(time.mktime(self.created_at.timetuple()))
+        }
