@@ -468,29 +468,57 @@ def get_venue_promos(venue_id, token=None):
     return json.loads(result)
 
 
+def get_product_from_menu(venue_id, token=None, product_code=None, product_id=None):
+    menu = get_menu(venue_id, False, token, False)
+    for category in menu:
+        for product in category['products']:
+            if product['productId'] == product_id or product['code'] == product_code:
+                return product
+
+
+def get_promo_by_id(venue_id, promo_id, token=None):
+    promos = get_venue_promos(venue_id, token)
+    for promo in promos:
+        if promo['id'] == promo_id:
+            return promo
+
+
 def get_order_promos(order, token=None):
 
-    order_request = prepare_order(order, order.customer.get(), None)
+    order_request = prepare_order(order, order.customer.get(), 1)
     order_request['organization'] = order.venue_id
     order_request['order']['fullSum'] = order.sum
 
-    menu = get_menu(order.venue_id, False, token, False)
     for item in order_request['order']['items']:
-        for category in menu:
-            for product in category['products']:
-                if item['id'] == product['productId']:
-                    item['code'] = product['code']
-                    item['sum'] = product['price'] * item['amount']
-                    continue
+        product = get_product_from_menu(order.venue_id, product_id=item['id'])
+        item['code'] = product['code']
+        item['sum'] = product['price'] * item['amount']
 
     url = '/orders/calculate_loyalty_discounts?access_token=%s' % token
     payload = order_request
-
     result = json.loads(__post_request(url, payload))
-    for free_product in result.get('availableFreeProducts'):
-        code = free_product.get('productCode')
-        for category in menu:
-            for product in category['products']:
-                if code == product['code']:
-                    free_product['id'] = product['productId']
+
+    if result.get('availableFreeProducts'):
+        for free_product in result.get('availableFreeProducts'):
+            product = get_product_from_menu(order.venue_id, product_code=free_product.get('productCode'))
+            free_product['id'] = product['productId']
+            free_product['name'] = product['name']
+            free_product['amount'] = 1
+
+    if result.get('discountInfo'):
+        for dis_info in result.get('discountInfo'):
+            if dis_info.get('details'):
+                for detail in dis_info.get('details'):
+                    if detail.get('productCode'):
+                        product = get_product_from_menu(order.venue_id, product_code=detail.get('productCode'))
+                        detail['id'] = product['productId']
+                        detail['name'] = product['name']
+                        detail['amount'] = 1
+            promo = get_promo_by_id(order.venue_id, dis_info.get('id'), token)
+            dis_info['description'] = promo['description']
+            dis_info['start'] = promo['start']
+            dis_info['end'] = promo['end']
+            dis_info['imageUrl'] = promo['imageUrl']
+
+
     return result
