@@ -23,8 +23,8 @@ class GetAddressByKeyHandler(BaseHandler):
 class GetVenuePromosHandler(BaseHandler):
 
     def get(self):
-        venue_id = self.request.get_range('venue_id')
-        company_id = iiko.Venue.get_by_id(venue_id).company_id
+        venue_id = self.request.get('venue_id')
+        company_id = iiko.Venue.venue_by_id(venue_id).company_id
         token = iiko_api.get_access_token(company_id)
         return self.render_json({"promos": iiko_api.get_venue_promos(venue_id, token)})
 
