@@ -478,6 +478,15 @@ def get_product_from_menu(venue_id, token=None, product_code=None, product_id=No
                 return product
 
 
+def get_group_modifier(venue_id, group_id, modifier_id, token=None):
+    menu = get_menu(venue_id, False, token, False)
+    group_modifiers, modifiers = _get_menu_modifiers(menu)
+    items = group_modifiers[group_id]['items']
+    for item in items:
+        if item['id'] == modifier_id:
+            return item
+
+
 def get_promo_by_id(venue_id, promo_id, token=None):
     promos = get_venue_promos(venue_id, token)
     for promo in promos:
@@ -495,6 +504,11 @@ def get_order_promos(order, token=None):
         product = get_product_from_menu(order.venue_id, product_id=item['id'])
         item['code'] = product['code']
         item['sum'] = product['price'] * item['amount']
+        if item['sum'] == 0:
+            if item['modifiers']:
+                item['sum'] = sum(get_group_modifier(order.venue_id, m['groupId'], m['id']) * m['amount']
+                                  for m in item.get('modifiers'))
+
 
     url = '/orders/calculate_loyalty_discounts?access_token=%s' % token
     payload = order_request
