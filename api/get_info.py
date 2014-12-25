@@ -7,6 +7,8 @@ from methods import iiko_api
 from models import iiko
 import datetime
 import logging
+from models.iiko import Company
+
 
 class GetAddressByKeyHandler(BaseHandler):
 
@@ -61,3 +63,13 @@ class GetOrderPromosHandler(BaseHandler):
         token = iiko_api.get_access_token(company_id)
 
         return self.render_json({"promos": iiko_api.get_order_promos(order, token)})
+
+
+class GetCompanyInfoHandler(BaseHandler):
+    def get(self, company_id):
+        company = Company.get_by_id(int(company_id))
+        news = company.get_news()
+        self.render_json({
+            "news": news.dict() if news else None,
+            "card_button_text": company.card_button_text or u"Добавить карту"
+        })

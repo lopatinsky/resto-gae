@@ -15,6 +15,7 @@ app = webapp2.WSGIApplication([
     ('/api/alfa/unbind', UnbindCardHandler),
 
     # company info
+    ('/api/company/(\d+)/info', GetCompanyInfoHandler),
     ('/api/venues/(.*)', VenuesHandler),
     ('/api/delivery_types', GetAvailableDeliveryTypesHandler),
 

@@ -316,8 +316,6 @@ def prepare_order(order, customer, payment_type):
 
     obj = {
         'restaurantId': order.venue_id,
-        # TODO terminal id
-        'deliveryTerminalId': '2ecfd7dd-19e8-c7f4-0147-ec886f9c2aa1',
         'customer': {
             'name': customer.name,
             'phone': customer.phone,
@@ -341,6 +339,9 @@ def prepare_order(order, customer, payment_type):
         }
     }
 
+    if not order.is_delivery:
+        obj['deliveryTerminalId'] = get_delivery_terminal_id(order.venue_id)
+
     customer_id = customer.customer_id
     if customer_id:
         obj['customer']['id'] = customer_id
@@ -360,7 +361,6 @@ def prepare_order(order, customer, payment_type):
     org_id = venue.company_id
     if org_id == 5717119551406080 or org_id == 5700553057239040:
         del obj['order']['paymentItems']
-        del obj['deliveryTerminalId']
 
     return obj
 
@@ -382,9 +382,10 @@ def place_order(company_id, order_dict):
 def order_info(order):
     org_id = Venue.venue_by_id(order.venue_id).company_id
     result = __get_request('/orders/info', {
-        'accessToken': get_access_token(org_id),
+        'requestTimeout': 30,
+        'access_token': get_access_token(org_id),
         'organization': order.venue_id,
-        'orderId': order.order_id
+        'order': order.order_id
     })
     return json.loads(result)
 
@@ -392,6 +393,7 @@ def order_info(order):
 def order_info1(order_id, venue_id):
     org_id = Venue.venue_by_id(venue_id).company_id
     result = __get_request('/orders/info', {
+        'requestTimeout': 30,
         'access_token': get_access_token(org_id),
         'organization': venue_id,
         'order': order_id
@@ -521,5 +523,23 @@ def get_order_promos(order, token=None):
             dis_info['end'] = promo['end']
             dis_info['imageUrl'] = promo['imageUrl']
 
-
     return result
+
+
+def get_delivery_terminal_id(venue_id, token=None):
+    memcache_key = "deliveryTerminalId_%s" % venue_id
+    dt_id = memcache.get(memcache_key)
+    if not dt_id:
+        if not token:
+            org_id = Venue.venue_by_id(venue_id).company_id
+            token = get_access_token(org_id)
+        response = __get_request('/deliverySettings/getDeliveryTerminals', {
+            'access_token': token,
+            'organization': venue_id
+        })
+        result = json.loads(response)
+        terminals = result['deliveryTerminals']
+        if terminals:
+            dt_id = terminals[0]['deliveryTerminalId']
+            memcache.set(memcache_key, dt_id, time=24*3600)
+    return dt_id
