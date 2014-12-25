@@ -504,6 +504,7 @@ def get_order_promos(order, token=None):
             free_product['id'] = product['productId']
             free_product['name'] = product['name']
             free_product['amount'] = 1
+            free_product['code'] = free_product['productCode']
 
     if result.get('discountInfo'):
         for dis_info in result.get('discountInfo'):
@@ -513,7 +514,7 @@ def get_order_promos(order, token=None):
                         product = get_product_from_menu(order.venue_id, product_code=detail.get('productCode'))
                         detail['id'] = product['productId']
                         detail['name'] = product['name']
-                        detail['amount'] = 1
+                        detail['code'] = product['code']
             promo = get_promo_by_id(order.venue_id, dis_info.get('id'), token)
             dis_info['description'] = promo['description']
             dis_info['start'] = promo['start']

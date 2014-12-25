@@ -67,6 +67,34 @@ class PlaceOrderHandler(base.BaseHandler):
             logging.warning('iiko pre check failed')
             self.abort(400)
 
+        # TODO: set discounts
+
+        def get_item(product_id):
+            for item in order.items:
+                if item['id'] == product_id:
+                    return item
+
+        token = iiko_api.get_access_token(company_id)
+        promos = iiko_api.get_order_promos(order, token)
+        if promos.get('availableFreeProducts'):
+            for gift in promos.get('availableFreeProducts'):
+                gift['sum'] = 0
+                order.items.append(gift)
+        discount_sum = 0
+        if promos.get('discountInfo'):
+            for dis_info in promos.get('discountInfo'):
+                if dis_info.get('details'):
+                    for detail in dis_info.get('details'):
+                        if detail.get('discountSum'):
+                            item = get_item(detail.get('id'))
+                            if not item.get('discount_sum'):
+                                item['discount_sum'] = detail['discountSum']
+                                discount_sum += item['discount_sum']
+                            else:
+                                pass  # TODO think about it
+        order.discount_sum = discount_sum
+        # TODO: end set discounts
+
         # pay after pre check
         order_id = None
         if payment_type == '2':
@@ -121,12 +149,14 @@ class PlaceOrderHandler(base.BaseHandler):
                 'status': order.status,
                 'items': order.items,
                 'sum': order.sum,
+                'discount_sum': order.discount_sum,
                 'number': order.number,
                 'venue_id': order.venue_id,
                 'address': order.address,
                 'date': int(self.request.get('date')),
                 },
             'error_code': 0,
+            'promos': promos
         }
 
         self.render_json(resp)
