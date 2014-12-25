@@ -382,9 +382,10 @@ def place_order(company_id, order_dict):
 def order_info(order):
     org_id = Venue.venue_by_id(order.venue_id).company_id
     result = __get_request('/orders/info', {
-        'accessToken': get_access_token(org_id),
+        'requestTimeout': 30,
+        'access_token': get_access_token(org_id),
         'organization': order.venue_id,
-        'orderId': order.order_id
+        'order': order.order_id
     })
     return json.loads(result)
 
@@ -392,6 +393,7 @@ def order_info(order):
 def order_info1(order_id, venue_id):
     org_id = Venue.venue_by_id(venue_id).company_id
     result = __get_request('/orders/info', {
+        'requestTimeout': 30,
         'access_token': get_access_token(org_id),
         'organization': venue_id,
         'order': order_id
