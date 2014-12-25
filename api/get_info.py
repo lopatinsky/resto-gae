@@ -7,7 +7,7 @@ from methods import iiko_api
 from models import iiko
 import datetime
 import logging
-from models.iiko import Company
+from models.iiko import Company, ClientInfo
 
 
 class GetAddressByKeyHandler(BaseHandler):
@@ -73,3 +73,11 @@ class GetCompanyInfoHandler(BaseHandler):
             "news": news.dict() if news else None,
             "card_button_text": company.card_button_text or u"Добавить карту"
         })
+
+
+class SaveClientInfoHandler(BaseHandler):
+    def post(self, company_id):
+        email = self.request.get("client_email")
+        phone = self.request.get("client_phone")
+        ClientInfo(company_id=int(company_id), email=email, phone=phone).put()
+        self.render_json({})

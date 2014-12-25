@@ -264,3 +264,10 @@ class News(ndb.Model):
             "text": self.text,
             "created_at": int(time.mktime(self.created_at.timetuple()))
         }
+
+
+class ClientInfo(ndb.Model):
+    company_id = ndb.IntegerProperty(required=True)
+    phone = ndb.StringProperty()
+    email = ndb.StringProperty()
+    created_at = ndb.DateTimeProperty(auto_now_add=True)
