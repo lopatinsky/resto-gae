@@ -6,6 +6,7 @@ import logging
 import urllib
 import operator
 from models import iiko
+from collections import deque
 
 from google.appengine.api import memcache, urlfetch
 import webapp2
@@ -470,12 +471,38 @@ def get_venue_promos(venue_id, token=None):
     return json.loads(result)
 
 
+def list_menu(venue_id, token=None):
+
+    def get_categories(cat_parent):
+        result_c = []
+        for other_cat in cat_parent['children']:
+            result_c.append(other_cat)
+        return result_c
+
+    def get_products(cat_dict):
+        result_p = []
+        for product in cat_dict['products']:
+            result_p.append(product)
+        return result_p
+
+    menu = get_menu(venue_id, True, token, False)
+    queue = deque(menu)
+    products = []
+    while len(queue):
+        cat = queue.popleft()
+        if not cat['hasChildren']:
+            products.extend(get_products(cat))
+        else:
+            queue.extend(get_categories(cat))
+
+    return products
+
+
 def get_product_from_menu(venue_id, token=None, product_code=None, product_id=None):
-    menu = get_menu(venue_id, False, token, False)
-    for category in menu:
-        for product in category['products']:
-            if product['productId'] == product_id or product['code'] == product_code:
-                return product
+    menu = list_menu(venue_id, token)
+    for product in menu:
+        if product['productId'] == product_id or product['code'] == product_code:
+            return product
 
 
 def get_group_modifier(venue_id, group_id, modifier_id, token=None):
@@ -508,7 +535,6 @@ def get_order_promos(order, token=None):
             if item['modifiers']:
                 item['sum'] = sum(get_group_modifier(order.venue_id, m['groupId'], m['id']) * m['amount']
                                   for m in item.get('modifiers'))
-
 
     url = '/orders/calculate_loyalty_discounts?access_token=%s' % token
     payload = order_request
