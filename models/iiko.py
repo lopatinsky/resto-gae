@@ -230,6 +230,19 @@ class Company(ndb.Model):
     alpha_pass = ndb.StringProperty(indexed=False)
     card_button_text = ndb.StringProperty()
 
+    description = ndb.StringProperty()
+    min_order_sum = ndb.IntegerProperty()
+    email = ndb.StringProperty()
+    site = ndb.StringProperty()
+    cities = ndb.StringProperty(repeated=True)
+    phone = ndb.StringProperty()
+    schedule = ndb.JsonProperty()
+    icons = ndb.JsonProperty()
+    company_icon = ndb.StringProperty()
+    color = ndb.StringProperty()
+    analytics_key = ndb.StringProperty()
+
+
     def get_id(self):
         return self.key.id()
 
