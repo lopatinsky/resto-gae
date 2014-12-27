@@ -21,6 +21,7 @@ app = webapp2.WSGIApplication([
     ('/api/company/(\d+)/info', GetCompanyInfoHandler),
     ('/api/venues/(.*)', VenuesHandler),
     ('/api/delivery_types', GetAvailableDeliveryTypesHandler),
+    ('/api/company/(\d+)/user_data', SaveClientInfoHandler),
 
     # venue
     ('/api/venue/(.*)/menu', MenuHandler),
