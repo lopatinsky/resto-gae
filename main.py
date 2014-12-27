@@ -15,13 +15,14 @@ app = webapp2.WSGIApplication([
     ('/api/alfa/unbind', UnbindCardHandler),
 
     # company creating
-    ('/api/company/create', CreateCompanyHandler),
+    ('/api/company/create_or_update', CreateOrUpdateCompanyHandler),
 
     # company info
     ('/api/company/(\d+)/info', GetCompanyInfoHandler),
     ('/api/venues/(.*)', VenuesHandler),
     ('/api/delivery_types', GetAvailableDeliveryTypesHandler),
     ('/api/company/(\d+)/user_data', SaveClientInfoHandler),
+    ('/api/company/get', GetCompanyHandler),
 
     # venue
     ('/api/venue/(.*)/menu', MenuHandler),
