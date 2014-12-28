@@ -17,6 +17,9 @@ class GetCompaniesHandler(BaseHandler):
         company_list = []
         for company in companies:
             company_json = {
+                'login': company.name,
+                'password': company.password,
+                'app_name': company.app_name,
                 'company_id': company.key.id(),
                 'description': company.description,
                 'min_order_sum': company.min_order_sum,
@@ -223,6 +226,9 @@ class GetCompanyHandler(BaseHandler):
             self.output_stream(output_stream)
         else:
             company_json = {
+                'login': company.name,
+                'password': company.password,
+                'app_name': company.app_name,
                 'company_id': company.key.id(),
                 'description': company.description,
                 'min_order_sum': company.min_order_sum,
