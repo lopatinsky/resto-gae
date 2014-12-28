@@ -23,6 +23,9 @@ libraries:
 - name: PIL
   version: "1.1.7"
 
+- name: lxml
+  version: "latest"
+
 builtins:
 - remote_api: on
 - deferred: on

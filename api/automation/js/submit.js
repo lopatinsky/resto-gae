@@ -87,10 +87,10 @@ worksheet.analytics_code=$("#analytics_code").val();
   console.log(json);
   alert(json)
   
-  $.post( "http://automation-test.empatika-resto-test.appspot.com/api/company/create", { company_info: json })
+  $.post( "http://automation-test.empatika-resto-test.appspot.com/api/company/create_or_update", { company_info: json })
   .done(function( data ) {
     alert( "Data Loaded: " + data );
   });
-  
+
   
 })
