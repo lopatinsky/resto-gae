@@ -119,7 +119,8 @@ class PlaceOrderHandler(base.BaseHandler):
                         if MIVAKO_NY2015_ENABLED and company.name == "empatikaMivako" and \
                                 status_check_result["cardAuthInfo"]["pan"][0:2] in ("51", "52", "53", "54", "55"):
                             logging.info("Mivako NewYear2015 promo")
-                            order_dict.comment += "\nОплата MasterCard через приложение: ролл Дракон в подарок"
+                            order.comment += "\nОплата MasterCard через приложение: ролл Дракон в подарок"
+                            order_dict["order"]["comment"] = order.comment
                             MivakoGift(
                                 sender="MasterCard",
                                 recipient=customer.phone,
