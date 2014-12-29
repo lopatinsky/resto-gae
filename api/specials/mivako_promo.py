@@ -13,8 +13,9 @@ class MivakoPromoInfoHandler(BaseHandler):
                      "8zevGQVTtrVFeEE2CNfHX3fXjV4BiPCd_EtlIdAs0Zq_OZ0sU9wrz9w2TOsbWUkVChtviitwCdFfk5PObmLW0WXqc9A",
             "ny2015": {
                 "title": u"Новогодняя акция!",
-                "text": u"С 3 по 13 января оплати заказ картой MasterCard через приложение и получи ролл Дракон в "
-                        u"подарок.",
+                "text": u"С 3 по 13 января оплати заказ<br>"
+                        u"картой <b>MasterCard</b> через приложение<br>"
+                        u"и получи ролл Дракон в подарок!",
                 "image": "http://lh5.ggpht.com/"
                          "SQjmpZKTSMKo9KZisAt_Uetj5bVWaxbV9YqKh67ScXmovZXPVIS_ZM-j1Ug7-HoOsFm_YQ31DSiXn94R6N6W-xVVK0M"
             }
