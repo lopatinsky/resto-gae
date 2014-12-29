@@ -229,6 +229,7 @@ class Company(ndb.Model):
     alpha_login = ndb.StringProperty(indexed=False)
     alpha_pass = ndb.StringProperty(indexed=False)
     card_button_text = ndb.StringProperty()
+    card_button_subtext = ndb.StringProperty()
 
     description = ndb.StringProperty()
     min_order_sum = ndb.IntegerProperty()
