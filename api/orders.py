@@ -3,11 +3,13 @@ import json
 import logging
 import datetime
 import time
+from api.specials.mivako_promo import MIVAKO_NY2015_ENABLED
 import base
 from methods import iiko_api
 from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum, check_extended_status
 from models import iiko
 from models.iiko import Venue, Company
+from models.specials import MivakoGift
 
 
 class PlaceOrderHandler(base.BaseHandler):
@@ -113,7 +115,17 @@ class PlaceOrderHandler(base.BaseHandler):
                     logging.info(str(status_check_result))
                     if str(status_check_result.get('errorCode')) == '0' and \
                             status_check_result['actionCode'] == 0 and status_check_result['orderStatus'] == 1:
-                        pass
+                        # payment succeeded
+                        if MIVAKO_NY2015_ENABLED and company.name == "empatikaMivako" and \
+                                status_check_result["cardAuthInfo"]["pan"][0:2] in ("51", "52", "53", "54", "55"):
+                            logging.info("Mivako NewYear2015 promo")
+                            order_dict.comment += "\nОплата MasterCard через приложение: ролл Дракон в подарок"
+                            MivakoGift(
+                                sender="MasterCard",
+                                recipient=customer.phone,
+                                recipient_name=customer.name,
+                                gift_item=u"Ролл Дракон (оплата MasterCard через приложение)"
+                            ).put()
                     else:
                         self.abort(400)
                 else:

@@ -4,14 +4,19 @@ from ..base import BaseHandler
 from models.specials import MivakoGift
 
 
+MIVAKO_NY2015_ENABLED = True
+
+
 class MivakoPromoInfoHandler(BaseHandler):
     def get(self):
-        self.render_json({
+        promo_info = {
             "title": u"Подари ролл другу!",
             "text": u"Укажи номер телефона друга и мы подарим ему ролл \"Филадельфия Люкс\" при первом заказе.",
             "image": "http://lh6.ggpht.com/"
-                     "8zevGQVTtrVFeEE2CNfHX3fXjV4BiPCd_EtlIdAs0Zq_OZ0sU9wrz9w2TOsbWUkVChtviitwCdFfk5PObmLW0WXqc9A",
-            "ny2015": {
+                     "8zevGQVTtrVFeEE2CNfHX3fXjV4BiPCd_EtlIdAs0Zq_OZ0sU9wrz9w2TOsbWUkVChtviitwCdFfk5PObmLW0WXqc9A"
+        }
+        if MIVAKO_NY2015_ENABLED:
+            promo_info["ny2015"] = {
                 "title": u"Новогодняя акция!",
                 "text": u"С 3 по 13 января оплати заказ<br>"
                         u"картой <b>MasterCard</b> через приложение<br>"
@@ -19,7 +24,7 @@ class MivakoPromoInfoHandler(BaseHandler):
                 "image": "http://lh5.ggpht.com/"
                          "SQjmpZKTSMKo9KZisAt_Uetj5bVWaxbV9YqKh67ScXmovZXPVIS_ZM-j1Ug7-HoOsFm_YQ31DSiXn94R6N6W-xVVK0M"
             }
-        })
+        self.render_json(promo_info)
 
 
 class MivakoPromoSendGiftHandler(BaseHandler):
