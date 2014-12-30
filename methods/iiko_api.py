@@ -359,10 +359,6 @@ def prepare_order(order, customer, payment_type):
                 'isPreliminary': True
             })
 
-    org_id = venue.company_id
-    if org_id == 5717119551406080 or org_id == 5700553057239040:
-        del obj['order']['paymentItems']
-
     return obj
 
 
