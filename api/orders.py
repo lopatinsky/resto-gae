@@ -168,14 +168,14 @@ class PlaceOrderHandler(base.BaseHandler):
                 'status': order.status,
                 'items': order.items,
                 'sum': order.sum,
-                'discount_sum': order.discount_sum,
+                # 'discount_sum': order.discount_sum,  # TODO
                 'number': order.number,
                 'venue_id': order.venue_id,
                 'address': order.address,
                 'date': int(self.request.get('date')),
                 },
             'error_code': 0,
-            'promos': promos
+            # 'promos': promos  # TODO
         }
 
         self.render_json(resp)
