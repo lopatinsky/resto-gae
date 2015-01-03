@@ -1,3 +1,4 @@
 __author__ = 'dvpermyakov'
 
-from company import CreateOrUpdateCompanyHandler, GetCompanyHandler, GetCompaniesHandler
+from company import CreateOrUpdateCompanyHandler, GetCompanyHandler, GetCompaniesHandler, UploadIconsHandler, \
+    DownloadIconsHandler

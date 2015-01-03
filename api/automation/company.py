@@ -9,6 +9,7 @@ import xml.etree.ElementTree as ET
 from lxml import etree
 import zipfile
 from StringIO import StringIO
+from google.appengine.ext import db
 
 
 class GetCompaniesHandler(BaseHandler):
@@ -51,8 +52,6 @@ class CreateOrUpdateCompanyHandler(BaseHandler):
             'schedule': company_info.get('schedule', None),
             'email': company_info.get('email', None),
             'site': company_info.get('site', None),
-            'icons': company_info.get('icons', None),
-            'company_icon': company_info.get('icon_about', None),
             'color': company_info.get('color', None),
             'analytics_key': company_info.get('analytics_code', None)
         }
@@ -97,6 +96,49 @@ class CreateOrUpdateCompanyHandler(BaseHandler):
         return self.render_json(id_json)
 
 
+class UploadIconsHandler(BaseHandler):
+    def post(self):
+        company_id = self.request.get_range('company_id')
+        company = None
+        if company_id:
+            company = iiko.Company.get_by_id(company_id)
+        if company:
+            company.icon1 = db.Blob(self.request.get('icon1', None))
+            company.icon2 = db.Blob(self.request.get('icon2', None))
+            company.icon3 = db.Blob(self.request.get('icon3', None))
+            company.icon4 = db.Blob(self.request.get('icon4', None))
+            company.company_icon = db.Blob(self.request.get('company_icon', None))
+            company.put()
+        else:
+            self.error(404)
+        return self.render_json({'id': company.key.id()})
+
+
+class DownloadIconsHandler(BaseHandler):
+    def get(self):
+        company_id = self.request.get_range('company_id')
+        icon_type = self.request.get('type')
+        company = None
+        if company_id:
+            company = iiko.Company.get_by_id(company_id)
+        if company:
+            self.response.headers['Content-Type'] = 'image/png'
+            if icon_type == 'company_icon':
+                self.response.out.write(company.company_icon)
+            elif icon_type == 'icon1':
+                self.response.out.write(company.icon1)
+            elif icon_type == 'icon2':
+                self.response.out.write(company.icon2)
+            elif icon_type == 'icon3':
+                self.response.out.write(company.icon3)
+            elif icon_type == 'icon4':
+                self.response.out.write(company.icon4)
+            else:
+                self.error(404)
+        else:
+            self.error(404)
+
+
 class GetCompanyHandler(BaseHandler):
 
     def get_zip_file(self, zip_arch, string, file_name):
@@ -127,7 +169,7 @@ class GetCompanyHandler(BaseHandler):
 
     def output_stream(self, output_stream):
         buf = output_stream.read()
-        while(buf):
+        while buf:
             self.response.out.write(buf)
             buf = output_stream.read()
 

@@ -16,4 +16,5 @@ from bonus import GetOrdersWithBonusesHandler
 from alfa_bank import CheckStatusHandler, CreateByCardHandler, PayByCardHandler, PreCheckHandler, \
     ResetBlockedSumHandler, UnbindCardHandler
 from image_proxy import ImageProxyHandler
-from automation import CreateOrUpdateCompanyHandler, GetCompanyHandler, GetCompaniesHandler
+from automation import CreateOrUpdateCompanyHandler, GetCompanyHandler, GetCompaniesHandler, UploadIconsHandler,\
+    DownloadIconsHandler

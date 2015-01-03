@@ -16,6 +16,7 @@ app = webapp2.WSGIApplication([
 
     # company creating
     ('/api/company/create_or_update', CreateOrUpdateCompanyHandler),
+    ('/api/company/set_icons', UploadIconsHandler),
 
     # company info
     ('/api/company/(\d+)/info', GetCompanyInfoHandler),
@@ -23,7 +24,8 @@ app = webapp2.WSGIApplication([
     ('/api/delivery_types', GetAvailableDeliveryTypesHandler),
     ('/api/company/(\d+)/user_data', SaveClientInfoHandler),
     ('/api/company/get_company', GetCompanyHandler),
-    ('/api/compamy/all_companies', GetCompaniesHandler),
+    ('/api/company/all_companies', GetCompaniesHandler),
+    ('/api/company/get_icons', DownloadIconsHandler),
 
     # venue
     ('/api/venue/(.*)/menu', MenuHandler),

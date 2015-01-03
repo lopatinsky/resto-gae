@@ -238,11 +238,13 @@ class Company(ndb.Model):
     cities = ndb.StringProperty(repeated=True)
     phone = ndb.StringProperty()
     schedule = ndb.JsonProperty()
-    icons = ndb.JsonProperty()
-    company_icon = ndb.StringProperty()
+    icon1 = ndb.BlobProperty()
+    icon2 = ndb.BlobProperty()
+    icon3 = ndb.BlobProperty()
+    icon4 = ndb.BlobProperty()
+    company_icon = ndb.BlobProperty()
     color = ndb.StringProperty()
     analytics_key = ndb.StringProperty()
-
 
     def get_id(self):
         return self.key.id()
