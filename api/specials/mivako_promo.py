@@ -32,7 +32,7 @@ class MivakoPromoSendGiftHandler(BaseHandler):
         from_ = self.request.get("from")
         to = self.request.get("to").split(",")
         names = self.request.get("names").split(",")
-        if not from_ or not to or len(to) != len(names):
+        if not to or len(to) != len(names):
             self.abort(400)
 
         recipients = zip(to, names)
