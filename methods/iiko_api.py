@@ -222,7 +222,7 @@ def _load_menu(venue, token=None):
             'code': product['code'],
             'images': [convert_url(webapp2.get_request(), img['imageUrl'])
                        for img in product.get('images', [])
-                       if img['imageUrl']],
+                       if img['imageUrl']][::-1],
             'description': product['description'],
             'additionalInfo': add_info,
             'additionalInfo1': add_info_str,
@@ -242,7 +242,7 @@ def _load_menu(venue, token=None):
             'parent': cat['parentGroup'],
             'children': [],
             'hasChildren': False,
-            'image': [image for image in cat['images'] if image['imageUrl']],
+            'image': [image for image in cat['images'] if image['imageUrl']][::-1],
             'order': cat['order']
         }
         for image in categories[cat['id']]['image']:
