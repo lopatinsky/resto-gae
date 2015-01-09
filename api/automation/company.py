@@ -29,8 +29,6 @@ class GetCompaniesHandler(BaseHandler):
                 'schedule': company.schedule,
                 'email': company.email,
                 'site': company.site,
-                'icons': company.icons,
-                'company_icon': company.company_icon,
                 'color': company.color,
                 'analytics_key': company.analytics_key,
             }
@@ -279,8 +277,6 @@ class GetCompanyHandler(BaseHandler):
                 'schedule': company.schedule,
                 'email': company.email,
                 'site': company.site,
-                'icons': company.icons,
-                'company_icon': company.company_icon,
                 'color': company.color,
                 'analytics_key': company.analytics_key,
             }
