@@ -555,7 +555,7 @@ def list_menu(venue_id, token=None):
             result_p.append(product)
         return result_p
 
-    menu = get_menu(venue_id, True, token, False)
+    menu = get_menu(venue_id, False, token, False)
     queue = deque(menu)
     products = []
     while len(queue):
