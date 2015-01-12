@@ -311,10 +311,66 @@ def check_food(venue_id, items):
     return False
 
 
+def set_discounts(order, order_from_dict, token=None):
+
+        def get_item(product_id):
+            for item in order.items:
+                if item['id'] == product_id:
+                    return item
+
+        if not token:
+            token = get_access_token(Venue.venue_by_id(order.venue_id).company_id)
+
+        promos = get_order_promos(order, token=token)
+        if promos.get('availableFreeProducts'):
+            for gift in promos.get('availableFreeProducts'):
+                gift['sum'] = 0
+                order.items.append(gift)
+
+        discount_sum = 0
+        if promos.get('discountInfo'):
+            for dis_info in promos.get('discountInfo'):
+                if dis_info.get('details'):
+                    for detail in dis_info.get('details'):
+                        if detail.get('discountSum'):
+                            item = get_item(detail.get('id'))
+                            if not item.get('discount_sum'):
+                                item['discount_sum'] = detail['discountSum']
+                            else:
+                                item['discount_sum'] += detail['discountSum']
+                            item['sum'] -= detail['discountSum']
+                            discount_sum += item['discount_sum']
+        order.discount_sum = discount_sum
+        return add_bonus_to_payment(order_from_dict, discount_sum, True)
+
+
+def add_bonus_to_payment(order, bonus_sum, is_deducted):
+
+    def get_payment(order, name):
+        for p_item in order['paymentItems']:
+            if p_item['paymentType']['name'] == name:
+                return p_item
+        return None
+
+    if order.get('paymentItems'):
+        p_bonus = get_payment(order, 'iiko.Net')
+        if p_bonus:
+            p_bonus['sum'] += bonus_sum
+            if is_deducted:
+                get_payment(order, 'not iiko.Net')['sum'] -= bonus_sum
+            return True
+        else:
+            return False
+    else:
+        return False
+
+
 def prepare_order(order, customer, payment_type):
     venue = Venue.venue_by_id(order.venue_id)
     local_date = order.date + timedelta(seconds=venue.get_timezone_offset())
-
+    additional_data = '{"externalIdType": "PHONE", "externalId": "'
+    additional_data += customer.phone
+    additional_data += '"}'
     obj = {
         'restaurantId': order.venue_id,
         'customer': {
@@ -327,10 +383,26 @@ def prepare_order(order, customer, payment_type):
             'paymentItems': [{
                 'paymentType': {
                     'code': '',
+                    'name': 'not iiko.Net'
                 },
                 'sum': order.sum,
+                "combinatable": True,
                 'isProcessedExternally': 0
-            }],
+            },
+            {
+                "sum": 0.0,
+                'paymentType': {
+                    "code": "INET",
+                    "name": "iiko.Net",
+                    "comment": "",
+                    "combinatable": True,
+                },
+                "additionalData": additional_data,
+                "isProcessedExternally": False,
+                "isPreliminary": True,
+                "isExternal": True,
+            }
+            ],
             'phone': customer.phone,
             'items': order.items,
             'comment': order.comment,
@@ -459,6 +531,8 @@ def get_delivery_restrictions(venue_id, token=None):
 
 
 def get_venue_promos(venue_id, token=None):
+    if not token:
+        token = get_access_token(Venue.venue_by_id(venue_id).company_id)
     url = '/organization/%s/marketing_campaigns' % venue_id
     payload = {
         'access_token': token
@@ -511,6 +585,8 @@ def get_group_modifier(venue_id, group_id, modifier_id, token=None):
 
 
 def get_promo_by_id(venue_id, promo_id, token=None):
+    if not token:
+        token = get_access_token(Venue.venue_by_id(venue_id).company_id)
     promos = get_venue_promos(venue_id, token)
     for promo in promos:
         if promo['id'] == promo_id:
@@ -518,7 +594,8 @@ def get_promo_by_id(venue_id, promo_id, token=None):
 
 
 def get_order_promos(order, token=None):
-
+    if not token:
+        token = get_access_token(Venue.venue_by_id(order.venue_id).company_id)
     order_request = prepare_order(order, order.customer.get(), 1)
     order_request['organization'] = order.venue_id
     order_request['order']['fullSum'] = order.sum
@@ -579,3 +656,20 @@ def get_delivery_terminal_id(venue_id, token=None):
             dt_id = terminals[0]['deliveryTerminalId']
             memcache.set(memcache_key, dt_id, time=24*3600)
     return dt_id
+
+
+def create_or_update_customer(customer, venue_id, token=None):
+    if not token:
+        token = get_access_token(Venue.venue_by_id(venue_id).company_id)
+    url = '/customers/create_or_update?access_token=%s&organization=%s' % (token, venue_id)
+    params = {
+        'customer': {
+            'phone': customer.phone,
+            'name': customer.name
+        }
+    }
+    result = __post_request(url, params)
+    if result:
+        return result
+    else:
+        return 'failure'

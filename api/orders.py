@@ -15,38 +15,6 @@ from models.specials import MivakoGift
 class PlaceOrderHandler(base.BaseHandler):
     """ /api/venue/%s/order/new """
 
-    @classmethod
-    def _do_promos(cls, company_id, order):
-        return  # TODO enable
-        
-        # TODO: set discounts
-
-        def get_item(product_id):
-            for item in order.items:
-                if item['id'] == product_id:
-                    return item
-
-        token = iiko_api.get_access_token(company_id)
-        promos = iiko_api.get_order_promos(order, token)
-        if promos.get('availableFreeProducts'):
-            for gift in promos.get('availableFreeProducts'):
-                gift['sum'] = 0
-                order.items.append(gift)
-        discount_sum = 0
-        if promos.get('discountInfo'):
-            for dis_info in promos.get('discountInfo'):
-                if dis_info.get('details'):
-                    for detail in dis_info.get('details'):
-                        if detail.get('discountSum'):
-                            item = get_item(detail.get('id'))
-                            if not item.get('discount_sum'):
-                                item['discount_sum'] = detail['discountSum']
-                                discount_sum += item['discount_sum']
-                            else:
-                                pass  # TODO think about it
-        order.discount_sum = discount_sum
-        # TODO: end set discounts
-
     def post(self, venue_id):
         logging.info(self.request.POST)
 
@@ -71,6 +39,8 @@ class PlaceOrderHandler(base.BaseHandler):
             if customer_id:
                 customer.customer_id = customer_id
             customer.put()
+
+        guest = iiko_api.create_or_update_customer(customer, venue_id)  # it was added
 
         company = self.company
         if not company:  # old Android clients
@@ -101,12 +71,12 @@ class PlaceOrderHandler(base.BaseHandler):
             logging.warning('iiko pre check failed')
             self.abort(400)
 
-        self._do_promos(company_id, order)
+        iiko_api.set_discounts(order, order_dict['order'])  # it was added
 
         # pay after pre check
         order_id = None
         if payment_type == '2':
-            tie_result = tie_card(company, int(float(order_sum) * 100), int(time.time()), 'returnUrl', alpha_client_id,
+            tie_result = tie_card(company, int(float(order_sum - order.discounts_sum) * 100), int(time.time()), 'returnUrl', alpha_client_id,
                                   'MOBILE')
             logging.info("registration")
             logging.info(str(tie_result))
@@ -142,6 +112,7 @@ class PlaceOrderHandler(base.BaseHandler):
         order.alfa_order_id = order_id
 
         result = iiko_api.place_order(company_id, order_dict)
+
         if 'code' in result.keys():
             logging.error('iiko failure')
             if payment_type == '2':
@@ -163,19 +134,24 @@ class PlaceOrderHandler(base.BaseHandler):
 
         resp = {
             'customer_id': customer.customer_id,
+            'customer_balance': result['customer']['balance'],  # it was added
+            #'customer_history': iiko_api.get_history(customer.customer_id, order.venue_id),  # it was added
+            'promos': iiko_api.get_order_promos(order, token=iiko_api.get_access_token(company_id)),  # it was added
+            'all_payment_types': iiko_api.get_payment_types(order.venue_id),  # it was added
+            'created_guest': guest,  # it was added
             'order': {
                 'order_id': order.order_id,
                 'status': order.status,
                 'items': order.items,
                 'sum': order.sum,
-                # 'discount_sum': order.discount_sum,  # TODO
+                'discounts': order.discount_sum,
+                'payments': order_dict['order']['paymentItems'],  # it was added
                 'number': order.number,
                 'venue_id': order.venue_id,
                 'address': order.address,
                 'date': int(self.request.get('date')),
                 },
             'error_code': 0,
-            # 'promos': promos  # TODO
         }
 
         self.render_json(resp)
