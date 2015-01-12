@@ -10,6 +10,7 @@ from lxml import etree
 import zipfile
 from StringIO import StringIO
 from google.appengine.ext import db
+from methods import iiko_api
 
 
 class GetCompaniesHandler(BaseHandler):
@@ -84,13 +85,28 @@ class CreateOrUpdateCompanyHandler(BaseHandler):
                 company.analytics_key = company_params['analytics_key']
         else:
             company = iiko.Company(**company_params)
-
         company.put()
+
+        for iiko_venue in iiko_api.get_venues(company_id):
+            iiko_api.get_menu(iiko_venue['id'], force_reload=True, filtered=False)
+            venue = iiko.Venue.venue_by_id(iiko_venue['id'])
+            venue.payment_types = []
+            for iiko_payment in iiko_api.get_payment_types(venue.venue_id)['PaymentTypes']:
+                payment = iiko.PaymentType()
+                payment.name = iiko_payment['name']
+                payment.iiko_uuid = iiko_payment['code']
+                if payment.iiko_uuid == 'CASH':
+                    payment.type_id = 1
+                elif payment.iiko_uuid == 'ECARD':
+                    payment.type_id = 2
+                else:
+                    payment.type_id = 3
+                payment.put()
+                venue.payment_types.append(payment.key)
 
         id_json = {
             'id': company.key.id()
         }
-
         return self.render_json(id_json)
 
 
