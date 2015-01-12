@@ -173,7 +173,8 @@ class GetCompanyHandler(BaseHandler):
 
     def get(self):
         company_id = self.request.get_range('company_id')
-        device_format = self.request.get('format', 'web')
+        device_format = self.request.get('platform', 'web')
+        file_format = self.request.get('file_format', 'zip')
         company = iiko.Company.get_by_id(company_id)
 
         if device_format == 'ios':
@@ -212,15 +213,20 @@ class GetCompanyHandler(BaseHandler):
             doc_type = '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">'
             raw_string = etree.tostring(tree, encoding='utf8', xml_declaration=True, pretty_print=True,
                                         doctype=doc_type)
-            output_stream = StringIO()
-            zip_arch = self.get_zip_file(zipfile.ZipFile(output_stream, 'w'), raw_string, 'ios.xml')
-            zip_arch.close()
 
-            self.response.headers['Content-Type'] ='application/zip'
-            self.response.headers['Content-Disposition'] = 'attachment; filename="ios.zip"'
-            output_stream.seek(0)
-
-            self.output_stream(output_stream)
+            if file_format == 'xml':
+                self.response.headers['Content-Type'] = 'application/xml'
+                self.response.out.write(raw_string)
+            elif file_format == 'zip':
+                output_stream = StringIO()
+                zip_arch = self.get_zip_file(zipfile.ZipFile(output_stream, 'w'), raw_string, 'ios.xml')
+                zip_arch.close()
+                self.response.headers['Content-Type'] = 'application/zip'
+                self.response.headers['Content-Disposition'] = 'attachment; filename="ios.zip"'
+                output_stream.seek(0)
+                self.output_stream(output_stream)
+            else:
+                self.abort(404)
 
         elif device_format == 'android':
             s = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -257,13 +263,19 @@ class GetCompanyHandler(BaseHandler):
             self.create_key_xml(tree, 'integer', '300', {'name': 'ga_sessionTimeout'})
 
             raw_string = etree.tostring(tree, encoding='utf8', xml_declaration=True, pretty_print=True)
-            zip_arch = self.get_zip_file(zip_arch, raw_string, 'global_tracker.xml')
-            zip_arch.close()
 
-            output_stream.seek(0)
-            self.response.headers['Content-Type'] ='application/zip'
-            self.response.headers['Content-Disposition'] = 'attachment; filename="android.zip"'
-            self.output_stream(output_stream)
+            if file_format == 'xml':
+                self.response.headers['Content-Type'] = 'application/xml'
+                self.response.out.write(raw_string)
+            elif file_format == 'zip':
+                zip_arch = self.get_zip_file(zip_arch, raw_string, 'global_tracker.xml')
+                zip_arch.close()
+                output_stream.seek(0)
+                self.response.headers['Content-Type'] = 'application/zip'
+                self.response.headers['Content-Disposition'] = 'attachment; filename="android.zip"'
+                self.output_stream(output_stream)
+            else:
+                self.abort(404)
         else:
             company_json = {
                 'login': company.name,
@@ -281,7 +293,3 @@ class GetCompanyHandler(BaseHandler):
                 'analytics_key': company.analytics_key,
             }
             self.render_json(company_json)
-
-
-
-
