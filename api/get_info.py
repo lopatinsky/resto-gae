@@ -33,7 +33,7 @@ class GetVenuePromosHandler(BaseHandler):
 
 class GetOrderPromosHandler(BaseHandler):
 
-    def post(self):
+    def get(self):
         venue_id = self.request.get('venue_id')
         name = self.request.get('name').strip()
         phone = self.request.get('phone')
@@ -41,6 +41,8 @@ class GetOrderPromosHandler(BaseHandler):
             phone = "7" + phone
         customer_id = self.request.get('customer_id')
         order_sum = self.request.get('sum')
+        items = json.loads(self.request.get('items'))
+        date = self.request.get_range('date')
 
         customer = iiko.Customer.customer_by_customer_id(customer_id)
         if not customer:
@@ -53,16 +55,19 @@ class GetOrderPromosHandler(BaseHandler):
 
         order = iiko.Order()
         order.sum = float(order_sum)
-        order.date = datetime.datetime.fromtimestamp(int(self.request.get('date')))
+        order.date = datetime.datetime.fromtimestamp(date)
         order.venue_id = venue_id
-        order.items = json.loads(self.request.get('items'))
+        order.items = items
         order.customer = customer.key
+
+        order_dict = iiko_api.prepare_order(order, customer, None)
+        iiko_api.set_discounts(order, order_dict['order'])
 
         venue = iiko.Venue.venue_by_id(venue_id)
         company_id = venue.company_id
         token = iiko_api.get_access_token(company_id)
 
-        return self.render_json({"promos": iiko_api.get_order_promos(order, token)})
+        return self.render_json({"promos": iiko_api.get_order_promos(order, token), "order": order_dict})
 
 
 class GetCompanyInfoHandler(BaseHandler):
