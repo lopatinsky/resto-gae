@@ -27,6 +27,7 @@ Parameters:
 GET `/api/company/all_companies`
 
 No parameters
+
     [
         {
            'login': name,                       // string
