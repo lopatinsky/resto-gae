@@ -58,6 +58,8 @@ Parameters:
 * `platform (string[ios, android, json])`
 * `file_format (string[zip, xml])`
 
+```
+#!js
 {
     'login': name,                       // string
     'password': password,                // string
@@ -73,11 +75,12 @@ Parameters:
     'color': main color,                 // string
     'analytics_key': analytics_key,      // string
     'delivery_types': {
-        "available": available,          // bool
-        "name": delivery name,           // string
-        "type_id": 0                     //int
+        'available': available,          // bool
+        'name': delivery name,           // string
+        'type_id': id type               //int
     }
 }
+```
 
 ### Upload icons to server
 
