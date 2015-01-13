@@ -55,8 +55,8 @@ GET `/api/company/get_company`
 Parameters:
 
 * `company_id (int)`
-* `platform (string[ios, android, json])`
-* `file_format (string[zip, xml])`
+* `platform (string[ios, android])`
+* `file_format (string[zip, xml, json])`
 
 ```
 #!js

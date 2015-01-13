@@ -189,9 +189,29 @@ class GetCompanyHandler(BaseHandler):
 
     def get(self):
         company_id = self.request.get_range('company_id')
-        device_format = self.request.get('platform', 'json')
-        file_format = self.request.get('file_format', 'zip')
+        device_format = self.request.get('platform')
+        file_format = self.request.get('file_format', 'json')
         company = iiko.Company.get_by_id(company_id)
+
+        if file_format == 'json':
+            company_json = {
+                'login': company.name,
+                'password': company.password,
+                'app_name': company.app_name,
+                'company_id': company.key.id(),
+                'description': company.description,
+                'min_order_sum': company.min_order_sum,
+                'cities': company.cities,
+                'phone': company.phone,
+                'schedule': company.schedule,
+                'email': company.email,
+                'site': company.site,
+                'color': company.color,
+                'analytics_key': company.analytics_key,
+                'delivery_types': iiko.Company.get_delivery_types(company_id)
+            }
+            self.render_json(company_json)
+            return
 
         if device_format == 'ios':
             s = """<?xml version="1.0" encoding="UTF-8"?>
@@ -292,21 +312,3 @@ class GetCompanyHandler(BaseHandler):
                 self.output_stream(output_stream)
             else:
                 self.abort(404)
-        else:
-            company_json = {
-                'login': company.name,
-                'password': company.password,
-                'app_name': company.app_name,
-                'company_id': company.key.id(),
-                'description': company.description,
-                'min_order_sum': company.min_order_sum,
-                'cities': company.cities,
-                'phone': company.phone,
-                'schedule': company.schedule,
-                'email': company.email,
-                'site': company.site,
-                'color': company.color,
-                'analytics_key': company.analytics_key,
-                'delivery_types': iiko.Company.get_delivery_types(company_id)
-            }
-            self.render_json(company_json)
