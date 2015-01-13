@@ -6,6 +6,22 @@ Server is located on https://empatika-resto.appspot.com/.
 
 ## Endpoints
 
+### Create company if not exist else update
+
+POST `/api/company/create_or_update`
+
+Parameters:
+
+* `company_id (int)`
+* `company_info (json)`
+
+```
+#!js
+[
+    "id": company_id               // int
+]
+```
+
 ### Venues list for current company
 
 GET `/api/venues/<company_id>`

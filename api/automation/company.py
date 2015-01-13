@@ -189,7 +189,7 @@ class GetCompanyHandler(BaseHandler):
 
     def get(self):
         company_id = self.request.get_range('company_id')
-        device_format = self.request.get('platform', 'web')
+        device_format = self.request.get('platform', 'json')
         file_format = self.request.get('file_format', 'zip')
         company = iiko.Company.get_by_id(company_id)
 
