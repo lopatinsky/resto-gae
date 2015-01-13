@@ -27,22 +27,23 @@ Parameters:
 GET `/api/company/all_companies`
 
 No parameters
-
+    ```
+    #!js
     [
         {
-           'login': name,
-           'password': password,
-           'app_name': app_name,
-           'company_id': company_id,
-           'description': description,
-           'min_order_sum': min of order sum,
-           'cities': cities,
-           'phone': phone,
-           'schedule': schedule of company,
-           'email': company email,
-           'site': company site,
-           'color': main color,
-           'analytics_key': analytics_key,
+           'login': name,                       // string
+           'password': password,                // string
+           'app_name': app_name,                // string
+           'company_id': company_id,            // int
+           'description': description,          // string
+           'min_order_sum': min of order sum,   // int
+           'cities': cities,                    // string[]
+           'phone': phone,                      // string
+           'schedule': schedule of company,     // json
+           'email': company email,              // string
+           'site': company site,                // string
+           'color': main color,                 // string
+           'analytics_key': analytics_key,      // string
         },
         ...
     ]
