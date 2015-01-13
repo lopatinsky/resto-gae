@@ -45,6 +45,7 @@ No parameters
         },
         ...
     ]
+    ```
 
 ### Venues list for current company
 
