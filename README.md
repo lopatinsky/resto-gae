@@ -48,6 +48,16 @@ No parameters
     ]
     ```
 
+### Get company
+
+GET `/api/company/get_company`
+
+Parameters:
+
+* `company_id (int)`
+* `platform (string[ios, android, json])`
+* `file_format (string)`
+
 ### Venues list for current company
 
 GET `/api/venues/<company_id>`
