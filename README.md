@@ -27,8 +27,6 @@ Parameters:
 GET `/api/company/all_companies`
 
 No parameters
-    ```
-    #!js
     [
         {
            'login': name,                       // string
@@ -47,8 +45,6 @@ No parameters
         },
         ...
     ]
-    ```
-
 
 ### Venues list for current company
 
