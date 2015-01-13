@@ -56,7 +56,36 @@ Parameters:
 
 * `company_id (int)`
 * `platform (string[ios, android, json])`
-* `file_format (string)`
+* `file_format (string[zip, xml])`
+
+### Upload icons to server
+
+POST `/api/company/set_icons`
+
+Parameters:
+
+* `company_id (int)`
+* `icon1 (png)`
+* `icon2 (png)`
+* `icon3 (png)`
+* `icon4 (png)`
+* `company_icon (png)`
+
+```
+#!js
+{
+    "id": company_id               // int
+}
+```
+
+### Download icon from server
+
+GET `/api/company/get_icons`
+
+Parameters:
+
+* `company_id (int)`
+* `type (string[icon1, icon2, icon3, icon4, company_icon])`
 
 ### Venues list for current company
 
