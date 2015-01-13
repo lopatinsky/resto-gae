@@ -58,6 +58,27 @@ Parameters:
 * `platform (string[ios, android, json])`
 * `file_format (string[zip, xml])`
 
+{
+    'login': name,                       // string
+    'password': password,                // string
+    'app_name': app_name,                // string
+    'company_id': company_id,            // int
+    'description': description,          // string
+    'min_order_sum': min of order sum,   // int
+    'cities': cities,                    // string[]
+    'phone': phone,                      // string
+    'schedule': schedule of company,     // json
+    'email': company email,              // string
+    'site': company site,                // string
+    'color': main color,                 // string
+    'analytics_key': analytics_key,      // string
+    'delivery_types': {
+        "available": available,          // bool
+        "name": delivery name,           // string
+        "type_id": 0                     //int
+    }
+}
+
 ### Upload icons to server
 
 POST `/api/company/set_icons`
