@@ -76,7 +76,8 @@ class PlaceOrderHandler(base.BaseHandler):
         # pay after pre check
         order_id = None
         if payment_type == '2':
-            tie_result = tie_card(company, int(float(order_sum - order.discounts_sum) * 100), int(time.time()), 'returnUrl', alpha_client_id,
+            payment = order.sum - order.discounts_sum
+            tie_result = tie_card(company, int(float(payment) * 100), int(time.time()), 'returnUrl', alpha_client_id,
                                   'MOBILE')
             logging.info("registration")
             logging.info(str(tie_result))
@@ -139,6 +140,7 @@ class PlaceOrderHandler(base.BaseHandler):
             #'promos': iiko_api.get_order_promos(order, token=iiko_api.get_access_token(company_id)),  # it was added
             #'all_payment_types': iiko_api.get_payment_types(order.venue_id),  # it was added
             #'created_guest': guest,  # it was added
+            'menu': iiko_api.list_menu(venue_id),
             'order': {
                 'order_id': order.order_id,
                 'status': order.status,

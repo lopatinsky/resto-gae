@@ -317,6 +317,12 @@ def set_discounts(order, order_from_dict, token=None):
             for item in order.items:
                 if item['id'] == product_id:
                     return item
+                if item.get('modifiers'):
+                    for modifier in item.get('modifiers'):
+                        if modifier.get('items'):
+                            for m_item in modifier.get('items'):
+                                if m_item.get('id') == product_id:
+                                    return item
 
         if not token:
             token = get_access_token(Venue.venue_by_id(order.venue_id).company_id)
