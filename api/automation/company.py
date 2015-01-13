@@ -307,5 +307,6 @@ class GetCompanyHandler(BaseHandler):
                 'site': company.site,
                 'color': company.color,
                 'analytics_key': company.analytics_key,
+                'delivery_types': iiko.Company.get_delivery_types(company_id)
             }
             self.render_json(company_json)
