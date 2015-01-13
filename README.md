@@ -17,10 +17,37 @@ Parameters:
 
 ```
 #!js
-[
+{
     "id": company_id               // int
-]
+}
 ```
+
+### Get all companies
+
+GET `/api/company/all_companies`
+
+No parameters
+
+    [
+        {
+           'login': name,
+           'password': password,
+           'app_name': app_name,
+           'company_id': company_id,
+           'description': description,
+           'min_order_sum': min of order sum,
+           'cities': cities,
+           'phone': phone,
+           'schedule': schedule of company,
+           'email': company email,
+           'site': company site,
+           'color': main color,
+           'analytics_key': analytics_key,
+        },
+        ...
+    ]
+    ```
+
 
 ### Venues list for current company
 
