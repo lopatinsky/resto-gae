@@ -3,6 +3,7 @@
 import webapp2
 from api import *
 from api import specials
+from mt import CreateCompaniesLinks, CompanySettingsHandler
 
 
 app = webapp2.WSGIApplication([
@@ -26,6 +27,10 @@ app = webapp2.WSGIApplication([
     ('/api/company/get_company', GetCompanyHandler),
     ('/api/company/all_companies', GetCompaniesHandler),
     ('/api/company/get_icons', DownloadIconsHandler),
+
+    # maintenance
+    ('/mt/company/links', CreateCompaniesLinks),
+    ('/mt/company/settings/(.*)', CompanySettingsHandler),
 
     # venue
     ('/api/venue/(.*)/menu', MenuHandler),
