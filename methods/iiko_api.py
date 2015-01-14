@@ -64,6 +64,9 @@ def get_venues(org_id, token=None):
         })
         logging.info(result)
         obj = json.loads(result)
+        if obj is not list:
+            return []
+        logging.info(obj)
         venues = list()
         for v in obj:
             venues.append(Venue.venue_with_dict(v, org_id))

@@ -40,8 +40,9 @@ class GetCompaniesHandler(BaseHandler):
 class CreateOrUpdateCompanyHandler(BaseHandler):
     def post(self):
         company_info = json.loads(self.request.get('company_info'))
-        company_id = self.request.get_range('company_id')
-
+        company_id = self.request.get('company_id')
+        is_delivery = self.request.get('delivery_include') == 'true'
+        is_self = self.request.get('self_pickup') == 'true'
         company_params = {
             'app_name': company_info.get('app_title', None),
             'description': company_info.get('about_text', None),
@@ -55,7 +56,8 @@ class CreateOrUpdateCompanyHandler(BaseHandler):
             'analytics_key': company_info.get('analytics_code', None)
         }
 
-        if company_id and company_id != -1:
+        if company_id and company_id != '-1':
+            company_id = int(company_id)
             company = iiko.Company.get_by_id(company_id)
             if not company:
                 return
@@ -75,19 +77,22 @@ class CreateOrUpdateCompanyHandler(BaseHandler):
                 company.email = company_params['email']
             if company_params['site']:
                 company.site = company_params['site']
-            if company_params['icons']:
-                company.icons = company_params['icons']
-            if company_params['company_icon']:
-                company.company_icon = company_params['company_icon']
             if company_params['color']:
                 company.color = company_params['color']
             if company_params['analytics_key']:
                 company.analytics_key = company_params['analytics_key']
         else:
             company = iiko.Company(**company_params)
+        delivery_self = iiko.DeliveryType(delivery_id=1, name='self', available=is_self)
+        delivery_self.put()
+        delivery_pickup = iiko.DeliveryType(delivery_id=0, name='delivery', available=is_delivery)
+        delivery_pickup.put()
+
+        company.delivery_types.append(delivery_self.key)
+        company.delivery_types.append(delivery_pickup.key)
         company.put()
 
-        for iiko_venue in iiko_api.get_venues(company_id):
+        for iiko_venue in iiko_api.get_venues(str(company.key.id())):
             iiko_api.get_menu(iiko_venue['id'], force_reload=True, filtered=False)
             venue = iiko.Venue.venue_by_id(iiko_venue['id'])
             venue.payment_types = []
@@ -103,6 +108,8 @@ class CreateOrUpdateCompanyHandler(BaseHandler):
                     payment.type_id = 3
                 payment.put()
                 venue.payment_types.append(payment.key)
+            venue.put()
+
 
         id_json = {
             'id': company.key.id()
