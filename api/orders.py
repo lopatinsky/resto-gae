@@ -140,13 +140,13 @@ class PlaceOrderHandler(base.BaseHandler):
             #'promos': iiko_api.get_order_promos(order, token=iiko_api.get_access_token(company_id)),  # it was added
             #'all_payment_types': iiko_api.get_payment_types(order.venue_id),  # it was added
             #'created_guest': guest,  # it was added
-            'menu': iiko_api.list_menu(venue_id),
+            #'menu': iiko_api.list_menu(venue_id),  # it was added
             'order': {
                 'order_id': order.order_id,
                 'status': order.status,
                 'items': order.items,
                 'sum': order.sum,
-                #'discounts': order.discount_sum,
+                #'discounts': order.discount_sum,  # it was added
                 #'payments': order_dict['order']['paymentItems'],  # it was added
                 'number': order.number,
                 'venue_id': order.venue_id,

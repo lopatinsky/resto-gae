@@ -151,7 +151,8 @@ def _get_menu_modifiers(menu):
             mod_info = {
                 'id': p['id'],
                 'name': p['name'],
-                'price': p['price']
+                'price': p['price'],
+                'code': p['code']
             }
             modifiers[p['id']] = mod_info
             if p['groupId']:
@@ -313,25 +314,28 @@ def check_food(venue_id, items):
 
 def set_discounts(order, order_from_dict, token=None):
 
-        def get_item(product_id):
+        def get_item(product_code):
             for item in order.items:
-                if item['id'] == product_id:
+                if item['code'] == product_code:
                     return item
                 if item.get('modifiers'):
                     for modifier in item.get('modifiers'):
-                        if modifier.get('items'):
-                            for m_item in modifier.get('items'):
-                                if m_item.get('id') == product_id:
-                                    return item
+                        if modifier.get('code') == product_code:
+                            return item
 
         if not token:
             token = get_access_token(Venue.venue_by_id(order.venue_id).company_id)
 
         promos = get_order_promos(order, token=token)
+        discount_sum = 0
         if promos.get('availableFreeProducts'):
             for gift in promos.get('availableFreeProducts'):
-                gift['sum'] = 0
-                order.items.append(gift)
+                if gift.get('amount'):
+                    order.items.append(gift)
+                    gift['sum'] = gift['price']
+                    gift['discount_sum'] = gift['price']
+                    discount_sum += gift['price']
+        add_bonus_to_payment(order_from_dict, discount_sum, False)
 
         discount_sum = 0
         if promos.get('discountInfo'):
@@ -339,13 +343,24 @@ def set_discounts(order, order_from_dict, token=None):
                 if dis_info.get('details'):
                     for detail in dis_info.get('details'):
                         if detail.get('discountSum'):
-                            item = get_item(detail.get('id'))
+                            item = get_item(detail.get('code'))
+                            if not item:
+                                logging.error('discounts not found!')
+                                continue
                             if not item.get('discount_sum'):
                                 item['discount_sum'] = detail['discountSum']
+                                item['sum'] -= detail['discountSum']
+                                cur_discount = detail['discountSum']
                             else:
-                                item['discount_sum'] += detail['discountSum']
-                            item['sum'] -= detail['discountSum']
-                            discount_sum += item['discount_sum']
+                                if detail['discountSum'] > item['sum']:
+                                    item['discount_sum'] += item['sum']
+                                    cur_discount = item['sum']
+                                    item['sum'] = 0
+                                else:
+                                    item['discount_sum'] += detail['discountSum']
+                                    item['sum'] -= detail['discountSum']
+                                    cur_discount = detail['discountSum']
+                            discount_sum += cur_discount
         order.discount_sum = discount_sum
         return add_bonus_to_payment(order_from_dict, discount_sum, True)
 
@@ -575,19 +590,39 @@ def list_menu(venue_id, token=None):
 
 
 def get_product_from_menu(venue_id, token=None, product_code=None, product_id=None):
+    if not token:
+        token = get_access_token(Venue.venue_by_id(venue_id).company_id)
     menu = list_menu(venue_id, token)
     for product in menu:
         if product['productId'] == product_id or product['code'] == product_code:
             return product
 
 
-def get_group_modifier(venue_id, group_id, modifier_id, token=None):
-    menu = get_menu(venue_id, False, token, False)
-    group_modifiers, modifiers = _get_menu_modifiers(menu)
-    items = group_modifiers[group_id]['items']
-    for item in items:
-        if item['id'] == modifier_id:
-            return item
+def get_product_by_modifier_item(venue_id, id_modifier, token=None):
+    if not token:
+        token = get_access_token(Venue.venue_by_id(venue_id).company_id)
+    menu = list_menu(venue_id, token)
+    for product in menu:
+        for mod in product['modifiers']:
+            for m_item in mod['items']:
+                if m_item['id'] == id_modifier:
+                    return product
+
+
+def get_group_modifier_item(venue_id, token=None, product_code=None, product_id=None, order_mod_code=None, order_mod_id=None):
+    if not token:
+        token = get_access_token(Venue.venue_by_id(venue_id).company_id)
+    product = get_product_from_menu(venue_id, token, product_code=product_code, product_id=product_id)
+    if not product:
+        modifiers = []
+        for item in list_menu(venue_id, token):
+            modifiers.extend(item.get('modifiers'))
+    else:
+        modifiers = product.get('modifiers', [])
+    for mod in modifiers:
+        for m_item in mod.get('items', []):
+            if m_item.get('code') == order_mod_code or m_item.get('id') == order_mod_id:
+                return m_item
 
 
 def get_promo_by_id(venue_id, promo_id, token=None):
@@ -608,12 +643,22 @@ def get_order_promos(order, token=None):
 
     for item in order_request['order']['items']:
         product = get_product_from_menu(order.venue_id, product_id=item['id'])
+        if not product:
+            product = get_group_modifier_item(order.venue_id, order_mod_id=item['id'])
+        if not product:
+            logging.error('product is not found in menu!')
+            continue
         item['code'] = product['code']
         item['sum'] = product['price'] * item['amount']
         if item['sum'] == 0:
             if item['modifiers']:
-                item['sum'] = sum(get_group_modifier(order.venue_id, m['groupId'], m['id']) * m['amount']
-                                  for m in item.get('modifiers'))
+                for m in item.get('modifiers', []):
+                    mod_item = get_group_modifier_item(order.venue_id, token, product_code=item['code'], order_mod_id=m.get('id'))
+                    m['code'] = mod_item.get('code')
+                    m['sum'] = mod_item.get('price', 0) * m.get('amount', 0)
+                item['sum'] = m['sum'] if item.get('modifiers') else 0
+                item['code'] = m['code'] if item.get('modifiers') else item['code']
+
 
     url = '/orders/calculate_loyalty_discounts?access_token=%s' % token
     payload = order_request
@@ -621,21 +666,42 @@ def get_order_promos(order, token=None):
 
     if result.get('availableFreeProducts'):
         for free_product in result.get('availableFreeProducts'):
-            product = get_product_from_menu(order.venue_id, product_code=free_product.get('productCode'))
-            free_product['id'] = product['productId']
-            free_product['name'] = product['name']
-            free_product['amount'] = 1
-            free_product['code'] = free_product['productCode']
+            product = get_product_from_menu(order.venue_id, token, product_code=free_product.get('productCode'))
+            if not product:
+                modifier = get_group_modifier_item(order.venue_id, token, order_mod_code=free_product.get('productCode'))
+                if modifier:
+                    product = get_product_by_modifier_item(order.venue_id, modifier['id'], token)
+                    logging.info(product)
+                    free_product['modifiers'] = [{
+                        'amount': 1,
+                        'price': modifier['price'],
+                        'id': modifier['id'],
+                        'groupId': modifier['groupId'],
+                        'name': modifier['name']
+                    }]
+            if product:
+                free_product['id'] = product['productId']
+                free_product['name'] = product['name']
+                free_product['price'] = product['price'] if product['price'] else free_product['modifiers'][0]['price']
+                free_product['amount'] = 1
+                free_product['code'] = free_product['productCode']
+            else:
+                logging.error('not found product in menu')
 
     if result.get('discountInfo'):
         for dis_info in result.get('discountInfo'):
             if dis_info.get('details'):
                 for detail in dis_info.get('details'):
                     if detail.get('productCode'):
-                        product = get_product_from_menu(order.venue_id, product_code=detail.get('productCode'))
-                        detail['id'] = product['productId']
-                        detail['name'] = product['name']
-                        detail['code'] = product['code']
+                        product = get_product_from_menu(order.venue_id, token, product_code=detail.get('productCode'))
+                        if not product:
+                            product = get_group_modifier_item(order.venue_id, token, order_mod_code=detail.get('productCode'))
+                        if product:
+                            detail['id'] = product['productId'] if product.get('productId') else product.get('id')
+                            detail['name'] = product['name']
+                            detail['code'] = product['code']
+                        else:
+                            logging.error('product from iiko.biz not found!')
             promo = get_promo_by_id(order.venue_id, dis_info.get('id'), token)
             dis_info['description'] = promo['description']
             dis_info['start'] = promo['start']
