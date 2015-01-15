@@ -40,6 +40,7 @@ No parameters
            'phone': phone,                      // string
            'schedule': schedule of company,     // json
            'email': company email,              // string
+           'support_emails' emails for support  // string[]
            'site': company site,                // string
            'color': main color,                 // string
            'analytics_key': analytics_key,      // string
@@ -71,6 +72,7 @@ Parameters:
     'phone': phone,                      // string
     'schedule': schedule of company,     // json
     'email': company email,              // string
+    'support_emails' emails for support  // string[]
     'site': company site,                // string
     'color': main color,                 // string
     'analytics_key': analytics_key,      // string
