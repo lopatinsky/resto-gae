@@ -9,8 +9,8 @@ handlers:
   static_files: favicon.ico
   upload: favicon\.ico
 
-#- url: /templates        TODO: change it! Rustem snippet
-#  static_dir: templates
+- url: /static
+  static_dir: static
 
 - url: /cron/.*
   script: cron.app
