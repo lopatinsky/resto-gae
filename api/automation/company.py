@@ -216,8 +216,6 @@ class GetCompanyHandler(BaseHandler):
 
         if file_format == 'json':
             company_json = {
-                'login': company.name,
-                'password': company.password,
                 'app_name': company.app_name,
                 'company_id': company.key.id(),
                 'description': company.description,
