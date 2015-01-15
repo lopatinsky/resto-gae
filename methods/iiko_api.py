@@ -64,7 +64,7 @@ def get_venues(org_id, token=None):
         })
         logging.info(result)
         obj = json.loads(result)
-        if obj is not list:
+        if obj is not isinstance(obj, list):
             return []
         logging.info(obj)
         venues = list()

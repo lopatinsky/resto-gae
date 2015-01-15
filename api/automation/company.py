@@ -29,6 +29,7 @@ class GetCompaniesHandler(BaseHandler):
                 'phone': company.phone,
                 'schedule': company.schedule,
                 'email': company.email,
+                'support_emails': company.support_emails,
                 'site': company.site,
                 'color': company.color,
                 'analytics_key': company.analytics_key,
@@ -41,8 +42,9 @@ class CreateOrUpdateCompanyHandler(BaseHandler):
     def post(self):
         company_info = json.loads(self.request.get('company_info'))
         company_id = self.request.get('company_id')
-        is_delivery = self.request.get('delivery_include') == 'true'
-        is_self = self.request.get('self_pickup') == 'true'
+
+        is_delivery = company_info.get('is_delivery') == 'true'
+        is_self = company_info.get('is_self_pickup') == 'true'
         company_params = {
             'app_name': company_info.get('app_title', None),
             'description': company_info.get('about_text', None),
@@ -51,16 +53,17 @@ class CreateOrUpdateCompanyHandler(BaseHandler):
             'phone': company_info.get('phone', None),
             'schedule': company_info.get('schedule', None),
             'email': company_info.get('email', None),
+            'support_emails': company_info['support_emails'] if company_info.get('support_emails') else None,
             'site': company_info.get('site', None),
             'color': company_info.get('color', None),
-            'analytics_key': company_info.get('analytics_code', None)
+            'analytics_key': company_info.get('analytics_code', None),
         }
 
         if company_id and company_id != '-1':
             company_id = int(company_id)
             company = iiko.Company.get_by_id(company_id)
             if not company:
-                return
+                self.abort(404)
             if company_params['app_name']:
                 company.app_name = company_params['app_name']
             if company_params['description']:
@@ -81,15 +84,26 @@ class CreateOrUpdateCompanyHandler(BaseHandler):
                 company.color = company_params['color']
             if company_params['analytics_key']:
                 company.analytics_key = company_params['analytics_key']
-        else:
-            company = iiko.Company(**company_params)
-        delivery_self = iiko.DeliveryType(delivery_id=1, name='self', available=is_self)
-        delivery_self.put()
-        delivery_pickup = iiko.DeliveryType(delivery_id=0, name='delivery', available=is_delivery)
-        delivery_pickup.put()
+            if company_params['support_emails']:
+                company.support_emails = company_params['support_emails']
+            for delivery_type in company.delivery_types:
+                delivery_type = delivery_type.get()
+                name = delivery_type.name
+                if name == 'self':
+                    delivery_type.available = is_self
+                elif name == 'delivery':
+                    delivery_type.available = is_delivery
+                delivery_type.put()
 
-        company.delivery_types.append(delivery_self.key)
-        company.delivery_types.append(delivery_pickup.key)
+        else:
+            delivery_self = iiko.DeliveryType(delivery_id=1, name='self', available=is_self)
+            delivery_self.put()
+            delivery_pickup = iiko.DeliveryType(delivery_id=0, name='delivery', available=is_delivery)
+            delivery_pickup.put()
+            company = iiko.Company(**company_params)
+            company.delivery_types.append(delivery_self.key)
+            company.delivery_types.append(delivery_pickup.key)
+
         company.put()
 
         for iiko_venue in iiko_api.get_venues(str(company.key.id())):
@@ -212,6 +226,7 @@ class GetCompanyHandler(BaseHandler):
                 'phone': company.phone,
                 'schedule': company.schedule,
                 'email': company.email,
+                'support_emails': company.support_emails,
                 'site': company.site,
                 'color': company.color,
                 'analytics_key': company.analytics_key,
