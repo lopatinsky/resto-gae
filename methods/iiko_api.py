@@ -345,6 +345,16 @@ def prepare_order(order, customer, payment_type):
 
     if not order.is_delivery:
         obj['deliveryTerminalId'] = get_delivery_terminal_id(order.venue_id)
+    elif order.venue_id == "768c213e-5bc1-4135-baa3-45f719dbad7e":  # TODO orange express
+        terminals = get_delivery_terminals(order.venue_id)
+        dt_id = None
+        for t in terminals:
+            if order.address['city'] in t['deliveryRestaurantName']:
+                dt_id = t['deliveryTerminalId']
+                break
+        if not dt_id:
+            dt_id = terminals[0]['deliveryTerminalId']
+        obj['deliveryTerminalId'] = dt_id
 
     customer_id = customer.customer_id
     if customer_id:
@@ -565,10 +575,10 @@ def get_order_promos(order, token=None):
     return result
 
 
-def get_delivery_terminal_id(venue_id, token=None):
-    memcache_key = "deliveryTerminalId_%s" % venue_id
-    dt_id = memcache.get(memcache_key)
-    if not dt_id:
+def get_delivery_terminals(venue_id, token=None):
+    memcache_key = "deliveryTerminals_%s"
+    result = memcache.get(memcache_key)
+    if not result:
         if not token:
             org_id = Venue.venue_by_id(venue_id).company_id
             token = get_access_token(org_id)
@@ -576,9 +586,13 @@ def get_delivery_terminal_id(venue_id, token=None):
             'access_token': token,
             'organization': venue_id
         })
-        result = json.loads(response)
-        terminals = result['deliveryTerminals']
-        if terminals:
-            dt_id = terminals[0]['deliveryTerminalId']
-            memcache.set(memcache_key, dt_id, time=24*3600)
-    return dt_id
+        result = json.loads(response)['deliveryTerminals']
+        memcache.set(memcache_key, result, time=24*3600)
+    return result
+
+
+def get_delivery_terminal_id(venue_id, token=None):
+    terminals = get_delivery_terminals(venue_id, token)
+    if terminals:
+        return terminals[0]['deliveryTerminalId']
+    return None
