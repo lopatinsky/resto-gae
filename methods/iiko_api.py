@@ -681,3 +681,31 @@ def get_delivery_terminal_id(venue_id):
     if terminals:
         return terminals[0]['deliveryTerminalId']
     return None
+
+
+def create_or_update_customer(company_id, customer, customer_balance, venue_id):
+    payload = {
+        'customer': {
+            'phone': customer.phone,
+            'name': customer.name,
+            'balance': customer_balance
+        }
+    }
+    result = __post_request(company_id, '/customers/create_or_update', {
+        'organization': venue_id
+    }, payload)
+    if result:
+        return json.loads(result)
+    else:
+        return 'failure'
+
+
+def get_customer_by_phone(company_id, phone, venue_id):
+    result = __get_request(company_id, '/customers/get_customer_by_phone', {
+        'organization': venue_id,
+        'phone': phone
+    })
+    if result:
+        return json.loads(result)
+    else:
+        return 'failure'
