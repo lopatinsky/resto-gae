@@ -20,6 +20,7 @@ class PlaceOrderHandler(base.BaseHandler):
 
         name = self.request.get('name').strip()
         phone = self.request.get('phone')
+        bonuses = self.request.get_range('bonuses')  # it was added
         if len(phone) == 10 and not phone.startswith("7"):  # old Android version
             phone = "7" + phone
         customer_id = self.request.get('customer_id')
@@ -72,7 +73,7 @@ class PlaceOrderHandler(base.BaseHandler):
         # pay after pre check
         order_id = None
         if payment_type == '2':
-            payment = order.sum - order.discounts_sum
+            payment = order.sum - order.discounts_sum - bonuses
             tie_result = tie_card(company, int(float(payment) * 100), int(time.time()), 'returnUrl', alpha_client_id,
                                   'MOBILE')
             logging.info("registration")
@@ -123,6 +124,10 @@ class PlaceOrderHandler(base.BaseHandler):
             customer.customer_id = result['customerId']
             customer.put()
 
+        iiko_customer = iiko_api.get_customer_by_phone(company_id, customer.phone, venue_id)  # it was added
+        iiko_api.create_or_update_customer(company_id, customer, iiko_customer['balance'] - bonuses, venue_id)  # deduct bonuses | it was  added
+        iiko_api.add_bonus_to_payment(order_dict['order'], bonuses, True)  # it was added
+
         order.order_id = result['orderId']
         order.number = result['number']
         order.set_status(result['status'])
@@ -136,6 +141,7 @@ class PlaceOrderHandler(base.BaseHandler):
             'promos': iiko_api.get_order_promos(order),  # it was added
             #'all_payment_types': iiko_api.get_payment_types(order.venue_id),  # it was added
             #'menu': iiko_api.list_menu(venue_id),  # it was added
+            'iiko_customer': iiko_api.get_customer_by_phone(company_id, phone, venue_id),  # it was added
             'order': {
                 'order_id': order.order_id,
                 'status': order.status,
