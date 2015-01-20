@@ -45,7 +45,7 @@ def __post_request(company_id, api_path, params, payload):
 
         return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=json_payload,
                               deadline=30, validate_certificate=False)
-    
+
     params['access_token'] = get_access_token(company_id)
     result = do()
     if result.status_code == 401:
@@ -260,7 +260,6 @@ def get_menu(venue_id, force_reload=False, filtered=True):
     return menu
 
 
-<<<<<<< HEAD
 def check_food(venue_id, items):
     stop_list = get_stop_list(venue_id)
     for item in stop_list['stopList'][0]['items']:
@@ -269,7 +268,7 @@ def check_food(venue_id, items):
     return False
 
 
-def set_discounts(order, order_from_dict, token=None):
+def set_discounts(order, order_from_dict):
 
         def get_item(product_code):
             for item in order.items:
@@ -280,10 +279,7 @@ def set_discounts(order, order_from_dict, token=None):
                         if modifier.get('code') == product_code:
                             return item
 
-        if not token:
-            token = get_access_token(Venue.venue_by_id(order.venue_id).company_id)
-
-        promos = get_order_promos(order, token=token)
+        promos = get_order_promos(order)
         discount_sum = 0
         if promos.get('availableFreeProducts'):
             for gift in promos.get('availableFreeProducts'):
@@ -343,8 +339,6 @@ def add_bonus_to_payment(order, bonus_sum, is_deducted):
         return False
 
 
-=======
->>>>>>> origin/master
 def prepare_order(order, customer, payment_type):
     venue = Venue.venue_by_id(order.venue_id)
     local_date = order.date + timedelta(seconds=venue.get_timezone_offset())
@@ -508,13 +502,7 @@ def get_delivery_restrictions(venue_id):
     return json.loads(result)
 
 
-<<<<<<< HEAD
-def get_venue_promos(venue_id, token=None):
-    if not token:
-        token = get_access_token(Venue.venue_by_id(venue_id).company_id)
-=======
 def get_venue_promos(venue_id):
->>>>>>> origin/master
     url = '/organization/%s/marketing_campaigns' % venue_id
     company_id = Venue.venue_by_id(venue_id).company_id
     result = __get_request(company_id, url, {})
@@ -535,11 +523,7 @@ def list_menu(venue_id):
             result_p.append(product)
         return result_p
 
-<<<<<<< HEAD
-    menu = get_menu(venue_id, False, token, False)
-=======
     menu = get_menu(venue_id, filtered=False)
->>>>>>> origin/master
     queue = deque(menu)
     products = []
     while len(queue):
@@ -552,25 +536,15 @@ def list_menu(venue_id):
     return products
 
 
-<<<<<<< HEAD
-def get_product_from_menu(venue_id, token=None, product_code=None, product_id=None):
-    if not token:
-        token = get_access_token(Venue.venue_by_id(venue_id).company_id)
-    menu = list_menu(venue_id, token)
-=======
 def get_product_from_menu(venue_id, product_code=None, product_id=None):
     menu = list_menu(venue_id)
->>>>>>> origin/master
     for product in menu:
         if product['productId'] == product_id or product['code'] == product_code:
             return product
 
 
-<<<<<<< HEAD
-def get_product_by_modifier_item(venue_id, id_modifier, token=None):
-    if not token:
-        token = get_access_token(Venue.venue_by_id(venue_id).company_id)
-    menu = list_menu(venue_id, token)
+def get_product_by_modifier_item(venue_id, id_modifier):
+    menu = list_menu(venue_id)
     for product in menu:
         for mod in product['modifiers']:
             for m_item in mod['items']:
@@ -578,13 +552,11 @@ def get_product_by_modifier_item(venue_id, id_modifier, token=None):
                     return product
 
 
-def get_group_modifier_item(venue_id, token=None, product_code=None, product_id=None, order_mod_code=None, order_mod_id=None):
-    if not token:
-        token = get_access_token(Venue.venue_by_id(venue_id).company_id)
-    product = get_product_from_menu(venue_id, token, product_code=product_code, product_id=product_id)
+def get_group_modifier_item(venue_id, product_code=None, product_id=None, order_mod_code=None, order_mod_id=None):
+    product = get_product_from_menu(venue_id, product_code=product_code, product_id=product_id)
     if not product:
         modifiers = []
-        for item in list_menu(venue_id, token):
+        for item in list_menu(venue_id):
             modifiers.extend(item.get('modifiers'))
     else:
         modifiers = product.get('modifiers', [])
@@ -594,11 +566,6 @@ def get_group_modifier_item(venue_id, token=None, product_code=None, product_id=
                 return m_item
 
 
-def get_promo_by_id(venue_id, promo_id, token=None):
-    if not token:
-        token = get_access_token(Venue.venue_by_id(venue_id).company_id)
-    promos = get_venue_promos(venue_id, token)
-=======
 def get_group_modifier(venue_id, group_id, modifier_id):
     menu = get_menu(venue_id, filtered=False)
     group_modifiers, modifiers = _get_menu_modifiers(menu)
@@ -610,20 +577,13 @@ def get_group_modifier(venue_id, group_id, modifier_id):
 
 def get_promo_by_id(venue_id, promo_id):
     promos = get_venue_promos(venue_id)
->>>>>>> origin/master
     for promo in promos:
         if promo['id'] == promo_id:
             return promo
 
 
-<<<<<<< HEAD
-def get_order_promos(order, token=None):
-    if not token:
-        token = get_access_token(Venue.venue_by_id(order.venue_id).company_id)
-=======
 def get_order_promos(order):
 
->>>>>>> origin/master
     order_request = prepare_order(order, order.customer.get(), 1)
     order_request['organization'] = order.venue_id
     order_request['order']['fullSum'] = order.sum
@@ -640,7 +600,7 @@ def get_order_promos(order):
         if item['sum'] == 0:
             if item['modifiers']:
                 for m in item.get('modifiers', []):
-                    mod_item = get_group_modifier_item(order.venue_id, token, product_code=item['code'], order_mod_id=m.get('id'))
+                    mod_item = get_group_modifier_item(order.venue_id, product_code=item['code'], order_mod_id=m.get('id'))
                     m['code'] = mod_item.get('code')
                     m['sum'] = mod_item.get('price', 0) * m.get('amount', 0)
                 item['sum'] = m['sum'] if item.get('modifiers') else 0
@@ -654,11 +614,11 @@ def get_order_promos(order):
 
     if result.get('availableFreeProducts'):
         for free_product in result.get('availableFreeProducts'):
-            product = get_product_from_menu(order.venue_id, token, product_code=free_product.get('productCode'))
+            product = get_product_from_menu(order.venue_id, product_code=free_product.get('productCode'))
             if not product:
-                modifier = get_group_modifier_item(order.venue_id, token, order_mod_code=free_product.get('productCode'))
+                modifier = get_group_modifier_item(order.venue_id, order_mod_code=free_product.get('productCode'))
                 if modifier:
-                    product = get_product_by_modifier_item(order.venue_id, modifier['id'], token)
+                    product = get_product_by_modifier_item(order.venue_id, modifier['id'])
                     logging.info(product)
                     free_product['modifiers'] = [{
                         'amount': 1,
@@ -681,24 +641,20 @@ def get_order_promos(order):
             if dis_info.get('details'):
                 for detail in dis_info.get('details'):
                     if detail.get('productCode'):
-<<<<<<< HEAD
-                        product = get_product_from_menu(order.venue_id, token, product_code=detail.get('productCode'))
+                        product = get_product_from_menu(order.venue_id, product_code=detail.get('productCode'))
                         if not product:
-                            product = get_group_modifier_item(order.venue_id, token, order_mod_code=detail.get('productCode'))
+                            product = get_group_modifier_item(order.venue_id, order_mod_code=detail.get('productCode'))
                         if product:
                             detail['id'] = product['productId'] if product.get('productId') else product.get('id')
                             detail['name'] = product['name']
                             detail['code'] = product['code']
                         else:
                             logging.error('product from iiko.biz not found!')
-            promo = get_promo_by_id(order.venue_id, dis_info.get('id'), token)
-=======
                         product = get_product_from_menu(order.venue_id, product_code=detail.get('productCode'))
                         detail['id'] = product['productId']
                         detail['name'] = product['name']
                         detail['code'] = product['code']
             promo = get_promo_by_id(order.venue_id, dis_info.get('id'))
->>>>>>> origin/master
             dis_info['description'] = promo['description']
             dis_info['start'] = promo['start']
             dis_info['end'] = promo['end']
@@ -715,31 +671,6 @@ def get_delivery_terminals(venue_id):
         response = __get_request(org_id, '/deliverySettings/getDeliveryTerminals', {
             'organization': venue_id
         })
-<<<<<<< HEAD
-        result = json.loads(response)
-        terminals = result['deliveryTerminals']
-        if terminals:
-            dt_id = terminals[0]['deliveryTerminalId']
-            memcache.set(memcache_key, dt_id, time=24*3600)
-    return dt_id
-
-
-def create_or_update_customer(customer, venue_id, token=None):
-    if not token:
-        token = get_access_token(Venue.venue_by_id(venue_id).company_id)
-    url = '/customers/create_or_update?access_token=%s&organization=%s' % (token, venue_id)
-    params = {
-        'customer': {
-            'phone': customer.phone,
-            'name': customer.name
-        }
-    }
-    result = __post_request(url, params)
-    if result:
-        return result
-    else:
-        return 'failure'
-=======
         result = json.loads(response)['deliveryTerminals']
         memcache.set(memcache_key, result, time=24*3600)
     return result
@@ -750,4 +681,3 @@ def get_delivery_terminal_id(venue_id):
     if terminals:
         return terminals[0]['deliveryTerminalId']
     return None
->>>>>>> origin/master
