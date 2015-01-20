@@ -5,7 +5,6 @@ import json
 import logging
 import urllib
 import operator
-from models import iiko
 from collections import deque
 
 from google.appengine.api import memcache, urlfetch
@@ -18,50 +17,63 @@ from methods.image_cache import convert_url
 IIKO_BASE_URL = 'https://iiko.net:9900/api/0'
 
 
-def __get_request(api_path, params):
-    url = '%s%s' % (IIKO_BASE_URL, api_path)
-    if params:
-        url = '%s?%s' % (url, urllib.urlencode(params))
-    logging.info(url)
-    return urlfetch.fetch(url, deadline=30, validate_certificate=False).content
+def __get_request(company_id, api_path, params):
+    def do():
+        url = '%s%s' % (IIKO_BASE_URL, api_path)
+        if params:
+            url = '%s?%s' % (url, urllib.urlencode(params))
+        logging.info(url)
+        return urlfetch.fetch(url, deadline=30, validate_certificate=False)
+
+    params['access_token'] = get_access_token(company_id)
+    result = do()
+    if result.status_code == 401:
+        logging.warning("bad token")
+        params['access_token'] = get_access_token(company_id, refresh=True)
+        result = do()
+    return result.content
 
 
-def __post_request(api_path, params):
-    url = '%s%s' % (IIKO_BASE_URL, api_path)
-    payload = json.dumps(params)
-    logging.info("PAYLOAD %s" % str(payload))
-    logging.info(url)
+def __post_request(company_id, api_path, params, payload):
+    def do():
+        url = '%s%s' % (IIKO_BASE_URL, api_path)
+        if params:
+            url = '%s?%s' % (url, urllib.urlencode(params))
+        json_payload = json.dumps(payload)
+        logging.info("PAYLOAD %s" % str(json_payload))
+        logging.info(url)
 
-    return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=payload,
-                          deadline=30, validate_certificate=False).content
+        return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=json_payload,
+                              deadline=30, validate_certificate=False)
+    
+    params['access_token'] = get_access_token(company_id)
+    result = do()
+    if result.status_code == 401:
+        logging.warning("bad token")
+        params['access_token'] = get_access_token(company_id, refresh=True)
+        result = do()
+    return result.content
 
 
-def get_access_token(org_id):
+def get_access_token(org_id, refresh=False):
     token = memcache.get('iiko_token_%s' % org_id)
-    if not token:
+    if not token or refresh:
         token = _fetch_access_token(org_id)
         memcache.set('iiko_token_%s' % org_id, token, time=10*60)
     return token
 
 
 def _fetch_access_token(org_id):
-    logging.info(org_id)
     company = Company.get_by_id(int(org_id))
-    result = __get_request('/auth/access_token', {
-        'user_id': company.name,  # 'Empatika'
-        'user_secret': company.password  # 'i33yMr7W17l0Ic3'
-    })
-    return result.strip('"')
+    result = urlfetch.fetch(
+        IIKO_BASE_URL + '/auth/access_token?user_id=%s&user_secret=%s' % (company.name, company.password))
+    return result.content.strip('"')
 
 
-def get_venues(org_id, token=None):
+def get_venues(org_id):
     venues = memcache.get('iiko_venues_%s' % org_id)
     if not venues:
-        if not token:
-            token = get_access_token(org_id)
-        result = __get_request('/organization/list', {
-            'access_token': token
-        })
+        result = __get_request(org_id, '/organization/list', {})
         logging.info(result)
         obj = json.loads(result)
         if not isinstance(obj, list):
@@ -76,72 +88,17 @@ def get_venues(org_id, token=None):
 
 def get_stop_list(venue_id):
     org_id = Venue.venue_by_id(venue_id).company_id
-    result = __get_request('/stopLists/getDeliveryStopList', {
-        'access_token': get_access_token(org_id),
+    result = __get_request(org_id, '/stopLists/getDeliveryStopList', {
         'organization': venue_id,
     })
     return json.loads(result)
-
-
-def create_order_with_bonus(venue_id, order):
-    org_id = Venue.venue_by_id(venue_id).company_id
-    result = __post_request('/orders/create_order?access_token=%s&request_timeout=30&organization=%s' %
-                            (get_access_token(org_id), venue_id), order)
-    return result
 
 
 def get_orders_with_payments(venue_id):
     org_id = Venue.venue_by_id(venue_id).company_id
-    result = __get_request('/orders/get_orders_with_payments', {
-        'access_token': get_access_token(org_id),
+    result = __get_request(org_id, '/orders/get_orders_with_payments', {
         'organization': venue_id,
         'from': datetime.fromtimestamp(1406550552)  # TODO: timestamp
-    })
-    return json.loads(result)
-
-
-def update_bonus_order(venue_id, order):
-    org_id = Venue.venue_by_id(venue_id).company_id
-    result = __post_request('/orders/update_order/access_token=%s&request_timeout=30&organization=%s' %
-                            (get_access_token(org_id), venue_id), order)
-    return json.loads(result)
-
-
-def get_iiko_net_payments(venue_id, order_id):
-    org_id = Venue.venue_by_id(venue_id).company_id
-    result = __get_request('/orders/get_iiko_net_payment', {
-        'access_token': get_access_token(org_id),
-        'organization': venue_id,
-        'order_id': order_id
-    })
-    return json.loads(result)
-
-
-def pay_order(venue_id, payment_sum, order):
-    org_id = Venue.venue_by_id(venue_id).company_id
-    result = __post_request('/orders/pay_order/access_token=%s&'
-                            'request_timeout=30&organization=%s&payment_sum=%d' %
-                            (get_access_token(org_id), venue_id, payment_sum), order)
-    return json.loads(result)
-
-
-def confirm_order(venue_id, sum_for_bonus, order_id):
-    org_id = Venue.venue_by_id(venue_id).company_id
-    result = __get_request('/orders/confirm_order', {
-        'access_token': get_access_token(org_id),
-        'organization': venue_id,
-        'order_id': order_id,
-        'sum_for_bonus': sum_for_bonus
-    })
-    return json.loads(result)
-
-
-def abort_order(venue_id, order_id):
-    org_id = Venue.venue_by_id(venue_id).company_id
-    result = __get_request('/orders/abort_order', {
-        'access_token': get_access_token(org_id),
-        'organization': venue_id,
-        'order_id': order_id,
     })
     return json.loads(result)
 
@@ -173,13 +130,9 @@ def _clone(d):
     return json.loads(json.dumps(d))
 
 
-def _load_menu(venue, token=None):
+def _load_menu(venue):
     org_id = venue.company_id
-    if not token:
-        token = get_access_token(org_id)
-    result = __get_request('/nomenclature/%s' % venue.venue_id, {
-        'access_token': token
-    })
+    result = __get_request(org_id, '/nomenclature/%s' % venue.venue_id, {})
     iiko_menu = json.loads(result)
     group_modifiers, modifiers = _get_menu_modifiers(iiko_menu)
     category_products = defaultdict(list)
@@ -292,26 +245,18 @@ def _filter_menu(menu):
                if c['products'] or c['children']]
 
 
-def get_menu(venue_id, force_reload=False, token=None, filtered=True):
+def get_menu(venue_id, force_reload=False, filtered=True):
     menu = memcache.get('iiko_menu_%s' % venue_id)
     if not menu or force_reload:
         venue = Venue.venue_by_id(venue_id)
         if not venue.menu or force_reload:
-            venue.menu = _load_menu(venue, token)
+            venue.menu = _load_menu(venue)
             venue.put()
         menu = venue.menu
         memcache.set('iiko_menu_%s' % venue_id, menu, time=1*3600)
     if filtered:
         _filter_menu(menu)
     return menu
-
-
-def check_food(venue_id, items):
-    stop_list = get_stop_list(venue_id)
-    for item in stop_list['stopList'][0]['items']:
-        if item['productId'] in [x['id'] for x in items]:
-            return True
-    return False
 
 
 def prepare_order(order, customer, payment_type):
@@ -376,24 +321,25 @@ def prepare_order(order, customer, payment_type):
 
 
 def pre_check_order(company_id, order_dict):
-    token = get_access_token(company_id)
-    pre_check = __post_request('/orders/checkCreate?access_token=%s&requestTimeout=30' % token, order_dict)
+    pre_check = __post_request(company_id, '/orders/checkCreate', {
+        'requestTimeout': 30
+    }, order_dict)
     logging.info(pre_check)
     return json.loads(pre_check)
 
 
 def place_order(company_id, order_dict):
-    token = get_access_token(company_id)
-    result = __post_request('/orders/add?requestTimeout=30&access_token=%s' % token, order_dict)
+    result = __post_request(company_id, '/orders/add', {
+        'requestTimeout': 30
+    }, order_dict)
     logging.info(result)
     return json.loads(result)
 
 
 def order_info(order):
     org_id = Venue.venue_by_id(order.venue_id).company_id
-    result = __get_request('/orders/info', {
+    result = __get_request(org_id, '/orders/info', {
         'requestTimeout': 30,
-        'access_token': get_access_token(org_id),
         'organization': order.venue_id,
         'order': order.order_id
     })
@@ -402,9 +348,8 @@ def order_info(order):
 
 def order_info1(order_id, venue_id):
     org_id = Venue.venue_by_id(venue_id).company_id
-    result = __get_request('/orders/info', {
+    result = __get_request(org_id, '/orders/info', {
         'requestTimeout': 30,
-        'access_token': get_access_token(org_id),
         'organization': venue_id,
         'order': order_id
     })
@@ -412,12 +357,9 @@ def order_info1(order_id, venue_id):
     return json.loads(result)
 
 
-def get_history(client_id, venue_id, token=None):
+def get_history(client_id, venue_id):
     org_id = Venue.venue_by_id(venue_id).company_id
-    if not token:
-        token = get_access_token(org_id)
-    result = __get_request('/orders/deliveryHistory', {
-        'access_token': token,
+    result = __get_request(org_id, '/orders/deliveryHistory', {
         'organization': venue_id,
         'customer': client_id
     })
@@ -425,7 +367,7 @@ def get_history(client_id, venue_id, token=None):
     return obj
 
 
-def get_new_orders(venue_id, start_date, end_date, token=None):
+def get_new_orders(venue_id, start_date, end_date):
     venue = Venue.venue_by_id(venue_id)
     offset = timedelta(seconds=venue.get_timezone_offset())
     if not start_date:
@@ -435,10 +377,7 @@ def get_new_orders(venue_id, start_date, end_date, token=None):
         end_date = datetime.now()
     end_date += offset
 
-    if not token:
-        token = get_access_token(venue.company_id)
-    result = __get_request('/orders/deliveryOrders', {
-        'access_token': token,
+    result = __get_request(venue.company_id, '/orders/deliveryOrders', {
         'organization': venue_id,
         'dateFrom': start_date.strftime('%Y-%m-%d %H:%M:%S'),
         'dateTo': end_date.strftime('%Y-%m-%d %H:%M:%S'),
@@ -448,39 +387,31 @@ def get_new_orders(venue_id, start_date, end_date, token=None):
     return obj
 
 
-def get_payment_types(venue_id, token=None):
+def get_payment_types(venue_id):
     org_id = Venue.venue_by_id(venue_id).company_id
-    if not token:
-        token = get_access_token(org_id)
-    result = __get_request('/paymentTypes/getPaymentTypes', {
-        'access_token': token,
+    result = __get_request(org_id, '/paymentTypes/getPaymentTypes', {
         'organization': venue_id
     })
     obj = json.loads(result)
     return obj
 
 
-def get_delivery_restrictions(venue_id, token=None):
+def get_delivery_restrictions(venue_id):
     org_id = Venue.venue_by_id(venue_id).company_id
-    if not token:
-        token = get_access_token(org_id)
-    result = __get_request('/deliverySettings/getDeliveryRestrictions', {
-        'access_token': token,
+    result = __get_request(org_id, '/deliverySettings/getDeliveryRestrictions', {
         'organization': venue_id,
     })
     return json.loads(result)
 
 
-def get_venue_promos(venue_id, token=None):
+def get_venue_promos(venue_id):
     url = '/organization/%s/marketing_campaigns' % venue_id
-    payload = {
-        'access_token': token
-    }
-    result = __get_request(url, payload)
+    company_id = Venue.venue_by_id(venue_id).company_id
+    result = __get_request(company_id, url, {})
     return json.loads(result)
 
 
-def list_menu(venue_id, token=None):
+def list_menu(venue_id):
 
     def get_categories(cat_parent):
         result_c = []
@@ -494,7 +425,7 @@ def list_menu(venue_id, token=None):
             result_p.append(product)
         return result_p
 
-    menu = get_menu(venue_id, True, token, False)
+    menu = get_menu(venue_id, filtered=False)
     queue = deque(menu)
     products = []
     while len(queue):
@@ -507,15 +438,15 @@ def list_menu(venue_id, token=None):
     return products
 
 
-def get_product_from_menu(venue_id, token=None, product_code=None, product_id=None):
-    menu = list_menu(venue_id, token)
+def get_product_from_menu(venue_id, product_code=None, product_id=None):
+    menu = list_menu(venue_id)
     for product in menu:
         if product['productId'] == product_id or product['code'] == product_code:
             return product
 
 
-def get_group_modifier(venue_id, group_id, modifier_id, token=None):
-    menu = get_menu(venue_id, False, token, False)
+def get_group_modifier(venue_id, group_id, modifier_id):
+    menu = get_menu(venue_id, filtered=False)
     group_modifiers, modifiers = _get_menu_modifiers(menu)
     items = group_modifiers[group_id]['items']
     for item in items:
@@ -523,14 +454,14 @@ def get_group_modifier(venue_id, group_id, modifier_id, token=None):
             return item
 
 
-def get_promo_by_id(venue_id, promo_id, token=None):
-    promos = get_venue_promos(venue_id, token)
+def get_promo_by_id(venue_id, promo_id):
+    promos = get_venue_promos(venue_id)
     for promo in promos:
         if promo['id'] == promo_id:
             return promo
 
 
-def get_order_promos(order, token=None):
+def get_order_promos(order):
 
     order_request = prepare_order(order, order.customer.get(), 1)
     order_request['organization'] = order.venue_id
@@ -545,9 +476,10 @@ def get_order_promos(order, token=None):
                 item['sum'] = sum(get_group_modifier(order.venue_id, m['groupId'], m['id']) * m['amount']
                                   for m in item.get('modifiers'))
 
-    url = '/orders/calculate_loyalty_discounts?access_token=%s' % token
+    url = '/orders/calculate_loyalty_discounts'
     payload = order_request
-    result = json.loads(__post_request(url, payload))
+    company_id = Venue.venue_by_id(order.venue_id).company_id
+    result = json.loads(__post_request(company_id, url, {}, payload))
 
     if result.get('availableFreeProducts'):
         for free_product in result.get('availableFreeProducts'):
@@ -566,7 +498,7 @@ def get_order_promos(order, token=None):
                         detail['id'] = product['productId']
                         detail['name'] = product['name']
                         detail['code'] = product['code']
-            promo = get_promo_by_id(order.venue_id, dis_info.get('id'), token)
+            promo = get_promo_by_id(order.venue_id, dis_info.get('id'))
             dis_info['description'] = promo['description']
             dis_info['start'] = promo['start']
             dis_info['end'] = promo['end']
@@ -575,15 +507,12 @@ def get_order_promos(order, token=None):
     return result
 
 
-def get_delivery_terminals(venue_id, token=None):
+def get_delivery_terminals(venue_id):
     memcache_key = "deliveryTerminals_%s"
     result = memcache.get(memcache_key)
     if not result:
-        if not token:
-            org_id = Venue.venue_by_id(venue_id).company_id
-            token = get_access_token(org_id)
-        response = __get_request('/deliverySettings/getDeliveryTerminals', {
-            'access_token': token,
+        org_id = Venue.venue_by_id(venue_id).company_id
+        response = __get_request(org_id, '/deliverySettings/getDeliveryTerminals', {
             'organization': venue_id
         })
         result = json.loads(response)['deliveryTerminals']
@@ -591,8 +520,8 @@ def get_delivery_terminals(venue_id, token=None):
     return result
 
 
-def get_delivery_terminal_id(venue_id, token=None):
-    terminals = get_delivery_terminals(venue_id, token)
+def get_delivery_terminal_id(venue_id):
+    terminals = get_delivery_terminals(venue_id)
     if terminals:
         return terminals[0]['deliveryTerminalId']
     return None

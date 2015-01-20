@@ -26,9 +26,7 @@ class GetVenuePromosHandler(BaseHandler):
 
     def get(self):
         venue_id = self.request.get('venue_id')
-        company_id = iiko.Venue.venue_by_id(venue_id).company_id
-        token = iiko_api.get_access_token(company_id)
-        return self.render_json({"promos": iiko_api.get_venue_promos(venue_id, token)})
+        return self.render_json({"promos": iiko_api.get_venue_promos(venue_id)})
 
 
 class GetOrderPromosHandler(BaseHandler):
@@ -60,9 +58,8 @@ class GetOrderPromosHandler(BaseHandler):
 
         venue = iiko.Venue.venue_by_id(venue_id)
         company_id = venue.company_id
-        token = iiko_api.get_access_token(company_id)
 
-        return self.render_json({"promos": iiko_api.get_order_promos(order, token)})
+        return self.render_json({"promos": iiko_api.get_order_promos(order)})
 
 
 class GetCompanyInfoHandler(BaseHandler):

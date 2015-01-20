@@ -27,7 +27,7 @@ class PlaceOrderHandler(base.BaseHandler):
                     return item
 
         token = iiko_api.get_access_token(company_id)
-        promos = iiko_api.get_order_promos(order, token)
+        promos = iiko_api.get_order_promos(order)
         if promos.get('availableFreeProducts'):
             for gift in promos.get('availableFreeProducts'):
                 gift['sum'] = 0
