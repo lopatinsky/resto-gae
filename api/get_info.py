@@ -64,11 +64,7 @@ class GetOrderPromosHandler(BaseHandler):
         venue = iiko.Venue.venue_by_id(venue_id)
         company_id = venue.company_id
 
-<<<<<<< HEAD
-        return self.render_json({"promos": iiko_api.get_order_promos(order, token), "order": order_dict})
-=======
-        return self.render_json({"promos": iiko_api.get_order_promos(order)})
->>>>>>> origin/master
+        return self.render_json({"promos": iiko_api.get_order_promos(order), "order": order_dict})
 
 
 class GetCompanyInfoHandler(BaseHandler):

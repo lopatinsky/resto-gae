@@ -133,7 +133,7 @@ class PlaceOrderHandler(base.BaseHandler):
             'customer_id': customer.customer_id,
             #'customer_balance': result['customer']['balance'],  # it was added
             #'customer_history': iiko_api.get_history(customer.customer_id, order.venue_id),  # it was added
-            'promos': iiko_api.get_order_promos(order, token=iiko_api.get_access_token(company_id)),  # it was added
+            'promos': iiko_api.get_order_promos(order),  # it was added
             #'all_payment_types': iiko_api.get_payment_types(order.venue_id),  # it was added
             #'menu': iiko_api.list_menu(venue_id),  # it was added
             'order': {
