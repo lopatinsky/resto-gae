@@ -4,7 +4,7 @@ from ..base import BaseHandler
 from models.specials import MivakoGift
 
 
-MIVAKO_NY2015_ENABLED = True
+MIVAKO_NY2015_ENABLED = False
 
 
 class MivakoPromoInfoHandler(BaseHandler):

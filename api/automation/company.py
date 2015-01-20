@@ -10,6 +10,7 @@ from lxml import etree
 import zipfile
 from StringIO import StringIO
 from google.appengine.ext import db
+from methods import iiko_api
 
 
 class GetCompaniesHandler(BaseHandler):
@@ -28,6 +29,7 @@ class GetCompaniesHandler(BaseHandler):
                 'phone': company.phone,
                 'schedule': company.schedule,
                 'email': company.email,
+                'support_emails': company.support_emails,
                 'site': company.site,
                 'color': company.color,
                 'analytics_key': company.analytics_key,
@@ -39,8 +41,10 @@ class GetCompaniesHandler(BaseHandler):
 class CreateOrUpdateCompanyHandler(BaseHandler):
     def post(self):
         company_info = json.loads(self.request.get('company_info'))
-        company_id = self.request.get_range('company_id')
+        company_id = self.request.get('company_id')
 
+        is_delivery = company_info.get('is_delivery') == 'true'
+        is_self = company_info.get('is_self_pickup') == 'true'
         company_params = {
             'app_name': company_info.get('app_title', None),
             'description': company_info.get('about_text', None),
@@ -49,15 +53,17 @@ class CreateOrUpdateCompanyHandler(BaseHandler):
             'phone': company_info.get('phone', None),
             'schedule': company_info.get('schedule', None),
             'email': company_info.get('email', None),
+            'support_emails': company_info['support_emails'] if company_info.get('support_emails') else None,
             'site': company_info.get('site', None),
             'color': company_info.get('color', None),
-            'analytics_key': company_info.get('analytics_code', None)
+            'analytics_key': company_info.get('analytics_code', None),
         }
 
-        if company_id and company_id != -1:
+        if company_id and company_id != '-1':
+            company_id = int(company_id)
             company = iiko.Company.get_by_id(company_id)
             if not company:
-                return
+                self.abort(404)
             if company_params['app_name']:
                 company.app_name = company_params['app_name']
             if company_params['description']:
@@ -74,23 +80,54 @@ class CreateOrUpdateCompanyHandler(BaseHandler):
                 company.email = company_params['email']
             if company_params['site']:
                 company.site = company_params['site']
-            if company_params['icons']:
-                company.icons = company_params['icons']
-            if company_params['company_icon']:
-                company.company_icon = company_params['company_icon']
             if company_params['color']:
                 company.color = company_params['color']
             if company_params['analytics_key']:
                 company.analytics_key = company_params['analytics_key']
+            if company_params['support_emails']:
+                company.support_emails = company_params['support_emails']
+            for delivery_type in company.delivery_types:
+                delivery_type = delivery_type.get()
+                name = delivery_type.name
+                if name == 'self':
+                    delivery_type.available = is_self
+                elif name == 'delivery':
+                    delivery_type.available = is_delivery
+                delivery_type.put()
+
         else:
+            delivery_self = iiko.DeliveryType(delivery_id=1, name='self', available=is_self)
+            delivery_self.put()
+            delivery_pickup = iiko.DeliveryType(delivery_id=0, name='delivery', available=is_delivery)
+            delivery_pickup.put()
             company = iiko.Company(**company_params)
+            company.delivery_types.append(delivery_self.key)
+            company.delivery_types.append(delivery_pickup.key)
 
         company.put()
+
+        for iiko_venue in iiko_api.get_venues(str(company.key.id())):
+            iiko_api.get_menu(iiko_venue['id'], force_reload=True, filtered=False)
+            venue = iiko.Venue.venue_by_id(iiko_venue['id'])
+            venue.payment_types = []
+            for iiko_payment in iiko_api.get_payment_types(venue.venue_id)['PaymentTypes']:
+                payment = iiko.PaymentType()
+                payment.name = iiko_payment['name']
+                payment.iiko_uuid = iiko_payment['code']
+                if payment.iiko_uuid == 'CASH':
+                    payment.type_id = 1
+                elif payment.iiko_uuid == 'ECARD':
+                    payment.type_id = 2
+                else:
+                    payment.type_id = 3
+                payment.put()
+                venue.payment_types.append(payment.key)
+            venue.put()
+
 
         id_json = {
             'id': company.key.id()
         }
-
         return self.render_json(id_json)
 
 
@@ -173,9 +210,28 @@ class GetCompanyHandler(BaseHandler):
 
     def get(self):
         company_id = self.request.get_range('company_id')
-        device_format = self.request.get('platform', 'web')
-        file_format = self.request.get('file_format', 'zip')
+        device_format = self.request.get('platform')
+        file_format = self.request.get('file_format', 'json')
         company = iiko.Company.get_by_id(company_id)
+
+        if file_format == 'json':
+            company_json = {
+                'app_name': company.app_name,
+                'company_id': company.key.id(),
+                'description': company.description,
+                'min_order_sum': company.min_order_sum,
+                'cities': company.cities,
+                'phone': company.phone,
+                'schedule': company.schedule,
+                'email': company.email,
+                'support_emails': company.support_emails,
+                'site': company.site,
+                'color': company.color,
+                'analytics_key': company.analytics_key,
+                'delivery_types': iiko.Company.get_delivery_types(company_id)
+            }
+            self.render_json(company_json)
+            return
 
         if device_format == 'ios':
             s = """<?xml version="1.0" encoding="UTF-8"?>
@@ -276,20 +332,3 @@ class GetCompanyHandler(BaseHandler):
                 self.output_stream(output_stream)
             else:
                 self.abort(404)
-        else:
-            company_json = {
-                'login': company.name,
-                'password': company.password,
-                'app_name': company.app_name,
-                'company_id': company.key.id(),
-                'description': company.description,
-                'min_order_sum': company.min_order_sum,
-                'cities': company.cities,
-                'phone': company.phone,
-                'schedule': company.schedule,
-                'email': company.email,
-                'site': company.site,
-                'color': company.color,
-                'analytics_key': company.analytics_key,
-            }
-            self.render_json(company_json)

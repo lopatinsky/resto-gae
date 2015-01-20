@@ -40,10 +40,8 @@ class PlaceOrderHandler(base.BaseHandler):
                 customer.customer_id = customer_id
             customer.put()
 
-        company = self.company
-        if not company:  # old Android clients
-            venue = Venue.venue_by_id(venue_id)
-            company = Company.get_by_id(venue.company_id)
+        venue = Venue.venue_by_id(venue_id)
+        company = Company.get_by_id(venue.company_id)
         company_id = company.key.id()
 
         order = iiko.Order()

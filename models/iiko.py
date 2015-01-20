@@ -234,6 +234,7 @@ class Company(ndb.Model):
     description = ndb.StringProperty()
     min_order_sum = ndb.IntegerProperty()
     email = ndb.StringProperty()
+    support_emails = ndb.StringProperty(repeated=True)
     site = ndb.StringProperty()
     cities = ndb.StringProperty(repeated=True)
     phone = ndb.StringProperty()

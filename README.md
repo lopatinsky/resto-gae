@@ -6,6 +6,113 @@ Server is located on https://empatika-resto.appspot.com/.
 
 ## Endpoints
 
+### Create company if not exist else update
+
+POST `/api/company/create_or_update`
+
+Parameters:
+
+* `company_id (int)`
+* `company_info (json)`
+
+```
+#!js
+{
+    "id": company_id               // int
+}
+```
+
+### Get all companies
+
+GET `/api/company/all_companies`
+
+No parameters
+
+    [
+        {
+           'login': name,                       // string
+           'password': password,                // string
+           'app_name': app_name,                // string
+           'company_id': company_id,            // int
+           'description': description,          // string
+           'min_order_sum': min of order sum,   // int
+           'cities': cities,                    // string[]
+           'phone': phone,                      // string
+           'schedule': schedule of company,     // json
+           'email': company email,              // string
+           'support_emails' emails for support  // string[]
+           'site': company site,                // string
+           'color': main color,                 // string
+           'analytics_key': analytics_key,      // string
+        },
+        ...
+    ]
+    ```
+
+### Get company
+
+GET `/api/company/get_company`
+
+Parameters:
+
+* `company_id (int)`
+* `platform (string[ios, android])`
+* `file_format (string[zip, xml, json])`
+
+```
+#!js
+{
+    'login': name,                       // string
+    'password': password,                // string
+    'app_name': app_name,                // string
+    'company_id': company_id,            // int
+    'description': description,          // string
+    'min_order_sum': min of order sum,   // int
+    'cities': cities,                    // string[]
+    'phone': phone,                      // string
+    'schedule': schedule of company,     // json
+    'email': company email,              // string
+    'support_emails' emails for support  // string[]
+    'site': company site,                // string
+    'color': main color,                 // string
+    'analytics_key': analytics_key,      // string
+    'delivery_types': {
+        'available': available,          // bool
+        'name': delivery name,           // string
+        'type_id': id type               //int
+    }
+}
+```
+
+### Upload icons to server
+
+POST `/api/company/set_icons`
+
+Parameters:
+
+* `company_id (int)`
+* `icon1 (png)`
+* `icon2 (png)`
+* `icon3 (png)`
+* `icon4 (png)`
+* `company_icon (png)`
+
+```
+#!js
+{
+    "id": company_id               // int
+}
+```
+
+### Download icon from server
+
+GET `/api/company/get_icons`
+
+Parameters:
+
+* `company_id (int)`
+* `type (string[icon1, icon2, icon3, icon4, company_icon])`
+
 ### Venues list for current company
 
 GET `/api/venues/<company_id>`

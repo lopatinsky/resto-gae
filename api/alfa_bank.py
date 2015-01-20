@@ -4,11 +4,22 @@ import logging
 import random
 from .base import BaseHandler
 from methods.alfa_bank import tie_card, check_status, get_back_blocked_sum, create_pay, pay_by_card, unbind_card
+from models.iiko import Company
 
 
-class PreCheckHandler(BaseHandler):
-    _company_required = True
+class AlfaBaseHandler(BaseHandler):
+    company = None
 
+    def dispatch(self):
+        ua = self.request.headers["User-Agent"]
+        name = ua.split('/', 1)[0].lower().strip()
+        self.company = Company.query(Company.app_name == name).get()
+        if not self.company:
+            self.abort(400)
+        return super(BaseHandler, self).dispatch()
+
+
+class PreCheckHandler(AlfaBaseHandler):
     def post(self):
         client_id = self.request.get('clientId')
         amount = self.request.get_range('amount', min_value=100, default=100)
@@ -26,9 +37,7 @@ class PreCheckHandler(BaseHandler):
         })
 
 
-class CheckStatusHandler(BaseHandler):
-    _company_required = True
-
+class CheckStatusHandler(AlfaBaseHandler):
     def post(self):
         order_id = self.request.get('orderId')
         check = check_status(self.company, order_id)
@@ -67,9 +76,7 @@ class CheckStatusHandler(BaseHandler):
             })
 
 
-class CreateByCardHandler(BaseHandler):
-    _company_required = True
-
+class CreateByCardHandler(AlfaBaseHandler):
     def post(self):
         order_id = self.request.get('orderId')
         binding_id = self.request.get('bindingId')
@@ -81,9 +88,7 @@ class CreateByCardHandler(BaseHandler):
         })
 
 
-class ResetBlockedSumHandler(BaseHandler):
-    _company_required = True
-
+class ResetBlockedSumHandler(AlfaBaseHandler):
     def post(self):
         order_id = self.request.get('orderId')
         tie = get_back_blocked_sum(self.company, order_id)
@@ -94,9 +99,7 @@ class ResetBlockedSumHandler(BaseHandler):
         })
 
 
-class PayByCardHandler(BaseHandler):
-    _company_required = True
-
+class PayByCardHandler(AlfaBaseHandler):
     def post(self):
         order_id = self.request.get('orderId')
         amount = self.request.get('amount', 0)
@@ -105,9 +108,7 @@ class PayByCardHandler(BaseHandler):
         return self.render_json({'result': pay})
 
 
-class UnbindCardHandler(BaseHandler):
-    _company_required = True
-
+class UnbindCardHandler(AlfaBaseHandler):
     def post(self):
         binding_id = self.request.get('bindingId')
         unbind = unbind_card(self.company, binding_id)
