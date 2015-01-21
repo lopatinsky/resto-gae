@@ -231,6 +231,8 @@ class Company(ndb.Model):
     card_button_text = ndb.StringProperty()
     card_button_subtext = ndb.StringProperty()
 
+    is_iiko_system = ndb.BooleanProperty(default=False)
+
     description = ndb.StringProperty()
     min_order_sum = ndb.IntegerProperty()
     email = ndb.StringProperty()

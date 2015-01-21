@@ -6,6 +6,22 @@ Server is located on https://empatika-resto.appspot.com/.
 
 ## Endpoints
 
+### Get venue promos
+
+GET `/api/iiko_promos`
+
+Parameters:
+
+* `venue_id (string)`
+* `phone (string)`
+
+#!js
+{
+    "promos": venue promos    // json
+    "balance": bonus balance  // int
+}
+```
+
 ### Create company if not exist else update
 
 POST `/api/company/create_or_update`

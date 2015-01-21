@@ -20,7 +20,7 @@ class PlaceOrderHandler(base.BaseHandler):
 
         name = self.request.get('name').strip()
         phone = self.request.get('phone')
-        bonuses = self.request.get_range('bonuses')  # it was added
+        is_bonus_payment = self.request.get('is_bonus_payment') == 'true'  # it was added
         if len(phone) == 10 and not phone.startswith("7"):  # old Android version
             phone = "7" + phone
         customer_id = self.request.get('customer_id')
@@ -45,6 +45,9 @@ class PlaceOrderHandler(base.BaseHandler):
         company = Company.get_by_id(venue.company_id)
         company_id = company.key.id()
 
+        company.is_iiko_system = True
+        company.put()
+
         order = iiko.Order()
         order.sum = float(order_sum)
         order.date = datetime.datetime.fromtimestamp(int(self.request.get('date')))
@@ -68,12 +71,25 @@ class PlaceOrderHandler(base.BaseHandler):
             logging.warning('iiko pre check failed')
             self.abort(400)
 
-        iiko_api.set_discounts(order, order_dict['order'])  # it was added
+        order.discount_sum = 0
+        if company.is_iiko_system:
+            promos = iiko_api.get_order_promos(order)
+            iiko_api.set_discounts(order, order_dict['order'], promos)  # it was added
+            if is_bonus_payment:
+                bonuses = iiko_api.get_customer_by_phone(company_id, phone, venue_id)['balance']
+                if bonuses > int(order.sum) - order.discount_sum:
+                    bonuses = int(order.sum) - order.discount_sum
+                iiko_api.add_bonus_to_payment(order_dict['order'], bonuses, True)  # it was added
+            else:
+                bonuses = 0
+        else:
+            promos = None
+            bonuses = 0
 
         # pay after pre check
         order_id = None
         if payment_type == '2':
-            payment = order.sum - order.discounts_sum - bonuses
+            payment = int(order.sum) - order.discount_sum - bonuses
             tie_result = tie_card(company, int(float(payment) * 100), int(time.time()), 'returnUrl', alpha_client_id,
                                   'MOBILE')
             logging.info("registration")
@@ -124,10 +140,6 @@ class PlaceOrderHandler(base.BaseHandler):
             customer.customer_id = result['customerId']
             customer.put()
 
-        iiko_customer = iiko_api.get_customer_by_phone(company_id, customer.phone, venue_id)  # it was added
-        iiko_api.create_or_update_customer(company_id, customer, iiko_customer['balance'] - bonuses, venue_id)  # deduct bonuses | it was  added
-        iiko_api.add_bonus_to_payment(order_dict['order'], bonuses, True)  # it was added
-
         order.order_id = result['orderId']
         order.number = result['number']
         order.set_status(result['status'])
@@ -136,19 +148,15 @@ class PlaceOrderHandler(base.BaseHandler):
 
         resp = {
             'customer_id': customer.customer_id,
-            #'customer_balance': result['customer']['balance'],  # it was added
-            #'customer_history': iiko_api.get_history(customer.customer_id, order.venue_id),  # it was added
-            'promos': iiko_api.get_order_promos(order),  # it was added
-            #'all_payment_types': iiko_api.get_payment_types(order.venue_id),  # it was added
+            #'promos': promos,  # it was added
             #'menu': iiko_api.list_menu(venue_id),  # it was added
-            'iiko_customer': iiko_api.get_customer_by_phone(company_id, phone, venue_id),  # it was added
             'order': {
                 'order_id': order.order_id,
                 'status': order.status,
                 'items': order.items,
                 'sum': order.sum,
-                'discounts': order.discount_sum,  # it was added
-                'payments': order_dict['order']['paymentItems'],  # it was added
+                #'discounts': order.discount_sum,  # it was added
+                #'payments': order_dict['order']['paymentItems'],  # it was added
                 'number': order.number,
                 'venue_id': order.venue_id,
                 'address': order.address,

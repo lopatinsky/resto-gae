@@ -268,7 +268,7 @@ def check_food(venue_id, items):
     return False
 
 
-def set_discounts(order, order_from_dict):
+def set_discounts(order, order_from_dict, promos):
 
         def get_item(product_code):
             for item in order.items:
@@ -279,7 +279,6 @@ def set_discounts(order, order_from_dict):
                         if modifier.get('code') == product_code:
                             return item
 
-        promos = get_order_promos(order)
         discount_sum = 0
         if promos.get('availableFreeProducts'):
             for gift in promos.get('availableFreeProducts'):
@@ -681,23 +680,6 @@ def get_delivery_terminal_id(venue_id):
     if terminals:
         return terminals[0]['deliveryTerminalId']
     return None
-
-
-def create_or_update_customer(company_id, customer, customer_balance, venue_id):
-    payload = {
-        'customer': {
-            'phone': customer.phone,
-            'name': customer.name,
-            'balance': customer_balance
-        }
-    }
-    result = __post_request(company_id, '/customers/create_or_update', {
-        'organization': venue_id
-    }, payload)
-    if result:
-        return json.loads(result)
-    else:
-        return 'failure'
 
 
 def get_customer_by_phone(company_id, phone, venue_id):
