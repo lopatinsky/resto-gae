@@ -203,6 +203,10 @@ def _load_menu(venue):
         }
         for image in categories[cat['id']]['image']:
             image['imageUrl'] = convert_url(webapp2.get_request(), image['imageUrl'])
+        if cat['id'] == '170f94fd-3adb-4bb5-bd14-836bd81d2172':
+            categories['170f94fd-3adb-4bb5-bd14-836bd81d2172']['image'].append({
+                'imageUrl': 'http://empatika-resto-test.appspot.com/static/img/sushilar_spicy_rolls.png'
+            })
 
     for cat_id, cat in categories.items():
         cat_parent_id = cat.get('parent')
