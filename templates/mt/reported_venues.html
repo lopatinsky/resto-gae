@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    {% set NAME_MONTHS = 'Все месяцы', 'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль',
+                            'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь' %}
+
+    <form method="get">
+         <select name="selected_year">
+             <option value="0" {% if not chosen_year %}selected{% endif %}>Все года</option>
+             {% for year in range(start_year, end_year + 1) %}
+                  <option value="{{ year }}" {% if chosen_year == year %} selected {% endif %}>
+                      {{ year }}
+                  </option>
+             {% endfor %}
+         </select>
+         <select name="selected_month">
+             {% for month in range(0, 12 + 1)%}
+                  <option value="{{ month }}" {% if chosen_month == month %} selected {% endif %}>
+                      {{ NAME_MONTHS[month] }}
+                  </option>
+             {% endfor %}
+         </select>
+         <select name="selected_day">
+             <option value="0" {% if not chosen_day %}selected{% endif %}>Все дни</option>
+             {% for day in range(1, 31 + 1)%}
+                  <option value="{{ day }}" {% if chosen_day == day %} selected {% endif %}>
+                      {{ day }}
+                  </option>
+             {% endfor %}
+         </select>
+         <input type="submit" value="Выбрать"/>
+     </form>
+
+    <br>
+     <table style="border-collapse:collapse; width:100%" border="1">
+         <tr>
+             <th>Id</th>
+             <th>Name</th>
+             <th>Source</th>
+             <th>Number of Orders</th>
+             <th>Number of Card payments</th>
+             <th>Number of Delivery</th>
+             <th>Number of Closed Orders</th>
+             <th>Sum of Closed Orders</th>
+             <th>Number of Cancelled Orders</th>
+             <th>Sum of Cancelled Orders</th>
+             <th>Average Order</th>
+         </tr>
+         {% for venue in venues %}
+             <tr>
+                 <td>{{ venue.venue_id }}</td>
+                 <td>{{ venue.name }}</td>
+                 <td>{{ venue.source }}</td>
+                 <td>{{ venue.order_number }}</td>
+                 <td>{{ venue.card }}</td>
+                 <td>{{ venue.delivery }}</td>
+                 <td>{{ venue.closed_number }}</td>
+                 <td>{{ venue.closed_sum }}</td>
+                 <td>{{ venue.cancel_number }}</td>
+                 <td>{{ venue.cancel_sum }}</td>
+                 <td>{{ venue.closed_sum / venue.closed_number if venue.closed_number else 0 }}</td>
+             </tr>
+         {% endfor %}
+     </table>
+     <a href="/mt/report">Назад</a>
+
+</body>
+</html>
