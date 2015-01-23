@@ -42,6 +42,7 @@
              <th>Source</th>
              <th>Number of Orders</th>
              <th>Number of Card payments</th>
+             <th>Number of Cash payments</th>
              <th>Number of Delivery</th>
              <th>Number of Closed Orders</th>
              <th>Sum of Closed Orders</th>
@@ -56,6 +57,7 @@
                  <td>{{ venue.source }}</td>
                  <td>{{ venue.order_number }}</td>
                  <td>{{ venue.card }}</td>
+                 <td>{{ venue.order_number - venue.card }}</td>
                  <td>{{ venue.delivery }}</td>
                  <td>{{ venue.closed_number }}</td>
                  <td>{{ venue.closed_sum }}</td>
