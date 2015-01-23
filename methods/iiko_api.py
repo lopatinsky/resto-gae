@@ -581,9 +581,9 @@ def get_promo_by_id(venue_id, promo_id):
             return promo
 
 
-def get_order_promos(order):
+def get_order_promos(order, customer):
 
-    order_request = prepare_order(order, order.customer.get(), 1)
+    order_request = prepare_order(order, customer, 1)
     order_request['organization'] = order.venue_id
     order_request['order']['fullSum'] = order.sum
 

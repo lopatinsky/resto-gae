@@ -73,7 +73,7 @@ class PlaceOrderHandler(base.BaseHandler):
 
         order.discount_sum = 0
         if company.is_iiko_system:
-            promos = iiko_api.get_order_promos(order)
+            promos = iiko_api.get_order_promos(order, customer)
             iiko_api.set_discounts(order, order_dict['order'], promos)  # it was added
             if is_bonus_payment:
                 bonuses = iiko_api.get_customer_by_phone(company_id, phone, venue_id)['balance']

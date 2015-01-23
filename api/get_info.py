@@ -39,30 +39,31 @@ class GetOrderPromosHandler(BaseHandler):
         phone = self.request.get('phone')
         if len(phone) == 10 and not phone.startswith("7"):  # old Android version
             phone = "7" + phone
+        if phone:
+            if phone[0] == ' ':
+                phone = "+%s" % phone[1:]
         customer_id = self.request.get('customer_id')
         order_sum = self.request.get('sum')
         items = json.loads(self.request.get('items'))
         date = self.request.get_range('date')
 
-        customer = iiko.Customer.customer_by_customer_id(customer_id)
+        customer = iiko.Customer.customer_by_customer_id(customer_id) if customer_id else None
         if not customer:
             customer = iiko.Customer()
             customer.phone = phone
             customer.name = name
             if customer_id:
                 customer.customer_id = customer_id
-            customer.put()
 
         order = iiko.Order()
         order.sum = float(order_sum)
         order.date = datetime.datetime.fromtimestamp(date)
         order.venue_id = venue_id
         order.items = items
-        order.customer = customer.key
 
-        promos = iiko_api.get_order_promos(order)
+        promos = iiko_api.get_order_promos(order, customer)
 
-        max_bonus_payment = promos['maxPaymentSum']
+        max_bonus_payment = promos['maxPaymentSum'] - order.discount
         gift_ids = []
         for gift in promos['availableFreeProducts']:
             gift_ids.append(gift['id'])
@@ -71,10 +72,10 @@ class GetOrderPromosHandler(BaseHandler):
         iiko_api.set_discounts(order, order_dict['order'], promos)
 
         return self.render_json({
-            #"promos": promos,
+            "promos": promos,
             #"order": order_dict,
             "order_discounts": order.discount_sum,
-            "max_bonus_payment": max_bonus_payment,
+            "max_bonus_payment": max_bonus_payment if max_bonus_payment > 0 else 0,
             "gifts": gift_ids
         })
 
