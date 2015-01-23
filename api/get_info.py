@@ -72,7 +72,7 @@ class GetOrderPromosHandler(BaseHandler):
         iiko_api.set_discounts(order, order_dict['order'], promos)
 
         return self.render_json({
-            "promos": promos,
+            #"promos": promos,
             #"order": order_dict,
             "order_discounts": order.discount_sum,
             "max_bonus_payment": max_bonus_payment if max_bonus_payment > 0 else 0,
