@@ -3,6 +3,7 @@ import json
 import logging
 import datetime
 import time
+from api.specials.express_emails import send_express_email
 from api.specials.mivako_promo import MIVAKO_NY2015_ENABLED
 import base
 from methods import iiko_api
@@ -158,6 +159,9 @@ class PlaceOrderHandler(base.BaseHandler):
         order.set_status(result['status'])
 
         order.put()
+
+        if venue_id == "768c213e-5bc1-4135-baa3-45f719dbad7e":  # orange express:
+            send_express_email(order, customer, venue)
 
         resp = {
             'customer_id': customer.customer_id,

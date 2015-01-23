@@ -1,0 +1,24 @@
+<p>Добрый день!</p>
+<p>Поступил новый заказ из мобильного приложения: №{{ order.number }}</p>
+<p>
+    Состав заказа:<br>
+    {% for item in order.items %}
+        {{ item.amount }}шт. {{ item.name }}<br>
+    {% endfor %}
+</p>
+<p>
+    Имя клиента: {{ customer.name }}<br>
+    Телефон: {{ customer.phone }}<br>
+    Время доставки: {{ time }}
+</p>
+{% if order.comment %}
+<p>
+    Комментарий клиента:<br>
+    {{ order.comment }}
+</p>
+{% endif %}
+<p>Хорошего дня!</p>
+<p>
+    Команда ru-beacon<br>
+    Позвоните нам: 8 915 140 40 18 (Иван)
+</p>
