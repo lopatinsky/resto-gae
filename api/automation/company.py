@@ -21,7 +21,7 @@ class GetCompaniesHandler(BaseHandler):
             company_json = {
                 'login': company.name,
                 'password': company.password,
-                'app_name': company.app_name,
+                'app_name': company.app_title,
                 'company_id': company.key.id(),
                 'description': company.description,
                 'min_order_sum': company.min_order_sum,
@@ -46,7 +46,7 @@ class CreateOrUpdateCompanyHandler(BaseHandler):
         is_delivery = company_info.get('is_delivery') == 'true'
         is_self = company_info.get('is_self_pickup') == 'true'
         company_params = {
-            'app_name': company_info.get('app_title', None),
+            'app_title': company_info.get('app_title', None),
             'description': company_info.get('about_text', None),
             'min_order_sum': int(company_info['min_amount']) if company_info.get('min_amount') else None,
             'cities': company_info['delivery_cities'].split(',') if company_info.get('delivery_cities') else None,
@@ -64,8 +64,8 @@ class CreateOrUpdateCompanyHandler(BaseHandler):
             company = iiko.Company.get_by_id(company_id)
             if not company:
                 self.abort(404)
-            if company_params['app_name']:
-                company.app_name = company_params['app_name']
+            if company_params['app_title']:
+                company.app_title = company_params['app_title']
             if company_params['description']:
                 company.description = company_params['description']
             if company_params['min_order_sum']:
@@ -216,7 +216,7 @@ class GetCompanyHandler(BaseHandler):
 
         if file_format == 'json':
             company_json = {
-                'app_name': company.app_name,
+                'app_name': company.app_title,
                 'company_id': company.key.id(),
                 'description': company.description,
                 'min_order_sum': company.min_order_sum,
@@ -289,7 +289,7 @@ class GetCompanyHandler(BaseHandler):
                    <values/>'''
             tree = etree.fromstring(s)
 
-            self.create_key_xml(tree, 'string', company.app_name, {'name': 'app_name'})
+            self.create_key_xml(tree, 'string', company.app_title, {'name': 'app_name'})
             self.create_key_xml(tree, 'string', company.name, {'name': 'about_name'})
             self.create_key_xml(tree, 'string', company.app_name, {'name': 'about_time'})
             self.create_key_xml(tree, 'string', company.phone, {'name': 'about_phone'})

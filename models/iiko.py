@@ -222,10 +222,11 @@ class Venue(ndb.Model):
 
 
 class Company(ndb.Model):
-    name = ndb.StringProperty()
+    name = ndb.StringProperty()  # iiko login
     password = ndb.StringProperty()
     delivery_types = ndb.KeyProperty(kind=DeliveryType, repeated=True)
-    app_name = ndb.StringProperty()
+    app_name = ndb.StringProperty()  # TODO REMOVE: part of user-agent to identify app in alfa handler
+    app_title = ndb.StringProperty()
     alpha_login = ndb.StringProperty(indexed=False)
     alpha_pass = ndb.StringProperty(indexed=False)
     card_button_text = ndb.StringProperty()
