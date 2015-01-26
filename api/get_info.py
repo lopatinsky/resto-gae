@@ -39,9 +39,6 @@ class GetOrderPromosHandler(BaseHandler):
         phone = self.request.get('phone')
         if len(phone) == 10 and not phone.startswith("7"):  # old Android version
             phone = "7" + phone
-        if phone:
-            if phone[0] == ' ':
-                phone = "+%s" % phone[1:]
         customer_id = self.request.get('customer_id')
         order_sum = self.request.get('sum')
         items = json.loads(self.request.get('items'))
