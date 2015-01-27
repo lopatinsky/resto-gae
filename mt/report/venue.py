@@ -45,7 +45,7 @@ class VenueReportHandler(BaseHandler):
                 venue.cancel_sum += order.sum
             if order.is_delivery:
                 venue.delivery += 1
-            if order.payment_type == 2:
+            if order.payment_type == order.CARD:
                 venue.card += 1
 
         values = {
