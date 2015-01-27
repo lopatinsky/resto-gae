@@ -41,7 +41,7 @@ class RepeatedOrdersReportHandler(BaseHandler):
             query = iiko.Order.query(iiko.Order.date >= start, iiko.Order.date <= end,
                                      iiko.Order.status == iiko.Order.CLOSED)
             if venue_id:
-                query.filter(iiko.Order.venue_id == venue_id)
+                query = query.filter(iiko.Order.venue_id == venue_id)
             for order in query.fetch():
                 customer_key = order.customer
                 first_order = iiko.Order.query(iiko.Order.customer == customer_key,
