@@ -34,6 +34,9 @@ app = webapp2.WSGIApplication([
     # reports
     ('/mt/report', report.ReportHandler),
     ('/mt/report/venues', report.VenueReportHandler),
+    ('/mt/report/orders', report.OrdersReportHandler),
+    ('/mt/report/clients', report.ClientsReportHandler),
+    ('/mt/report/repeated_orders', report.RepeatedOrdersReportHandler),
 
     # venue
     ('/api/venue/(.*)/menu', MenuHandler),

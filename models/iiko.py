@@ -63,6 +63,10 @@ class Order(ndb.Model):
     CLOSED = 3
     CANCELED = 4
 
+    # payment types
+    CASH = '1'
+    CARD = '2'
+
     STATUS_MAPPING = {
         NOT_APPROVED: [
             u'не подтверждена',

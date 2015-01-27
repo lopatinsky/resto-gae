@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    {% set NAME_MONTHS = 'Все месяцы', 'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль',
+                            'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь' %}
+
+    <form method="get">
+         <select name="selected_venue">
+             <option value=0 {% if not chosen_venue %}selected{% endif %}>Все кофейни</option>
+             {% for venue in venues %}
+                  <option value="{{ venue.venue_id }}" {% if chosen_venue == venue %} selected {% endif %}>
+                      {{ venue.name }}
+                  </option>
+             {% endfor %}
+         </select>
+         <select name="selected_year">
+             <option value="0" {% if not chosen_year %}selected{% endif %}>Все года</option>
+             {% for year in range(start_year, end_year + 1) %}
+                  <option value="{{ year }}" {% if chosen_year == year %} selected {% endif %}>
+                      {{ year }}
+                  </option>
+             {% endfor %}
+         </select>
+         <select name="selected_month">
+             {% for month in range(0, 12 + 1)%}
+                  <option value="{{ month }}" {% if chosen_month == month %} selected {% endif %}>
+                      {{ NAME_MONTHS[month] }}
+                  </option>
+             {% endfor %}
+         </select>
+         <select name="selected_day">
+             <option value="0" {% if not chosen_day %}selected{% endif %}>Все дни</option>
+             {% for day in range(1, 31 + 1)%}
+                  <option value="{{ day }}" {% if chosen_day == day %} selected {% endif %}>
+                      {{ day }}
+                  </option>
+             {% endfor %}
+         </select>
+         <input type="submit" value="Выбрать"/>
+    </form>
+
+    <table style="border-collapse:collapse; width:100%" border="1">
+         <tr>
+             <th>Number</th>
+             <th>Venue Name</th>
+             <th>Date</th>
+             <th>Status</th>
+             <th>Payment Type</th>
+             <th>Sum</th>
+             <th>Client Id</th>
+             <th>Client Name</th>
+             <th>Client Phone</th>
+             <th>Item Name</th>
+             <th>Item Amount</th>
+         </tr>
+         {% for order in orders %}
+             {% set icount = order.new_items|length %}
+             <tr>
+                 <td rowspan="{{ icount }}">{{ order.number }}</td>
+                 <td rowspan="{{ icount }}">{{ order.venue_name }}</td>
+                 <td rowspan="{{ icount }}">{{ order.date }}</td>
+                 <td rowspan="{{ icount }}">{{ order.status_str }}</td>
+                 <td rowspan="{{ icount }}">{{ order.payment_name }}</td>
+                 <td rowspan="{{ icount }}">{{ order.sum }}</td>
+                 <td rowspan="{{ icount }}">{{ order.customer_id }}</td>
+                 <td rowspan="{{ icount }}">{{ order.customer_name }}</td>
+                 <td rowspan="{{ icount }}">{{ order.customer_phone }}</td>
+                 {% for item in order.new_items %}
+                     {% if loop.index0 > 0 %}
+                        </tr>
+                        <tr>
+                    {% endif %}
+                     <td>{{ item['name'] }}</td>
+                     <td>{{ item['amount'] }}</td>
+                 {% endfor %}
+             </tr>
+         {% endfor %}
+     </table>
+     <a href="/mt/report">Назад</a>
+
+</body>
+</html>
