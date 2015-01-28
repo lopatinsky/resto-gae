@@ -529,3 +529,17 @@ def get_delivery_terminal_id(venue_id):
     if terminals:
         return terminals[0]['deliveryTerminalId']
     return None
+
+
+def get_orders(venue, start, end, status=None):
+    start += timedelta(seconds=venue.get_timezone_offset())
+    end += timedelta(seconds=venue.get_timezone_offset())
+    payload = {
+        'organization': venue.venue_id,
+        'dateFrom': start.strftime("%Y-%m-%d %H:%M:%S"),
+        'dateTo': end.strftime("%Y-%m-%d %H:%M:%S"),
+        'requestTimeout': 30
+    }
+    if status:
+        payload['deliveryStatus'] = status
+    return json.loads(__get_request(venue.company_id, '/orders/deliveryOrders', payload))

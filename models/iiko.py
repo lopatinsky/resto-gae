@@ -7,6 +7,10 @@ from methods import maps
 
 
 class PaymentType(ndb.Model):
+    # payment types id
+    CASH = '1'
+    CARD = '2'
+
     name = ndb.StringProperty()
     type_id = ndb.IntegerProperty()
     iiko_uuid = ndb.StringProperty()
@@ -66,7 +70,6 @@ class Order(ndb.Model):
     # payment types
     CASH = '1'
     CARD = '2'
-
 
     STATUS_MAPPING = {
         NOT_APPROVED: [
