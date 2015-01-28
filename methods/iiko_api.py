@@ -294,6 +294,8 @@ def prepare_order(order, customer, payment_type):
             }
         }
     }
+    if customer.customer_id:
+        obj['customer']['id'] = customer.customer_id
 
     if not order.is_delivery:
         obj['deliveryTerminalId'] = get_delivery_terminal_id(order.venue_id)
@@ -311,6 +313,7 @@ def prepare_order(order, customer, payment_type):
     customer_id = customer.customer_id
     if customer_id:
         obj['customer']['id'] = customer_id
+    
     if order.is_delivery:
         obj['order']['address'] = order.address
 
@@ -388,7 +391,6 @@ def get_new_orders(venue_id, start_date, end_date):
         'organization': venue_id,
         'dateFrom': start_date.strftime('%Y-%m-%d %H:%M:%S'),
         'dateTo': end_date.strftime('%Y-%m-%d %H:%M:%S'),
-        'deliveryStatus': 'UNCONFIRMED'
     })
     obj = json.loads(result)
     return obj

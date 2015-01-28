@@ -55,7 +55,7 @@ class PlaceOrderHandler(base.BaseHandler):
         phone = self.request.get('phone')
         if len(phone) == 10 and not phone.startswith("7"):  # old Android version
             phone = "7" + phone
-        customer_id = self.request.get('customer_id')
+        customer_id = self.request.get('customer_id') or self.request.get('customerId')
         delivery_type = self.request.get('deliveryType', 0)
         payment_type = self.request.get('paymentType')
         address = self.request.get('address')
@@ -67,11 +67,10 @@ class PlaceOrderHandler(base.BaseHandler):
         customer = iiko.Customer.customer_by_customer_id(customer_id)
         if not customer:
             customer = iiko.Customer()
-            customer.phone = phone
-            customer.name = name
             if customer_id:
                 customer.customer_id = customer_id
-            customer.put()
+        customer.phone = phone
+        customer.name = name
 
         venue = Venue.venue_by_id(venue_id)
         company = Company.get_by_id(venue.company_id)
@@ -157,7 +156,7 @@ class PlaceOrderHandler(base.BaseHandler):
             return self.render_json(result)
         if not customer_id:
             customer.customer_id = result['customerId']
-            customer.put()
+        customer.put()
 
         order.order_id = result['orderId']
         order.number = result['number']
