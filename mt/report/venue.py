@@ -5,7 +5,6 @@ from models import iiko
 from methods import iiko_api
 from datetime import datetime
 from report_methods import suitable_date, PROJECT_STARTING_YEAR
-import logging
 
 
 class VenueReportHandler(BaseHandler):
@@ -87,7 +86,7 @@ class VenueReportHandler(BaseHandler):
             payment_codes = [payment['type'] for payment in payments]
             for status in statuses:
                 orders = iiko_api.get_orders(venue, start, end, status=self.IIKO_STATUS_MAPPING[status])
-                orders = orders['deliveryOrders']
+                orders = orders.get('deliveryOrders', [])
                 for order in orders:
                     for payment in order['payments']:
                         payment = payment['paymentType']['code']

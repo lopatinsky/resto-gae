@@ -541,7 +541,7 @@ def get_orders(venue, start, end, status=None):
         'organization': venue.venue_id,
         'dateFrom': start.strftime("%Y-%m-%d %H:%M:%S"),
         'dateTo': end.strftime("%Y-%m-%d %H:%M:%S"),
-        'requestTimeout': 30
+        'requestTimeout': 28
     }
     if status:
         payload['deliveryStatus'] = status
