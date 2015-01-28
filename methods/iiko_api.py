@@ -203,6 +203,7 @@ def _load_menu(venue):
         }
         for image in categories[cat['id']]['image']:
             image['imageUrl'] = convert_url(webapp2.get_request(), image['imageUrl'])
+        # todo hack for sushilar
         if cat['id'] == '170f94fd-3adb-4bb5-bd14-836bd81d2172':
             categories['170f94fd-3adb-4bb5-bd14-836bd81d2172']['image'].append({
                 'imageUrl': 'http://empatika-resto-test.appspot.com/static/img/sushilar_spicy_rolls.png'
@@ -210,6 +211,8 @@ def _load_menu(venue):
 
     for cat_id, cat in categories.items():
         cat_parent_id = cat.get('parent')
+        if cat_parent_id == cat_id:
+            cat['parent'] = cat_parent_id = None
         if cat_parent_id:
             parent = categories[cat_parent_id]
             parent['children'].append(cat)
