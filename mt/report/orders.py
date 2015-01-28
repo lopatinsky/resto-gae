@@ -33,10 +33,10 @@ class OrdersReportHandler(BaseHandler):
         for order in orders:
             order.status_str = iiko.Order.STATUS_MAPPING[order.status][0]
             order.venue_name = iiko.Venue.venue_by_id(order.venue_id).name
-            customer = order.customer.get()
-            order.customer_id = customer.customer_id
-            order.customer_name = customer.name
-            order.customer_phone = customer.phone
+            customer = order.customer.get() if order.customer else None
+            order.customer_id = customer.customer_id if customer else '-'
+            order.customer_name = customer.name if customer else '-'
+            order.customer_phone = customer.phone if customer else '-'
             order.new_items = []
             for item in order.items:
                 order.new_items.append({

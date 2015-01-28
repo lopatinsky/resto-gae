@@ -19,6 +19,8 @@ class ClientsReportHandler(BaseHandler):
 
         clients = {}
         for order in query.fetch():
+            if not order.customer:
+                continue
             client = order.customer.get()
             if client.key.id() not in clients:
                 if order.status == iiko.Order.CLOSED:
