@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 __author__ = 'dvpermyakov'
 
 from ..base import BaseHandler
@@ -10,11 +11,18 @@ import logging
 
 class VenueReportHandler(BaseHandler):
 
+    DELIVERED_STATUS = 99
+
     IIKO_STATUS_MAPPING = {
         iiko.Order.CLOSED: "CLOSED",
         iiko.Order.CANCELED: "CANCELLED",
+        iiko.Order.NOT_APPROVED: "UNCONFIRMED",
+        DELIVERED_STATUS: "DELIVERED"
     }
-    #APP_STATUS_MAPPING = {iiko_status: app_status for app_status, iiko_status in IIKO_STATUS_MAPPING.iteritems()}
+    VENUES_WITHOUT_IIKO_PAYMENT_TYPES = [
+        '768c213e-5bc1-4135-baa3-45f719dbad7e',  # Оранжеваый эксперсс
+        '02b1b1f7-4ec8-11e4-80cc-0025907e32e9'   # Coffee and the City
+    ]
 
     def get_payment_types(self, source, venue):
         if source == "app":
@@ -69,11 +77,19 @@ class VenueReportHandler(BaseHandler):
         venues = iiko.Venue.query().fetch()
 
         for venue in venues:
-            if venue.venue_id in ['768c213e-5bc1-4135-baa3-45f719dbad7e', '02b1b1f7-4ec8-11e4-80cc-0025907e32e9']:
-                payments = [
-                    {'type': 'CASH', 'name': 'CASH'},
-                    {'type': 'ECARD', 'name': 'ECARD'}
-                ]
+            if venue.venue_id in self.VENUES_WITHOUT_IIKO_PAYMENT_TYPES:
+                orders = iiko_api.get_orders(venue, start, end, status=self.IIKO_STATUS_MAPPING[iiko.Order.CLOSED])
+                orders = orders.get('deliveryOrders', [])
+                payments = {}
+                for order in orders:
+                    for payment in order['payments']:
+                        payment = payment['paymentType']
+                        if payment['code'] not in payments:
+                            payments[payment['code']] = {
+                                'type': payment['code'],
+                                'name': payment['name']
+                            }
+                payments = payments.values()
             else:
                 payments = self.get_payment_types("iiko", venue)
             venue.payments = payments
@@ -117,7 +133,7 @@ class VenueReportHandler(BaseHandler):
         start = suitable_date(chosen_day, chosen_month, chosen_year, True)
         end = suitable_date(chosen_day, chosen_month, chosen_year, False)
 
-        statuses = [iiko.Order.CLOSED, iiko.Order.CANCELED]
+        statuses = [iiko.Order.CLOSED, iiko.Order.CANCELED, iiko.Order.NOT_APPROVED, self.DELIVERED_STATUS]
         values = {
             'venues': self.get_app_venues_info(start, end, statuses) if chosen_type == "app"
             else self.get_iiko_venues_info(start, end, statuses),
