@@ -11,7 +11,7 @@ from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum, check_
 from models import iiko
 from models.iiko import Venue, Company
 from models.specials import MivakoGift
-from specials import fix_syrop
+from specials import fix_syrop, fix_modifiers_by_own
 
 
 class PlaceOrderHandler(base.BaseHandler):
@@ -85,6 +85,7 @@ class PlaceOrderHandler(base.BaseHandler):
         items = json.loads(self.request.get('items'))
         if venue_id == fix_syrop.COFFE_AND_THE_CITY_ID:
             items = fix_syrop.set_syrop_items(items)
+            items = fix_modifiers_by_own.set_modifier_by_own(venue_id, items)
 
         order.items = items
         order.customer = customer.key

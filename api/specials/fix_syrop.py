@@ -52,12 +52,12 @@ def set_syrop_items(items):
     for item in items[:]:
         modifiers = item.get('modifiers')
         if modifiers:
-            for modifier in modifiers:
+            for modifier in modifiers[:]:
                 if modifier['groupId'] == SYROPS_ID:
                     items.append({
                         'name': modifier['name'],
                         'id': modifier['id'],
                         'amount': modifier['amount']
                     })
-                    item.pop('modifiers', None)
+                    modifiers.remove(modifier)
     return items
