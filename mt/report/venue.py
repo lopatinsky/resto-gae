@@ -5,6 +5,7 @@ from models import iiko
 from methods import iiko_api
 from datetime import datetime
 from report_methods import suitable_date, PROJECT_STARTING_YEAR
+import logging
 
 
 class VenueReportHandler(BaseHandler):
@@ -68,9 +69,13 @@ class VenueReportHandler(BaseHandler):
         venues = iiko.Venue.query().fetch()
 
         for venue in venues:
-            if venue.venue_id != 'a9d16dff-7680-43f1-b1a1-74784bc75f60':
-                continue
-            payments = self.get_payment_types("iiko", venue)
+            if venue.venue_id in ['768c213e-5bc1-4135-baa3-45f719dbad7e', '02b1b1f7-4ec8-11e4-80cc-0025907e32e9']:
+                payments = [
+                    {'type': 'CASH', 'name': 'CASH'},
+                    {'type': 'ECARD', 'name': 'ECARD'}
+                ]
+            else:
+                payments = self.get_payment_types("iiko", venue)
             venue.payments = payments
             venue.info = {}
             for payment in payments:
@@ -93,7 +98,7 @@ class VenueReportHandler(BaseHandler):
                         if payment in payment_codes:
                             venue.info[payment][status]['orders_number'] += 1
                             venue.info[payment][status]['orders_sum'] += order['sum']
-            return venues
+        return venues
 
     def get(self):
         chosen_type = self.request.get("selected_type")
