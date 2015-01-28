@@ -11,6 +11,7 @@ from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum, check_
 from models import iiko
 from models.iiko import Venue, Company
 from models.specials import MivakoGift
+from specials import fix_syrop
 
 
 class PlaceOrderHandler(base.BaseHandler):
@@ -50,7 +51,6 @@ class PlaceOrderHandler(base.BaseHandler):
 
     def post(self, venue_id):
         logging.info(self.request.POST)
-
         name = self.request.get('name').strip()
         phone = self.request.get('phone')
         if len(phone) == 10 and not phone.startswith("7"):  # old Android version
@@ -81,7 +81,12 @@ class PlaceOrderHandler(base.BaseHandler):
         order.sum = float(order_sum)
         order.date = datetime.datetime.fromtimestamp(int(self.request.get('date')))
         order.venue_id = venue_id
-        order.items = json.loads(self.request.get('items'))
+
+        items = json.loads(self.request.get('items'))
+        if venue_id == fix_syrop.COFFE_AND_THE_CITY_ID:
+            items = fix_syrop.set_syrop_items(items)
+
+        order.items = items
         order.customer = customer.key
         order.comment = comment
         order.is_delivery = int(delivery_type) == 0
