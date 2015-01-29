@@ -371,7 +371,8 @@ def get_history(client_id, venue_id):
     org_id = Venue.venue_by_id(venue_id).company_id
     result = __get_request(org_id, '/orders/deliveryHistory', {
         'organization': venue_id,
-        'customer': client_id
+        'customer': client_id,
+        'requestTimeout': 20
     })
     obj = json.loads(result)
     return obj
@@ -543,7 +544,7 @@ def get_orders(venue, start, end, status=None):
         'organization': venue.venue_id,
         'dateFrom': start.strftime("%Y-%m-%d %H:%M:%S"),
         'dateTo': end.strftime("%Y-%m-%d %H:%M:%S"),
-        'requestTimeout': 28
+        'requestTimeout': 20
     }
     if status:
         payload['deliveryStatus'] = status

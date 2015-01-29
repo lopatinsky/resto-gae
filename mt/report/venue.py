@@ -107,11 +107,11 @@ class VenueReportHandler(BaseHandler):
             payment_codes = [payment['type'] for payment in payments]
             for order in orders:
                 for payment in order['payments']:
-                    payment = payment['paymentType']['code']
-                    if payment in payment_codes:
+                    payment_code = payment['paymentType']['code']
+                    if payment_code in payment_codes:
                         if iiko.Order.parse_status(order['status']) in statuses:
-                            venue.info[payment][iiko.Order.parse_status(order['status'])]['orders_number'] += 1
-                            venue.info[payment][iiko.Order.parse_status(order['status'])]['orders_sum'] += order['sum']
+                            venue.info[payment_code][iiko.Order.parse_status(order['status'])]['orders_number'] += 1
+                            venue.info[payment_code][iiko.Order.parse_status(order['status'])]['orders_sum'] += payment['sum']
         return venues
 
     def get(self):
