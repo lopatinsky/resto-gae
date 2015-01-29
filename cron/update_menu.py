@@ -23,9 +23,10 @@ def _get_menu_images(menu):
     for root_category in menu:
         process_category(root_category)
 
-    for i, url in enumerate(result):
-        result[i] = url.partition('/img/')[2]
-    return result
+    result = [url.partition('/img/')[2]
+              for url in result
+              if '/static/' not in url]
+    return filter(None, result)
 
 
 def _defer_load_images(venue_id, image_number):
