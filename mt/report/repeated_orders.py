@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 from report_methods import suitable_date, PROJECT_STARTING_YEAR
 from models import iiko
 from methods import iiko_api
+from random import randint
 import calendar
-import logging
 
 
 class RepeatedOrdersReportHandler(BaseHandler):
@@ -76,15 +76,20 @@ class RepeatedOrdersReportHandler(BaseHandler):
             for order in orders:
                 if order['customerId'] not in clients_id:
                     clients_id.append(order['customerId'])
-                if len(clients_id) > chosen_client_number:
-                    break
+
+        if len(clients_id) > chosen_client_number:
+            new_clients_id = []
+            while len(new_clients_id) < chosen_client_number:
+                index = randint(0, len(clients_id) - 1)
+                new_clients_id.append(clients_id[index])
+                del clients_id[index]
+            clients_id = new_clients_id
 
         first_orders = {}
         for client_id in clients_id:
             orders = iiko_api.get_history(client_id, venue_id)
             orders = orders['historyOrders']
             for order in orders:
-                logging.info(order)
                 if not first_orders.get(client_id):
                     first_orders[client_id] = datetime.strptime(order['date'][:10], '%Y-%m-%d')
                 else:
