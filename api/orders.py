@@ -82,7 +82,7 @@ class PlaceOrderHandler(base.BaseHandler):
         order.venue_id = venue_id
 
         items = json.loads(self.request.get('items'))
-        if venue_id == fix_syrop.COFFE_AND_THE_CITY_ID:
+        if venue_id == Venue.COFFEE_CITY:
             items = fix_syrop.set_syrop_items(items)
             items = fix_modifiers_by_own.set_modifier_by_own(venue_id, items)
 
@@ -165,7 +165,7 @@ class PlaceOrderHandler(base.BaseHandler):
 
         order.put()
 
-        if venue_id == "768c213e-5bc1-4135-baa3-45f719dbad7e":  # orange express:
+        if venue_id == Venue.ORANGE_EXPRESS:
             send_express_email(order, customer, venue)
 
         resp = {
@@ -188,26 +188,11 @@ class PlaceOrderHandler(base.BaseHandler):
         self.render_json(resp)
 
 
-class VenueOrderInfoRequestHandler(base.BaseHandler):
-    """ /api/venue/%s/order/%s """
-    def get(self, venue_id, order_id):
-        result = iiko_api.order_info1(order_id, venue_id)
-        result['status'] = result['status'].replace(u'Новая', u'Подтвержден')
-        result['status'] = result['status'].replace(u'Закрыта', u'Закрыт')
-
-        self.render_json({
-            'order': result
-        })
-
-
 class OrderInfoRequestHandler(base.BaseHandler):
     """ /api/order/%s """
     def get(self, order_id):
         order = iiko.Order.order_by_id(order_id)
-
-        result = iiko_api.order_info(order)
-        order.set_status(result['status'])
-        order.put()
+        order.reload()
 
         self.render_json({
             'order': order.to_dict()

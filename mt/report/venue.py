@@ -18,8 +18,8 @@ class VenueReportHandler(BaseHandler):
     }
 
     VENUES_WITHOUT_IIKO_PAYMENT_TYPES = [
-        '768c213e-5bc1-4135-baa3-45f719dbad7e',  # Оранжеваый эксперсс
-        '02b1b1f7-4ec8-11e4-80cc-0025907e32e9'   # Coffee and the City
+        iiko.Venue.ORANGE_EXPRESS,  # Оранжеваый эксперсс
+        iiko.Venue.COFFEE_CITY   # Coffee and the City
     ]
 
     def get_payment_types(self, source, venue):

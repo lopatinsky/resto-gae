@@ -2,8 +2,11 @@
 import logging
 from google.appengine.ext import ndb
 from google.appengine.api import memcache
+from datetime import datetime, timedelta
 import time
 from methods import maps
+from methods.alfa_bank import pay_by_card, get_back_blocked_sum
+from methods.parse_com import send_push
 
 
 class PaymentType(ndb.Model):
@@ -100,6 +103,14 @@ class Order(ndb.Model):
         ]
     }
 
+    PUSH_STATUSES = {
+        UNKNOWN: u"Неизвестно",
+        NOT_APPROVED: u"Ожидает подтверждения",
+        APPROVED: u"Подтвержден",
+        CANCELED: u"Отменен",
+        CLOSED: u"Выполнен"
+    }
+
     date = ndb.DateTimeProperty()
     sum = ndb.FloatProperty(indexed=False)
     items = ndb.JsonProperty()
@@ -110,9 +121,11 @@ class Order(ndb.Model):
     order_id = ndb.StringProperty()
     number = ndb.StringProperty()
     status = ndb.IntegerProperty()
-    comment = ndb.StringProperty()
-    payment_type = ndb.StringProperty()
-    alfa_order_id = ndb.StringProperty()
+    comment = ndb.StringProperty(indexed=False)
+    payment_type = ndb.StringProperty(indexed=False)
+    alfa_order_id = ndb.StringProperty(indexed=False)
+    source = ndb.StringProperty(choices=('app', 'iiko'), default='app')
+    updated = ndb.DateTimeProperty(auto_now=True)
 
     # TODO Need to check english statuses(may be incorrect)
     @classmethod
@@ -147,8 +160,114 @@ class Order(ndb.Model):
 
         return serialized
 
+    def _handle_changes(self, changes):
+        if self.source != 'app':
+            return
+
+        if 'status' in changes:
+            if self.payment_type == '2':
+                logging.info("order paid by card")
+
+                venue = Venue.venue_by_id(self.venue_id)
+                company = Company.get_by_id(venue.company_id)
+
+                if self.status == Order.CLOSED:
+                    pay_result = pay_by_card(company, self.alfa_order_id, 0)
+                    logging.info("pay")
+                    logging.info(str(pay_result))
+                    if 'errorCode' not in pay_result.keys() or str(pay_result['errorCode']) == '0':
+                        logging.info("pay succeeded")
+                    else:
+                        logging.warning("pay failed")
+
+                elif self.status == Order.CANCELED:
+                    cancel_result = get_back_blocked_sum(company, self.alfa_order_id)
+                    logging.info("cancel")
+                    logging.info(str(cancel_result))
+                    if 'errorCode' not in cancel_result or str(cancel_result['errorCode']) == '0':
+                        logging.info("cancel succeeded")
+                    else:
+                        logging.warning("cancel failed")
+
+            data = {'order_id': self.order_id,
+                    'order_status': self.status,
+                    'action': 'com.empatika.iiko'}
+            format_string = u'Статус заказа №{0} был изменен на {1}'
+            alert_message = format_string.format(self.number, self.PUSH_STATUSES[self.status])
+            logging.info(alert_message)
+            send_push("order_%s" % self.order_id, alert=alert_message, data=data)
+
+    @classmethod
+    def _do_load_from_object(cls, order, order_id, venue_id, iiko_order):
+        venue = Venue.venue_by_id(venue_id)
+        changes = {}
+
+        def _attr(name, new_value=None):
+            old_value = getattr(order, name)
+            if not new_value:
+                new_value = iiko_order[name]
+            if old_value != new_value:
+                changes[name] = old_value
+                setattr(order, name, new_value)
+
+        if not order:
+            changes['order'] = None
+            order = Order(order_id=order_id, venue_id=venue_id, source='iiko')
+            order.is_delivery = iiko_order['orderType']['orderServiceType'] == 'DELIVERY_BY_COURIER'
+            customer = Customer.customer_by_customer_id(iiko_order['customerId'])
+            order.customer = customer.key if customer else None  # TODO create customer
+
+        _attr('sum')
+        _attr('items')
+        _attr('address')
+        _attr('number')
+
+        date = datetime.strptime(iiko_order['deliveryDate'], "%Y-%m-%d %H:%M:%S") - \
+            timedelta(seconds=venue.get_timezone_offset())
+        _attr('date', date)
+
+        _attr('status', Order.parse_status(iiko_order['status']))
+
+        order_payment_types = [item['paymentType']['code'] for item in iiko_order['payments']]
+        payment_type = '3' if 'CARD' in order_payment_types else \
+            '2' if 'ECARD' in order_payment_types else '1'
+        _attr('payment_type', payment_type)
+
+        logging.debug("changes in %s: %s", order_id, changes.keys())
+        if changes:
+            order._handle_changes(changes)
+            if order.source == 'app':
+                order.put()
+        return order
+
+    @classmethod
+    def load_from_object(cls, iiko_order):
+        order_id = iiko_order['orderId']
+        venue_id = iiko_order['organization']
+        order = cls.order_by_id(order_id)
+        return cls._do_load_from_object(order, order_id, venue_id, iiko_order)
+
+    @classmethod
+    def _do_load(cls, order, order_id, venue_id):
+        iiko_order = iiko_api.order_info1(order_id, venue_id)
+        return cls._do_load_from_object(order, order_id, venue_id, iiko_order)
+
+    @classmethod
+    def load(cls, order_id, venue_id):
+        order = cls.order_by_id(order_id)
+        return cls._do_load(order, order_id, venue_id)
+
+    def reload(self):
+        self._do_load(self, self.order_id, self.venue_id)
+
 
 class Venue(ndb.Model):
+    COFFEE_CITY = "02b1b1f7-4ec8-11e4-80cc-0025907e32e9"
+    EMPATIKA = "95e4a970-b4ea-11e3-8bac-50465d4d1d14"
+    MIVAKO = "6a05d004-e03d-11e3-bae4-001b21b8a590"
+    ORANGE_EXPRESS = "768c213e-5bc1-4135-baa3-45f719dbad7e"
+    SUSHILAR = "a9d16dff-7680-43f1-b1a1-74784bc75f60"
+
     venue_id = ndb.StringProperty()
     name = ndb.StringProperty()
     logo_url = ndb.StringProperty(indexed=False)
@@ -297,3 +416,6 @@ class ClientInfo(ndb.Model):
     phone = ndb.StringProperty()
     email = ndb.StringProperty()
     created_at = ndb.DateTimeProperty(auto_now_add=True)
+
+
+from methods import iiko_api  # needed in some functions
