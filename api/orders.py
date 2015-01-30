@@ -188,18 +188,6 @@ class PlaceOrderHandler(base.BaseHandler):
         self.render_json(resp)
 
 
-class VenueOrderInfoRequestHandler(base.BaseHandler):
-    """ /api/venue/%s/order/%s """
-    def get(self, venue_id, order_id):
-        result = iiko_api.order_info1(order_id, venue_id)
-        result['status'] = result['status'].replace(u'Новая', u'Подтвержден')
-        result['status'] = result['status'].replace(u'Закрыта', u'Закрыт')
-
-        self.render_json({
-            'order': result
-        })
-
-
 class OrderInfoRequestHandler(base.BaseHandler):
     """ /api/order/%s """
     def get(self, order_id):
