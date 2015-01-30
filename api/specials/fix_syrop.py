@@ -3,7 +3,6 @@ __author__ = 'dvpermyakov'
 
 import logging
 
-COFFE_AND_THE_CITY_ID = '02b1b1f7-4ec8-11e4-80cc-0025907e32e9'
 SYROPS_ID = '9b9c2b5e-8b0a-48e5-8703-8cb8d0e6b1ec'
 DRINKS_ID = '494df59c-34d3-4e6d-98e8-8c6e020a2f6a'
 WITHOUT_SYROP_ID = '123456789012345678901234567890'

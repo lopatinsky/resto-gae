@@ -299,7 +299,7 @@ def prepare_order(order, customer, payment_type):
 
     if not order.is_delivery:
         obj['deliveryTerminalId'] = get_delivery_terminal_id(order.venue_id)
-    elif order.venue_id == "768c213e-5bc1-4135-baa3-45f719dbad7e":  # TODO orange express
+    elif order.venue_id == Venue.ORANGE_EXPRESS:  # TODO orange express
         terminals = get_delivery_terminals(order.venue_id)
         dt_id = None
         for t in terminals:
