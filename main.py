@@ -2,9 +2,8 @@
 
 import webapp2
 from api import *
-from api import specials
+from api import admin, specials
 from mt import CreateCompaniesLinks, CompanySettingsHandler, report
-
 
 
 app = webapp2.WSGIApplication([
@@ -28,6 +27,10 @@ app = webapp2.WSGIApplication([
     ('/api/company/get_company', GetCompanyHandler),
     ('/api/company/all_companies', GetCompaniesHandler),
     ('/api/company/get_icons', DownloadIconsHandler),
+
+    # admin
+    ('/api/admin/orders/current', admin.CurrentOrdersHandler),
+    ('/api/admin/orders/updates', admin.OrderUpdatesHandler),
 
     # maintenance
     ('/mt/company/links', CreateCompaniesLinks),

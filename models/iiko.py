@@ -161,6 +161,22 @@ class Order(ndb.Model):
 
         return serialized
 
+    def admin_dict(self):
+        customer = self.customer.get()
+        return {
+            'order_id': self.order_id,
+            'number': self.number,
+            'address': self.address,
+            'createdDate': int(time.mktime(self.created_in_iiko.timetuple())),
+            'deliveryDate': int(time.mktime(self.date.timetuple())),
+            'client_id': customer.customer_id,
+            'phone': customer.phone,
+            'sum': self.sum,
+            'items': self.items,
+            'venue_id': self.venue_id,
+            'status': self.status
+        }
+
     def _handle_changes(self, changes):
         if self.source != 'app':
             return
