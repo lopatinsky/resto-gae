@@ -198,8 +198,7 @@ class Order(ndb.Model):
             send_push("order_%s" % self.order_id, alert=alert_message, data=data)
 
     @classmethod
-    def _do_load(cls, order, order_id, venue_id):
-        iiko_order = iiko_api.order_info1(order_id, venue_id)
+    def _do_load_from_object(cls, order, order_id, venue_id, iiko_order):
         venue = Venue.venue_by_id(venue_id)
         changes = {}
 
@@ -215,7 +214,8 @@ class Order(ndb.Model):
             changes['order'] = None
             order = Order(order_id=order_id, venue_id=venue_id, source='iiko')
             order.is_delivery = iiko_order['orderType']['orderServiceType'] == 'DELIVERY_BY_COURIER'
-            order.customer = Customer.customer_by_customer_id(iiko_order['customerId'])
+            customer = Customer.customer_by_customer_id(iiko_order['customerId'])
+            order.customer = customer.key if customer else None  # TODO create customer
 
         _attr('sum')
         _attr('items')
@@ -233,11 +233,24 @@ class Order(ndb.Model):
             '2' if 'ECARD' in order_payment_types else '1'
         _attr('payment_type', payment_type)
 
+        logging.debug("changes in %s: %s", order_id, changes.keys())
         if changes:
             order._handle_changes(changes)
             if order.source == 'app':
                 order.put()
         return order
+
+    @classmethod
+    def load_from_object(cls, iiko_order):
+        order_id = iiko_order['orderId']
+        venue_id = iiko_order['organization']
+        order = cls.order_by_id(order_id)
+        return cls._do_load_from_object(order, order_id, venue_id, iiko_order)
+
+    @classmethod
+    def _do_load(cls, order, order_id, venue_id):
+        iiko_order = iiko_api.order_info1(order_id, venue_id)
+        return cls._do_load_from_object(order, order_id, venue_id, iiko_order)
 
     @classmethod
     def load(cls, order_id, venue_id):
