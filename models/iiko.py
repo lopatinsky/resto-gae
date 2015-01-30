@@ -235,7 +235,8 @@ class Order(ndb.Model):
 
         if changes:
             order._handle_changes(changes)
-            order.put()
+            if order.source == 'app':
+                order.put()
         return order
 
     @classmethod
