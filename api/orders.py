@@ -204,10 +204,7 @@ class OrderInfoRequestHandler(base.BaseHandler):
     """ /api/order/%s """
     def get(self, order_id):
         order = iiko.Order.order_by_id(order_id)
-
-        result = iiko_api.order_info(order)
-        order.set_status(result['status'])
-        order.put()
+        order.reload()
 
         self.render_json({
             'order': order.to_dict()
