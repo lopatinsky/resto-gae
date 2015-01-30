@@ -4,9 +4,9 @@ import logging
 from google.appengine.ext import deferred
 from google.appengine.runtime import DeadlineExceededError
 import webapp2
+from models.iiko import Venue
 from methods import iiko_api
 from methods.image_cache import get_image
-from models.iiko import Venue
 
 
 def _get_menu_images(menu):
