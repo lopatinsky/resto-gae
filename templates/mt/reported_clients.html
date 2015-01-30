@@ -8,6 +8,10 @@
                             'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь' %}
 
     <form method="get">
+         <select name="selected_type">
+            <option value="app" {% if chosen_type == "app" %}selected{% endif %}>App</option>
+            <option value="iiko" {% if chosen_type == "iiko" %}selected{% endif %}>IIko</option>
+         </select>
          <select name="selected_venue">
              <option value=0 {% if not chosen_venue %}selected{% endif %}>Все кофейни</option>
              {% for venue in venues %}
@@ -50,9 +54,9 @@
              <th>Number of Orders</th>
              <th>Number of Orders with Card</th>
              <th>Total Sum</th>
+             <th>Average Order Cost</th>
              <th>Number of Cancelled Orders</th>
              <th>Sum of Cancelled Orders</th>
-             <th>Average Order Cost</th>
          </tr>
          {% for client in clients %}
              <tr>
@@ -62,9 +66,9 @@
                  <td>{{ client.order_number }}</td>
                  <td>{{ client.card }}</td>
                  <td>{{ client.total_sum }}</td>
+                 <td>{{ client.total_sum / client.order_number if client.order_number else 0 }}</td>
                  <td>{{ client.cancelled }}</td>
                  <td>{{ client.cancelled_sum }}</td>
-                 <td>{{ client.total_sum / client.order_number if client.order_number else 0 }}</td>
              </tr>
          {% endfor %}
          <tr>
@@ -74,9 +78,9 @@
              <td>{{ total['order_number'] }}</td>
              <td>{{ total['card_order'] }}</td>
              <td>{{ total['total_sum'] }}</td>
+             <td>{{ total['total_sum'] / total['order_number'] if total['order_number'] else 0 }}</td>
              <td>{{ total['cancelled'] }}</td>
              <td>{{ total['cancelled_sum'] }}</td>
-             <td>{{ total['total_sum'] / total['order_number'] if total['order_number'] else 0 }}</td>
          </tr>
      </table>
      <a href="/mt/report">Назад</a>
