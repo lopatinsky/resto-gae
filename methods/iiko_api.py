@@ -548,3 +548,7 @@ def get_orders(venue, start, end, status=None):
     if status:
         payload['deliveryStatus'] = status
     return json.loads(__get_request(venue.company_id, '/orders/deliveryOrders', payload))
+
+
+def parse_iiko_time(time_str, venue):
+    return datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S") - timedelta(seconds=venue.get_timezone_offset())

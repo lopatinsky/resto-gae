@@ -162,6 +162,7 @@ class PlaceOrderHandler(base.BaseHandler):
         order.order_id = result['orderId']
         order.number = result['number']
         order.set_status(result['status'])
+        order.created_in_iiko = iiko_api.parse_iiko_time(result['createdTime'], venue)
 
         order.put()
 

@@ -221,10 +221,6 @@ class Order(ndb.Model):
         venue = Venue.venue_by_id(venue_id)
         changes = {}
 
-        def _time(time_str):
-            return datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S") - \
-                timedelta(seconds=venue.get_timezone_offset())
-
         def _attr(name, new_value=None):
             old_value = getattr(order, name)
             if not new_value:
@@ -245,10 +241,10 @@ class Order(ndb.Model):
         _attr('address')
         _attr('number')
 
-        date = _time(iiko_order['deliveryDate'])
+        date = iiko_api.parse_iiko_time(iiko_order['deliveryDate'], venue)
         _attr('date', date)
 
-        created_time = _time(iiko_order['createdTime'])
+        created_time = iiko_api.parse_iiko_time(iiko_order['createdTime'], venue)
         _attr('created_in_iiko', created_time)
 
         _attr('status', Order.parse_status(iiko_order['status']))
