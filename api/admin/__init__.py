@@ -11,7 +11,7 @@ class CurrentOrdersHandler(BaseHandler):
         today = datetime.datetime.combine(datetime.date.today(), datetime.time())
         orders = Order.query(Order.status.IN([Order.NOT_APPROVED, Order.APPROVED]),
                              Order.venue_id == venue_id,
-                             Order.created_in_iiko >= today).fetch()
+                             Order.date >= today).fetch()
 
         self.render_json({
             'orders': [order.admin_dict() for order in orders],
