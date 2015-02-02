@@ -87,7 +87,6 @@ class PlaceOrderHandler(base.BaseHandler):
             items = fix_modifiers_by_own.set_modifier_by_own(venue_id, items)
 
         order.items = items
-        order.customer = customer.key
         order.comment = comment
         order.is_delivery = int(delivery_type) == 0
         order.payment_type = payment_type
@@ -158,6 +157,7 @@ class PlaceOrderHandler(base.BaseHandler):
         if not customer_id:
             customer.customer_id = result['customerId']
         customer.put()
+        order.customer = customer.key
 
         client_info_id = self.request.get_range('user_data_id')
         if client_info_id:
