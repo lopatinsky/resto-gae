@@ -299,16 +299,15 @@ def prepare_order(order, customer, payment_type):
 
     if not order.is_delivery:
         obj['deliveryTerminalId'] = get_delivery_terminal_id(order.venue_id)
-    elif order.venue_id == Venue.ORANGE_EXPRESS:  # TODO orange express
-        terminals = get_delivery_terminals(order.venue_id)
-        dt_id = None
-        for t in terminals:
-            if order.address['city'] in t['deliveryRestaurantName']:
-                dt_id = t['deliveryTerminalId']
-                break
-        if not dt_id:
-            dt_id = terminals[0]['deliveryTerminalId']
-        obj['deliveryTerminalId'] = dt_id
+    elif order.venue_id == Venue.ORANGE_EXPRESS:
+        dt_mapping = {
+            u"Одинцово": "2b20fde1-727f-e430-013e-203bb2e09905",
+            u"Егорьевск": "2b20fde1-727f-e430-013e-203bb2e09af1",
+            u"Подольск": "e0a67a59-c018-2c9c-0149-893d7b97148e",
+            u"Климовск": "e0a67a59-c018-2c9c-0149-893d7b97148e",
+            u"Домодедово": "2b20fde1-727f-e430-013e-203bb2e0a299"
+        }
+        obj['deliveryTerminalId'] = dt_mapping[order.address['city']]
 
     customer_id = customer.customer_id
     if customer_id:
