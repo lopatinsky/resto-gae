@@ -161,8 +161,10 @@ class Order(ndb.Model):
 
         return serialized
 
-    def admin_dict(self):
+    def admin_dict(self, images_map):
         customer = self.customer.get()
+        for item in self.items:
+            item['images'] = images_map.get(item['id'], [])
         return {
             'order_id': self.order_id,
             'number': self.number,
