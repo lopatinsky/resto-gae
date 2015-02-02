@@ -267,6 +267,29 @@ Parameters:
 }
 ```
 
+### Get Order Info
+
+POST `/api/get_order_promo`
+
+Parameters:
+
+* `venue_id (string)`
+* `name (string)`
+* `phone (string)`
+* `customer_id (string)`
+* `sum (string)`
+* `date (string (timestamp))`
+* `items (json)`
+
+```
+#!js
+{
+   "order_discounts": discount,    // int
+   "max_bonus_payment": max bonus  // int
+   "gifts": gifts                  // string[]
+}
+```
+
 ### Create new order
 
 POST `/api/venue/<venue_id>/order/new`
