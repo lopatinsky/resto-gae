@@ -77,5 +77,5 @@ class SaveClientInfoHandler(BaseHandler):
     def post(self, company_id):
         email = self.request.get("client_email")
         phone = self.request.get("client_phone")
-        ClientInfo(company_id=int(company_id), email=email, phone=phone).put()
-        self.render_json({})
+        key = ClientInfo(company_id=int(company_id), email=email, phone=phone).put()
+        self.render_json({'id': key.id()})

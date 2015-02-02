@@ -15,3 +15,9 @@ indexes:
   - name: customer
   - name: status
   - name: date
+
+- kind: Order
+  properties:
+  - name: status
+  - name: venue_id
+  - name: updated

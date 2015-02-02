@@ -125,6 +125,7 @@ class Order(ndb.Model):
     payment_type = ndb.StringProperty(indexed=False)
     alfa_order_id = ndb.StringProperty(indexed=False)
     source = ndb.StringProperty(choices=('app', 'iiko'), default='app')
+    created_in_iiko = ndb.DateTimeProperty()
     updated = ndb.DateTimeProperty(auto_now=True)
 
     # TODO Need to check english statuses(may be incorrect)
@@ -159,6 +160,24 @@ class Order(ndb.Model):
         }
 
         return serialized
+
+    def admin_dict(self, images_map):
+        customer = self.customer.get()
+        for item in self.items:
+            item['images'] = images_map.get(item['id'], [])
+        return {
+            'order_id': self.order_id,
+            'number': self.number,
+            'address': self.address,
+            'createdDate': int(time.mktime(self.created_in_iiko.timetuple())),
+            'deliveryDate': int(time.mktime(self.date.timetuple())),
+            'client_id': customer.customer_id,
+            'phone': customer.phone,
+            'sum': self.sum,
+            'items': self.items,
+            'venue_id': self.venue_id,
+            'status': self.status
+        }
 
     def _handle_changes(self, changes):
         if self.source != 'app':
@@ -222,9 +241,11 @@ class Order(ndb.Model):
         _attr('address')
         _attr('number')
 
-        date = datetime.strptime(iiko_order['deliveryDate'], "%Y-%m-%d %H:%M:%S") - \
-            timedelta(seconds=venue.get_timezone_offset())
+        date = iiko_api.parse_iiko_time(iiko_order['deliveryDate'], venue)
         _attr('date', date)
+
+        created_time = iiko_api.parse_iiko_time(iiko_order['createdTime'], venue)
+        _attr('created_in_iiko', created_time)
 
         _attr('status', Order.parse_status(iiko_order['status']))
 
@@ -416,6 +437,7 @@ class ClientInfo(ndb.Model):
     phone = ndb.StringProperty()
     email = ndb.StringProperty()
     created_at = ndb.DateTimeProperty(auto_now_add=True)
+    customer = ndb.KeyProperty(Customer)
 
 
 from methods import iiko_api  # needed in some functions

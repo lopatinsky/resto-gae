@@ -9,7 +9,7 @@ import base
 from methods import iiko_api
 from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum, check_extended_status
 from models import iiko
-from models.iiko import Venue, Company
+from models.iiko import Venue, Company, ClientInfo
 from models.specials import MivakoGift
 from specials import fix_syrop, fix_modifiers_by_own
 
@@ -159,9 +159,17 @@ class PlaceOrderHandler(base.BaseHandler):
             customer.customer_id = result['customerId']
         customer.put()
 
+        client_info_id = self.request.get_range('user_data_id')
+        if client_info_id:
+            client_info = ClientInfo.get_by_id(client_info_id)
+            if client_info and client_info.customer != customer.key:
+                client_info.customer = customer.key
+                client_info.put()
+
         order.order_id = result['orderId']
         order.number = result['number']
         order.set_status(result['status'])
+        order.created_in_iiko = iiko_api.parse_iiko_time(result['createdTime'], venue)
 
         order.put()
 
