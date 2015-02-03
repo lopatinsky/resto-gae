@@ -33,7 +33,7 @@ class GetVenuePromosHandler(BaseHandler):
 
 class GetOrderPromosHandler(BaseHandler):
 
-    def get(self):
+    def post(self):
         venue_id = self.request.get('venue_id')
         name = self.request.get('name').strip()
         phone = self.request.get('phone')
@@ -60,13 +60,19 @@ class GetOrderPromosHandler(BaseHandler):
 
         promos = iiko_api.get_order_promos(order, customer)
 
-        max_bonus_payment = promos['maxPaymentSum'] - order.discount
-        gift_ids = []
-        for gift in promos['availableFreeProducts']:
-            gift_ids.append(gift['id'])
-
         order_dict = iiko_api.prepare_order(order, customer, None)
         iiko_api.set_discounts(order, order_dict['order'], promos)
+
+        max_bonus_payment = promos['maxPaymentSum']
+        if max_bonus_payment + order.discount_sum > order.sum:
+            max_bonus_payment = order.sum - order.discount_sum
+        gift_ids = []
+        for gift in promos['availableFreeProducts']:
+            gift_ids.append({
+                'id': gift['id'],
+                'code': gift['code'],
+                'name': gift['name']
+            })
 
         return self.render_json({
             #"promos": promos,

@@ -581,7 +581,7 @@ def get_promo_by_id(venue_id, promo_id):
             return promo
 
 
-def get_order_promos(order, customer):
+def get_order_promos(order, customer, set_info=False):
 
     order_request = prepare_order(order, customer, 1)
     order_request['organization'] = order.venue_id
@@ -653,11 +653,12 @@ def get_order_promos(order, customer):
                         detail['id'] = product['productId']
                         detail['name'] = product['name']
                         detail['code'] = product['code']
-            promo = get_promo_by_id(order.venue_id, dis_info.get('id'))
-            dis_info['description'] = promo['description']
-            dis_info['start'] = promo['start']
-            dis_info['end'] = promo['end']
-            dis_info['imageUrl'] = promo['imageUrl']
+            if set_info:
+                promo = get_promo_by_id(order.venue_id, dis_info.get('id'))
+                dis_info['description'] = promo['description']
+                dis_info['start'] = promo['start']
+                dis_info['end'] = promo['end']
+                dis_info['imageUrl'] = promo['imageUrl']
 
     return result
 
