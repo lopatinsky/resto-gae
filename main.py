@@ -7,6 +7,11 @@ from mt import CreateCompaniesLinks, CompanySettingsHandler, report
 import share
 
 
+class MainHandler(webapp2.RequestHandler):
+    def get(self):
+        self.redirect("http://ru-beacon.ru/")
+
+
 app = webapp2.WSGIApplication([
     # payment
     ('/api/alfa/registration', PreCheckHandler),
@@ -70,4 +75,6 @@ app = webapp2.WSGIApplication([
     webapp2.Route('/get/<app:[a-z]{,3}>', share.GATrackDownloadHandler),
 
     ('/img/(.*)', ImageProxyHandler),
+
+    ('/', MainHandler),
 ], debug=True)

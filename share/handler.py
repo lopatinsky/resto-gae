@@ -9,19 +9,22 @@ GA_TID = "UA-57935469-7"
 APPS = {
     "slr": (
         "sushilar",
-        "about:blank",
-        "https://play.google.com/store/apps/details?id=com.sushilar"
+        "http://sushilar.ru/",
+        "https://play.google.com/store/apps/details?id=com.sushilar",
+        False  # android by default
     ),
     "oex": (
         "orange_express",
-        "about:blank",
-        "https://play.google.com/store/apps/details?id=com.orangexpress"
+        "http://pizza-sushi.com/",
+        "https://play.google.com/store/apps/details?id=com.orangexpress",
+        False
     ),
     "cat": (
         "coffee_city",
         "http://coffeeandthecity.ru/",
-        "http://coffeeandthecity.ru/"
-    )
+        "http://coffeeandthecity.ru/",
+        True
+    ),
 }
 
 
@@ -70,9 +73,10 @@ class GATrackDownloadHandler(GATrackRequestHandler):
     page = None
     ios_url = None
     android_url = None
+    default_ios = None
 
     def _load_app_info(self, app_info):
-        name, self.ios_url, self.android_url = app_info
+        name, self.ios_url, self.android_url, self.default_ios = app_info
         self.page = "download_%s" % name
 
     def dispatch(self):
@@ -91,9 +95,9 @@ class GATrackDownloadHandler(GATrackRequestHandler):
         if 'Android' in ua:
             self.track_event(self.page, 'download_auto', 'android')
             self.redirect(self.android_url)
-        else:
-            if "iPhone" in ua or "iPad" in ua or "iPad" in ua:
-                self.track_event(self.page, 'download_auto', 'ios')
-            else:
-                self.track_event(self.page, 'download_auto', 'other')
+        elif "iPhone" in ua or "iPad" in ua or "iPad" in ua:
+            self.track_event(self.page, 'download_auto', 'ios')
             self.redirect(self.ios_url)
+        else:
+            self.track_event(self.page, 'download_auto', 'other')
+            self.redirect(self.ios_url if self.default_ios else self.android_url)
