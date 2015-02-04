@@ -66,20 +66,24 @@ class GetOrderPromosHandler(BaseHandler):
         max_bonus_payment = promos['maxPaymentSum']
         if max_bonus_payment + order.discount_sum > order.sum:
             max_bonus_payment = order.sum - order.discount_sum
-        gift_ids = []
-        for gift in promos['availableFreeProducts']:
-            gift_ids.append({
-                'id': gift['id'],
-                'code': gift['code'],
-                'name': gift['name']
-            })
+
+        gifts = []
+        if promos.get('availableFreeProducts'):
+            for gift in promos['availableFreeProducts']:
+                gifts.append({
+                    'id': gift['id'],
+                    'code': gift['code'],
+                    'name': gift['name'],
+                    'images': gift['images'],
+                    'weight': gift['weight']
+                })
 
         return self.render_json({
             #"promos": promos,
             #"order": order_dict,
             "order_discounts": order.discount_sum,
             "max_bonus_payment": max_bonus_payment if max_bonus_payment > 0 else 0,
-            "gifts": gift_ids
+            "gifts": gifts
         })
 
 

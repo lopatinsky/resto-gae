@@ -631,6 +631,8 @@ def get_order_promos(order, customer, set_info=False):
                 free_product['name'] = product['name']
                 free_product['price'] = product['price'] if product['price'] else free_product['modifiers'][0]['price']
                 free_product['amount'] = 1
+                free_product['weight'] = product['weight']
+                free_product['images'] = product['images']
                 free_product['code'] = free_product['productCode']
             else:
                 logging.error('not found product in menu')
