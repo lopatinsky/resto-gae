@@ -82,6 +82,12 @@ class PlaceOrderHandler(base.BaseHandler):
         order.venue_id = venue_id
 
         items = json.loads(self.request.get('items'))
+        for item in items:
+            if "modifiers" in item:
+                for mod in item["modifiers"]:
+                    if mod["amount"] == 0:
+                        mod["amount"] = 1
+
         if venue_id == Venue.COFFEE_CITY:
             items = fix_syrop.set_syrop_items(items)
             items = fix_modifiers_by_own.set_modifier_by_own(venue_id, items)
