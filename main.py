@@ -4,6 +4,7 @@ import webapp2
 from api import *
 from api import admin, specials
 from mt import CreateCompaniesLinks, CompanySettingsHandler, report
+import share
 
 
 app = webapp2.WSGIApplication([
@@ -65,6 +66,8 @@ app = webapp2.WSGIApplication([
     # specials
     ('/api/specials/mivako_gift/info', specials.MivakoPromoInfoHandler),
     ('/api/specials/mivako_gift/send', specials.MivakoPromoSendGiftHandler),
+
+    webapp2.Route('/get/<app:[a-z]{,3}>', share.GATrackDownloadHandler),
 
     ('/img/(.*)', ImageProxyHandler),
 ], debug=True)
