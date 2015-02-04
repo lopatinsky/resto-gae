@@ -7,11 +7,15 @@ GA_TID = "UA-57935469-7"
 
 
 APPS = {
+    # 0: app identifier
+    # 1: ios url
+    # 2: android url
+    # 3: True -> ios url by default, False -> android
     "slr": (
         "sushilar",
         "http://sushilar.ru/",
         "https://play.google.com/store/apps/details?id=com.sushilar",
-        False  # android by default
+        False
     ),
     "oex": (
         "orange_express",
@@ -73,11 +77,13 @@ class GATrackDownloadHandler(GATrackRequestHandler):
     page = None
     ios_url = None
     android_url = None
-    default_ios = None
+    default_url = None
 
     def _load_app_info(self, app_info):
-        name, self.ios_url, self.android_url, self.default_ios = app_info
+        name, self.ios_url, self.android_url, default_ios = app_info
+        self.default_url = self.ios_url if default_ios else self.android_url
         self.page = "download_%s" % name
+        print self.__dict__
 
     def dispatch(self):
         app = self.request.route_kwargs["app"]
@@ -100,4 +106,4 @@ class GATrackDownloadHandler(GATrackRequestHandler):
             self.redirect(self.ios_url)
         else:
             self.track_event(self.page, 'download_auto', 'other')
-            self.redirect(self.ios_url if self.default_ios else self.android_url)
+            self.redirect(self.default_url)
