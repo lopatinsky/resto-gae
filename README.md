@@ -276,6 +276,7 @@ Parameters:
 * `venue_id (string)`
 * `phone (string)`
 
+```
 #!js
 {
     'promos': {
@@ -284,7 +285,6 @@ Parameters:
         'image_url': image url        // string         (null)
         'start': date of start promo  // int(timestamp) (null)
         'end': date of end promo      // int(timestamp) (null)
-
     }
     'balance': bonus balance  // int
 }
