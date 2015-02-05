@@ -268,6 +268,15 @@ def check_food(venue_id, items):
     return False
 
 
+def set_gifts(order, order_from_dict, gifts):
+
+    discount_sum = 0
+    for gift in gifts:
+        order.items.append(gift)
+        discount_sum += gift['price']
+    add_bonus_to_payment(order_from_dict, discount_sum, False)
+
+
 def set_discounts(order, order_from_dict, promos):
 
         def get_item(product_code):
@@ -279,17 +288,7 @@ def set_discounts(order, order_from_dict, promos):
                         if modifier.get('code') == product_code:
                             return item
 
-        discount_sum = 0
-        if promos.get('availableFreeProducts'):
-            for gift in promos.get('availableFreeProducts'):
-                if gift.get('amount'):
-                    order.items.append(gift)
-                    gift['sum'] = gift['price']
-                    gift['discount_sum'] = gift['price']
-                    discount_sum += gift['price']
-        add_bonus_to_payment(order_from_dict, discount_sum, False)
-
-        discount_sum = 0
+        discount_sum = 0.0
         if promos.get('discountInfo'):
             for dis_info in promos.get('discountInfo'):
                 if dis_info.get('details'):
@@ -313,7 +312,7 @@ def set_discounts(order, order_from_dict, promos):
                                     item['sum'] -= detail['discountSum']
                                     cur_discount = detail['discountSum']
                             discount_sum += cur_discount
-        order.discount_sum = discount_sum
+        order.discount_sum = float(discount_sum)
         return add_bonus_to_payment(order_from_dict, discount_sum, True)
 
 
@@ -504,8 +503,16 @@ def get_delivery_restrictions(venue_id):
 def get_venue_promos(venue_id):
     url = '/organization/%s/marketing_campaigns' % venue_id
     company_id = Venue.venue_by_id(venue_id).company_id
-    result = __get_request(company_id, url, {})
-    return json.loads(result)
+    promos = json.loads(__get_request(company_id, url, {}))
+    return [{
+        'name': promo['name'] if promo['name'] else '',
+        'description': promo['description'] if promo['description'] else '',
+        'image_url': promo['imageUrl'],
+        'start': (datetime.strptime(promo['start'], '%Y-%m-%d') - datetime(1970, 1, 1)).total_seconds()
+        if promo['start'] else None,
+        'end': (datetime.strptime(promo['end'], '%Y-%m-%d') - datetime(1970, 1, 1)).total_seconds()
+        if promo['end'] else None
+    } for promo in promos]
 
 
 def list_menu(venue_id):
@@ -631,6 +638,7 @@ def get_order_promos(order, customer, set_info=False):
                 free_product['name'] = product['name']
                 free_product['price'] = product['price'] if product['price'] else free_product['modifiers'][0]['price']
                 free_product['amount'] = 1
+                free_product['sum'] = 0
                 free_product['weight'] = product['weight']
                 free_product['images'] = product['images']
                 free_product['code'] = free_product['productCode']

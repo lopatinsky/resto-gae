@@ -20,7 +20,10 @@ class PlaceOrderHandler(base.BaseHandler):
 
         name = self.request.get('name').strip()
         phone = self.request.get('phone')
-        is_bonus_payment = self.request.get('is_bonus_payment') == 'true'  # it was added
+        bonus_sum = self.request.get('bonus_sum')  # it was added
+        bonus_sum = float(bonus_sum) if bonus_sum else 0.0
+        discount_sum = self.request.get('discount_sum')  # it was added
+        discount_sum = float(discount_sum) if discount_sum else 0.0
         if len(phone) == 10 and not phone.startswith("7"):  # old Android version
             phone = "7" + phone
         customer_id = self.request.get('customer_id')
@@ -45,14 +48,15 @@ class PlaceOrderHandler(base.BaseHandler):
         company = Company.get_by_id(venue.company_id)
         company_id = company.key.id()
 
-        company.is_iiko_system = True
-        company.put()
+        company.is_iiko_system = True  # TODO: remove it! only for debugging!
+        company.put()                  # TODO: remove it! only for debugging!
 
         order = iiko.Order()
         order.sum = float(order_sum)
         order.date = datetime.datetime.fromtimestamp(int(self.request.get('date')))
         order.venue_id = venue_id
         order.items = json.loads(self.request.get('items'))
+        gifts = json.loads(self.request.get('gifts')) if self.request.get('gifts') else []
         order.customer = customer.key
         order.comment = comment
         order.is_delivery = int(delivery_type) == 0
@@ -71,25 +75,48 @@ class PlaceOrderHandler(base.BaseHandler):
             logging.warning('iiko pre check failed')
             self.abort(400)
 
-        order.discount_sum = 0
+        order.discount_sum = 0.0
+        order.bonus_sum = 0.0
+        promos = None
         if company.is_iiko_system:
             promos = iiko_api.get_order_promos(order, customer)
-            iiko_api.set_discounts(order, order_dict['order'], promos)  # it was added
-            if is_bonus_payment:
-                bonuses = iiko_api.get_customer_by_phone(company_id, phone, venue_id)['balance']
-                if bonuses > int(order.sum) - order.discount_sum:
-                    bonuses = int(order.sum) - order.discount_sum
-                iiko_api.add_bonus_to_payment(order_dict['order'], bonuses, True)  # it was added
-            else:
-                bonuses = 0
-        else:
-            promos = None
-            bonuses = 0
+            logging.info('discount %s' % discount_sum)
+            logging.info('bonus %s' % bonus_sum)
+            logging.info('gifts %s' % gifts)
+            if discount_sum != 0:
+                iiko_api.set_discounts(order, order_dict['order'], promos)  # it was added
+                if order.discount_sum != discount_sum:
+                    logging.info('conflict_discount: app(%s), iiko(%s)' % (discount_sum, order.discount_sum))
+                    self.abort(409)
+            if bonus_sum != 0:
+                if bonus_sum != promos['maxPaymentSum']:
+                    logging.info('conflict_max_bonus: app(%s), iiko(%s)' % (bonus_sum, promos['maxPaymentSum']))
+                    self.abort(409)
+                iiko_api.add_bonus_to_payment(order_dict['order'], bonus_sum, True)  # it was added
+                order.bonus_sum = bonus_sum
+
+            if gifts:
+                if not promos.get('availableFreeProducts'):
+                    logging.info('conflict_gift: app(%s), iiko(%s)' % (gifts, None))
+                    self.abort(409)
+
+                def is_item_in(items, cur_item):
+                    for item in items:
+                        if item['id'] == cur_item['id']:
+                            return True
+                    return False
+
+                for gift in gifts:
+                    if not is_item_in(promos.get('availableFreeProducts'), gift):
+                        logging.info('conflict_gift: app(%s), iiko(%s)' % (gift, None))
+                        self.abort(409)
+
+                iiko_api.set_gifts(order, order_dict['order'], gifts)
 
         # pay after pre check
         order_id = None
         if payment_type == '2':
-            payment = int(order.sum) - order.discount_sum - bonuses
+            payment = order.sum - order.discount_sum - order.bonus_sum
             tie_result = tie_card(company, int(float(payment) * 100), int(time.time()), 'returnUrl', alpha_client_id,
                                   'MOBILE')
             logging.info("registration")
@@ -148,15 +175,15 @@ class PlaceOrderHandler(base.BaseHandler):
 
         resp = {
             'customer_id': customer.customer_id,
-            #'promos': promos,  # it was added
+            'promos': promos,  # it was added
             #'menu': iiko_api.list_menu(venue_id),  # it was added
             'order': {
                 'order_id': order.order_id,
                 'status': order.status,
                 'items': order.items,
                 'sum': order.sum,
-                #'discounts': order.discount_sum,  # it was added
-                #'payments': order_dict['order']['paymentItems'],  # it was added
+                'discounts': order.discount_sum,  # it was added
+                'payments': order_dict['order']['paymentItems'],  # it was added
                 'number': order.number,
                 'venue_id': order.venue_id,
                 'address': order.address,

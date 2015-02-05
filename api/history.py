@@ -24,14 +24,19 @@ class HistoryHandler(BaseHandler):
             else:
                 for order in history['historyOrders']:
                     items_list = list()
+                    gift_list = list()
                     for order_items in order['items']:
-                        items_list.append({
+                        item = {
                             'sum': order_items['sum'],
                             'amount': order_items['amount'],
                             'name': order_items['name'],
                             'modifiers': order_items['modifiers'],
                             'id': order_items['id'],
-                        })
+                        }
+                        if order_items['sum'] != 0:
+                            items_list.append(item)
+                        else:
+                            gift_list.append(item)
 
                     # current_time = iiko.order_info1(order['orderId'], venue.venue_id)
                     # logging.info(current_time)
@@ -60,6 +65,7 @@ class HistoryHandler(BaseHandler):
                         'discount': order['discount'],
                         'sum': order['sum'],
                         'items': items_list,
+                        'gifts': gift_list,
                         'venue_id': venue.venue_id,
                     })
             self.overall_history.append({

@@ -98,6 +98,8 @@ class Order(ndb.Model):
 
     date = ndb.DateTimeProperty()
     sum = ndb.FloatProperty(indexed=False)
+    discount_sum = ndb.FloatProperty()
+    bonus_sum = ndb.FloatProperty()
     items = ndb.JsonProperty()
     is_delivery = ndb.BooleanProperty(default=False)
     address = ndb.JsonProperty()
