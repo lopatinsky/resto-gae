@@ -17,8 +17,15 @@ Parameters:
 
 #!js
 {
-    "promos": venue promos    // json
-    "balance": bonus balance  // int
+    'promos': {
+        'name': promo name            // string
+        'description': description    // string
+        'image_url': image url        // string         (null)
+        'start': date of start promo  // int(timestamp) (null)
+        'end': date of end promo      // int(timestamp) (null)
+
+    }
+    'balance': bonus balance  // int
 }
 ```
 
