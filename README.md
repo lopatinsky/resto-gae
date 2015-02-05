@@ -17,15 +17,8 @@ Parameters:
 
 #!js
 {
-    'promos': {
-        'name': promo name            // string
-        'description': description    // string
-        'image_url': image url        // string         (null)
-        'start': date of start promo  // int(timestamp) (null)
-        'end': date of end promo      // int(timestamp) (null)
-
-    }
-    'balance': bonus balance  // int
+    "promos": venue promos    // json
+    "balance": bonus balance  // int
 }
 ```
 
@@ -307,9 +300,19 @@ Parameters:
 ```
 #!js
 {
-   "order_discounts": discount,    // int
-   "max_bonus_payment": max bonus  // int
-   "gifts": gifts                  // string[]
+   "order_discounts": discount,     // int
+   "max_bonus_payment": max bonus   // int
+   "gifts": {
+        'id': product id            // string
+        'name': product name        // string
+        'price': product price      // int
+        'amount': 1                 // int
+        'sum': 0                    // int
+        'weight': product weight    // float
+        'images': image urls        // string[]
+        'code': product code        // int
+        'productCode': product code // int
+   }
 }
 ```
 
@@ -324,8 +327,11 @@ Parameters:
 * `customer_id (string)`
 * `deliveryType (string) -> default 0`
 * `sum (string)`
+* `bonus_sum (string)`
+* `discount_sum (string)`
 * `date (string (timestamp))`
 * `items (json)`
+* `gifts (json)`
 * `address (json)`
 * `paymentType (int)`
 
