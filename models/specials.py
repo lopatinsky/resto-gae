@@ -10,3 +10,11 @@ class MivakoGift(ndb.Model):
     datetime = ndb.DateTimeProperty(auto_now_add=True)
     emailed = ndb.BooleanProperty(default=False)
     gift_item = ndb.StringProperty()
+
+
+class Notification(ndb.Model):
+    PUSH_NOTIFICATION = 0
+
+    order_id = ndb.StringProperty(required=True)
+    created = ndb.DateProperty(auto_now_add=True)
+    type = ndb.IntegerProperty(required=True)
