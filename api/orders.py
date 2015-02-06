@@ -79,7 +79,7 @@ class PlaceOrderHandler(base.BaseHandler):
         order.bonus_sum = 0.0
         promos = None
         if company.is_iiko_system:
-            promos = iiko_api.get_order_promos(order, customer)
+            promos = iiko_api.get_order_promos(order, order_dict)
             logging.info('discount %s' % discount_sum)
             logging.info('bonus %s' % bonus_sum)
             logging.info('gifts %s' % gifts)
@@ -88,6 +88,7 @@ class PlaceOrderHandler(base.BaseHandler):
                 if order.discount_sum != discount_sum:
                     logging.info('conflict_discount: app(%s), iiko(%s)' % (discount_sum, order.discount_sum))
                     self.abort(409)
+                promos = iiko_api.get_order_promos(order, order_dict)
             if bonus_sum != 0:
                 if bonus_sum != promos['maxPaymentSum']:
                     logging.info('conflict_max_bonus: app(%s), iiko(%s)' % (bonus_sum, promos['maxPaymentSum']))
@@ -100,18 +101,22 @@ class PlaceOrderHandler(base.BaseHandler):
                     logging.info('conflict_gift: app(%s), iiko(%s)' % (gifts, None))
                     self.abort(409)
 
-                def is_item_in(items, cur_item):
+                def get_iiko_item(items, cur_item):
                     for item in items:
                         if item['id'] == cur_item['id']:
-                            return True
-                    return False
+                            return item
+                    return None
 
+                iiko_gifts = []
                 for gift in gifts:
-                    if not is_item_in(promos.get('availableFreeProducts'), gift):
+                    iiko_gift = get_iiko_item(promos.get('availableFreeProducts'), gift)
+                    if not iiko_gift:
                         logging.info('conflict_gift: app(%s), iiko(%s)' % (gift, None))
                         self.abort(409)
+                    else:
+                        iiko_gifts.append(iiko_gift)
 
-                iiko_api.set_gifts(order, order_dict['order'], gifts)
+                iiko_api.set_gifts(order, order_dict['order'], iiko_gifts)
 
         # pay after pre check
         order_id = None

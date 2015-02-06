@@ -272,7 +272,14 @@ def set_gifts(order, order_from_dict, gifts):
 
     discount_sum = 0
     for gift in gifts:
-        order.items.append(gift)
+        order.items.append({
+            'code': gift['code'],
+            'name': gift['name'],
+            'amount': gift['amount'],
+            'sum': gift['sum'],
+            'id': gift['id']
+        })
+        order.sum += gift['price']
         discount_sum += gift['price']
     add_bonus_to_payment(order_from_dict, discount_sum, False)
 
@@ -588,9 +595,10 @@ def get_promo_by_id(venue_id, promo_id):
             return promo
 
 
-def get_order_promos(order, customer, set_info=False):
+def get_order_promos(order, order_dict, set_info=False):
 
-    order_request = prepare_order(order, customer, 1)
+    #order_request = prepare_order(order, customer, 1)
+    order_request = order_dict
     order_request['organization'] = order.venue_id
     order_request['order']['fullSum'] = order.sum
 
@@ -602,7 +610,7 @@ def get_order_promos(order, customer, set_info=False):
             logging.error('product is not found in menu!')
             continue
         item['code'] = product['code']
-        item['sum'] = product['price'] * item['amount']
+        item['sum'] = product['price'] * item['amount'] - item.get('discount_sum', 0)
         if item['sum'] == 0:
             if item['modifiers']:
                 for m in item.get('modifiers', []):

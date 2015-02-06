@@ -58,14 +58,13 @@ class GetOrderPromosHandler(BaseHandler):
         order.venue_id = venue_id
         order.items = items
 
-        promos = iiko_api.get_order_promos(order, customer)
-
         order_dict = iiko_api.prepare_order(order, customer, None)
+
+        promos = iiko_api.get_order_promos(order, order_dict)
         iiko_api.set_discounts(order, order_dict['order'], promos)
+        promos = iiko_api.get_order_promos(order, order_dict)
 
         max_bonus_payment = promos['maxPaymentSum']
-        if max_bonus_payment + order.discount_sum > order.sum:
-            max_bonus_payment = order.sum - order.discount_sum
 
         gifts = []
         if promos.get('availableFreeProducts'):
