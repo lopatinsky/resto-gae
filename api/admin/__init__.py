@@ -4,6 +4,7 @@ import time
 from ..base import BaseHandler
 from methods import iiko_api
 from models.iiko import Order
+from auth import LoginHandler, LogoutHandler
 
 
 def _build_images_map(venue_id):
