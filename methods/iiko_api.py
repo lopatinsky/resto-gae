@@ -179,7 +179,7 @@ def _load_menu(venue):
             'images': [convert_url(webapp2.get_request(), img['imageUrl'])
                        for img in product.get('images', [])
                        if img['imageUrl']][::-1],
-            'description': product['description'],
+            'description': product['description'] or '',
             'additionalInfo': add_info,
             'additionalInfo1': add_info_str,
             'single_modifiers': single_modifiers,
