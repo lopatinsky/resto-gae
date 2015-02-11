@@ -216,7 +216,7 @@ class GetCompanyHandler(BaseHandler):
 
         if file_format == 'json':
             company_json = {
-                'app_name': company.app_title,
+                'app_name': company.app_name,
                 'company_id': company.key.id(),
                 'description': company.description,
                 'min_order_sum': company.min_order_sum,
