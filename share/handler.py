@@ -13,13 +13,13 @@ APPS = {
     # 3: True -> ios url by default, False -> android
     "slr": (
         "sushilar",
-        "http://sushilar.ru/",
+        "https://itunes.apple.com/ru/app/id958993914",
         "https://play.google.com/store/apps/details?id=com.sushilar",
         False
     ),
     "oex": (
         "orange_express",
-        "http://pizza-sushi.com/",
+        "https://itunes.apple.com/ru/app/id961351009",
         "https://play.google.com/store/apps/details?id=com.orangexpress",
         False
     ),
