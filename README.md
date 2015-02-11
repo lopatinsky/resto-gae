@@ -1,4 +1,4 @@
-# API
+    # API
 
 ## Server
 
@@ -283,8 +283,7 @@ Parameters:
 }
 ```
 
-<<<<<<< HEAD
-=======
+
 ### Get venue promos
 
 GET `/api/iiko_promos`
@@ -308,7 +307,7 @@ Parameters:
 }
 ```
 
->>>>>>> master
+
 ### Get Order Info
 
 POST `/api/get_order_promo`
