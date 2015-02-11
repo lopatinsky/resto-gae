@@ -208,11 +208,14 @@ class Order(ndb.Model):
                     else:
                         logging.warning("cancel failed")
 
-            data = {'order_id': self.order_id,
-                    'order_status': self.status,
-                    'action': 'com.empatika.iiko'}
             format_string = u'Статус заказа №{0} был изменен на {1}'
             alert_message = format_string.format(self.number, self.PUSH_STATUSES[self.status])
+            head = u'Зааз №%s' % self.order_id
+            data = {'order_id': self.order_id,
+                    'order_status': self.status,
+                    'action': 'com.empatika.iiko',
+                    'text': alert_message,
+                    'head': head}
             logging.info(alert_message)
             send_push("order_%s" % self.order_id, alert=alert_message, data=data)
 
