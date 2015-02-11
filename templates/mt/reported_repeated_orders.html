@@ -9,6 +9,10 @@
                             'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь' %}
 
     <form method="get">
+         <select name="selected_type">
+            <option value="app" {% if chosen_type == "app" %}selected{% endif %}>App</option>
+            <option value="iiko" {% if chosen_type == "iiko" %}selected{% endif %}>IIko</option>
+         </select>
          <select name="selected_venue">
              <option value=0 {% if not chosen_venue %}selected{% endif %}>Все кофейни</option>
              {% for venue in venues %}
@@ -28,6 +32,21 @@
              {% for month in range(1, 12 + 1)%}
                   <option value="{{ month }}" {% if chosen_month == month %} selected {% endif %}>
                       {{ NAME_MONTHS[month] }}
+                  </option>
+             {% endfor %}
+         </select>
+         <select name="selected_day">
+             <option value="0" {% if not chosen_day %}selected{% endif %}>Все дни</option>
+             {% for day in range(1, 31 + 1)%}
+                  <option value="{{ day }}" {% if chosen_day == day %} selected {% endif %}>
+                      {{ day }}
+                  </option>
+             {% endfor %}
+         </select>
+         <select name="selected_client_number">
+             {% for number in range(1, 15)%}
+                  <option value="{{ number * 10 }}" {% if chosen_client_number == number * 10 %} selected {% endif %}>
+                      {{ number * 10 }}
                   </option>
              {% endfor %}
          </select>

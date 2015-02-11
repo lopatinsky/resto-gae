@@ -283,6 +283,32 @@ Parameters:
 }
 ```
 
+<<<<<<< HEAD
+=======
+### Get venue promos
+
+GET `/api/iiko_promos`
+
+Parameters:
+
+* `venue_id (string)`
+* `phone (string)`
+
+```
+#!js
+{
+    'promos': {
+        'name': promo name            // string
+        'description': description    // string
+        'image_url': image url        // string         (null)
+        'start': date of start promo  // int(timestamp) (null)
+        'end': date of end promo      // int(timestamp) (null)
+    }
+    'balance': bonus balance  // int
+}
+```
+
+>>>>>>> master
 ### Get Order Info
 
 POST `/api/get_order_promo`

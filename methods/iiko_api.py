@@ -180,7 +180,7 @@ def _load_menu(venue):
             'images': [convert_url(webapp2.get_request(), img['imageUrl'])
                        for img in product.get('images', [])
                        if img['imageUrl']][::-1],
-            'description': product['description'],
+            'description': product['description'] or '',
             'additionalInfo': add_info,
             'additionalInfo1': add_info_str,
             'single_modifiers': single_modifiers,
@@ -204,9 +204,16 @@ def _load_menu(venue):
         }
         for image in categories[cat['id']]['image']:
             image['imageUrl'] = convert_url(webapp2.get_request(), image['imageUrl'])
+        # todo hack for sushilar
+        if cat['id'] == '170f94fd-3adb-4bb5-bd14-836bd81d2172':
+            categories['170f94fd-3adb-4bb5-bd14-836bd81d2172']['image'].append({
+                'imageUrl': 'http://empatika-resto-test.appspot.com/static/img/sushilar_spicy_rolls.png'
+            })
 
     for cat_id, cat in categories.items():
         cat_parent_id = cat.get('parent')
+        if cat_parent_id == cat_id:
+            cat['parent'] = cat_parent_id = None
         if cat_parent_id:
             parent = categories[cat_parent_id]
             parent['children'].append(cat)
@@ -390,23 +397,25 @@ def prepare_order(order, customer, payment_type):
             }
         }
     }
+    if customer.customer_id:
+        obj['customer']['id'] = customer.customer_id
 
     if not order.is_delivery:
         obj['deliveryTerminalId'] = get_delivery_terminal_id(order.venue_id)
-    elif order.venue_id == "768c213e-5bc1-4135-baa3-45f719dbad7e":  # TODO orange express
-        terminals = get_delivery_terminals(order.venue_id)
-        dt_id = None
-        for t in terminals:
-            if order.address['city'] in t['deliveryRestaurantName']:
-                dt_id = t['deliveryTerminalId']
-                break
-        if not dt_id:
-            dt_id = terminals[0]['deliveryTerminalId']
-        obj['deliveryTerminalId'] = dt_id
+    elif order.venue_id == Venue.ORANGE_EXPRESS:
+        dt_mapping = {
+            u"Одинцово": "2b20fde1-727f-e430-013e-203bb2e09905",
+            u"Егорьевск": "2b20fde1-727f-e430-013e-203bb2e09af1",
+            u"Подольск": "e0a67a59-c018-2c9c-0149-893d7b97148e",
+            u"Климовск": "e0a67a59-c018-2c9c-0149-893d7b97148e",
+            u"Домодедово": "2b20fde1-727f-e430-013e-203bb2e0a299"
+        }
+        obj['deliveryTerminalId'] = dt_mapping[order.address['city']]
 
     customer_id = customer.customer_id
     if customer_id:
         obj['customer']['id'] = customer_id
+    
     if order.is_delivery:
         obj['order']['address'] = order.address
 
@@ -464,7 +473,8 @@ def get_history(client_id, venue_id):
     org_id = Venue.venue_by_id(venue_id).company_id
     result = __get_request(org_id, '/orders/deliveryHistory', {
         'organization': venue_id,
-        'customer': client_id
+        'customer': client_id,
+        'requestTimeout': 20
     })
     obj = json.loads(result)
     return obj
@@ -484,7 +494,6 @@ def get_new_orders(venue_id, start_date, end_date):
         'organization': venue_id,
         'dateFrom': start_date.strftime('%Y-%m-%d %H:%M:%S'),
         'dateTo': end_date.strftime('%Y-%m-%d %H:%M:%S'),
-        'deliveryStatus': 'UNCONFIRMED'
     })
     obj = json.loads(result)
     return obj
@@ -701,6 +710,7 @@ def get_delivery_terminal_id(venue_id):
     return None
 
 
+
 def get_customer_by_phone(company_id, phone, venue_id):
     result = __get_request(company_id, '/customers/get_customer_by_phone', {
         'organization': venue_id,
@@ -710,3 +720,21 @@ def get_customer_by_phone(company_id, phone, venue_id):
         return json.loads(result)
     else:
         return 'failure'
+
+
+def get_orders(venue, start, end, status=None):
+    start += timedelta(seconds=venue.get_timezone_offset())
+    end += timedelta(seconds=venue.get_timezone_offset())
+    payload = {
+        'organization': venue.venue_id,
+        'dateFrom': start.strftime("%Y-%m-%d %H:%M:%S"),
+        'dateTo': end.strftime("%Y-%m-%d %H:%M:%S"),
+        'requestTimeout': 20
+    }
+    if status:
+        payload['deliveryStatus'] = status
+    return json.loads(__get_request(venue.company_id, '/orders/deliveryOrders', payload))
+
+
+def parse_iiko_time(time_str, venue):
+    return datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S") - timedelta(seconds=venue.get_timezone_offset())

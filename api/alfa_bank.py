@@ -11,9 +11,13 @@ class AlfaBaseHandler(BaseHandler):
     company = None
 
     def dispatch(self):
-        ua = self.request.headers["User-Agent"]
-        name = ua.split('/', 1)[0].lower().strip()
-        self.company = Company.query(Company.app_name == name).get()
+        company_id = self.request.get("organizationId")
+        if company_id:
+            self.company = Company.get_by_id(int(company_id))
+        if not self.company:
+            ua = self.request.headers["User-Agent"]
+            name = ua.split('/', 1)[0].lower().strip()
+            self.company = Company.query(Company.app_name == name).get()
         if not self.company:
             self.abort(400)
         return super(BaseHandler, self).dispatch()

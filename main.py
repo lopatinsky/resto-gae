@@ -2,8 +2,14 @@
 
 import webapp2
 from api import *
-from api import specials
+from api import admin, specials
 from mt import CreateCompaniesLinks, CompanySettingsHandler, report
+import share
+
+
+class MainHandler(webapp2.RequestHandler):
+    def get(self):
+        self.redirect("http://ru-beacon.ru/")
 
 
 app = webapp2.WSGIApplication([
@@ -28,6 +34,12 @@ app = webapp2.WSGIApplication([
     ('/api/company/all_companies', GetCompaniesHandler),
     ('/api/company/get_icons', DownloadIconsHandler),
 
+    # admin
+    ('/api/admin/orders/current', admin.CurrentOrdersHandler),
+    ('/api/admin/orders/updates', admin.OrderUpdatesHandler),
+    ('/api/admin/login', admin.LoginHandler),
+    ('/api/admin/logout', admin.LogoutHandler),
+
     # maintenance
     ('/mt/company/links', CreateCompaniesLinks),
     ('/mt/company/settings/(.*)', CompanySettingsHandler),
@@ -48,7 +60,6 @@ app = webapp2.WSGIApplication([
 
     # order info
     ('/api/history', HistoryHandler),
-    ('/api/venue/(.*)/order/(.*)', VenueOrderInfoRequestHandler),
     ('/api/order/(.*)', OrderInfoRequestHandler),
     ('/api/status', OrdersStatusHandler),
     ('/api/get_orders_with_bonuses', GetOrdersWithBonusesHandler),
@@ -62,5 +73,9 @@ app = webapp2.WSGIApplication([
     ('/api/specials/mivako_gift/info', specials.MivakoPromoInfoHandler),
     ('/api/specials/mivako_gift/send', specials.MivakoPromoSendGiftHandler),
 
+    webapp2.Route('/get/<app:[a-z]{,3}>', share.GATrackDownloadHandler),
+
     ('/img/(.*)', ImageProxyHandler),
+
+    ('/', MainHandler),
 ], debug=True)

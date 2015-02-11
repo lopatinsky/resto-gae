@@ -3,13 +3,15 @@ import json
 import logging
 import datetime
 import time
+from api.specials.express_emails import send_express_email
 from api.specials.mivako_promo import MIVAKO_NY2015_ENABLED
 import base
 from methods import iiko_api
 from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum, check_extended_status
 from models import iiko
-from models.iiko import Venue, Company
+from models.iiko import Venue, Company, ClientInfo
 from models.specials import MivakoGift
+from specials import fix_syrop, fix_modifiers_by_own
 
 
 class PlaceOrderHandler(base.BaseHandler):
@@ -17,16 +19,15 @@ class PlaceOrderHandler(base.BaseHandler):
 
     def post(self, venue_id):
         logging.info(self.request.POST)
-
         name = self.request.get('name').strip()
         phone = self.request.get('phone')
-        bonus_sum = self.request.get('bonus_sum')  # it was added
+        bonus_sum = self.request.get('bonus_sum')
         bonus_sum = float(bonus_sum) if bonus_sum else 0.0
-        discount_sum = self.request.get('discount_sum')  # it was added
+        discount_sum = self.request.get('discount_sum')
         discount_sum = float(discount_sum) if discount_sum else 0.0
         if len(phone) == 10 and not phone.startswith("7"):  # old Android version
             phone = "7" + phone
-        customer_id = self.request.get('customer_id')
+        customer_id = self.request.get('customer_id') or self.request.get('customerId')
         delivery_type = self.request.get('deliveryType', 0)
         payment_type = self.request.get('paymentType')
         address = self.request.get('address')
@@ -38,11 +39,10 @@ class PlaceOrderHandler(base.BaseHandler):
         customer = iiko.Customer.customer_by_customer_id(customer_id)
         if not customer:
             customer = iiko.Customer()
-            customer.phone = phone
-            customer.name = name
             if customer_id:
                 customer.customer_id = customer_id
-            customer.put()
+        customer.phone = phone
+        customer.name = name
 
         venue = Venue.venue_by_id(venue_id)
         company = Company.get_by_id(venue.company_id)
@@ -50,11 +50,22 @@ class PlaceOrderHandler(base.BaseHandler):
 
         order = iiko.Order()
         order.sum = float(order_sum)
-        order.date = datetime.datetime.fromtimestamp(int(self.request.get('date')))
+        order.date = datetime.datetime.utcfromtimestamp(int(self.request.get('date')))
         order.venue_id = venue_id
-        order.items = json.loads(self.request.get('items'))
         gifts = json.loads(self.request.get('gifts')) if self.request.get('gifts') else []
         order.customer = customer.key
+
+        items = json.loads(self.request.get('items'))
+        for item in items:
+            if "modifiers" in item:
+                for mod in item["modifiers"]:
+                    if mod["amount"] == 0:
+                        mod["amount"] = 1
+        if venue_id == Venue.COFFEE_CITY:
+            items = fix_syrop.set_syrop_items(items)
+            items = fix_modifiers_by_own.set_modifier_by_own(venue_id, items)
+        order.items = items
+
         order.comment = comment
         order.is_delivery = int(delivery_type) == 0
         order.payment_type = payment_type
@@ -81,7 +92,7 @@ class PlaceOrderHandler(base.BaseHandler):
             logging.info('bonus %s' % bonus_sum)
             logging.info('gifts %s' % gifts)
             if discount_sum != 0:
-                iiko_api.set_discounts(order, order_dict['order'], promos)  # it was added
+                iiko_api.set_discounts(order, order_dict['order'], promos)
                 if order.discount_sum != discount_sum:
                     logging.info('conflict_discount: app(%s), iiko(%s)' % (discount_sum, order.discount_sum))
                     self.abort(409)
@@ -90,7 +101,7 @@ class PlaceOrderHandler(base.BaseHandler):
                 if bonus_sum != promos['maxPaymentSum']:
                     logging.info('conflict_max_bonus: app(%s), iiko(%s)' % (bonus_sum, promos['maxPaymentSum']))
                     self.abort(409)
-                iiko_api.add_bonus_to_payment(order_dict['order'], bonus_sum, True)  # it was added
+                iiko_api.add_bonus_to_payment(order_dict['order'], bonus_sum, True)
                 order.bonus_sum = bonus_sum
 
             if gifts:
@@ -167,13 +178,25 @@ class PlaceOrderHandler(base.BaseHandler):
             return self.render_json(result)
         if not customer_id:
             customer.customer_id = result['customerId']
-            customer.put()
+        customer.put()
+        order.customer = customer.key
+
+        client_info_id = self.request.get_range('user_data_id')
+        if client_info_id:
+            client_info = ClientInfo.get_by_id(client_info_id)
+            if client_info and client_info.customer != customer.key:
+                client_info.customer = customer.key
+                client_info.put()
 
         order.order_id = result['orderId']
         order.number = result['number']
         order.set_status(result['status'])
+        order.created_in_iiko = iiko_api.parse_iiko_time(result['createdTime'], venue)
 
         order.put()
+
+        if venue_id == Venue.ORANGE_EXPRESS:
+            send_express_email(order, customer, venue)
 
         resp = {
             'customer_id': customer.customer_id,
@@ -197,26 +220,11 @@ class PlaceOrderHandler(base.BaseHandler):
         self.render_json(resp)
 
 
-class VenueOrderInfoRequestHandler(base.BaseHandler):
-    """ /api/venue/%s/order/%s """
-    def get(self, venue_id, order_id):
-        result = iiko_api.order_info1(order_id, venue_id)
-        result['status'] = result['status'].replace(u'Новая', u'Подтвержден')
-        result['status'] = result['status'].replace(u'Закрыта', u'Закрыт')
-
-        self.render_json({
-            'order': result
-        })
-
-
 class OrderInfoRequestHandler(base.BaseHandler):
     """ /api/order/%s """
     def get(self, order_id):
         order = iiko.Order.order_by_id(order_id)
-
-        result = iiko_api.order_info(order)
-        order.set_status(result['status'])
-        order.put()
+        order.reload()
 
         self.render_json({
             'order': order.to_dict()

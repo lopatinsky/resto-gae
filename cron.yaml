@@ -12,3 +12,7 @@ cron:
   url: /cron/mivako_gifts
   schedule: every 15 minutes from 10:00 to 22:30
   timezone: Europe/Moscow
+
+- description: check if coffee&city updates are running
+  url: /cron/check_coffee_city
+  schedule: every 10 minutes synchronized

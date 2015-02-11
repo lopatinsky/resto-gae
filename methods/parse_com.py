@@ -18,9 +18,15 @@ def send_push(channel, alert='', data=None):
         data = {}
     res = ''
     for parse_acc in parse_accs:
-        message = {"where": {
-            "channels": {"$in": [channel]}},
-            "data": {"alert": alert}  # , "badge": badge}
+        message = {
+            "where": {
+                    "channels": {
+                            "$in": [channel]
+                        }
+                },
+                "data": {
+                    "alert": alert
+                }  # , "badge": badge}
         }
         message['data'].update(data)
         payload = json.dumps(message, separators=(',', ':'))

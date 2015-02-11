@@ -7,11 +7,12 @@ indexes:
 
 - kind: Order
   properties:
+  - name: customer
   - name: status
   - name: date
 
 - kind: Order
   properties:
-  - name: customer
   - name: status
-  - name: date
+  - name: venue_id
+  - name: updated
