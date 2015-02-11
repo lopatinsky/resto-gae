@@ -353,10 +353,8 @@ def add_bonus_to_payment(order, bonus_sum, is_deducted):
 
 def prepare_order(order, customer, payment_type):
     venue = Venue.venue_by_id(order.venue_id)
+    company = Company.get_by_id(venue.company_id)
     local_date = order.date + timedelta(seconds=venue.get_timezone_offset())
-    additional_data = '{"externalIdType": "PHONE", "externalId": "'
-    additional_data += customer.phone
-    additional_data += '"}'
     obj = {
         'restaurantId': order.venue_id,
         'customer': {
@@ -374,21 +372,7 @@ def prepare_order(order, customer, payment_type):
                 'sum': order.sum,
                 "combinatable": True,
                 'isProcessedExternally': 0
-            },
-            {
-                "sum": 0.0,
-                'paymentType': {
-                    "code": "INET",
-                    "name": "iiko.Net",
-                    "comment": "",
-                    "combinatable": True,
-                },
-                "additionalData": additional_data,
-                "isProcessedExternally": False,
-                "isPreliminary": True,
-                "isExternal": True,
-            }
-            ],
+            }],
             'phone': customer.phone,
             'items': order.items,
             'comment': order.comment,
@@ -397,6 +381,25 @@ def prepare_order(order, customer, payment_type):
             }
         }
     }
+
+    if company.is_iiko_system:
+        obj['order']['paymentItems'].append({
+            "sum": 0.0,
+            'paymentType': {
+                "code": "INET",
+                "name": "iiko.Net",
+                "comment": "",
+                "combinatable": True,
+            },
+            "additionalData": json.dumps({
+                "externalIdType": "PHONE",
+                "externalId": customer.phone
+            }),
+            "isProcessedExternally": False,
+            "isPreliminary": True,
+            "isExternal": True,
+        })
+
     if customer.customer_id:
         obj['customer']['id'] = customer.customer_id
 
