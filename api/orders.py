@@ -48,9 +48,6 @@ class PlaceOrderHandler(base.BaseHandler):
         company = Company.get_by_id(venue.company_id)
         company_id = company.key.id()
 
-        company.is_iiko_system = True  # TODO: remove it! only for debugging!
-        company.put()                  # TODO: remove it! only for debugging!
-
         order = iiko.Order()
         order.sum = float(order_sum)
         order.date = datetime.datetime.fromtimestamp(int(self.request.get('date')))
@@ -180,14 +177,14 @@ class PlaceOrderHandler(base.BaseHandler):
 
         resp = {
             'customer_id': customer.customer_id,
-            'promos': promos,  # it was added
+            #'promos': promos,  # it was added
             #'menu': iiko_api.list_menu(venue_id),  # it was added
             'order': {
                 'order_id': order.order_id,
                 'status': order.status,
                 'items': order.items,
                 'sum': order.sum,
-                'discounts': order.discount_sum,  # it was added
+                #'discounts': order.discount_sum,  # it was added
                 'payments': order_dict['order']['paymentItems'],  # it was added
                 'number': order.number,
                 'venue_id': order.venue_id,
