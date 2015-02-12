@@ -212,7 +212,7 @@ class Order(ndb.Model):
 
             format_string = u'Статус заказа №{0} был изменен на {1}'
             alert_message = format_string.format(self.number, self.PUSH_STATUSES[self.status])
-            head = u'Зааз №%s' % self.order_id
+            head = u'Зааз №%s' % self.number
             data = {'order_id': self.order_id,
                     'order_status': self.status,
                     'action': 'com.empatika.iiko',
