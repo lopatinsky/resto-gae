@@ -51,6 +51,17 @@ class PlaceOrderHandler(base.BaseHandler):
         order = iiko.Order()
         order.sum = float(order_sum)
         order.date = datetime.datetime.utcfromtimestamp(int(self.request.get('date')))
+
+        # TODO: ios 7 times fuckup
+        if self.request.get('str_date'):
+            order.date = datetime.datetime.strptime(self.request.get('str_date'), '%Y-%m-%d %H:%M:%S')
+            order.date -= datetime.timedelta(seconds=venue.get_timezone_offset())
+            logging.info('new date(str): %s' % order.date)
+        if 'iOS 7' in self.request.headers['User-Agent'] and order.date - datetime.datetime.now() < datetime.timedelta(hours=1):
+            order.date += datetime.timedelta(hours=1)
+            logging.info('new date(ios 7): %s' % order.date)
+        # TODO: ios 7 times fuckup
+
         order.venue_id = venue_id
         gifts = json.loads(self.request.get('gifts')) if self.request.get('gifts') else []
         order.customer = customer.key
