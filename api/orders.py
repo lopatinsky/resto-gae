@@ -3,6 +3,7 @@ import json
 import logging
 import datetime
 import time
+from google.appengine.api.urlfetch_errors import DownloadError
 from api.specials.express_emails import send_express_email
 from api.specials.mivako_promo import MIVAKO_NY2015_ENABLED
 import base
@@ -207,7 +208,10 @@ class PlaceOrderHandler(base.BaseHandler):
         order.put()
 
         if venue_id == Venue.ORANGE_EXPRESS:
-            send_express_email(order, customer, venue)
+            try:
+                send_express_email(order, customer, venue)
+            except DownloadError:
+                logging.warning('mandrill is not responsed')
 
         resp = {
             'customer_id': customer.customer_id,
