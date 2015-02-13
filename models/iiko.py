@@ -215,9 +215,8 @@ class Order(ndb.Model):
             head = u'Зааз №%s' % self.number
             data = {'order_id': self.order_id,
                     'order_status': self.status,
-                    'action': 'com.empatika.iiko',
-                    'text': alert_message,
-                    'head': head}
+                    'action': 'com.empatika.iiko'
+            }
             logging.info(alert_message)
             send_push("order_%s" % self.order_id, alert=alert_message, data=data)
 
