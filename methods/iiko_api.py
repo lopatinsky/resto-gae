@@ -524,6 +524,7 @@ def get_venue_promos(venue_id):
     company_id = Venue.venue_by_id(venue_id).company_id
     promos = json.loads(__get_request(company_id, url, {}))
     return [{
+        'id': promo['id'],
         'name': promo['name'] if promo['name'] else '',
         'description': promo['description'] if promo['description'] else '',
         'image_url': promo['imageUrl'],
