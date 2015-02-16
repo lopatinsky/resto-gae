@@ -528,11 +528,12 @@ def get_venue_promos(venue_id):
         'name': promo['name'] if promo['name'] else '',
         'description': promo['description'] if promo['description'] else '',
         'image_url': promo['imageUrl'],
+        'display_type': i % 4,
         'start': (datetime.strptime(promo['start'], '%Y-%m-%d') - datetime(1970, 1, 1)).total_seconds()
         if promo['start'] else None,
         'end': (datetime.strptime(promo['end'], '%Y-%m-%d') - datetime(1970, 1, 1)).total_seconds()
         if promo['end'] else None
-    } for promo in promos]
+    } for i, promo in enumerate(promos)]
 
 
 def list_menu(venue_id):
