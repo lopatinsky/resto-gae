@@ -51,20 +51,28 @@ class GATrackBaseRequestHandler(webapp2.RequestHandler):
 
 
 class GATrackRequestHandler(GATrackBaseRequestHandler):
+    def __init__(self, request=None, response=None):
+        super(GATrackRequestHandler, self).__init__(request=request, response=response)
+        self.campaign = {}
+
     def page_titles(self, *args, **kwargs):
         raise NotImplementedError()
 
     def action(self, *args, **kwargs):
         raise NotImplementedError()
 
+    def set_campaign(self, *args, **kwargs):
+        pass
+
     def get(self, *args, **kwargs):
 
         dh = self.request.host
         dp = self.request.path_qs
         titles = self.page_titles(*args, **kwargs)
+        self.set_campaign(*args, **kwargs)
 
         for dt in titles:
-            self.cid = ga_track_page(GA_TID, dh, dp, dt, self.cid, req_headers=self.ga_headers)
+            self.cid = ga_track_page(GA_TID, dh, dp, dt, self.cid, req_headers=self.ga_headers, campaign=self.campaign)
         if self.cid is not None:
             cookie = '.'.join(('GA1', str(dh.count('.')), self.cid))
             expires = datetime.datetime.utcnow() + datetime.timedelta(days=365 * 2)
@@ -75,15 +83,19 @@ class GATrackRequestHandler(GATrackBaseRequestHandler):
 
 class GATrackDownloadHandler(GATrackRequestHandler):
     page = None
+    name = None
     ios_url = None
     android_url = None
     default_url = None
 
     def _load_app_info(self, app_info):
-        name, self.ios_url, self.android_url, default_ios = app_info
+        self.name, self.ios_url, self.android_url, default_ios = app_info
         self.default_url = self.ios_url if default_ios else self.android_url
-        self.page = "download_%s" % name
+        self.page = "download_%s" % self.name
         print self.__dict__
+
+    def set_campaign(self, app):
+        self.campaign["cn"] = "link_%s" % self.name
 
     def dispatch(self):
         app = self.request.route_kwargs["app"]
