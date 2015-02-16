@@ -58,7 +58,7 @@ class PlaceOrderHandler(base.BaseHandler):
             order.date = datetime.datetime.strptime(self.request.get('str_date'), '%Y-%m-%d %H:%M:%S')
             order.date -= datetime.timedelta(seconds=venue.get_timezone_offset())
             logging.info('new date(str): %s' % order.date)
-        if 'iOS 7' in self.request.headers['User-Agent'] and order.date - datetime.datetime.now() < datetime.timedelta(hours=1):
+        elif 'iOS 7' in self.request.headers['User-Agent']:
             order.date += datetime.timedelta(hours=1)
             logging.info('new date(ios 7): %s' % order.date)
         # TODO: ios 7 times fuckup
