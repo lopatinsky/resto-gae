@@ -27,7 +27,7 @@ class GetVenuePromosHandler(BaseHandler):
         company_id = Venue.venue_by_id(venue_id).company_id
         return self.render_json({
             "promos": iiko_api.get_venue_promos(venue_id),
-            "balance": iiko_api.get_customer_by_phone(company_id, phone, venue_id)['balance']
+            "balance": iiko_api.get_customer_by_phone(company_id, phone, venue_id).get('balance', 0.0)
         })
 
 
