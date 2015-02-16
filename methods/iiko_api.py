@@ -411,7 +411,7 @@ def prepare_order(order, customer, payment_type):
             u"Егорьевск": "2b20fde1-727f-e430-013e-203bb2e09af1",
             u"Подольск": "e0a67a59-c018-2c9c-0149-893d7b97148e",
             u"Климовск": "e0a67a59-c018-2c9c-0149-893d7b97148e",
-            u"Домодедово": "96be312c-e850-4812-85c1-bd80e6944067"
+            u"Домодедово": "2d163ab4-ce5d-e5cf-014b-84e547cfdf79"
         }
         obj['deliveryTerminalId'] = dt_mapping[order.address['city']]
 
