@@ -626,8 +626,8 @@ def get_order_promos(order, order_dict, set_info=False):
         item['code'] = product['code']
         item['sum'] = product['price'] * item['amount'] - item.get('discount_sum', 0)
         if item['sum'] == 0:
-            if item['modifiers']:
-                for m in item.get('modifiers', []):
+            if 'modifiers' in item:
+                for m in item['modifiers']:
                     mod_item = get_group_modifier_item(order.venue_id, product_code=item['code'], order_mod_id=m.get('id'))
                     m['code'] = mod_item.get('code')
                     m['sum'] = mod_item.get('price', 0) * m.get('amount', 0)
@@ -713,7 +713,6 @@ def get_delivery_terminal_id(venue_id):
     if terminals:
         return terminals[0]['deliveryTerminalId']
     return None
-
 
 
 def get_customer_by_phone(company_id, phone, venue_id):
