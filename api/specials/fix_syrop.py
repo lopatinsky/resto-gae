@@ -27,6 +27,7 @@ def set_syrop_modifiers(menu):
             "name": syrops['name'],
             "groupId": syrops['id'],
             "items": [{
+                "groupId": syrops['id'],
                 "price": 0,
                 "amount": 1,
                 "name": "Без Сиропа",
@@ -35,6 +36,7 @@ def set_syrop_modifiers(menu):
         }
         for syrop in syrops['products']:
             syrop_modifier['items'].append({
+                "groupId": syrops['id'],
                 "price": syrop['price'],
                 "amount": 1,
                 "name": syrop['name'],
