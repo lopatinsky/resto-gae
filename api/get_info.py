@@ -7,6 +7,7 @@ from methods import iiko_api
 from models import iiko
 import datetime
 from models.iiko import Company, ClientInfo, Venue
+import logging
 
 
 class GetAddressByKeyHandler(BaseHandler):
@@ -77,13 +78,15 @@ class GetOrderPromosHandler(BaseHandler):
                     'weight': gift['weight']
                 })
 
-        return self.render_json({
+        result = {
             #"promos": promos,
             #"order": order_dict,
             "order_discounts": order.discount_sum,
             "max_bonus_payment": max_bonus_payment if max_bonus_payment > 0 else 0,
             "gifts": gifts
-        })
+        }
+        logging.info(result)
+        return self.render_json(result)
 
 
 class GetCompanyInfoHandler(BaseHandler):
