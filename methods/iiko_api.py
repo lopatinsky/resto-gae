@@ -194,7 +194,7 @@ def _load_menu(venue):
             continue
         if not cat['isIncludedInMenu']:
             continue
-        products = category_products[cat['id']]
+        products = sorted(category_products[cat['id']], key=operator.itemgetter('order'))
         categories[cat['id']] = {
             'id': cat['id'],
             'name': cat['name'].capitalize(),
@@ -232,9 +232,9 @@ def _load_menu(venue):
     for cat_id, cat in categories.items():
         children = cat.get('children')
         if children:
-            cat['children'] = sorted(children, key=operator.itemgetter('order'), reverse=True)
+            cat['children'] = sorted(children, key=operator.itemgetter('order'))
 
-    return sorted(categories.values(), key=operator.itemgetter('order'), reverse=True)
+    return sorted(categories.values(), key=operator.itemgetter('order'))
 
 
 def _filter_menu(menu):
