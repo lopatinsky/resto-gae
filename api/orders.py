@@ -7,7 +7,7 @@ from google.appengine.api.urlfetch_errors import DownloadError
 from api.specials.express_emails import send_express_email
 from api.specials.mivako_promo import MIVAKO_NY2015_ENABLED
 import base
-from methods import iiko_api
+from methods import iiko_api, working_hours
 from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum, check_extended_status
 from models import iiko
 from models.iiko import Venue, Company, ClientInfo
@@ -48,6 +48,9 @@ class PlaceOrderHandler(base.BaseHandler):
         customer.name = name
 
         venue = Venue.venue_by_id(venue_id)
+        #venue.working_days = '12345,67'
+        #venue.working_hours = '9-12,12-18'
+        #venue.put()
         company = Company.get_by_id(venue.company_id)
         company_id = company.key.id()
 
@@ -64,6 +67,15 @@ class PlaceOrderHandler(base.BaseHandler):
             order.date += datetime.timedelta(hours=1)
             logging.info('new date(ios 7): %s' % order.date)
         # TODO: ios 7 times fuckup
+
+        #if not working_hours.is_datetime_valid(venue.working_days, venue.working_hours,
+        #                                       order.date + datetime.timedelta(seconds=venue.get_timezone_offset())):
+        #    self.render_json({
+        #        'success': False,
+        #        'description': u'Кофейня закрыта!'
+        #    })
+        #    return
+
 
         order.venue_id = venue_id
         gifts = json.loads(self.request.get('gifts')) if self.request.get('gifts') else []
@@ -217,6 +229,7 @@ class PlaceOrderHandler(base.BaseHandler):
 
         resp = {
             'customer_id': customer.customer_id,
+            #'success': True,
             #'promos': promos,  # it was added
             #'menu': iiko_api.list_menu(venue_id),  # it was added
             'order': {
