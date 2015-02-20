@@ -189,6 +189,9 @@ def _load_menu(venue):
 
     categories = dict()
     for cat in iiko_menu['groups']:
+        # TODO beer in sushilar
+        if venue.venue_id == Venue.SUSHILAR and cat['id'] == '6e4b8c9c-df45-40f6-8356-ac8039e3f630':
+            continue
         if not cat['isIncludedInMenu']:
             continue
         products = category_products[cat['id']]
