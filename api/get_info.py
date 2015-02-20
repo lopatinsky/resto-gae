@@ -3,7 +3,7 @@
 from api.base import BaseHandler
 from methods.maps import get_address_by_key
 import json
-from methods import iiko_api
+from methods import iiko_api, working_hours
 from models import iiko
 import datetime
 from models.iiko import Company, ClientInfo, Venue
@@ -36,6 +36,8 @@ class GetOrderPromosHandler(BaseHandler):
 
     def post(self):
         venue_id = self.request.get('venue_id')
+        venue = Venue.venue_by_id(venue_id)
+        company = Company.get_by_id(venue.company_id)
         name = self.request.get('name').strip()
         phone = self.request.get('phone')
         if len(phone) == 10 and not phone.startswith("7"):  # old Android version
@@ -83,7 +85,9 @@ class GetOrderPromosHandler(BaseHandler):
             #"order": order_dict,
             "order_discounts": order.discount_sum,
             "max_bonus_payment": max_bonus_payment if max_bonus_payment > 0 else 0,
-            "gifts": gifts
+            "gifts": gifts,
+            "is_open": working_hours.is_datetime_valid(company.schedule,
+                                                       order.date + datetime.timedelta(seconds=venue.get_timezone_offset()))
         }
         logging.info(result)
         return self.render_json(result)
