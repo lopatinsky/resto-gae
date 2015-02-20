@@ -18,6 +18,13 @@ from specials import fix_syrop, fix_modifiers_by_own
 class PlaceOrderHandler(base.BaseHandler):
     """ /api/venue/%s/order/new """
 
+    def send_error(self, description):
+        self.response.set_status(400)
+        logging.warning(description)
+        self.render_json({
+            'description': description
+        })
+
     def post(self, venue_id):
         logging.info(self.request.POST)
         name = self.request.get('name').strip()
@@ -48,9 +55,6 @@ class PlaceOrderHandler(base.BaseHandler):
         customer.name = name
 
         venue = Venue.venue_by_id(venue_id)
-        #venue.working_days = '12345,67'
-        #venue.working_hours = '9-12,12-18'
-        #venue.put()
         company = Company.get_by_id(venue.company_id)
         company_id = company.key.id()
 
@@ -68,14 +72,9 @@ class PlaceOrderHandler(base.BaseHandler):
             logging.info('new date(ios 7): %s' % order.date)
         # TODO: ios 7 times fuckup
 
-        #if not working_hours.is_datetime_valid(venue.working_days, venue.working_hours,
-        #                                       order.date + datetime.timedelta(seconds=venue.get_timezone_offset())):
-        #    self.render_json({
-        #        'success': False,
-        #        'description': u'Кофейня закрыта!'
-        #    })
-        #    return
-
+        if not working_hours.is_datetime_valid(company.schedule,
+                                               order.date + datetime.timedelta(seconds=venue.get_timezone_offset())):
+            return self.send_error(u'Кофейня закрыта')
 
         order.venue_id = venue_id
         gifts = json.loads(self.request.get('gifts')) if self.request.get('gifts') else []
