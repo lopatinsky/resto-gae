@@ -215,7 +215,7 @@ class Order(ndb.Model):
             customer = self.customer.get()
             format_string = u'Статус заказа №{0} был изменен на {1}'
             message = format_string.format(self.number, self.PUSH_STATUSES[self.status])
-            head = u'Зааз №%s' % self.number
+            head = u'Заказ №%s' % self.number
             data = {
                 'order_id': self.order_id,
                 'order_status': self.status
