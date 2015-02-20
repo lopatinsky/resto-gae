@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import time
 from methods import maps
 from methods.alfa_bank import pay_by_card, get_back_blocked_sum
-from methods.parse_com import send_push
+from methods.parse_com import send_push, IOS_DEVICE, ANDROID_DEVICE
 
 
 class PaymentType(ndb.Model):
@@ -49,8 +49,10 @@ class DeliveryType(ndb.Model):
 
 
 class Customer(ndb.Model):
+
     phone = ndb.StringProperty()
     name = ndb.StringProperty(indexed=False)
+    user_agent = ndb.StringProperty()
     customer_id = ndb.StringProperty()
 
     @classmethod
@@ -210,15 +212,29 @@ class Order(ndb.Model):
                     else:
                         logging.warning("cancel failed")
 
+            customer = self.customer.get()
             format_string = u'Статус заказа №{0} был изменен на {1}'
-            alert_message = format_string.format(self.number, self.PUSH_STATUSES[self.status])
+            message = format_string.format(self.number, self.PUSH_STATUSES[self.status])
             head = u'Зааз №%s' % self.number
-            data = {'order_id': self.order_id,
-                    'order_status': self.status,
-                    'action': 'com.empatika.iiko'
+            data = {
+                'order_id': self.order_id,
+                'order_status': self.status
             }
-            logging.info(alert_message)
-            send_push("order_%s" % self.order_id, alert=alert_message, data=data)
+            device = None
+            if 'Android' in customer.user_agent:
+                data.update({
+                    'head': head,
+                    'text': message,
+                    'action': 'com.empatika.iiko'
+                })
+                device = ANDROID_DEVICE
+            elif 'iOS' in customer.user_agent:
+                data.update({
+                    'alert': message
+                })
+                device = IOS_DEVICE
+            logging.info(data)
+            send_push(channel="order_%s" % self.order_id, data=data, device_type=device)
 
     @classmethod
     def _do_load_from_object(cls, order, order_id, venue_id, iiko_order):

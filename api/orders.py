@@ -42,6 +42,8 @@ class PlaceOrderHandler(base.BaseHandler):
             customer = iiko.Customer()
             if customer_id:
                 customer.customer_id = customer_id
+        if not customer.user_agent:
+            customer.user_agent = self.request.headers['User-Agent']
         customer.phone = phone
         customer.name = name
 
