@@ -125,6 +125,7 @@ class VenueReportHandler(BaseHandler):
             chosen_year = datetime.now().year
             chosen_month = datetime.now().month
             chosen_day = datetime.now().day
+            chosen_type = 'app'
         else:
             chosen_year = int(chosen_year)
 

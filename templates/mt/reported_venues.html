@@ -41,31 +41,6 @@
     <br>
      <table style="border-collapse:collapse; width:100%" border="1">
          <tr>
-             <th>Id</th>
-             <th>Name</th>
-             <th>Source</th>
-             <th>Number of Orders</th>
-             <th>Number of Card payments</th>
-             <th>Number of Delivery</th>
-             <th>Number of Closed Orders</th>
-             <th>Sum of Closed Orders</th>
-             <th>Number of Cancelled Orders</th>
-             <th>Sum of Cancelled Orders</th>
-             <th>Average Order</th>
-         </tr>
-         {% for venue in venues %}
-             <tr>
-                 <td>{{ venue.venue_id }}</td>
-                 <td>{{ venue.name }}</td>
-                 <td>{{ venue.source }}</td>
-                 <td>{{ venue.order_number }}</td>
-                 <td>{{ venue.card }}</td>
-                 <td>{{ venue.delivery }}</td>
-                 <td>{{ venue.closed_number }}</td>
-                 <td>{{ venue.closed_sum }}</td>
-                 <td>{{ venue.cancel_number }}</td>
-                 <td>{{ venue.cancel_sum }}</td>
-                 <td>{{ venue.closed_sum / venue.closed_number if venue.closed_number else 0 }}</td>
              <th rowspan="2">Id</th>
              <th rowspan="2">Name</th>
              <th rowspan="2">Payment Types</th>
