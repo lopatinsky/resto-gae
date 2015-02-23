@@ -109,5 +109,6 @@ class SaveClientInfoHandler(BaseHandler):
     def post(self, company_id):
         email = self.request.get("client_email")
         phone = self.request.get("client_phone")
-        key = ClientInfo(company_id=int(company_id), email=email, phone=phone).put()
+        user_agent = self.request.headers['User-Agent']
+        key = ClientInfo(company_id=int(company_id), email=email, phone=phone, user_agent=user_agent).put()
         self.render_json({'id': key.id()})
