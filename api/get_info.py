@@ -7,6 +7,7 @@ from methods import iiko_api, working_hours
 from models import iiko
 import datetime
 from models.iiko import Company, ClientInfo, Venue
+from config import config
 import logging
 
 
@@ -57,18 +58,27 @@ class GetOrderPromosHandler(BaseHandler):
         order = iiko.Order()
         order.date = datetime.datetime.fromtimestamp(date)
         order.venue_id = venue_id
-
-        if not company.is_iiko_system:
-            local_time = order.date + datetime.timedelta(seconds=venue.get_timezone_offset())
-            return self.render_json({
-                "is_open": working_hours.is_datetime_valid(company.schedule, local_time)
-                if company.schedule else True
-            })
-
         order.sum = float(order_sum)
         order.items = json.loads(self.request.get('items'))
 
         order_dict = iiko_api.prepare_order(order, customer, None)
+
+        local_time = order.date + datetime.timedelta(seconds=venue.get_timezone_offset())
+        is_open = working_hours.is_datetime_valid(company.schedule, local_time) if company.schedule else True
+
+        error = None
+        for restriction in config.RESTRICTIONS:
+            if venue_id in restriction['venues']:
+                error = restriction['method'](order_dict, restriction['venues'][venue_id])
+                logging.info(error)
+                if error:
+                    break
+
+        if not company.is_iiko_system:
+            return self.render_json({
+                'is_open': is_open,
+                'error': error
+            })
 
         promos = iiko_api.get_order_promos(order, order_dict)
         iiko_api.set_discounts(order, order_dict['order'], promos)
@@ -87,15 +97,14 @@ class GetOrderPromosHandler(BaseHandler):
                     'weight': gift['weight']
                 })
 
-        local_time = order.date + datetime.timedelta(seconds=venue.get_timezone_offset())
         result = {
             #"promos": promos,
             #"order": order_dict,
             "order_discounts": order.discount_sum,
             "max_bonus_payment": max_bonus_payment if max_bonus_payment > 0 else 0,
             "gifts": gifts,
-            "is_open": working_hours.is_datetime_valid(company.schedule, local_time)
-            if company.schedule else True
+            "is_open": is_open,
+            "error": error
         }
         logging.info(result)
         return self.render_json(result)

@@ -5,7 +5,6 @@ from google.appengine.api import memcache
 from datetime import datetime, timedelta
 import time
 from methods import maps
-from methods.alfa_bank import pay_by_card, get_back_blocked_sum
 from methods.parse_com import send_push, IOS_DEVICE, ANDROID_DEVICE
 
 
@@ -184,6 +183,7 @@ class Order(ndb.Model):
         }
 
     def _handle_changes(self, changes):
+        from methods.alfa_bank import pay_by_card, get_back_blocked_sum
         if self.source != 'app':
             return
 
