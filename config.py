@@ -9,10 +9,12 @@ class RestoConfig(object):
 
 class ProductionConfig(RestoConfig):
     ALFA_BASE_URL = "https://engine.paymentgate.ru/payment"
+    CHECK_SCHEDULE = False
 
 
 class TestingConfig(RestoConfig):
     ALFA_BASE_URL = "https://test.paymentgate.ru/testpayment"
+    CHECK_SCHEDULE = True
 
 
 if app_identity.get_application_id() == "empatika-resto":

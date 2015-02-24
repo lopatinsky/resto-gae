@@ -4,6 +4,8 @@ import logging
 
 
 def is_datetime_valid(schedule_list, datetime_for_check):
+    logging.info(schedule_list)
+
     week_day = datetime_for_check.isoweekday()
     hour_for_check = int(datetime_for_check.hour)
 
@@ -15,9 +17,12 @@ def is_datetime_valid(schedule_list, datetime_for_check):
             end_hour = int(schedule['hours'].split('-')[1])
             break
 
-    if not start_hour:
-        logging.info('what?')
+    if start_hour is None or end_hour is None:
+        logging.warning('Schedule is not valid')
         return False
+
+    if start_hour >= end_hour:
+        end_hour += 24
 
     if start_hour < hour_for_check < end_hour:
         return True

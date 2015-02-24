@@ -44,7 +44,6 @@ class GetOrderPromosHandler(BaseHandler):
             phone = "7" + phone
         customer_id = self.request.get('customer_id')
         order_sum = self.request.get('sum')
-        items = json.loads(self.request.get('items'))
         date = self.request.get_range('date')
 
         customer = iiko.Customer.customer_by_customer_id(customer_id) if customer_id else None
@@ -56,10 +55,18 @@ class GetOrderPromosHandler(BaseHandler):
                 customer.customer_id = customer_id
 
         order = iiko.Order()
-        order.sum = float(order_sum)
         order.date = datetime.datetime.fromtimestamp(date)
         order.venue_id = venue_id
-        order.items = items
+
+        if not company.is_iiko_system:
+            local_time = order.date + datetime.timedelta(seconds=venue.get_timezone_offset())
+            return self.render_json({
+                "is_open": working_hours.is_datetime_valid(company.schedule, local_time)
+                if company.schedule else True
+            })
+
+        order.sum = float(order_sum)
+        order.items = json.loads(self.request.get('items'))
 
         order_dict = iiko_api.prepare_order(order, customer, None)
 
@@ -80,14 +87,15 @@ class GetOrderPromosHandler(BaseHandler):
                     'weight': gift['weight']
                 })
 
+        local_time = order.date + datetime.timedelta(seconds=venue.get_timezone_offset())
         result = {
             #"promos": promos,
             #"order": order_dict,
             "order_discounts": order.discount_sum,
             "max_bonus_payment": max_bonus_payment if max_bonus_payment > 0 else 0,
             "gifts": gifts,
-            "is_open": working_hours.is_datetime_valid(company.schedule,
-                                                       order.date + datetime.timedelta(seconds=venue.get_timezone_offset()))
+            "is_open": working_hours.is_datetime_valid(company.schedule, local_time)
+            if company.schedule else True
         }
         logging.info(result)
         return self.render_json(result)

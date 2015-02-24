@@ -3,6 +3,7 @@ import json
 import logging
 import datetime
 import time
+from config import config
 from google.appengine.api.urlfetch_errors import DownloadError
 from api.specials.express_emails import send_express_email
 from api.specials.mivako_promo import MIVAKO_NY2015_ENABLED
@@ -72,9 +73,11 @@ class PlaceOrderHandler(base.BaseHandler):
             logging.info('new date(ios 7): %s' % order.date)
         # TODO: ios 7 times fuckup
 
-        if not working_hours.is_datetime_valid(company.schedule,
-                                               order.date + datetime.timedelta(seconds=venue.get_timezone_offset())):
-            return self.send_error(u'Кофейня закрыта')
+        local_time = order.date + datetime.timedelta(seconds=venue.get_timezone_offset())
+        if company.schedule:
+            if not working_hours.is_datetime_valid(company.schedule, local_time):
+                if config.CHECK_SCHEDULE:
+                    return self.send_error(u'Кофейня закрыта')
 
         order.venue_id = venue_id
         gifts = json.loads(self.request.get('gifts')) if self.request.get('gifts') else []
