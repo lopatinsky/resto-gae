@@ -35,6 +35,12 @@ class GetVenuePromosHandler(BaseHandler):
 
 class GetOrderPromosHandler(BaseHandler):
 
+    def send_error(self, description):
+        self.render_json({
+            'error': True,
+            'description': description
+        })
+
     def post(self):
         venue_id = self.request.get('venue_id')
         venue = Venue.venue_by_id(venue_id)
@@ -66,6 +72,9 @@ class GetOrderPromosHandler(BaseHandler):
         local_time = order.date + datetime.timedelta(seconds=venue.get_timezone_offset())
         is_open = working_hours.is_datetime_valid(company.schedule, local_time) if company.schedule else True
 
+        if not is_open:
+            return self.send_error(u'Кофейня закрыта')
+
         error = None
         for restriction in config.RESTRICTIONS:
             if venue_id in restriction['venues']:
@@ -74,11 +83,8 @@ class GetOrderPromosHandler(BaseHandler):
                 if error:
                     break
 
-        if not company.is_iiko_system:
-            return self.render_json({
-                'is_open': is_open,
-                'error': error
-            })
+        if error:
+            return self.send_error(error)
 
         promos = iiko_api.get_order_promos(order, order_dict)
         iiko_api.set_discounts(order, order_dict['order'], promos)
@@ -103,8 +109,7 @@ class GetOrderPromosHandler(BaseHandler):
             "order_discounts": order.discount_sum,
             "max_bonus_payment": max_bonus_payment if max_bonus_payment > 0 else 0,
             "gifts": gifts,
-            "is_open": is_open,
-            "error": error
+            "error": False
         }
         logging.info(result)
         return self.render_json(result)

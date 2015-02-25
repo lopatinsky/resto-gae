@@ -23,6 +23,7 @@ class PlaceOrderHandler(base.BaseHandler):
         self.response.set_status(400)
         logging.warning(description)
         self.render_json({
+            'error': True,
             'description': description
         })
 
@@ -110,6 +111,16 @@ class PlaceOrderHandler(base.BaseHandler):
         if 'code' in pre_check_result:
             logging.warning('iiko pre check failed')
             self.abort(400)
+
+        error = None
+        for restriction in config.RESTRICTIONS:
+            if venue_id in restriction['venues']:
+                error = restriction['method'](order_dict, restriction['venues'][venue_id])
+                logging.info(error)
+                if error:
+                    break
+        if error:
+            return self.send_error(error)
 
         order.discount_sum = 0.0
         order.bonus_sum = 0.0
@@ -246,6 +257,7 @@ class PlaceOrderHandler(base.BaseHandler):
                 'address': order.address,
                 'date': int(self.request.get('date')),
                 },
+            'error': False,
             'error_code': 0,
         }
 
