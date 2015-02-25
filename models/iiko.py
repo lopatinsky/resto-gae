@@ -5,7 +5,7 @@ from google.appengine.api import memcache
 from datetime import datetime, timedelta
 import time
 from methods import maps
-from methods.parse_com import send_push, IOS_DEVICE, ANDROID_DEVICE
+from methods.parse_com import send_push, IOS_DEVICE, ANDROID_DEVICE, make_order_push_data
 
 
 class PaymentType(ndb.Model):
@@ -213,28 +213,13 @@ class Order(ndb.Model):
                         logging.warning("cancel failed")
 
             customer = self.customer.get()
-            format_string = u'Статус заказа №{0} был изменен на {1}'
-            message = format_string.format(self.number, self.PUSH_STATUSES[self.status])
-            head = u'Заказ №%s' % self.number
-            data = {
-                'order_id': self.order_id,
-                'order_status': self.status
-            }
             device = None
             if 'Android' in customer.user_agent:
-                data.update({
-                    'head': head,
-                    'text': message,
-                    'action': 'com.empatika.iiko'
-                })
                 device = ANDROID_DEVICE
             elif 'iOS' in customer.user_agent:
-                data.update({
-                    'alert': message
-                })
                 device = IOS_DEVICE
-            logging.info(data)
-            send_push(channel="order_%s" % self.order_id, data=data, device_type=device)
+            data = make_order_push_data(self.order_id, self.number, self.status, self.PUSH_STATUSES[self.status], device)
+            send_push(channels=["order_%s" % self.order_id], data=data, device_type=device)
 
     @classmethod
     def _do_load_from_object(cls, order, order_id, venue_id, iiko_order):

@@ -33,9 +33,9 @@ class SendPushesHandler(webapp2.RequestHandler):
         }
         message = u'Ролл РОК-Н-РОЛЛ в подарок при заказе от 500 рублей. Только сегодня.'
 
-        result = parse_com.send_push(channel=None, channels=["order_%s" % order_id for order_id in order_ids],
-                                     alert=message, data=data)
-        logging.info(result)
+        #result = parse_com.send_push(channel=None, channels=["order_%s" % order_id for order_id in order_ids],
+        #                             alert=message, data=data)
+        #logging.info(result)
         for order_id in order_ids:
             spam = specials.Notification(order_id=order_id, type=specials.Notification.PUSH_NOTIFICATION)
             spam.put()

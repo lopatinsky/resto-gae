@@ -20,14 +20,14 @@ DEVICE_TYPE_MAP = {
 }
 
 
-def send_push(channel, data, device_type):
+def send_push(channels, data, device_type):
 
     if device_type not in DEVICE_TYPE_MAP:
         logging.error('Has not device type')
         return
 
     payload = {
-        'channel': channel,
+        'channels': channels,
         'type': DEVICE_TYPE_MAP[device_type],
         'data': data
     }
@@ -40,3 +40,24 @@ def send_push(channel, data, device_type):
                             headers=headers, validate_certificate=False, deadline=10).content
     logging.info(result)
     return json.loads(result)
+
+
+def make_order_push_data(order_id, order_number, order_status, order_status_description, device):
+    format_string = u'Статус заказа №{0} был изменен на {1}'
+    message = format_string.format(order_number, order_status_description)
+    head = u'Заказ №%s' % order_number
+    data = {
+        'order_id': order_id,
+        'order_status': order_status
+    }
+    if device == ANDROID_DEVICE:
+        data.update({
+            'head': head,
+            'text': message,
+            'action': 'com.empatika.iiko'
+        })
+    elif device == IOS_DEVICE:
+        data.update({
+            'alert': message
+        })
+    return data
