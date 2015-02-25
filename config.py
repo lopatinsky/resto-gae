@@ -27,7 +27,7 @@ class TestingConfig(RestoConfig):
                         'category_id': '2f38c84f-c70b-4d4d-8fc9-0d8ad087c056',
                         'schedule': [
                             {
-                                'hours': '0-24',
+                                'hours': '0-0',
                                 'days': [1, 2, 3, 4, 5, 6, 7]
                             }
                         ]
