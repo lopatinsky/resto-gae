@@ -62,6 +62,12 @@ class Customer(ndb.Model):
     def customer_by_customer_id(cls, customer_id):
         return cls.query(cls.customer_id == customer_id).get()
 
+    def get_device(self):
+        if 'Android' in self.user_agent:
+            return ANDROID_DEVICE
+        elif 'iOS' in self.user_agent:
+            return IOS_DEVICE
+
 
 class Order(ndb.Model):
     # statuses
@@ -213,11 +219,7 @@ class Order(ndb.Model):
                         logging.warning("cancel failed")
 
             customer = self.customer.get()
-            device = None
-            if 'Android' in customer.user_agent:
-                device = ANDROID_DEVICE
-            elif 'iOS' in customer.user_agent:
-                device = IOS_DEVICE
+            device = customer.get_device()
             data = make_order_push_data(self.order_id, self.number, self.status, self.PUSH_STATUSES[self.status], device)
             send_push(channels=["order_%s" % self.order_id], data=data, device_type=device)
 
