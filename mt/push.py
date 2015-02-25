@@ -18,8 +18,9 @@ class PushSendingHandler(BaseHandler):
         text = self.request.get('text')
         head = self.request.get('head')
         venues = Venue.query().fetch()
+        chosen_companies = {}
         for venue in venues:
-            venue.chosen = bool(self.request.get(str(venue.key.id())))
+            chosen_companies[venue.company_id] = bool(self.request.get(str(venue.key.id())))
 
         android_avail = bool(self.request.get('android'))
         ios_avail = bool(self.request.get('ios'))
@@ -31,6 +32,8 @@ class PushSendingHandler(BaseHandler):
         android_channels = []
         ios_channels = []
         for client in clients:
+            if not chosen_companies[client.company_id]:
+                continue
             device = client.get_device()
             if device == ANDROID_DEVICE and android_avail:
                 android_channels.append(get_client_channel(client.key.id()))
