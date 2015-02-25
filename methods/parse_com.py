@@ -40,33 +40,3 @@ def send_push(channel, data, device_type):
                             headers=headers, validate_certificate=False, deadline=10).content
     logging.info(result)
     return json.loads(result)
-
-'''
-def send_push(channel, alert='', data=None):
-    if not data:
-        data = {}
-    res = ''
-    for parse_acc in parse_accs:
-        message = {
-            "where": {
-                    "channels": {
-                            "$in": [channel]
-                        }
-                },
-                "data": {
-                    "alert": alert
-                }  # , "badge": badge}
-        }
-        message['data'].update(data)
-        payload = json.dumps(message, separators=(',', ':'))
-        try:
-            result = urlfetch.fetch(url=url,
-                                    payload=payload,
-                                    method=urlfetch.POST,
-                                    headers={"X-Parse-Application-Id":,
-                                             "X-Parse-REST-API-Key": ,
-                                             'Content-Type': 'application/json'})
-            res += result.content
-        except:
-            logging.warning('parse.com push send fail')
-    return res '''
