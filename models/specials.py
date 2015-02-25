@@ -15,6 +15,7 @@ class MivakoGift(ndb.Model):
 class Notification(ndb.Model):
     PUSH_NOTIFICATION = 0
 
-    order_id = ndb.StringProperty(required=True)
-    created = ndb.DateProperty(auto_now_add=True)
+    #order_id = ndb.StringProperty(required=True)  old type of notification
+    client_id = ndb.StringProperty(required=True)
+    created = ndb.DateTimeProperty(auto_now_add=True)
     type = ndb.IntegerProperty(required=True)

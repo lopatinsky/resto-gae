@@ -63,6 +63,8 @@ class Customer(ndb.Model):
         return cls.query(cls.customer_id == customer_id).get()
 
     def get_device(self):
+        if not self.user_agent:
+            return
         if 'Android' in self.user_agent:
             return ANDROID_DEVICE
         elif 'iOS' in self.user_agent:
@@ -448,6 +450,14 @@ class ClientInfo(ndb.Model):
     created_at = ndb.DateTimeProperty(auto_now_add=True)
     user_agent = ndb.StringProperty()
     customer = ndb.KeyProperty(Customer)
+
+    def get_device(self):
+        if not self.user_agent:
+            return
+        if 'Android' in self.user_agent:
+            return ANDROID_DEVICE
+        elif 'iOS' in self.user_agent:
+            return IOS_DEVICE
 
 
 from methods import iiko_api  # needed in some functions

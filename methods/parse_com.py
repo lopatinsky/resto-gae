@@ -38,6 +38,7 @@ def send_push(channels, data, device_type):
     }
     result = urlfetch.fetch('https://api.parse.com/1/push', payload=json.dumps(payload), method='POST',
                             headers=headers, validate_certificate=False, deadline=10).content
+    logging.info(data)
     logging.info(result)
     return json.loads(result)
 
@@ -60,4 +61,19 @@ def make_order_push_data(order_id, order_number, order_status, order_status_desc
         data.update({
             'alert': message
         })
+    return data
+
+
+def make_general_push_data(text, device, head=None):
+    data = None
+    if device == ANDROID_DEVICE:
+        data = {
+            'head': head if head else '',
+            'text': text,
+            'action': 'com.empatika.iiko'
+        }
+    elif device == IOS_DEVICE:
+        data = {
+            'alert': text
+        }
     return data

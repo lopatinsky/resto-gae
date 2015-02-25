@@ -3,7 +3,7 @@
 import webapp2
 from api import *
 from api import admin, specials
-from mt import CreateCompaniesLinks, CompanySettingsHandler, report
+from mt import CreateCompaniesLinks, CompanySettingsHandler, report, PushSendingHandler
 import share
 
 
@@ -43,6 +43,7 @@ app = webapp2.WSGIApplication([
     # maintenance
     ('/mt/company/links', CreateCompaniesLinks),
     ('/mt/company/settings/(.*)', CompanySettingsHandler),
+    ('/mt/push', PushSendingHandler),
     # reports
     ('/mt/report', report.ReportHandler),
     ('/mt/report/venues', report.VenueReportHandler),

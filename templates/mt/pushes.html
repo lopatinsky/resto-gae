@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <form method="post">
+        <label>Сообщение: <input type="text" name="text"></label><br>
+        <label>Заголовок (Android): <input type="text" name="head"></label><br>
+        {% for venue in venues %}
+            <label><input type="checkbox" name={{ venue.key.id() }}>{{ venue.name }}</label>
+        {% endfor %}
+        <br>
+        <label><input type="checkbox" name="android">Андроид</label>
+        <label><input type="checkbox" name="ios">IPhone</label>
+        <br>
+        <input type="submit" value="Выбрать"/>
+    </form>
+</body>
+</html>
