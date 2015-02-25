@@ -2,7 +2,8 @@
 __author__ = 'dvpermyakov'
 
 from collections import deque
-from methods.iiko_api import get_menu
+from methods.iiko_api import get_menu, get_product_from_menu
+from methods.working_hours import parse_company_schedule
 from working_hours import is_datetime_valid
 from datetime import datetime
 
@@ -40,13 +41,16 @@ def restrict_product_by_time(order_dict, restriction_array):
     for item in order_dict['order']['items']:
         if item['id'] not in item_ids:
             item_ids.append(item['id'])
-
-    menu = get_menu(venue_id=order_dict['restaurantId'])
+    venue_id = order_dict['restaurantId']
+    menu = get_menu(venue_id=venue_id)
     for restriction in restriction_array:
         restricted_products = get_products_by_category(menu, restriction['category_id'])
         restricted_product_ids = [product['productId'] for product in restricted_products]
         schedule = restriction['schedule']
+        order_datetime = datetime.strptime(order_dict['order']['date'], '%Y-%m-%d %H:%M:%S')
         for item_id in item_ids:
             if item_id in restricted_product_ids and\
-                    not is_datetime_valid(schedule, datetime.strptime(order_dict['order']['date'], '%Y-%m-%d %H:%M:%S')):
-                return u'Продукт id=%s запрещен' % item_id
+                    not is_datetime_valid(schedule, order_datetime):
+                item = get_product_from_menu(venue_id, product_id=item_id)
+                start, end = parse_company_schedule(schedule, order_datetime.isoweekday())
+                return u'%s невозможно сейчас заказать. Попробуйте в другое время с %s до %s' % (item['name'], start, end)

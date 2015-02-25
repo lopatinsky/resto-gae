@@ -73,7 +73,8 @@ class GetOrderPromosHandler(BaseHandler):
         is_open = working_hours.is_datetime_valid(company.schedule, local_time) if company.schedule else True
 
         if not is_open:
-            return self.send_error(u'Кофейня закрыта')
+            start, end = working_hours.parse_company_schedule(company.schedule, local_time.isoweekday())
+            return self.send_error(u'Заказы будут доступны c %s до %s. Попробуйте в следующий раз.' % (start, end))
 
         error = None
         for restriction in config.RESTRICTIONS:
