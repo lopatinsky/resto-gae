@@ -3,7 +3,9 @@
 import webapp2
 from api import *
 from api import admin, specials
-from mt import CreateCompaniesLinks, CompanySettingsHandler, report, PushSendingHandler
+from api import push_admin as api_push_admin
+from mt import CreateCompaniesLinks, CompanySettingsHandler, report, push_admins, push
+from webapp2 import Route
 import share
 
 
@@ -11,6 +13,15 @@ class MainHandler(webapp2.RequestHandler):
     def get(self):
         self.redirect("http://ru-beacon.ru/")
 
+webapp2_config = {
+    "webapp2_extras.sessions": {
+        "secret_key": '\xfe\xc1\x1d\xc0+\x10\x11\x9a\x0b\xe6\xeb\xd5e \x85NgZ\xcbL\xee\xb0p~\x08\xd5\xa5\x1bAc\x88/'
+                      '\xae\t@\xdc\x08d\xe9\xdb'
+    },
+    "webapp2_extras.auth": {
+        "user_model": "models.admin.User"
+    }
+}
 
 app = webapp2.WSGIApplication([
     # payment
@@ -40,10 +51,20 @@ app = webapp2.WSGIApplication([
     ('/api/admin/login', admin.LoginHandler),
     ('/api/admin/logout', admin.LogoutHandler),
 
+    # push_admin
+    Route('/api/push_admin/login', api_push_admin.LoginHandler, 'push_admin_login'),
+    Route('/api/push_admin/logout', api_push_admin.LogoutHandler),
+    Route('/api/push_admin/pushes', api_push_admin.PushSendingHandler, 'pushes'),
+
     # maintenance
     ('/mt/company/links', CreateCompaniesLinks),
     ('/mt/company/settings/(.*)', CompanySettingsHandler),
-    ('/mt/push', PushSendingHandler),
+    ('/mt/push', push.PushSendingHandler),
+    # push_admin
+    ('/mt/push_admin/create_admins', push_admins.AutoCreatePushAdmins),
+    Route('/mt/push_admin/list', push_admins.ListPushAdmins, 'push_admin_main'),
+    Route('/mt/push_admin/<admin_id:\d+>/change_login', push_admins.ChangeLoginPushAdmin),
+    Route('/mt/push_admin/<admin_id:\d+>/change_password', push_admins.ChangePasswordPushAdmin),
     # reports
     ('/mt/report', report.ReportHandler),
     ('/mt/report/venues', report.VenueReportHandler),
@@ -79,4 +100,4 @@ app = webapp2.WSGIApplication([
     ('/img/(.*)', ImageProxyHandler),
 
     ('/', MainHandler),
-], debug=True)
+], debug=True, config=webapp2_config)

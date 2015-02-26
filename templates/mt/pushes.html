@@ -7,9 +7,11 @@
     <form method="post">
         <label>Сообщение: <input type="text" name="text"></label><br>
         <label>Заголовок (Android): <input type="text" name="head"></label><br>
-        {% for venue in venues %}
-            <label><input type="checkbox" name={{ venue.key.id() }}>{{ venue.name }}</label>
-        {% endfor %}
+        {% if has_choices %}
+            {% for company in companies %}
+                <label><input type="checkbox" name={{ company.key.id() }}>{{ company.name }}</label>
+            {% endfor %}
+        {% endif %}
         <br>
         <label><input type="checkbox" name="android">Андроид</label>
         <label><input type="checkbox" name="ios">IPhone</label>

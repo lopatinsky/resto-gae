@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Изменение логина</title>
+</head>
+<body>
+    <form method="post">
+        <label>Логин: <input type="text" size="40" name="login" value="{{ admin.login }}"></label><br>
+        <input type="submit" value="Отправить"/>
+        {% if error %}
+            <div>
+                <p>{{ error }}</p>
+            </div>
+        {% endif %}
+    </form>
+</body>
+</html>

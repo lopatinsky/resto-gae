@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Список админов</title>
+</head>
+<body>
+
+    <table style="border-collapse:collapse; width:100%" border="1">
+        <tr>
+            <th>Имя компании</th>
+            <th>Логин</th>
+            <th>Смена пароля</th>
+        </tr>
+        {% for admin in admins %}
+            <tr>
+                <td>{{ admin.company.get().app_title }}</td>
+                <td>
+                    <div>{{ admin.login }}
+                        <form>
+                            <button formaction="{{ '/mt/push_admin/%s/change_login' % admin.key.id() }}" formmethod="get">Изменить логин</button>
+                        </form>
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        <form>
+                            <button formaction="{{ '/mt/push_admin/%s/change_password' % admin.key.id() }}" formmethod="get">Изменить пароль</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

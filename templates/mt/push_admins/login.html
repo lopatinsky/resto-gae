@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Вход Админа</title>
+</head>
+<body>
+    <h3>Вход Админа</h3>
+    <form method="post">
+        <div>
+            <label>Логин: <input type="text" size="40" name="login"></label><br>
+            <label>Пароль: <input type="password" size="40" name="password"></label><br>
+        </div>
+        <input type="submit" value="Отправить"/>
+        {% if error %}
+            <div>
+                <p>{{ error }}</p>
+            </div>
+        {% endif %}
+    </form>
+</body>
+</html>
