@@ -78,7 +78,8 @@ class PlaceOrderHandler(base.BaseHandler):
         if company.schedule:
             if not working_hours.is_datetime_valid(company.schedule, local_time):
                 if config.CHECK_SCHEDULE:
-                    return self.send_error(u'Кофейня закрыта')
+                    start, end = working_hours.parse_company_schedule(company.schedule, local_time.isoweekday())
+                    return self.send_error(u'Заказы будут доступны c %s до %s. Попробуйте в следующий раз.' % (start, end))
 
         order.venue_id = venue_id
         gifts = json.loads(self.request.get('gifts')) if self.request.get('gifts') else []
