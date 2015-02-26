@@ -1,4 +1,4 @@
-    # API
+# API
 
 ## Server
 
@@ -15,6 +15,7 @@ Parameters:
 * `venue_id (string)`
 * `phone (string)`
 
+```
 #!js
 {
     "promos": venue promos    // json
