@@ -35,5 +35,8 @@
             </tr>
         {% endfor %}
     </table>
+    {% if not user %}
+        <a href="/mt/report">Назад</a>
+    {% endif %}
 </body>
 </html>
