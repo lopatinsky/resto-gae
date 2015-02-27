@@ -12,16 +12,12 @@ class AutoCreatePushAdmins(BaseHandler):
     def post(self):
         companies = Company.query().fetch()
         for company in companies:
-            if company.key.id() != 5629499534213120:
-                continue
-            logging.info('In creating!')
             if PushAdmin.query(PushAdmin.company == company.key).get():
                 continue
             success, info = PushAdmin.create(company.name.strip().lower(), company.key, '0000')
             if not success:
                 logging.info(info)
                 self.abort(500)
-            logging.info('Created!')
         self.redirect_to('push_admin_main')
 
 
