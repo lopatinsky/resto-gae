@@ -5,6 +5,7 @@ from models.iiko import Company
 from methods.push_venues import push_venues
 from methods.auth import push_admin_user_required
 from models.specials import MassPushHistory
+from webapp2_extras import jinja2
 import logging
 
 
@@ -12,7 +13,7 @@ class PushSendingHandler(BaseHandler):
     @push_admin_user_required
     def get(self):
         companies = Company.query().fetch()
-        self.render('/mt/pushes.html', companies=companies, has_choices=False, user=self.user   )
+        self.render('/mt/pushes.html', companies=companies, has_choices=False, user=self.user)
 
     @push_admin_user_required
     def post(self):
@@ -24,7 +25,7 @@ class PushSendingHandler(BaseHandler):
         ios_avail = bool(self.request.get('ios'))
         chosen_companies = [self.user.company.id()]
 
-        push_venues(chosen_companies, text, head, android_avail, ios_avail)
+        push_venues(chosen_companies, text, head, android_avail, ios_avail, self.user.login, jinja2.get_jinja2(app=self.app))
 
         self.redirect_to('admin_push_history')
 

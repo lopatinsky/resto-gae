@@ -4,6 +4,7 @@ from base import BaseHandler
 from models.iiko import Company
 from methods.push_venues import push_venues
 from models.specials import MassPushHistory
+from webapp2_extras import jinja2
 import logging
 
 
@@ -22,7 +23,7 @@ class PushSendingHandler(BaseHandler):
         ios_avail = bool(self.request.get('ios'))
         chosen_companies = [company.key.id() for company in companies if bool(self.request.get(str(company.key.id())))]
 
-        push_venues(chosen_companies, text, head, android_avail, ios_avail)
+        push_venues(chosen_companies, text, head, android_avail, ios_avail, 'admins', jinja2.get_jinja2(app=self.app))
 
         self.redirect_to('mt_push_history')
 

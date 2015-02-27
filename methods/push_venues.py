@@ -8,7 +8,7 @@ from methods.mandrill import send_email
 import json
 
 
-def push_venues(chosen_companies, text, head, android_avail, ios_avail):
+def push_venues(chosen_companies, text, head, android_avail, ios_avail, user_login, jinja):
 
     def get_client_channel(client_id):
         return 'client_%s' % client_id
@@ -65,12 +65,7 @@ def push_venues(chosen_companies, text, head, android_avail, ios_avail):
 
     MassPushHistory(**values).put()
     str_companies = ''.join(['%s, ' % Company.get_by_id(company_id).name for company_id in chosen_companies])
-    send_email('dvpermyakov1@gmail.com', ['beacon-team@googlegroups.com'], [],
-               u'Рассылкка пушей',
-               (u'Была совершена рассылка пушей. '
-                u'Текст: %s. '
-                u'Заголовок: %s. '
-                u'В компаниях: %s. '
-                u'Запрос и ответ в parse.com: %s') % (text, head, str_companies, result))
+    html_body = jinja.render_template('email/pushes.html', text=text, head=head, str_companies=str_companies, result=result, user=user_login)
+    send_email('dvpermyakov1@gmail.com', ['beacon-team@googlegroups.com'], [], u'Рассылкка пушей', html_body)
 
     return result
