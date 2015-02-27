@@ -30,7 +30,7 @@ class PushSendingHandler(BaseHandler):
 
 class PushHistoryHandler(BaseHandler):
     def get(self):
-        mass_pushes = MassPushHistory.query().fetch()
+        mass_pushes = MassPushHistory.query().order(-MassPushHistory.created).fetch()
         for push in mass_pushes:
             push.companies = ''.join(['%s, ' % Company.get_by_id(company_id).name for company_id in push.company_ids])
             push.android_number = len(push.android_channels)

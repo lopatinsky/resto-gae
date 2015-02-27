@@ -33,7 +33,7 @@ class PushSendingHandler(BaseHandler):
 class PushHistoryHandler(BaseHandler):
     @push_admin_user_required
     def get(self):
-        mass_pushes = MassPushHistory.query().fetch()
+        mass_pushes = MassPushHistory.query().order(-MassPushHistory.created).fetch()
         for push in mass_pushes[:]:
             if self.user.company.id() not in push.company_ids or len(push.company_ids) > 1:
                 mass_pushes.remove(push)
