@@ -1,8 +1,11 @@
+# coding=utf-8
 __author__ = 'dvpermyakov'
 
-from models.iiko import ClientInfo, ANDROID_DEVICE, IOS_DEVICE
-from models.specials import Notification
+from models.iiko import ClientInfo, ANDROID_DEVICE, IOS_DEVICE, Company
+from models.specials import MassPushHistory
 from methods.parse_com import send_push, make_general_push_data
+from methods.mandrill import send_email
+import json
 
 
 def push_venues(chosen_companies, text, head, android_avail, ios_avail):
@@ -35,9 +38,6 @@ def push_venues(chosen_companies, text, head, android_avail, ios_avail):
     if android_avail:
         data = make_general_push_data(text, ANDROID_DEVICE, head)
         response = send_push(android_channels, data, ANDROID_DEVICE)
-        if response.get('result'):
-            for channel in android_channels:
-                Notification(client_id=channel.split('_')[1], type=Notification.PUSH_NOTIFICATION)
         result['android'] = {
             'data': data,
             'channels': android_channels,
@@ -46,13 +46,31 @@ def push_venues(chosen_companies, text, head, android_avail, ios_avail):
     if ios_avail:
         data = make_general_push_data(text, IOS_DEVICE)
         response = send_push(ios_channels, data, IOS_DEVICE)
-        if response.get('result'):
-            for channel in ios_channels:
-                Notification(client_id=channel.split('_')[1], type=Notification.PUSH_NOTIFICATION)
         result['ios'] = {
             'data': data,
             'channels': ios_channels,
             'response': response['result'] if response.get('result') else False
         }
+
+    values = {
+        'text': text,
+        'head': head,
+        'android_avail': android_avail,
+        'android_channels': android_channels,
+        'ios_avail': ios_avail,
+        'ios_channels': ios_channels,
+        'company_ids': chosen_companies,
+        'parse_response': json.dumps(result)
+    }
+
+    MassPushHistory(**values).put()
+    str_companies = ''.join(['%s, ' % Company.get_by_id(company_id).name for company_id in chosen_companies])
+    send_email('dvpermyakov1@gmail.com', ['beacon-team@googlegroups.com'], [],
+               u'Рассылкка пушей',
+               (u'Была совершена рассылка пушей. '
+                u'Текст: %s. '
+                u'Заголовок: %s. '
+                u'В компаниях: %s. '
+                u'Запрос и ответ в parse.com: %s') % (text, head, str_companies, result))
 
     return result

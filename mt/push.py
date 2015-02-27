@@ -3,6 +3,7 @@ __author__ = 'dvpermyakov'
 from base import BaseHandler
 from models.iiko import Company
 from methods.push_venues import push_venues
+from models.specials import MassPushHistory
 import logging
 
 
@@ -21,6 +22,17 @@ class PushSendingHandler(BaseHandler):
         ios_avail = bool(self.request.get('ios'))
         chosen_companies = [company.key.id() for company in companies if bool(self.request.get(str(company.key.id())))]
 
-        result = push_venues(chosen_companies, text, head, android_avail, ios_avail)
+        push_venues(chosen_companies, text, head, android_avail, ios_avail)
 
-        self.render('/pushes_result.html', result=result)
+        self.redirect_to('mt_push_history')
+
+
+class PushHistoryHandler(BaseHandler):
+    def get(self):
+        mass_pushes = MassPushHistory.query().fetch()
+        for push in mass_pushes:
+            push.companies = ''.join(['%s, ' % Company.get_by_id(company_id).name for company_id in push.company_ids])
+            push.android_number = len(push.android_channels)
+            push.ios_number = len(push.ios_channels)
+
+        self.render('/pushes_history.html', history=mass_pushes)

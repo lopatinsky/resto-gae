@@ -55,11 +55,13 @@ app = webapp2.WSGIApplication([
     Route('/api/push_admin/login', api_push_admin.LoginHandler, 'push_admin_login'),
     Route('/api/push_admin/logout', api_push_admin.LogoutHandler),
     Route('/api/push_admin/pushes', api_push_admin.PushSendingHandler, 'pushes'),
+    Route('/api/push_admin/history', api_push_admin.PushHistoryHandler, 'admin_push_history'),
 
     # maintenance
     ('/mt/company/links', CreateCompaniesLinks),
     ('/mt/company/settings/(.*)', CompanySettingsHandler),
-    ('/mt/push', push.PushSendingHandler),
+    ('/mt/push/send', push.PushSendingHandler),
+    Route('/mt/push/history', push.PushHistoryHandler, 'mt_push_history'),
     # push_admin
     ('/mt/push_admin/create_admins', push_admins.AutoCreatePushAdmins),
     Route('/mt/push_admin/list', push_admins.ListPushAdmins, 'push_admin_main'),

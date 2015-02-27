@@ -10,7 +10,7 @@ import logging
 
 class LoginHandler(BaseHandler):
     def success(self):
-        self.redirect_to('pushes')
+        self.redirect_to('admin_push_history')
 
     def get(self):
         if self.user is not None:

@@ -4,6 +4,10 @@
     <title></title>
 </head>
 <body>
+    {% if user %}
+        {% include '/mt/push_admins/header.html' %}
+    {% endif %}
+
     <form method="post">
         <label>Сообщение: <input type="text" name="text"></label><br>
         <label>Заголовок (Android): <input type="text" name="head"></label><br>
@@ -18,5 +22,10 @@
         <br>
         <input type="submit" value="Выбрать"/>
     </form>
+    {% if user %}
+        <a href="/api/push_admin/history">Назад</a>
+    {% else %}
+        <a href="/mt/push/history">Назад</a>
+    {% endif %}
 </body>
 </html>

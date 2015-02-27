@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    {% if user %}
+        {% include '/mt/push_admins/header.html' %}
+        <a href="/api/push_admin/pushes">Послать пуши</a>
+    {% else %}
+        <a href="/mt/push/send">Послать пуши</a>
+    {% endif %}
+
+    <table style="border-collapse:collapse; width:100%" border="1">
+        <tr>
+            <th>Дата</th>
+            <th>Компания</th>
+            <th>Текст</th>
+            <th>Заголовок (для Андройд)</th>
+            <th>Андроид</th>
+            <th>Кол-во пушей на Андроид</th>
+            <th>IPhone</th>
+            <th>Кол-во пушей на IPhone</th>
+        </tr>
+        {% for h_item in history %}
+            <tr>
+                <td>{{ h_item.created }}</td>
+                <td>{{ h_item.companies }}</td>
+                <td>{{ h_item.text  }}</td>
+                <td>{{ h_item.head }}</td>
+                <td>{{ h_item.android_avail }}</td>
+                <td>{{ h_item.android_number }}</td>
+                <td>{{ h_item.ios_avail }}</td>
+                <td>{{ h_item.ios_number }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

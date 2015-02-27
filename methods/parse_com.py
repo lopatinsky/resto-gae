@@ -38,7 +38,7 @@ def send_push(channels, data, device_type):
     }
     result = urlfetch.fetch('https://api.parse.com/1/push', payload=json.dumps(payload), method='POST',
                             headers=headers, validate_certificate=False, deadline=10).content
-    logging.info(data)
+    logging.info(payload)
     logging.info(result)
     return json.loads(result)
 

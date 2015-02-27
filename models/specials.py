@@ -12,10 +12,23 @@ class MivakoGift(ndb.Model):
     gift_item = ndb.StringProperty()
 
 
-class Notification(ndb.Model):
+class Notification(ndb.Model):  # old class for storage pushes
     PUSH_NOTIFICATION = 0
 
     #order_id = ndb.StringProperty(required=True)  old type of notification
     client_id = ndb.StringProperty(required=True)
     created = ndb.DateTimeProperty(auto_now_add=True)
     type = ndb.IntegerProperty(required=True)
+
+
+class MassPushHistory(ndb.Model):
+    created = ndb.DateTimeProperty(auto_now_add=True)
+
+    text = ndb.StringProperty()
+    head = ndb.StringProperty()
+    android_avail = ndb.BooleanProperty()
+    android_channels = ndb.StringProperty(repeated=True)
+    ios_avail = ndb.BooleanProperty()
+    ios_channels = ndb.StringProperty(repeated=True)
+    company_ids = ndb.IntegerProperty(repeated=True)
+    parse_response = ndb.JsonProperty()

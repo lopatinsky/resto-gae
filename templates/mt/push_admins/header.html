@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <nav>
+        {% if user %}
+            <p>
+                {{ user.login }}
+                <a href="/api/push_admin/logout">Выйти</a>
+            </p>
+        {% else %}
+            <a href="/api/push_admin/login">Зайти</a>
+        {% endif %}
+    </nav>
+</body>
+</html>
