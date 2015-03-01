@@ -48,6 +48,8 @@ app = webapp2.WSGIApplication([
     # admin
     ('/api/admin/orders/current', admin.CurrentOrdersHandler),
     ('/api/admin/orders/updates', admin.OrderUpdatesHandler),
+    ('/api/admin/orders/cancels', admin.CancelsHandler),
+    ('/api/admin/orders/closed', admin.ClosedOrdersHandler),
     ('/api/admin/login', admin.LoginHandler),
     ('/api/admin/logout', admin.LogoutHandler),
 

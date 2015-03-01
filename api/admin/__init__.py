@@ -22,14 +22,17 @@ def _build_images_map(venue_id):
     return images_map
 
 
-class CurrentOrdersHandler(BaseHandler):
+class OrderListHandler(BaseHandler):
+    @staticmethod
+    def today():
+        return datetime.datetime.combine(datetime.date.today(), datetime.time())
+
+    def _get_orders(self, venue_id):
+        raise NotImplementedError()
+
     def get(self):
         venue_id = self.request.get('venue_id')
-        today = datetime.datetime.combine(datetime.date.today(), datetime.time())
-        orders = Order.query(Order.status.IN([Order.NOT_APPROVED, Order.APPROVED]),
-                             Order.venue_id == venue_id,
-                             Order.date >= today).fetch()
-
+        orders = self._get_orders(venue_id)
         images_map = _build_images_map(venue_id)
         self.render_json({
             'orders': [order.admin_dict(images_map) for order in orders],
@@ -37,16 +40,30 @@ class CurrentOrdersHandler(BaseHandler):
         })
 
 
-class OrderUpdatesHandler(BaseHandler):
-    def get(self):
-        venue_id = self.request.get('venue_id')
+class CurrentOrdersHandler(OrderListHandler):
+    def _get_orders(self, venue_id):
+        return Order.query(Order.status.IN([Order.NOT_APPROVED, Order.APPROVED]),
+                           Order.venue_id == venue_id,
+                           Order.date >= self.today()).fetch()
+
+
+class OrderUpdatesHandler(OrderListHandler):
+    def _get_orders(self, venue_id):
         timestamp = self.request.get_range('timestamp')
-        orders = Order.query(Order.status.IN([Order.NOT_APPROVED, Order.APPROVED]),
-                             Order.venue_id == venue_id,
-                             Order.updated >= datetime.datetime.fromtimestamp(timestamp)).fetch()
+        return Order.query(Order.status.IN([Order.NOT_APPROVED, Order.APPROVED]),
+                           Order.venue_id == venue_id,
+                           Order.updated >= datetime.datetime.fromtimestamp(timestamp)).fetch()
 
-        images_map = _build_images_map(venue_id)
-        self.render_json({
-            'orders': [order.admin_dict(images_map) for order in orders],
-            'timestamp': int(time.time())
-        })
+
+class CancelsHandler(OrderListHandler):
+    def _get_orders(self, venue_id):
+        return Order.query(Order.status == Order.CANCELED,
+                           Order.venue_id == venue_id,
+                           Order.date >= self.today()).fetch()
+
+
+class ClosedOrdersHandler(OrderListHandler):
+    def _get_orders(self, venue_id):
+        return Order.query(Order.status == Order.CLOSED,
+                           Order.venue_id == venue_id,
+                           Order.date >= self.today()).fetch()
