@@ -8,7 +8,7 @@ from google.appengine.api.urlfetch_errors import DownloadError
 from api.specials.express_emails import send_express_email
 from api.specials.mivako_promo import MIVAKO_NY2015_ENABLED
 import base
-from methods import iiko_api, working_hours
+from methods import iiko_api, working_hours, filter_phone
 from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum, check_extended_status
 from models import iiko
 from models.iiko import Venue, Company, ClientInfo
@@ -30,13 +30,11 @@ class PlaceOrderHandler(base.BaseHandler):
     def post(self, venue_id):
         logging.info(self.request.POST)
         name = self.request.get('name').strip()
-        phone = self.request.get('phone')
+        phone = filter_phone(self.request.get('phone'))
         bonus_sum = self.request.get('bonus_sum')
         bonus_sum = float(bonus_sum) if bonus_sum else 0.0
         discount_sum = self.request.get('discount_sum')
         discount_sum = float(discount_sum) if discount_sum else 0.0
-        if len(phone) == 10 and not phone.startswith("7"):  # old Android version
-            phone = "7" + phone
         customer_id = self.request.get('customer_id') or self.request.get('customerId')
         delivery_type = self.request.get('deliveryType', 0)
         payment_type = self.request.get('paymentType')
