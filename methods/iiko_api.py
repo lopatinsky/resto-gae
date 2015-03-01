@@ -729,6 +729,21 @@ def get_customer_by_phone(company_id, phone, venue_id):
         return 'failure'
 
 
+def get_customer_by_id(company_id, customer_id, venue_id):
+    result = __get_request(company_id, '/customers/get_customer_by_id', {
+        'organization': venue_id,
+        'id': customer_id
+    })
+    return json.loads(result)
+
+
+def create_or_update_customer(company_id, venue_id, data):
+    result = __post_request(company_id, '/customers/create_or_update', {
+        'organization': venue_id
+    }, {'customer': data})
+    return result.strip('"')
+
+
 def get_orders(venue, start, end, status=None):
     start += timedelta(seconds=venue.get_timezone_offset())
     end += timedelta(seconds=venue.get_timezone_offset())

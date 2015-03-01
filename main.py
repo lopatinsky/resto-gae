@@ -98,6 +98,7 @@ app = webapp2.WSGIApplication([
     # specials
     ('/api/specials/mivako_gift/info', specials.MivakoPromoInfoHandler),
     ('/api/specials/mivako_gift/send', specials.MivakoPromoSendGiftHandler),
+    ('/api/specials/cat_add_social', specials.CATAddSocialHandler),
 
     webapp2.Route('/get/<app:[a-z]{,3}>', share.GATrackDownloadHandler),
 

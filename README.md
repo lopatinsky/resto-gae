@@ -6,6 +6,37 @@ Server is located on https://empatika-resto.appspot.com/.
 
 ## Endpoints
 
+### Add social network in CAT
+
+POST `/api/specials/cat_add_social`
+
+Parameters:
+
+* `venue_id`: string
+* `provider`: string
+* `social_id`: string
+* `phone`: string
+* `customer_id`: string (optional, but recommended)
+
+Response on success:
+
+```
+#!js
+{
+    "customer_id": customer_id, // string
+    "balance": customer_balance // float
+}
+```
+
+Response on failure (status code 400):
+
+```
+#!js
+{
+    "description": error_description
+}
+```
+
 ### Get venue promos
 
 GET `/api/iiko_promos`

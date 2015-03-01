@@ -32,3 +32,12 @@ class MassPushHistory(ndb.Model):
     ios_channels = ndb.StringProperty(repeated=True)
     company_ids = ndb.IntegerProperty(repeated=True)
     parse_response = ndb.JsonProperty()
+
+
+class CATSocialId(ndb.Model):
+    venue_id = ndb.StringProperty()
+    customer_id = ndb.StringProperty()
+    provider = ndb.StringProperty()
+    social_id = ndb.StringProperty()
+
+    created = ndb.DateTimeProperty(auto_now_add=True)
