@@ -15,7 +15,7 @@ def is_datetime_valid(schedule_list, datetime_for_check):
     if start_hour >= end_hour:
         end_hour += 24
 
-    if hour_for_check > start_hour:
+    if hour_for_check > end_hour:
         hour_for_check += 24
 
     if start_hour < hour_for_check < end_hour:
