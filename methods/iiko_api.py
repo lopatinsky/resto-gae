@@ -699,7 +699,7 @@ def get_order_promos(order, order_dict, set_info=False):
 
 
 def get_delivery_terminals(venue_id):
-    memcache_key = "deliveryTerminals_%s"
+    memcache_key = "deliveryTerminals_%s" % venue_id
     result = memcache.get(memcache_key)
     if not result:
         org_id = Venue.venue_by_id(venue_id).company_id
