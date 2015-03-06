@@ -50,6 +50,7 @@ class GetOrderPromosHandler(BaseHandler):
         customer_id = self.request.get('customer_id')
         order_sum = self.request.get('sum')
         date = self.request.get_range('date')
+        logging.info(date)
 
         customer = iiko.Customer.customer_by_customer_id(customer_id) if customer_id else None
         if not customer:
@@ -71,9 +72,14 @@ class GetOrderPromosHandler(BaseHandler):
         is_open = working_hours.is_datetime_valid(company.schedule, local_time) if company.schedule else True
 
         if not is_open:
-            if config.CHECK_SCHEDULE:
-                start, end = working_hours.parse_company_schedule(company.schedule, local_time.isoweekday())
-                return self.send_error(u'Заказы будут доступны c %s до %s. Попробуйте в следующий раз.' % (start, end))
+            #if config.CHECK_SCHEDULE:  TODO: it is for get_promo endpoint, order should has check
+            logging.info(company.schedule)
+            start, end = working_hours.parse_company_schedule(company.schedule, local_time.isoweekday())
+            if start < 10:
+                start = '0%s' % start
+            if end < 10:
+                end = '0%s' % end
+            return self.send_error(u'Заказы будут доступны c %s:00 до %s:00. Попробуйте в следующий раз.' % (start, end))
 
         error = None
         for restriction in config.RESTRICTIONS:
