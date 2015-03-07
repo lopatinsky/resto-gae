@@ -18,10 +18,10 @@ def is_datetime_valid(schedule_list, datetime_for_check):
     if hour_for_check > end_hour:
         hour_for_check += 24
 
-    if start_hour < hour_for_check < end_hour:
+    if start_hour <= hour_for_check < end_hour:
         return True
     else:
-        logging.info('%s<%s<%s' % (start_hour, hour_for_check, end_hour))
+        logging.info('%s<=%s<%s' % (start_hour, hour_for_check, end_hour))
         return False
 
 
