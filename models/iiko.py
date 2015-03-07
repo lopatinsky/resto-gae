@@ -258,11 +258,6 @@ class Order(ndb.Model):
 
         _attr('status', Order.parse_status(iiko_order['status']))
 
-        order_payment_types = [item['paymentType']['code'] for item in iiko_order['payments']]
-        payment_type = '3' if 'CARD' in order_payment_types else \
-            '2' if 'ECARD' in order_payment_types else '1'
-        _attr('payment_type', payment_type)
-
         logging.debug("changes in %s: %s", order_id, changes.keys())
         if changes:
             order._handle_changes(changes)
