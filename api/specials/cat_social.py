@@ -51,3 +51,42 @@ class CATAddSocialHandler(BaseHandler):
 
         CATSocialId(venue_id=venue_id, customer_id=customer_id, provider=provider, social_id=social_id).put()
         self.render_json({'customer_id': customer_id, 'balance': iiko_customer['balance']})
+
+
+class CATFetchCoffeeShopsHandler(BaseHandler):
+    def get(self):
+        # Прости меня, Миша, но я хуй знает, как мы потом будем связывать эти места с чем-нибудь ещё в базе,
+        # поэтому хардкожу всё это дело до лучших времён.
+        self.render_json({
+            'places': [
+                {
+                    'address': 'Ул. Мясницкая, 16',
+                    'phone': '+00000000000',
+                    'info': 'пн-пт 08:00-22:00 / сб-вс 10:00-22:00',
+                    'name': 'Ул. Мясницкая, 16',
+                    'coordinates': {
+                        'lat': 55.760893,
+                        'lng': 37.632404
+                    }
+                },
+                {
+                    'address': 'Ул. Мясницкая, 16',
+                    'phone': '+00000000000',
+                    'info': 'пн-пт 08:00-22:00 / сб-вс 10:00-22:00',
+                    'name': 'Ул. Мясницкая, 16',
+                    'coordinates': {
+                        'lat': 55.760893,
+                        'lng': 37.632404
+                    }
+                },
+                {
+                    'address': 'Ул. Мясницкая, 16',
+                    'phone': '+00000000000',
+                    'info': 'пн-пт 08:00-22:00 / сб-вс 10:00-22:00',
+                    'name': 'Ул. Мясницкая, 16',
+                    'coordinates': {
+                        'lat': 55.760893,
+                        'lng': 37.632404
+                    }
+                }
+            ]})
