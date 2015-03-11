@@ -16,3 +16,9 @@ cron:
 - description: check if coffee&city updates are running
   url: /cron/check_coffee_city
   schedule: every 10 minutes synchronized
+
+- description: build square table
+  url: /cron/build_square_table
+  schedule: every day 00:00
+  timezone: Europe/Moscow
+

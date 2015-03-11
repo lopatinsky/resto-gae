@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <style type="text/css">
+        td span {
+            display: none
+        }
+        .t0 .s0, .t1 .s1, .t2 .s2, .t3 .s3, .t4 .s4 {
+            display: inline;
+        }
+    </style>
+</head>
+<body>
+
+    {% set TYPE_NAMES = 'Goods number', 'Orders number', 'Sum of orders', 'Clients number' %}
+
+    <select name="selected_type">
+         {% for type in range(4) %}
+            <option value="t{{ type }}">
+                {{ TYPE_NAMES[type] }}
+            </option>
+         {% endfor %}
+    </select>
+
+    <form>
+        <select name="selected_venue">
+         {% for venue in venues %}
+              <option value="{{ venue.key.id() }}" {% if chosen_venue == venue %} selected {% endif %}>
+                  {{ venue.name }}
+              </option>
+         {% endfor %}
+        </select>
+        <input type="submit" value="Выбрать"/>
+    </form>
+
+    <br>
+
+    {% if square.get(chosen_venue.venue_id) %}
+        <table style="border-collapse:collapse; width:100%" border="1" class="0">
+            <tr>
+                <th></th>
+                {% for column in square[chosen_venue.venue_id][0] %}
+                    <th>
+                        {{ '%s.%s.%s - %s.%s.%s' % (column.begin.day, column.begin.month, column.begin.year,
+                            column.end.day, column.end.month, column.end.year) }}
+                    </th>
+                {% endfor %}
+            </tr>
+            {% for row in square[chosen_venue.venue_id] %}
+                <tr>
+                    <th>
+                        {{ '%s.%s.%s - %s.%s.%s' % (row[loop.index - 1].begin.day, row[loop.index - 1].begin.month, row[loop.index - 1].begin.year,
+                            row[loop.index - 1].end.day, row[loop.index - 1].end.month, row[loop.index - 1].end.year) }}
+                    </th>
+                    {% for column in row %}
+                        <td>
+                            <span class="s0">{{ column.goods_number }}</span>
+                            <span class="s1">{{ column.order_number }}</span>
+                            <span class="s2">{{ column.order_sum }}</span>
+                            <span class="s3">{{ column.client_number }}</span>
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+    <br>
+    <a href="/mt/report">Назад</a>
+
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script>
+        $("select").change(function() {
+            $(document.body).removeClass("t0 t1 t2 t3 t4").addClass($(this).val());
+        }).change();
+    </script>
+</body>
+</html>
