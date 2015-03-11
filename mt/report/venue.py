@@ -7,7 +7,6 @@ from models import iiko
 from methods import iiko_api
 from datetime import datetime
 from report_methods import suitable_date, PROJECT_STARTING_YEAR
-import logging
 
 
 class VenueReportHandler(BaseHandler):
@@ -58,17 +57,24 @@ class VenueReportHandler(BaseHandler):
                 for status in statuses:
                     info_dict = {
                         "orders_number": 0,
-                        "orders_sum": 0
+                        "orders_sum": 0,
+                        "client_number": 0,
+                        "goods_number": 0
                     }
                     venue.info[payment][status] = info_dict
             venue_ids[venue.venue_id] = venue
 
+        client_ids = []
         for order in orders:
             venue = venue_ids[order.venue_id]
             if order.status not in statuses:
                 continue
             venue.info[int(order.payment_type)][order.status]['orders_number'] += 1
             venue.info[int(order.payment_type)][order.status]['orders_sum'] += order.sum
+            venue.info[int(order.payment_type)][order.status]['goods_number'] += len(order.items)
+            if order.customer.id() not in client_ids:
+                client_ids.append(order.customer.id())
+                venue.info[int(order.payment_type)][order.status]['client_number'] += 1
 
         return venue_ids.values()
 
@@ -101,7 +107,9 @@ class VenueReportHandler(BaseHandler):
                 for status in statuses:
                     info_dict = {
                         "orders_number": 0,
-                        "orders_sum": 0
+                        "orders_sum": 0,
+                        'client_number': 0,
+                        'goods_number': 0
                     }
                     venue.info[payment][status] = info_dict
 
@@ -120,43 +128,16 @@ class VenueReportHandler(BaseHandler):
         chosen_year = self.request.get("selected_year")
         chosen_month = self.request.get_range("selected_month")
         chosen_day = self.request.get_range("selected_day")
+        chosen_object_type = self.request.get("selected_object_type")
 
         if not chosen_year:
             chosen_year = datetime.now().year
             chosen_month = datetime.now().month
             chosen_day = datetime.now().day
             chosen_type = 'app'
+            chosen_object_type = '0'
         else:
             chosen_year = int(chosen_year)
-
-        query = iiko.Order.query(iiko.Order.date >= suitable_date(chosen_day, chosen_month, chosen_year, True))
-        query = query.filter(iiko.Order.date <= suitable_date(chosen_day, chosen_month, chosen_year, False))
-        orders = query.fetch()
-
-        venues = iiko.Venue.query().fetch()
-        venue_ids = {}
-        for venue in venues:
-            venue.order_number = 0
-            venue.closed_number = 0
-            venue.closed_sum = 0
-            venue.cancel_number = 0
-            venue.cancel_sum = 0
-            venue.delivery = 0
-            venue.card = 0
-            venue_ids[venue.venue_id] = venue
-        for order in orders:
-            venue = venue_ids[order.venue_id]
-            venue.order_number += 1
-            if order.status == iiko.Order.CLOSED:
-                venue.closed_number += 1
-                venue.closed_sum += order.sum
-            elif order.status == iiko.Order.CANCELED:
-                venue.cancel_number += 1
-                venue.cancel_sum += order.sum
-            if order.is_delivery:
-                venue.delivery += 1
-            if order.payment_type == order.CARD:
-                venue.card += 1
 
         start = suitable_date(chosen_day, chosen_month, chosen_year, True)
         end = suitable_date(chosen_day, chosen_month, chosen_year, False)
@@ -172,6 +153,7 @@ class VenueReportHandler(BaseHandler):
             'chosen_type': chosen_type,
             'chosen_year': chosen_year,
             'chosen_month': chosen_month,
-            'chosen_day': chosen_day
+            'chosen_day': chosen_day,
+            'chosen_object_type': chosen_object_type
         }
         self.render('reported_venues.html', **values)

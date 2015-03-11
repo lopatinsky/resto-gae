@@ -35,6 +35,11 @@
                   </option>
              {% endfor %}
          </select>
+         <select name="selected_object_type">
+             <option value="0" {% if chosen_object_type == '0' %}selected{% endif %}>Заказы</option>
+             <option value="1" {% if chosen_object_type == '1' %}selected{% endif %}>Клиенты</option>
+             <option value="2" {% if chosen_object_type == '2' %}selected{% endif %}>Товары</option>
+         </select>
          <input type="submit" value="Выбрать"/>
      </form>
 
@@ -42,16 +47,25 @@
      <table style="border-collapse:collapse; width:100%" border="1">
          <tr>
              <th rowspan="2">Id</th>
-             <th rowspan="2">Name</th>
-             <th rowspan="2">Payment Types</th>
+             <th rowspan="2">Имя</th>
+             <th rowspan="2">Тип оплаты</th>
              {% for status in statuses %}
                 <th colspan="3">{{ statuses_mapping[status] }}</th>
              {% endfor %}
              </tr><tr>
              {% for status in statuses %}
-                <th>Number of Orders</th>
-                <th>Sum of Orders</th>
-                <th>Average Orders</th>
+                <th>
+                    Кол-во
+                    {% if chosen_object_type == '0' %}
+                        заказов
+                    {% elif chosen_object_type == '1' %}
+                        клиентов
+                    {% elif chosen_object_type == '2' %}
+                        продуктов
+                    {% endif %}
+                </th>
+                <th>Сумма</th>
+                <th>Средний чек</th>
              {% endfor %}
          </tr>
          {% for venue in venues %}
@@ -65,7 +79,15 @@
                      {% endif %}
                      <td>{{ payment['name'] }}</td>
                      {% for status in statuses %}
-                         <td>{{ venue.info[payment['type']][status]["orders_number"] }}</td>
+                         <td>
+                            {% if chosen_object_type == '0' %}
+                                {{ venue.info[payment['type']][status]["orders_number"] }}
+                            {% elif chosen_object_type == '1' %}
+                                {{ venue.info[payment['type']][status]["client_number"] }}
+                            {% elif chosen_object_type == '2' %}
+                                {{ venue.info[payment['type']][status]["goods_number"] }}
+                            {% endif %}
+                         </td>
                          <td>{{ venue.info[payment['type']][status]["orders_sum"] }}</td>
                          <td>{{ venue.info[payment['type']][status]["orders_sum"] / venue.info[payment['type']][status]["orders_number"] if venue.info[payment['type']][status]["orders_number"] else 0 }}</td>
                      {% endfor %}
