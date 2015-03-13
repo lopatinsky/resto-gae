@@ -1,4 +1,5 @@
 # coding=utf-8
+import logging
 from ..base import BaseHandler
 from methods import filter_phone, iiko_api
 from models.iiko import Venue
@@ -6,10 +7,16 @@ from models.specials import CATSocialId
 
 
 class CATAddSocialHandler(BaseHandler):
+    def render_error(self, message):
+        logging.info(message)
+        self.response.set_status(400)
+        self.render_json({'description': message})
+
     def post(self):
         venue_id = self.request.get('venue_id')
         if venue_id not in (Venue.COFFEE_CITY, Venue.EMPATIKA):
-            self.abort(400)
+            self.render_error("Unknown venue_id")
+            return
         company_id = Venue.venue_by_id(venue_id).company_id
 
         customer_id = self.request.get('customer_id')
@@ -22,8 +29,7 @@ class CATAddSocialHandler(BaseHandler):
                                            CATSocialId.provider == provider,
                                            CATSocialId.social_id == social_id).get()
         if same_social_id:
-            self.response.set_status(400)
-            self.render_json({'description': u"Данная учетная запись в социальной сети уже была привязана"})
+            self.render_error(u"Данная учетная запись в социальной сети уже была привязана")
             return
 
         # 2: get customer info from iiko (this attempts to get customer_id if we only have phone)
@@ -41,8 +47,7 @@ class CATAddSocialHandler(BaseHandler):
                                                            CATSocialId.customer_id == customer_id,
                                                            CATSocialId.provider == provider).get()
             if same_customer_and_provider:
-                self.response.set_status(400)
-                self.render_json({'description': u"Вы уже привязывали учетную запись в этой социальной сети"})
+                self.render_error(u"Вы уже привязывали учетную запись в этой социальной сети")
                 return
 
         # 4: add points
