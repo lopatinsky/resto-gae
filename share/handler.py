@@ -29,6 +29,12 @@ APPS = {
         "http://coffeeandthecity.ru/",
         True
     ),
+    "mvk": (
+        "mivako",
+        "https://itunes.apple.com/ru/app/id920888388",
+        "https://play.google.com/store/apps/details?id=com.empatika.iiko.mivako",
+        True
+    ),
 }
 
 
