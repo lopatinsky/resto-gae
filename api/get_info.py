@@ -55,10 +55,10 @@ class GetOrderPromosHandler(BaseHandler):
         customer = iiko.Customer.customer_by_customer_id(customer_id) if customer_id else None
         if not customer:
             customer = iiko.Customer()
-            customer.phone = phone
-            customer.name = name
             if customer_id:
                 customer.customer_id = customer_id
+        customer.phone = phone
+        customer.name = name
 
         order = iiko.Order()
         order.date = datetime.datetime.fromtimestamp(date)
