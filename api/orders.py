@@ -31,6 +31,11 @@ class PlaceOrderHandler(base.BaseHandler):
         logging.info(self.request.POST)
         name = self.request.get('name').strip()
         phone = filter_phone(self.request.get('phone'))
+        custom_data = None
+        try:
+            custom_data = json.loads(self.request.get('custom_data'))
+        except ValueError:
+            pass
         bonus_sum = self.request.get('bonus_sum')
         bonus_sum = float(bonus_sum) if bonus_sum else 0.0
         discount_sum = self.request.get('discount_sum')
@@ -53,6 +58,7 @@ class PlaceOrderHandler(base.BaseHandler):
             customer.user_agent = self.request.headers['User-Agent']
         customer.phone = phone
         customer.name = name
+        customer.custom_data = custom_data
 
         venue = Venue.venue_by_id(venue_id)
         company = Company.get_by_id(venue.company_id)

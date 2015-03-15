@@ -53,6 +53,7 @@ class Customer(ndb.Model):
     name = ndb.StringProperty(indexed=False)
     user_agent = ndb.StringProperty()
     customer_id = ndb.StringProperty()
+    custom_data = ndb.JsonProperty()
 
     @classmethod
     def customer_by_phone(cls, phone):
@@ -184,6 +185,9 @@ class Order(ndb.Model):
             'deliveryDate': int(time.mktime(self.date.timetuple())),
             'client_id': customer.customer_id,
             'phone': customer.phone,
+            'client_name': customer.name,
+            'client_custom_data': customer.custom_data,
+            'comment': self.comment,
             'sum': self.sum,
             'items': self.items,
             'venue_id': self.venue_id,
