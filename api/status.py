@@ -37,7 +37,7 @@ class OrdersStatusHandler(BaseHandler):
                     'status': Order.parse_status(order_info['status']),
                     'address': address,
                     'name': name,
-                    'createdTime': iiko_api.order_info1(order_id, venue_id)['createdTime']
+                    'createdTime': order_info['createdTime']
                 })
             else:
                 logging.warning('order %s not found' % order_id)
