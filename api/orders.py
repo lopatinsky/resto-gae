@@ -12,7 +12,7 @@ import base
 from methods import iiko_api, working_hours, filter_phone
 from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum, check_extended_status, get_bindings
 from models import iiko
-from models.iiko import Venue, Company, ClientInfo
+from models.iiko import Venue, Company, ClientInfo, Order
 from models.specials import MivakoGift
 from specials import fix_syrop, fix_modifiers_by_own
 
@@ -355,3 +355,15 @@ class VenueNewOrderListHandler(base.BaseHandler):
             })
         logging.info(len(order_list))
         self.render_json({'orders': order_list})
+
+
+class OrderRequestCancelHandler(base.BaseHandler):
+    def post(self, order_id):
+        order = Order.order_by_id(order_id)
+        if order.status in (Order.NOT_APPROVED, Order.APPROVED):
+            order.cancel_requested = True
+            order.put()
+            self.render_json({})
+        else:
+            self.response.set_status(400)
+            self.render_json({'error': u"Заказ уже выдан или отменен"})

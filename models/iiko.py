@@ -139,6 +139,7 @@ class Order(ndb.Model):
     source = ndb.StringProperty(choices=('app', 'iiko'), default='app')
     created_in_iiko = ndb.DateTimeProperty()
     updated = ndb.DateTimeProperty(auto_now=True)
+    cancel_requested = ndb.BooleanProperty(default=False, indexed=False)
 
     # TODO Need to check english statuses(may be incorrect)
     @classmethod
@@ -191,7 +192,8 @@ class Order(ndb.Model):
             'sum': self.sum,
             'items': self.items,
             'venue_id': self.venue_id,
-            'status': self.status
+            'status': self.status,
+            'cancel_requested': self.cancel_requested,
         }
 
     def _handle_changes(self, changes):
