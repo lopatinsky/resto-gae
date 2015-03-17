@@ -3,13 +3,14 @@ import json
 import logging
 import datetime
 import time
+import re
 from config import config
 from google.appengine.api.urlfetch_errors import DownloadError
 from api.specials.express_emails import send_express_email
 from api.specials.mivako_promo import MIVAKO_NY2015_ENABLED
 import base
 from methods import iiko_api, working_hours, filter_phone
-from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum, check_extended_status
+from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum, check_extended_status, get_bindings
 from models import iiko
 from models.iiko import Venue, Company, ClientInfo
 from models.specials import MivakoGift
@@ -173,6 +174,20 @@ class PlaceOrderHandler(base.BaseHandler):
         # pay after pre check
         order_id = None
         if payment_type == '2':
+            # todo android binding_id fuckup
+            if not re.match('\w{8}-\w{4}-\w{4}-\w{4}-\w{12}$', binding_id):
+                logging.info('wrong binding_id: %s', binding_id)
+                pan = binding_id[-4:]
+                bindings = get_bindings(company, alpha_client_id)
+                logging.info('got bindings from alfa: %s', bindings)
+                for binding in bindings['bindings']:
+                    if binding['maskedPan'][-4:] == pan:
+                        logging.info('found binding: %s', bindings)
+                        binding_id = binding['bindingId']
+                        break
+                else:
+                    logging.warning('binding not found')
+
             payment = order.sum - order.discount_sum - order.bonus_sum
             tie_result = tie_card(company, int(float(payment) * 100), int(time.time()), 'returnUrl', alpha_client_id,
                                   'MOBILE')

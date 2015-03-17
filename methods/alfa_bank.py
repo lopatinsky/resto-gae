@@ -109,3 +109,13 @@ def unbind_card(company, binding_id):
     }
     result = __post_request_alfa('/rest/unBindCard.do', params)
     return json.loads(result)
+
+
+def get_bindings(company, client_id):
+    params = {
+        'userName': company.alpha_login,
+        'password': company.alpha_pass,
+        'clientId': client_id
+    }
+    result = __post_request_alfa('/rest/getBindings.do', params)
+    return json.loads(result)
