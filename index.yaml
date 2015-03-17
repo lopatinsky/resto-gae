@@ -13,6 +13,10 @@ indexes:
 
 - kind: Order
   properties:
-  - name: status
   - name: venue_id
   - name: updated
+
+- kind: Order
+  properties:
+  - name: status
+  - name: date
