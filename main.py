@@ -87,6 +87,7 @@ app = webapp2.WSGIApplication([
 
     # order info
     ('/api/history', HistoryHandler),
+    ('/api/order/(.*)/request_cancel', OrderRequestCancelHandler),
     ('/api/order/(.*)', OrderInfoRequestHandler),
     ('/api/status', OrdersStatusHandler),
     ('/api/get_orders_with_bonuses', GetOrdersWithBonusesHandler),

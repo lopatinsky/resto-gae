@@ -50,8 +50,7 @@ class CurrentOrdersHandler(OrderListHandler):
 class OrderUpdatesHandler(OrderListHandler):
     def _get_orders(self, venue_id):
         timestamp = self.request.get_range('timestamp')
-        return Order.query(Order.status.IN([Order.NOT_APPROVED, Order.APPROVED]),
-                           Order.venue_id == venue_id,
+        return Order.query(Order.venue_id == venue_id,
                            Order.updated >= datetime.datetime.fromtimestamp(timestamp)).fetch()
 
 

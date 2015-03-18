@@ -2,7 +2,7 @@
 
 from venues import VenuesHandler
 from menu import MenuHandler
-from orders import OrderInfoRequestHandler, PlaceOrderHandler, VenueNewOrderListHandler
+from orders import OrderInfoRequestHandler, PlaceOrderHandler, VenueNewOrderListHandler, OrderRequestCancelHandler
 from history import HistoryHandler
 from status import OrdersStatusHandler
 from address_input import AddressInputHandler
