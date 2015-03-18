@@ -11,6 +11,10 @@ from config import config
 import logging
 
 
+CAT_FREE_CUP_CODE = '3308081521040820'
+CUPS_BEFORE_FREE_CUP = 5
+
+
 class GetAddressByKeyHandler(BaseHandler):
 
     """ /api/get_info """
@@ -96,6 +100,8 @@ class GetOrderPromosHandler(BaseHandler):
         iiko_api.set_discounts(order, order_dict['order'], promos)
         promos = iiko_api.get_order_promos(order, order_dict)
 
+        discount_sum = order.discount_sum
+
         max_bonus_payment = promos['maxPaymentSum']
 
         gifts = []
@@ -108,16 +114,31 @@ class GetOrderPromosHandler(BaseHandler):
                     'images': gift['images'],
                     'weight': gift['weight']
                 })
+        accumulated_gifts = None
+        if venue_id == Venue.EMPATIKA:
+            free_cup = iiko_api.get_product_from_menu(venue_id, product_code=CAT_FREE_CUP_CODE)
+            FREE_CUP_IN_ORDER = 10
+            CUPS_IN_ORDER = FREE_CUP_IN_ORDER * CUPS_BEFORE_FREE_CUP
+            mock_order = order
+            mock_order.sum = free_cup['price'] * CUPS_IN_ORDER
+            mock_order.items = [{
+                'id': free_cup['productId'],
+                'name': free_cup['name'],
+                'amount': CUPS_IN_ORDER
+            }]
+            mock_order_dict = iiko_api.prepare_order(mock_order, customer, None)
+            mock_promos = iiko_api.get_order_promos(mock_order, mock_order_dict)
+            iiko_api.set_discounts(mock_order, mock_order_dict['order'], mock_promos)
+            logging.info(mock_promos)
+            accumulated_gifts = mock_order.discount_sum / free_cup['price'] - FREE_CUP_IN_ORDER
 
         result = {
-            #"promos": promos,
-            #"order": order_dict,
-            "order_discounts": order.discount_sum,
+            "order_discounts": discount_sum,
             "max_bonus_payment": max_bonus_payment if max_bonus_payment > 0 else 0,
             "gifts": gifts,
-            "error": False
+            "error": False,
+            "accumulated_gifts": accumulated_gifts
         }
-        logging.info(result)
         return self.render_json(result)
 
 
