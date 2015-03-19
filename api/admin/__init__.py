@@ -3,6 +3,7 @@ import datetime
 import time
 from ..base import BaseHandler
 from methods import iiko_api
+from models.admin import Admin
 from models.iiko import Order
 from auth import LoginHandler, LogoutHandler
 
@@ -31,7 +32,12 @@ class OrderListHandler(BaseHandler):
         raise NotImplementedError()
 
     def get(self):
-        venue_id = self.request.get('venue_id')
+        token = self.request.get("token")
+        admin = Admin.query(Admin.token == token).get()
+        if not admin:
+            self.abort(401)
+        venue_id = admin.company_id
+
         orders = self._get_orders(venue_id)
         images_map = _build_images_map(venue_id)
         self.render_json({
