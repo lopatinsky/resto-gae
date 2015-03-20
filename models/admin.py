@@ -37,7 +37,6 @@ class PushAdmin(User):
 
 
 class Admin(ndb.Model):
-    token = ndb.StringProperty()
-    company_id = ndb.IntegerProperty()
-    venue_name = ndb.StringProperty()
-    venue_address = ndb.StringProperty()
+    token = ndb.StringProperty(required=True)
+    company_id = ndb.StringProperty(indexed=False, required=True)
+    custom = ndb.JsonProperty()
