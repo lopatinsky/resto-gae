@@ -12,8 +12,8 @@ from config import config
 import logging
 
 
-CAT_FREE_CUP_CODE = '3308081521040820'
-CAT_FREE_CUP_2_CODE = '3308081521040819'
+CAT_FREE_CUP_CODE = '3308081521040829'
+CAT_FREE_CUP_2_CODE = '3308081521040830'
 CUPS_BEFORE_FREE_CUP = 5
 
 
@@ -131,7 +131,7 @@ class GetOrderPromosHandler(BaseHandler):
             mock_order_dict = iiko_api.prepare_order(mock_order, customer, None)
             mock_promos = iiko_api.get_order_promos(mock_order, mock_order_dict)
             iiko_api.set_discounts(mock_order, mock_order_dict['order'], mock_promos)
-            accumulated_gifts = mock_order.discount_sum / free_cup['price'] - FREE_CUP_IN_ORDER
+            accumulated_gifts = int(mock_order.discount_sum / free_cup['price']) - FREE_CUP_IN_ORDER
 
         discount_gifts = 0
         if venue_id == Venue.EMPATIKA:
@@ -139,13 +139,14 @@ class GetOrderPromosHandler(BaseHandler):
                 if item['code'] == CAT_FREE_CUP_CODE or item['code'] == CAT_FREE_CUP_2_CODE:
                     price = (item['sum'] + item['discount_sum']) / item['amount']
                     discount_gifts += item['discount_sum'] / price
+                item['amount'] = int(item['amount'])
 
         result = {
             "order_discounts": discount_sum,
             "max_bonus_payment": max_bonus_payment if max_bonus_payment > 0 else 0,
             "gifts": gifts,
             "error": False,
-            "accumulated_gifts": max(0, accumulated_gifts - discount_gifts),
+            "accumulated_gifts": max(0, int(accumulated_gifts - discount_gifts)),
             "items": order.items
         }
         return self.render_json(result)
