@@ -95,3 +95,11 @@ class CATFetchCoffeeShopsHandler(BaseHandler):
                     }
                 }
             ]})
+
+
+class CATGetCompanyIdHandler(BaseHandler):
+    def get(self):
+        return {
+            "company_id": 5629499534213120,
+            "base_url": "http://empatika-resto-test.appspot.com/api/"
+        }
