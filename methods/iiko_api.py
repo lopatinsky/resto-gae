@@ -167,6 +167,9 @@ def _load_menu(venue):
             except ValueError:
                 add_info_str = None  # don't pass through raw info if cannot parse JSON
 
+        if venue.venue_id == Venue.VENEZIA:
+            product['name'] = product['name'].lstrip("0123456789. ")
+
         category_products[product['parentGroup']].append({
             'price': product['price'],
             'name': product['name'].capitalize(),

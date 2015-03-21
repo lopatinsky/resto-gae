@@ -298,6 +298,7 @@ class Venue(ndb.Model):
     MIVAKO = "6a05d004-e03d-11e3-bae4-001b21b8a590"
     ORANGE_EXPRESS = "768c213e-5bc1-4135-baa3-45f719dbad7e"
     SUSHILAR = "a9d16dff-7680-43f1-b1a1-74784bc75f60"
+    VENEZIA = "b4c224da-b1d2-11e4-80d8-002590dc3769"
 
     venue_id = ndb.StringProperty()
     name = ndb.StringProperty()
