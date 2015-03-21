@@ -290,8 +290,8 @@ def set_gifts(order, order_from_dict, gifts):
             'sum': gift['sum'],
             'id': gift['id']
         })
-        order.sum += gift['price']
-        discount_sum += gift['price']
+        order.sum += gift['price'] * gift['amount']
+        discount_sum += gift['price'] * gift['amount']
     add_bonus_to_payment(order_from_dict, discount_sum, False)
 
 

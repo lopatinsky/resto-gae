@@ -167,6 +167,7 @@ class PlaceOrderHandler(base.BaseHandler):
                         logging.info('conflict_gift: app(%s), iiko(%s)' % (gift, None))
                         self.abort(409)
                     else:
+                        iiko_gift['amount'] = gift.get('amount', 1)
                         iiko_gifts.append(iiko_gift)
 
                 iiko_api.set_gifts(order, order_dict['order'], iiko_gifts)
