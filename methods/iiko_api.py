@@ -14,7 +14,7 @@ from models.iiko import Venue, Company
 from methods.image_cache import convert_url
 
 
-IIKO_BASE_URL = 'https://iiko.net:9900/api/0'
+IIKO_BASE_URL = 'http://54.69.38.101/iikonet'
 
 
 def __get_request(company_id, api_path, params):
@@ -66,7 +66,8 @@ def get_access_token(org_id, refresh=False):
 def _fetch_access_token(org_id):
     company = Company.get_by_id(int(org_id))
     result = urlfetch.fetch(
-        IIKO_BASE_URL + '/auth/access_token?user_id=%s&user_secret=%s' % (company.name, company.password))
+        IIKO_BASE_URL + '/auth/access_token?user_id=%s&user_secret=%s' % (company.name, company.password),
+        deadline=10, validate_certificate=False)
     return result.content.strip('"')
 
 
