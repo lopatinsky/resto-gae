@@ -116,7 +116,7 @@ class GetOrderPromosHandler(BaseHandler):
                     'images': gift['images'],
                     'weight': gift['weight']
                 })
-        accumulated_gifts = None
+        accumulated_gifts = 0
         if venue_id == Venue.EMPATIKA:
             free_cup = iiko_api.get_product_from_menu(venue_id, product_code=CAT_FREE_CUP_CODE)
             FREE_CUP_IN_ORDER = 10
