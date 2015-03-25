@@ -143,11 +143,12 @@ def get_streets_by_kladr(number, city_id, address):
     predictions = obj.get('result')
     streets = []
     for prediction in predictions:
+        title = '%s %s' % (prediction.get('name'), prediction.get('type').lower())
         streets.append({
             'key': prediction.get('id'),
             'source': 'kladr',
-            'title': prediction.get('name'),
-            'description': prediction.get('parents')[1].get('name')
+            'title': title,
+            'description': prediction.get('parents')[0].get('name')
         })
     return streets
 
