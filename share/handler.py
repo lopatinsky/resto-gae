@@ -102,6 +102,12 @@ class GATrackDownloadHandler(GATrackRequestHandler):
 
     def set_campaign(self, app):
         self.campaign["cn"] = "link_%s" % self.name
+        source = self.request.get("source")
+        if source:
+            self.campaign["cs"] = source
+        medium = self.request.get("medium")
+        if medium:
+            self.campaign["cm"] = medium
 
     def dispatch(self):
         app = self.request.route_kwargs["app"]
