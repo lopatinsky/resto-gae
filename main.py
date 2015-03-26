@@ -7,6 +7,7 @@ from api import push_admin as api_push_admin
 from mt import CreateCompaniesLinks, CompanySettingsHandler, report, push_admins, push
 from webapp2 import Route
 import share
+from api import promo_phone
 
 
 class MainHandler(webapp2.RequestHandler):
@@ -84,6 +85,8 @@ app = webapp2.WSGIApplication([
     ('/api/venue/(.*)/new_orders', VenueNewOrderListHandler),
     ('/api/check_delivery', GetDeliveryRestrictionsHandler),
     ('/api/iiko_promos', GetVenuePromosHandler),
+    ('/api/promo_phone/request_code', promo_phone.RequestCodeHandler),
+    ('/api/promo_phone/confirm', promo_phone.ConfirmHandler),
 
     # order info
     ('/api/history', HistoryHandler),
