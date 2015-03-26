@@ -113,5 +113,5 @@ app = webapp2.WSGIApplication([
     ('/img/(.*)', ImageProxyHandler),
 
     ('/', MainHandler),
-    ('/task/close_confirmation', tasks.CloseConfirmationHandler),
+    ('/promo_phone/close_confirmation', tasks.CloseConfirmationHandler),
 ], debug=True, config=webapp2_config)

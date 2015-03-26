@@ -24,7 +24,7 @@ class RequestCodeHandler(BaseHandler):
         sms_text = u'Код для подтверждения %s телефона: %s' % (phone, code)
         twilio.send_sms([phone], sms_text)
         closing = datetime.utcnow() + timedelta(minutes=CLOSE_CONFIRMATION_AFTER_MINUTES)
-        taskqueue.add(url='/task/close_confirmation', method='POST', eta=closing, params={
+        taskqueue.add(url='/promo_phone/close_confirmation', method='POST', eta=closing, params={
             'customer_id': customer_id,
             'phone': phone
         })
