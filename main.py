@@ -8,6 +8,7 @@ from mt import CreateCompaniesLinks, CompanySettingsHandler, report, push_admins
 from webapp2 import Route
 import share
 from api import promo_phone
+import tasks
 
 
 class MainHandler(webapp2.RequestHandler):
@@ -112,4 +113,5 @@ app = webapp2.WSGIApplication([
     ('/img/(.*)', ImageProxyHandler),
 
     ('/', MainHandler),
+    ('/task/close_confirmation', tasks.CloseConfirmationHandler),
 ], debug=True, config=webapp2_config)
