@@ -14,7 +14,7 @@ from models.iiko import Venue, Company
 from methods.image_cache import convert_url
 
 
-IIKO_BASE_URL = 'http://54.69.38.101/iikonet'
+IIKO_BASE_URL = 'https://iiko.net:9900/api/0'
 
 
 def __get_request(company_id, api_path, params):
