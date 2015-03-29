@@ -14,17 +14,25 @@ from models.iiko import Venue, Company
 from methods.image_cache import convert_url
 
 
-IIKO_BASE_URL = 'https://iiko.net:9900/api/0'
+OLD_IIKO_BASE_URL = 'https://iiko.net:9900/api/0'
+NEW_IIKO_BASE_URL = 'https://iiko.biz:9900/api/0'
+
+
+def __get_iiko_base_url(company):
+    if not isinstance(company, Company):
+        company = Company.get_by_id(company)
+    return NEW_IIKO_BASE_URL if company.new_endpoints else OLD_IIKO_BASE_URL
 
 
 def __get_request(company_id, api_path, params):
     def do():
-        url = '%s%s' % (IIKO_BASE_URL, api_path)
+        url = '%s%s' % (iiko_base_url, api_path)
         if params:
             url = '%s?%s' % (url, urllib.urlencode(params))
         logging.info(url)
         return urlfetch.fetch(url, deadline=30, validate_certificate=False)
 
+    iiko_base_url = __get_iiko_base_url(company_id)
     params['access_token'] = get_access_token(company_id)
     result = do()
     if result.status_code == 401:
@@ -36,7 +44,7 @@ def __get_request(company_id, api_path, params):
 
 def __post_request(company_id, api_path, params, payload):
     def do():
-        url = '%s%s' % (IIKO_BASE_URL, api_path)
+        url = '%s%s' % (iiko_base_url, api_path)
         if params:
             url = '%s?%s' % (url, urllib.urlencode(params))
         json_payload = json.dumps(payload)
@@ -46,6 +54,7 @@ def __post_request(company_id, api_path, params, payload):
         return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=json_payload,
                               deadline=30, validate_certificate=False)
 
+    iiko_base_url = __get_iiko_base_url(company_id)
     params['access_token'] = get_access_token(company_id)
     result = do()
     if result.status_code == 401:
@@ -66,7 +75,7 @@ def get_access_token(org_id, refresh=False):
 def _fetch_access_token(org_id):
     company = Company.get_by_id(int(org_id))
     result = urlfetch.fetch(
-        IIKO_BASE_URL + '/auth/access_token?user_id=%s&user_secret=%s' % (company.name, company.password),
+        __get_iiko_base_url(company) + '/auth/access_token?user_id=%s&user_secret=%s' % (company.name, company.password),
         deadline=10, validate_certificate=False)
     return result.content.strip('"')
 
