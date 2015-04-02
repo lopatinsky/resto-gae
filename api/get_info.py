@@ -137,8 +137,9 @@ class GetOrderPromosHandler(BaseHandler):
         if venue_id == Venue.EMPATIKA:
             for item in order.items:
                 if item['code'] == CAT_FREE_CUP_CODE or item['code'] == CAT_FREE_CUP_2_CODE:
-                    price = (item['sum'] + item['discount_sum']) / item['amount']
-                    discount_gifts += item['discount_sum'] / price
+                    if item.get('discount_sum'):
+                        price = (item['sum'] + item['discount_sum']) / item['amount']
+                        discount_gifts += item['discount_sum'] / price
                 item['amount'] = int(item['amount'])
 
         result = {
