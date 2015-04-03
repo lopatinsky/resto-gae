@@ -10,7 +10,7 @@ from collections import deque
 from google.appengine.api import memcache, urlfetch
 import webapp2
 
-from models.iiko import CompanyNew, IikoApiLogin
+from models.iiko import CompanyNew, IikoApiLogin, Venue
 from methods.image_cache import convert_url
 
 
@@ -63,10 +63,10 @@ def __post_request(company, api_path, params, payload):
 
 
 def get_access_token(company, refresh=False):
-    token = memcache.get('iiko_token_%s' % company.key.id())
+    token = memcache.get('iiko_token_%s' % company.iiko_login)
     if not token or refresh:
         token = _fetch_access_token(company)
-        memcache.set('iiko_token_%s' % company.key.id(), token, time=10*60)
+        memcache.set('iiko_token_%s' % company.iiko_login, token, time=10*60)
     return token
 
 
@@ -81,7 +81,8 @@ def _fetch_access_token(company):
 def get_venues(org_id):
     venues = memcache.get('iiko_venues_%s' % org_id)
     if not venues:
-        result = __get_request(org_id, '/organization/list', {})
+        company = CompanyNew.get_by_id(org_id)
+        result = __get_request(company, '/organization/list', {})
         logging.info(result)
         obj = json.loads(result)
         if not isinstance(obj, list):
