@@ -14,19 +14,19 @@ except ImportError:
         from django.utils import simplejson as json
 
 # httplib2
-from methods.twilio.libs import httplib2
+from .... import httplib2
 
 # socks
 try:
-    from methods.twilio.libs.httplib2 import socks
-    from methods.twilio.libs.httplib2.socks import (
+    from ....httplib2 import socks
+    from ....httplib2.socks import (
         PROXY_TYPE_HTTP,
         PROXY_TYPE_SOCKS4,
         PROXY_TYPE_SOCKS5
     )
 except ImportError:
-    from methods.twilio.libs.httplib2 import socks
-    from methods.twilio.libs.httplib2.socks import (
+    from ....httplib2 import socks
+    from ....httplib2.socks import (
         PROXY_TYPE_HTTP,
         PROXY_TYPE_SOCKS4,
         PROXY_TYPE_SOCKS5
