@@ -1,7 +1,7 @@
 # coding=utf-8
 __author__ = 'dvpermyakov'
 
-from models.iiko import ClientInfo, ANDROID_DEVICE, IOS_DEVICE, Company
+from models.iiko import ClientInfo, ANDROID_DEVICE, IOS_DEVICE, CompanyNew
 from models.specials import MassPushHistory
 from methods.parse_com import send_push, make_general_push_data
 from methods.mandrill import send_email
@@ -64,7 +64,7 @@ def push_venues(chosen_companies, text, head, android_avail, ios_avail, user_log
     }
 
     MassPushHistory(**values).put()
-    str_companies = ''.join(['%s, ' % Company.get_by_id(company_id).name for company_id in chosen_companies])
+    str_companies = ''.join(['%s, ' % CompanyNew.get_by_id(company_id).name for company_id in chosen_companies])
     html_body = jinja.render_template('email/pushes.html', text=text, head=head, str_companies=str_companies, result=result, user=user_login)
     send_email('dvpermyakov1@gmail.com', ['beacon-team@googlegroups.com'], [], u'Рассылкка пушей', html_body)
 

@@ -4,7 +4,7 @@ import webapp2
 from api import *
 from api import admin, specials
 from api import push_admin as api_push_admin
-from mt import CreateCompaniesLinks, CompanySettingsHandler, report, push_admins, push
+from mt import CreateCompaniesLinks, CompanySettingsHandler, report, push_admins, push, migration
 from webapp2 import Route
 import share
 from api import promo_phone
@@ -78,6 +78,8 @@ app = webapp2.WSGIApplication([
     ('/mt/report/clients', report.ClientsReportHandler),
     ('/mt/report/repeated_orders', report.RepeatedOrdersReportHandler),
     ('/mt/report/square_table', report.SquareTableHandler),
+
+    ('/mt/migrate', migration.CreateNewCompaniesHandler),
 
     # venue
     ('/api/venue/(.*)/menu', MenuHandler),

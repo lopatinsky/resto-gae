@@ -4,7 +4,7 @@ import logging
 import random
 from .base import BaseHandler
 from methods.alfa_bank import tie_card, check_status, get_back_blocked_sum, create_pay, pay_by_card, unbind_card
-from models.iiko import Company
+from models.iiko import CompanyNew
 
 
 class AlfaBaseHandler(BaseHandler):
@@ -13,11 +13,11 @@ class AlfaBaseHandler(BaseHandler):
     def dispatch(self):
         company_id = self.request.get("organizationId")
         if company_id:
-            self.company = Company.get_by_id(int(company_id))
+            self.company = CompanyNew.get_by_id(int(company_id))
         if not self.company:
             ua = self.request.headers["User-Agent"]
             name = ua.split('/', 1)[0].lower().strip()
-            self.company = Company.query(Company.app_name == name).get()
+            self.company = CompanyNew.query(CompanyNew.app_name == name).get()
         if not self.company:
             self.abort(400)
         return super(BaseHandler, self).dispatch()

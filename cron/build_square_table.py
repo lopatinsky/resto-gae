@@ -1,9 +1,10 @@
+# coding=utf-8
+
 from datetime import timedelta, datetime
 from webapp2 import RequestHandler
 from methods.times import timestamp
-from models.iiko import Order, Venue
+from models.iiko import Order, CompanyNew
 from models.square_table import JsonStorage
-import json
 
 
 class BuildSquareTableHandler(RequestHandler):
@@ -27,8 +28,8 @@ class BuildSquareTableHandler(RequestHandler):
             "end": timestamp(end - timedelta(minutes=1))
         }
 
-    def get_square_table(self, venue):
-        orders = Order.query(Order.status == Order.CLOSED, Order.venue_id == venue.venue_id).fetch()
+    def get_square_table(self, company):
+        orders = Order.query(Order.status == Order.CLOSED, Order.venue_id == company.iiko_org_id).fetch()
 
         if not orders:
             return None
@@ -82,9 +83,9 @@ class BuildSquareTableHandler(RequestHandler):
         ]
 
     def get(self):
-        venues = Venue.query().fetch()
-        venues_dict = {}
-        for venue in venues:
-            venues_dict[venue.venue_id] = self.get_square_table(venue)
+        companies = CompanyNew.query().fetch()
+        companies_dict = {}
+        for company in companies:
+            companies_dict[company.iiko_org_id] = self.get_square_table(company)
 
-        JsonStorage.save("square_table", venues_dict)
+        JsonStorage.save("square_table", companies_dict)

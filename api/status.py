@@ -2,7 +2,7 @@
 
 import logging
 from api.base import BaseHandler
-from models.iiko import Order, Venue
+from models.iiko import Order
 from methods import iiko_api
 import json
 

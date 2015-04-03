@@ -1,3 +1,5 @@
+# coding=utf-8
+
 __author__ = 'dvpermyakov'
 
 from google.appengine.ext import ndb

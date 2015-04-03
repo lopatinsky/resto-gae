@@ -12,8 +12,8 @@ _CITY_MAPPING = {
 }
 
 
-def send_express_email(order, customer, venue):
-    time = (order.date + timedelta(seconds=venue.get_timezone_offset())).strftime("%d.%m.%Y %H:%M")
+def send_express_email(order, customer, company):
+    time = (order.date + timedelta(seconds=company.get_timezone_offset())).strftime("%d.%m.%Y %H:%M")
     body = jinja2.get_jinja2().render_template("/email/express-order.html",
                                                order=order, customer=customer, time=time)
     return mandrill.send_email(

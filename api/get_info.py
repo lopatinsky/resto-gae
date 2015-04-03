@@ -7,7 +7,7 @@ import json
 from methods import iiko_api, working_hours, filter_phone
 from models import iiko
 import datetime
-from models.iiko import Company, ClientInfo, Venue
+from models.iiko import CompanyNew, ClientInfo
 from config import config
 import logging
 
@@ -32,7 +32,7 @@ class GetVenuePromosHandler(BaseHandler):
     def get(self):
         venue_id = self.request.get('venue_id')
         phone = filter_phone(self.request.get('phone'))
-        company_id = Venue.venue_by_id(venue_id).company_id
+        company_id = CompanyNew.get_by_iiko_id(venue_id).company_id
         return self.render_json({
             "promos": iiko_api.get_venue_promos(venue_id),
             "balance": iiko_api.get_customer_by_phone(company_id, phone, venue_id).get('balance', 0.0)
@@ -49,8 +49,7 @@ class GetOrderPromosHandler(BaseHandler):
 
     def post(self):
         venue_id = self.request.get('venue_id')
-        venue = Venue.venue_by_id(venue_id)
-        company = Company.get_by_id(venue.company_id)
+        company = CompanyNew.get_by_iiko_id(venue_id)
         name = self.request.get('name').strip()
         phone = filter_phone(self.request.get('phone'))
         customer_id = self.request.get('customer_id')
@@ -74,7 +73,7 @@ class GetOrderPromosHandler(BaseHandler):
 
         order_dict = iiko_api.prepare_order(order, customer, None)
 
-        local_time = order.date + datetime.timedelta(seconds=venue.get_timezone_offset())
+        local_time = order.date + datetime.timedelta(seconds=company.get_timezone_offset())
         is_open = working_hours.is_datetime_valid(company.schedule, local_time) if company.schedule else True
 
         if not is_open:
@@ -117,7 +116,7 @@ class GetOrderPromosHandler(BaseHandler):
                     'weight': gift['weight']
                 })
         accumulated_gifts = 0
-        if venue_id == Venue.EMPATIKA:
+        if venue_id == CompanyNew.EMPATIKA:
             free_cup = iiko_api.get_product_from_menu(venue_id, product_code=CAT_FREE_CUP_CODE)
             FREE_CUP_IN_ORDER = 10
             CUPS_IN_ORDER = FREE_CUP_IN_ORDER * CUPS_BEFORE_FREE_CUP
@@ -134,7 +133,7 @@ class GetOrderPromosHandler(BaseHandler):
             accumulated_gifts = int(mock_order.discount_sum / free_cup['price']) - FREE_CUP_IN_ORDER
 
         discount_gifts = 0
-        if venue_id == Venue.EMPATIKA:
+        if venue_id == CompanyNew.EMPATIKA:
             for item in order.items:
                 if item['code'] == CAT_FREE_CUP_CODE or item['code'] == CAT_FREE_CUP_2_CODE:
                     if item.get('discount_sum'):
@@ -155,7 +154,7 @@ class GetOrderPromosHandler(BaseHandler):
 
 class GetCompanyInfoHandler(BaseHandler):
     def get(self, company_id):
-        company = Company.get_by_id(int(company_id))
+        company = CompanyNew.get_by_id(int(company_id))
         news = company.get_news()
         self.render_json({
             "news": news.dict() if news else None,

@@ -59,8 +59,8 @@ class RepeatedOrdersReportHandler(BaseHandler):
         return days, total
 
     def get_iiko_repeated_orders(self, chosen_year, chosen_month, chosen_day, venue_id, chosen_client_number):
-        venue = iiko.Venue.venue_by_id(venue_id)
-        if not venue:
+        company = iiko.CompanyNew.get_by_iiko_id(venue_id)
+        if not company:
             return [], {}
         day_orders = []
         clients_id = []
@@ -70,7 +70,7 @@ class RepeatedOrdersReportHandler(BaseHandler):
                     continue
             start = suitable_date(day, chosen_month, chosen_year, True)
             end = suitable_date(day, chosen_month, chosen_year, False)
-            orders = iiko_api.get_orders(venue, start, end, status='CLOSED')
+            orders = iiko_api.get_orders(company, start, end, status='CLOSED')
             orders = orders.get('deliveryOrders', [])
             day_orders.append(orders)
             for order in orders:
@@ -134,7 +134,7 @@ class RepeatedOrdersReportHandler(BaseHandler):
 
     def get(self):
         chosen_type = self.request.get("selected_type")
-        venue_id = self.request.get("selected_venue")
+        venue_id = self.request.get("selected_company")
         chosen_year = self.request.get_range("selected_year")
         chosen_month = self.request.get_range("selected_month")
         chosen_day = self.request.get_range("selected_day")
@@ -158,12 +158,12 @@ class RepeatedOrdersReportHandler(BaseHandler):
                                                         chosen_client_number)
 
         values = {
-            'venues': iiko.Venue.query().fetch(),
+            'companies': iiko.CompanyNew.query().fetch(),
             'days': days,
             'total': total,
             'chosen_type': chosen_type,
             'chosen_client_number': chosen_client_number,
-            'chosen_venue': iiko.Venue.venue_by_id(venue_id) if venue_id else None,
+            'chosen_company': iiko.CompanyNew.get_by_iiko_id(venue_id) if venue_id else None,
             'start_year': PROJECT_STARTING_YEAR,
             'end_year': datetime.now().year,
             'chosen_year': chosen_year,

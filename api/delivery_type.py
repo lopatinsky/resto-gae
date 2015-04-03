@@ -1,7 +1,7 @@
 # coding=utf-8
 
 from .base import BaseHandler
-from models.iiko import Company
+from models.iiko import CompanyNew
 
 
 class GetAvailableDeliveryTypesHandler(BaseHandler):
@@ -11,4 +11,4 @@ class GetAvailableDeliveryTypesHandler(BaseHandler):
     def get(self):
         org_id = self.request.get('organization_id')
 
-        return self.render_json({"types": Company.get_delivery_types(org_id)})
+        return self.render_json({"types": CompanyNew.get_delivery_types(org_id)})

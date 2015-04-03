@@ -1,10 +1,11 @@
+# coding=utf-8
+
 __author__ = 'dvpermyakov'
 
 from ..base import BaseHandler
 from datetime import datetime
 from models import iiko
 from report_methods import PROJECT_STARTING_YEAR, suitable_date
-import json
 
 
 class OrdersReportHandler(BaseHandler):
@@ -32,7 +33,7 @@ class OrdersReportHandler(BaseHandler):
         orders = query.fetch()
         for order in orders:
             order.status_str = iiko.Order.STATUS_MAPPING[order.status][0]
-            order.venue_name = iiko.Venue.venue_by_id(order.venue_id).name
+            order.venue_name = iiko.CompanyNew.get_by_iiko_id(order.venue_id).app_title
             customer = order.customer.get() if order.customer else None
             order.customer_id = customer.customer_id if customer else '-'
             order.customer_name = customer.name if customer else '-'
@@ -50,9 +51,9 @@ class OrdersReportHandler(BaseHandler):
             else:
                 order.payment_name = 'UNKNOWN'
         values = {
-            'venues': iiko.Venue.query().fetch(),
+            'companies': iiko.CompanyNew.query().fetch(),
             'orders': orders,
-            'chosen_venue': iiko.Venue.venue_by_id(venue_id) if venue_id else None,
+            'chosen_venue': iiko.CompanyNew.get_by_iiko_id(venue_id),
             'start_year': PROJECT_STARTING_YEAR,
             'end_year': datetime.now().year,
             'chosen_year': chosen_year,

@@ -88,7 +88,7 @@ class ClientsReportHandler(BaseHandler):
 
     def get(self):
         chosen_type = self.request.get("selected_type")
-        venue_id = self.request.get("selected_venue")
+        venue_id = self.request.get("selected_company")
         chosen_year = self.request.get_range("selected_year")
         chosen_month = self.request.get_range("selected_month")
         chosen_day = self.request.get_range("selected_day")
@@ -106,10 +106,10 @@ class ClientsReportHandler(BaseHandler):
             venue_id = None
         clients, total = self.get_clients_info(chosen_year, chosen_month, chosen_day, venue_id, chosen_type)
         values = {
-            'venues': iiko.Venue.query().fetch(),
+            'companies': iiko.CompanyNew.query().fetch(),
             'clients': clients,
             'total': total,
-            'chosen_venue': iiko.Venue.venue_by_id(venue_id) if venue_id else None,
+            'chosen_company': iiko.CompanyNew.get_by_iiko_id(venue_id),
             'start_year': PROJECT_STARTING_YEAR,
             'end_year': datetime.now().year,
             'chosen_year': chosen_year,

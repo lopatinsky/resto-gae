@@ -2,7 +2,7 @@
 import logging
 from ..base import BaseHandler
 from methods import filter_phone, iiko_api
-from models.iiko import Venue
+from models.iiko import CompanyNew
 from models.specials import CATSocialId
 
 
@@ -14,10 +14,10 @@ class CATAddSocialHandler(BaseHandler):
 
     def post(self):
         venue_id = self.request.get('venue_id')
-        if venue_id not in (Venue.COFFEE_CITY, Venue.EMPATIKA):
+        if venue_id not in (CompanyNew.COFFEE_CITY, CompanyNew.EMPATIKA):
             self.render_error("Unknown venue_id")
             return
-        company_id = Venue.venue_by_id(venue_id).company_id
+        company_id = CompanyNew.get_by_iiko_id(venue_id).company_id
 
         customer_id = self.request.get('customer_id')
         phone = filter_phone(self.request.get('phone'))

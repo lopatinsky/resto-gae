@@ -12,7 +12,7 @@ import base
 from methods import iiko_api, working_hours, filter_phone
 from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum, check_extended_status, get_bindings
 from models import iiko
-from models.iiko import Venue, Company, ClientInfo, Order
+from models.iiko import CompanyNew, ClientInfo, Order
 from models.specials import MivakoGift
 from specials import fix_syrop, fix_modifiers_by_own
 
@@ -61,8 +61,7 @@ class PlaceOrderHandler(base.BaseHandler):
         customer.name = name
         customer.custom_data = custom_data
 
-        venue = Venue.venue_by_id(venue_id)
-        company = Company.get_by_id(venue.company_id)
+        company = CompanyNew.get_by_iiko_id(venue_id)
         company_id = company.key.id()
 
         order = iiko.Order()
@@ -72,14 +71,14 @@ class PlaceOrderHandler(base.BaseHandler):
         # TODO: ios 7 times fuckup
         if self.request.get('str_date'):
             order.date = datetime.datetime.strptime(self.request.get('str_date'), '%Y-%m-%d %H:%M:%S')
-            order.date -= datetime.timedelta(seconds=venue.get_timezone_offset())
+            order.date -= datetime.timedelta(seconds=company.get_timezone_offset())
             logging.info('new date(str): %s' % order.date)
         elif 'iOS 7' in self.request.headers['User-Agent']:
             order.date += datetime.timedelta(hours=1)
             logging.info('new date(ios 7): %s' % order.date)
         # TODO: ios 7 times fuckup
 
-        local_time = order.date + datetime.timedelta(seconds=venue.get_timezone_offset())
+        local_time = order.date + datetime.timedelta(seconds=company.get_timezone_offset())
         if company.schedule:
             if not working_hours.is_datetime_valid(company.schedule, local_time):
                 if config.CHECK_SCHEDULE:
@@ -96,7 +95,7 @@ class PlaceOrderHandler(base.BaseHandler):
                 for mod in item["modifiers"]:
                     if mod["amount"] == 0:
                         mod["amount"] = 1
-        if venue_id == Venue.COFFEE_CITY:
+        if venue_id == CompanyNew.COFFEE_CITY:
             items = fix_syrop.set_syrop_items(items)
             items = fix_modifiers_by_own.set_modifier_by_own(venue_id, items)
         order.items = items
@@ -251,13 +250,13 @@ class PlaceOrderHandler(base.BaseHandler):
         order.order_id = result['orderId']
         order.number = result['number']
         order.set_status(result['status'])
-        order.created_in_iiko = iiko_api.parse_iiko_time(result['createdTime'], venue)
+        order.created_in_iiko = iiko_api.parse_iiko_time(result['createdTime'], company)
 
         order.put()
 
-        if venue_id == Venue.ORANGE_EXPRESS:
+        if venue_id == CompanyNew.ORANGE_EXPRESS:
             try:
-                send_express_email(order, customer, venue)
+                send_express_email(order, customer, company)
             except DownloadError:
                 logging.warning('mandrill is not responsed')
 

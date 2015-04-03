@@ -4,7 +4,7 @@ import logging
 from google.appengine.ext import deferred
 from google.appengine.runtime import DeadlineExceededError
 import webapp2
-from models.iiko import Venue
+from models.iiko import CompanyNew
 from methods import iiko_api
 from methods.image_cache import get_image
 
@@ -31,7 +31,7 @@ def _get_menu_images(menu):
 
 def _defer_load_images(venue_id, image_number):
     logging.info("starting defer for %s", venue_id)
-    images = _get_menu_images(Venue.venue_by_id(venue_id).menu)
+    images = _get_menu_images(CompanyNew.get_by_iiko_id(venue_id).menu)
     count = len(images)
     logging.info("progress: %s/%s", image_number, count)
     try:
@@ -45,10 +45,10 @@ def _defer_load_images(venue_id, image_number):
 
 class UpdateMenuHandler(webapp2.RequestHandler):
     def get(self):
-        venues = Venue.query().fetch()
-        for venue in venues:
+        companies = CompanyNew.query().fetch()
+        for company in companies:
             try:
-                iiko_api.get_menu(venue.venue_id, force_reload=True)
-                deferred.defer(_defer_load_images, venue.venue_id, 0)
+                iiko_api.get_menu(company.iiko_org_id, force_reload=True)
+                deferred.defer(_defer_load_images, company.iiko_org_id, 0)
             except Exception as e:
                 logging.exception(e)

@@ -68,12 +68,12 @@
                 <th>Средний чек</th>
              {% endfor %}
          </tr>
-         {% for venue in venues %}
+         {% for company in companies %}
              <tr>
-                 {% set span = venue.payments|length %}
-                 <td rowspan="{{ span }}">{{ venue.venue_id }}</td>
-                 <td rowspan="{{ span }}">{{ venue.name }}</td>
-                 {% for payment in venue.payments %}
+                 {% set span = company.payments|length %}
+                 <td rowspan="{{ span }}">{{ company.iiko_org_id }}</td>
+                 <td rowspan="{{ span }}">{{ company.app_title }}</td>
+                 {% for payment in company.payments %}
                      {% if loop.index0 > 0 %}
                         </tr><tr>
                      {% endif %}
@@ -81,15 +81,15 @@
                      {% for status in statuses %}
                          <td>
                             {% if chosen_object_type == '0' %}
-                                {{ venue.info[payment['type']][status]["orders_number"] }}
+                                {{ company.info[payment['type']][status]["orders_number"] }}
                             {% elif chosen_object_type == '1' %}
-                                {{ venue.info[payment['type']][status]["client_number"] }}
+                                {{ company.info[payment['type']][status]["client_number"] }}
                             {% elif chosen_object_type == '2' %}
-                                {{ venue.info[payment['type']][status]["goods_number"] }}
+                                {{ company.info[payment['type']][status]["goods_number"] }}
                             {% endif %}
                          </td>
-                         <td>{{ venue.info[payment['type']][status]["orders_sum"] }}</td>
-                         <td>{{ venue.info[payment['type']][status]["orders_sum"] / venue.info[payment['type']][status]["orders_number"] if venue.info[payment['type']][status]["orders_number"] else 0 }}</td>
+                         <td>{{ company.info[payment['type']][status]["orders_sum"] }}</td>
+                         <td>{{ company.info[payment['type']][status]["orders_sum"] / venue.info[payment['type']][status]["orders_number"] if venue.info[payment['type']][status]["orders_number"] else 0 }}</td>
                      {% endfor %}
                  {% endfor %}
              </tr>

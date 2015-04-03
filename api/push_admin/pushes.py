@@ -1,7 +1,7 @@
 __author__ = 'dvpermyakov'
 
 from base import BaseHandler
-from models.iiko import Company
+from models.iiko import CompanyNew
 from methods.push_venues import push_venues
 from methods.auth import push_admin_user_required
 from models.specials import MassPushHistory
@@ -12,7 +12,7 @@ import logging
 class PushSendingHandler(BaseHandler):
     @push_admin_user_required
     def get(self):
-        companies = Company.query().fetch()
+        companies = CompanyNew.query().fetch()
         self.render('/mt/pushes.html', companies=companies, has_choices=False, user=self.user)
 
     @push_admin_user_required
@@ -38,7 +38,7 @@ class PushHistoryHandler(BaseHandler):
             if self.user.company.id() not in push.company_ids or len(push.company_ids) > 1:
                 mass_pushes.remove(push)
                 continue
-            push.companies = ''.join(['%s, ' % Company.get_by_id(company_id).name for company_id in push.company_ids])
+            push.companies = ''.join(['%s, ' % CompanyNew.get_by_id(company_id).name for company_id in push.company_ids])
             push.android_number = len(push.android_channels)
             push.ios_number = len(push.ios_channels)
 

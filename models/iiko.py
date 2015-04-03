@@ -2,7 +2,6 @@
 import logging
 from google.appengine.ext import ndb
 from google.appengine.api import memcache
-from datetime import datetime, timedelta
 import time
 from methods import maps
 from methods.parse_com import send_push, IOS_DEVICE, ANDROID_DEVICE, make_order_push_data
@@ -38,13 +37,6 @@ class DeliveryType(ndb.Model):
             'name': self.name,
             'available': self.available
         }
-
-    @classmethod
-    def check_existence(cls, delivery_id):
-        for typ in DeliveryType.query():
-            if typ.delivery_id == int(delivery_id):
-                return typ
-        return None
 
 
 class AvailableConfirmation(ndb.Model):
@@ -212,8 +204,7 @@ class Order(ndb.Model):
             if self.payment_type == '2':
                 logging.info("order paid by card")
 
-                venue = Venue.venue_by_id(self.venue_id)
-                company = Company.get_by_id(venue.company_id)
+                company = CompanyNew.get_by_iiko_id(self.venue_id)
 
                 if self.status == Order.CLOSED:
                     pay_result = pay_by_card(company, self.alfa_order_id, 0)
@@ -240,7 +231,7 @@ class Order(ndb.Model):
 
     @classmethod
     def _do_load_from_object(cls, order, order_id, venue_id, iiko_order):
-        venue = Venue.venue_by_id(venue_id)
+        company = CompanyNew.get_by_iiko_id(venue_id)
         changes = {}
 
         def _attr(name, new_value=None):
@@ -263,10 +254,10 @@ class Order(ndb.Model):
         _attr('address')
         _attr('number')
 
-        date = iiko_api.parse_iiko_time(iiko_order['deliveryDate'], venue)
+        date = iiko_api.parse_iiko_time(iiko_order['deliveryDate'], company)
         _attr('date', date)
 
-        created_time = iiko_api.parse_iiko_time(iiko_order['createdTime'], venue)
+        created_time = iiko_api.parse_iiko_time(iiko_order['createdTime'], company)
         _attr('created_in_iiko', created_time)
 
         _attr('status', Order.parse_status(iiko_order['status']))
@@ -430,6 +421,96 @@ class Company(ndb.Model):
 
     def get_news(self):
         return News.query(News.company_id == self.key.id(), News.active == True).get()
+
+
+class IikoApiLogin(ndb.Model):
+    @property
+    def login(self):
+        return self.key.id()
+
+    password = ndb.StringProperty(indexed=False)
+
+
+class CompanyNew(ndb.Model):
+    COFFEE_CITY = "02b1b1f7-4ec8-11e4-80cc-0025907e32e9"
+    EMPATIKA = "95e4a970-b4ea-11e3-8bac-50465d4d1d14"
+    MIVAKO = "6a05d004-e03d-11e3-bae4-001b21b8a590"
+    ORANGE_EXPRESS = "768c213e-5bc1-4135-baa3-45f719dbad7e"
+    SUSHILAR = "a9d16dff-7680-43f1-b1a1-74784bc75f60"
+    VENEZIA = "b4c224da-b1d2-11e4-80d8-002590dc3769"
+
+    iiko_login = ndb.StringProperty()
+    iiko_org_id = ndb.StringProperty()
+
+    address = ndb.StringProperty(indexed=False)
+    latitude = ndb.FloatProperty(indexed=False)
+    longitude = ndb.FloatProperty(indexed=False)
+
+    delivery_types = ndb.KeyProperty(kind=DeliveryType, repeated=True)
+    payment_types = ndb.KeyProperty(kind=PaymentType, repeated=True)
+    menu = ndb.JsonProperty()
+
+    app_name = ndb.StringProperty()  # TODO REMOVE: part of user-agent to identify app in alfa handler
+    app_title = ndb.StringProperty()
+    alpha_login = ndb.StringProperty(indexed=False)
+    alpha_pass = ndb.StringProperty(indexed=False)
+    card_button_text = ndb.StringProperty()
+    card_button_subtext = ndb.StringProperty()
+
+    is_iiko_system = ndb.BooleanProperty(default=False)
+    new_endpoints = ndb.BooleanProperty(default=False)
+
+    description = ndb.StringProperty()
+    min_order_sum = ndb.IntegerProperty()
+    email = ndb.StringProperty()
+    support_emails = ndb.StringProperty(repeated=True)
+    site = ndb.StringProperty()
+    cities = ndb.StringProperty(repeated=True)
+    phone = ndb.StringProperty()
+    schedule = ndb.JsonProperty()
+    icon1 = ndb.BlobProperty()
+    icon2 = ndb.BlobProperty()
+    icon3 = ndb.BlobProperty()
+    icon4 = ndb.BlobProperty()
+    company_icon = ndb.BlobProperty()
+    color = ndb.StringProperty()
+    analytics_key = ndb.StringProperty()
+
+    @classmethod
+    def get_payment_types(cls, venue_id):
+        venue = cls.get_by_iiko_id(venue_id)
+        output = []
+        for item in ndb.get_multi(venue.payment_types):
+            output.append(item.to_dict())
+        return output
+
+    def get_payment_type(self, type_id):
+        for item in ndb.get_multi(self.payment_types):
+            if item.type_id == int(type_id):
+                return item
+        return None
+
+    @classmethod
+    def get_delivery_types(cls, org_id):
+        org = cls.get_by_id(int(org_id))
+        output = []
+        for item in ndb.get_multi(org.delivery_types):
+            output.append(item.to_dict())
+        return output
+
+    def get_news(self):
+        return News.query(News.company_id == self.key.id(), News.active == True).get()
+
+    @classmethod
+    def get_by_iiko_id(cls, iiko_org_id):
+        return cls.query(cls.iiko_org_id == iiko_org_id).get()
+
+    def get_timezone_offset(self):
+        result = memcache.get('venue_%s_timezone' % self.iiko_org_id)
+        if not result:
+            result = maps.get_timezone_by_coords(self.latitude, self.longitude)
+            memcache.set('venue_%s_timezone' % self.iiko_org_id, result, time=24*3600)
+        return result
 
 
 class ImageCache(ndb.Model):

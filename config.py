@@ -2,7 +2,7 @@
 
 from google.appengine.api import app_identity
 from methods import restrictions
-from models.iiko import Venue
+from models.iiko import CompanyNew
 
 
 class RestoConfig(object):
@@ -22,7 +22,7 @@ class TestingConfig(RestoConfig):
         {
             'method': restrictions.restrict_product_by_time,
             'venues': {
-                Venue.EMPATIKA: [
+                CompanyNew.EMPATIKA: [
                     {
                         'category_id': '2f38c84f-c70b-4d4d-8fc9-0d8ad087c056',
                         'schedule': [

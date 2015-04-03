@@ -1,6 +1,5 @@
 from api.base import BaseHandler
 from methods.maps import complete_address_input_by_kladr
-import logging
 
 __author__ = 'mihailnikolaev'
 
