@@ -1,7 +1,12 @@
 # coding=utf-8
+from google.appengine.api.datastore_types import GeoPt
 
 from methods import iiko_api
-from models.iiko import Company, CompanyNew, IikoApiLogin
+from models.iiko import CompanyNew, IikoApiLogin, DeliveryTerminal
+try:
+    from models.iiko import Company
+except ImportError:
+    Company = None
 from mt.base import BaseHandler
 
 
@@ -24,7 +29,20 @@ class CreateNewCompaniesHandler(BaseHandler):
                 address=venue.address,
                 latitude=venue.latitude,
                 longitude=venue.longitude,
+                payment_types=venue.payment_types,
                 iiko_login=c.name,
                 iiko_org_id=venue.venue_id,
                 **dct
             ).put()
+
+            dts = iiko_api.get_delivery_terminals(venue.venue_id)
+            for dt in dts:
+                DeliveryTerminal(
+                    id=dt['deliveryTerminalId'],
+                    phone=c.phone or '',
+                    company_id=c.key.id(),
+                    iiko_organization_id=venue.venue_id,
+                    name=dt['deliveryRestaurantName'],
+                    address=dt['address'],
+                    location=GeoPt(venue.latitude, venue.longitude)
+                ).put()

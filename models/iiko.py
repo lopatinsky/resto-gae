@@ -127,7 +127,8 @@ class Order(ndb.Model):
     items = ndb.JsonProperty()
     is_delivery = ndb.BooleanProperty(default=False)
     address = ndb.JsonProperty()
-    venue_id = ndb.StringProperty()
+    venue_id = ndb.StringProperty()  # actually iiko organization id
+    delivery_terminal_id = ndb.StringProperty()
     customer = ndb.KeyProperty()
     order_id = ndb.StringProperty()
     number = ndb.StringProperty()
@@ -375,6 +376,28 @@ class Venue(ndb.Model):
             'logoUrl': self.logo_url,
             'phone': self.phone,
             'payment_types': [x.to_dict() for x in ndb.get_multi(self.payment_types)]
+        }
+
+
+class DeliveryTerminal(ndb.Model):
+    company_id = ndb.IntegerProperty()
+    iiko_organization_id = ndb.StringProperty()
+    name = ndb.StringProperty(indexed=False)
+    phone = ndb.StringProperty(indexed=False)
+    address = ndb.StringProperty(indexed=False)
+    location = ndb.GeoPtProperty(indexed=False)
+    
+    def to_dict(self):
+        company = CompanyNew.get_by_id(self.company_id)
+        return {
+            'venueId': self.key.id(),
+            'name': self.name,
+            'address': self.address,
+            'latitude': self.location.lat,
+            'longitude': self.location.lon,
+            'logoUrl': '',
+            'phone': self.phone,
+            'payment_types': [x.to_dict() for x in ndb.get_multi(company.payment_types)]
         }
 
 

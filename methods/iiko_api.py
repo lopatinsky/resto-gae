@@ -10,7 +10,11 @@ from collections import deque
 from google.appengine.api import memcache, urlfetch
 import webapp2
 
-from models.iiko import CompanyNew, IikoApiLogin, Venue
+from models.iiko import CompanyNew, IikoApiLogin
+try:
+    from models.iiko import Venue
+except ImportError:
+    Venue = None
 from methods.image_cache import convert_url
 
 

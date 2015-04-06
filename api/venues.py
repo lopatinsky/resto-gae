@@ -4,8 +4,7 @@ import json
 
 import webapp2
 
-from models.iiko import CompanyNew
-from methods import iiko_api
+from models.iiko import CompanyNew, DeliveryTerminal
 
 
 class VenuesHandler(webapp2.RequestHandler):
@@ -17,7 +16,7 @@ class VenuesHandler(webapp2.RequestHandler):
         if not company:
             return self.abort(403)
 
-        venues = iiko_api.get_venues(company.key.id())
+        venues = DeliveryTerminal.query(DeliveryTerminal.company_id == company.key.id()).fetch()
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(json.dumps({
             'venues': [venue.to_dict() for venue in venues]
