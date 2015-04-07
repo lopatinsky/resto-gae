@@ -6,7 +6,7 @@ from google.appengine.ext import ndb
 from webapp2_extras.appengine.auth import models
 from google.appengine.ext.ndb import polymodel
 
-from models.iiko import Company
+from models.iiko import CompanyNew as Company
 
 
 class User(polymodel.PolyModel, models.User):

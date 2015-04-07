@@ -11,9 +11,9 @@ class CoffeeCityUpdatesHandler(RequestHandler):
     def get(self):
         today = datetime.datetime.combine(datetime.date.today(), datetime.time())
         tomorrow = today + datetime.timedelta(days=1)
-        venue_ids = [CompanyNew.EMPATIKA, CompanyNew.COFFEE_CITY]
-        for venue_id in venue_ids:
-            iiko_orders = iiko_api.get_orders(CompanyNew.get_by_iiko_id(venue_id), today, tomorrow)['deliveryOrders']
+        org_ids = [CompanyNew.EMPATIKA, CompanyNew.COFFEE_CITY]
+        for org_id in org_ids:
+            iiko_orders = iiko_api.get_orders(CompanyNew.get_by_iiko_id(org_id), today, tomorrow)['deliveryOrders']
             for order in iiko_orders:
                 Order.load_from_object(order)
         taskqueue.add(queue_name='updates', countdown=30, url='/task/update_coffee_city', method='GET')

@@ -29,9 +29,9 @@ def _get_menu_images(menu):
     return filter(None, result)
 
 
-def _defer_load_images(venue_id, image_number):
-    logging.info("starting defer for %s", venue_id)
-    images = _get_menu_images(CompanyNew.get_by_iiko_id(venue_id).menu)
+def _defer_load_images(org_id, image_number):
+    logging.info("starting defer for %s", org_id)
+    images = _get_menu_images(CompanyNew.get_by_iiko_id(org_id).menu)
     count = len(images)
     logging.info("progress: %s/%s", image_number, count)
     try:
@@ -40,7 +40,7 @@ def _defer_load_images(venue_id, image_number):
             get_image(image_url, force_fetch=True)
             image_number += 1
     except DeadlineExceededError:
-        deferred.defer(_defer_load_images, venue_id, image_number)
+        deferred.defer(_defer_load_images, org_id, image_number)
 
 
 class UpdateMenuHandler(webapp2.RequestHandler):

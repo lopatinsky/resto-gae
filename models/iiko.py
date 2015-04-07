@@ -191,7 +191,7 @@ class Order(ndb.Model):
             'comment': self.comment,
             'sum': self.sum,
             'items': self.items,
-            'venue_id': self.venue_id,
+            'venue_id': self.delivery_terminal_id,
             'status': self.status,
             'cancel_requested': self.cancel_requested,
         }
@@ -231,8 +231,8 @@ class Order(ndb.Model):
             send_push(channels=["order_%s" % self.order_id], data=data, device_type=device)
 
     @classmethod
-    def _do_load_from_object(cls, order, order_id, venue_id, iiko_order):
-        company = CompanyNew.get_by_iiko_id(venue_id)
+    def _do_load_from_object(cls, order, order_id, org_id, iiko_order):
+        company = CompanyNew.get_by_iiko_id(org_id)
         changes = {}
 
         def _attr(name, new_value=None):
@@ -245,7 +245,7 @@ class Order(ndb.Model):
 
         if not order:
             changes['order'] = None
-            order = Order(order_id=order_id, venue_id=venue_id, source='iiko')
+            order = Order(order_id=order_id, venue_id=org_id, source='iiko')
             order.is_delivery = iiko_order['orderType']['orderServiceType'] == 'DELIVERY_BY_COURIER'
             customer = Customer.customer_by_customer_id(iiko_order['customerId'])
             order.customer = customer.key if customer else None  # TODO create customer
@@ -273,19 +273,19 @@ class Order(ndb.Model):
     @classmethod
     def load_from_object(cls, iiko_order):
         order_id = iiko_order['orderId']
-        venue_id = iiko_order['organization']
+        org_id = iiko_order['organization']
         order = cls.order_by_id(order_id)
-        return cls._do_load_from_object(order, order_id, venue_id, iiko_order)
+        return cls._do_load_from_object(order, order_id, org_id, iiko_order)
 
     @classmethod
-    def _do_load(cls, order, order_id, venue_id):
-        iiko_order = iiko_api.order_info1(order_id, venue_id)
-        return cls._do_load_from_object(order, order_id, venue_id, iiko_order)
+    def _do_load(cls, order, order_id, org_id):
+        iiko_order = iiko_api.order_info1(order_id, org_id)
+        return cls._do_load_from_object(order, order_id, org_id, iiko_order)
 
     @classmethod
-    def load(cls, order_id, venue_id):
+    def load(cls, order_id, org_id):
         order = cls.order_by_id(order_id)
-        return cls._do_load(order, order_id, venue_id)
+        return cls._do_load(order, order_id, org_id)
 
     def reload(self):
         self._do_load(self, self.order_id, self.venue_id)
@@ -399,6 +399,10 @@ class DeliveryTerminal(ndb.Model):
             'phone': self.phone,
             'payment_types': [x.to_dict() for x in ndb.get_multi(company.payment_types)]
         }
+
+    @classmethod
+    def get_any(cls, iiko_org_id):
+        return cls.query(cls.iiko_organization_id == iiko_org_id).get()
 
 
 class Company(ndb.Model):

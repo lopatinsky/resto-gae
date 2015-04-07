@@ -85,8 +85,6 @@ app = webapp2.WSGIApplication([
     ('/api/venue/(.*)/menu', MenuHandler),
     ('/api/payment_types/(.*)', GetPaymentTypesHandler),
     ('/api/venue/(.*)/order/new', PlaceOrderHandler),
-    ('/api/venue/(.*)/new_orders', VenueNewOrderListHandler),
-    ('/api/check_delivery', GetDeliveryRestrictionsHandler),
     ('/api/iiko_promos', GetVenuePromosHandler),
     ('/api/promo_phone/request_code', promo_phone.RequestCodeHandler),
     ('/api/promo_phone/confirm', promo_phone.ConfirmHandler),
@@ -96,7 +94,6 @@ app = webapp2.WSGIApplication([
     ('/api/order/(.*)/request_cancel', OrderRequestCancelHandler),
     ('/api/order/(.*)', OrderInfoRequestHandler),
     ('/api/status', OrdersStatusHandler),
-    ('/api/get_orders_with_bonuses', GetOrdersWithBonusesHandler),
     ('/api/get_order_promo', GetOrderPromosHandler),
 
     # utility

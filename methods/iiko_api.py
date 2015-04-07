@@ -85,7 +85,7 @@ def _fetch_access_token(company):
 def get_venues(org_id):
     venues = memcache.get('iiko_venues_%s' % org_id)
     if not venues:
-        company = CompanyNew.get_by_id(org_id)
+        company = CompanyNew.get_by_iiko_id(org_id)
         result = __get_request(company, '/organization/list', {})
         logging.info(result)
         obj = json.loads(result)
@@ -99,19 +99,10 @@ def get_venues(org_id):
     return venues
 
 
-def get_stop_list(venue_id):
-    company = CompanyNew.get_by_iiko_id(venue_id)
+def get_stop_list(org_id):
+    company = CompanyNew.get_by_iiko_id(org_id)
     result = __get_request(company, '/stopLists/getDeliveryStopList', {
-        'organization': venue_id,
-    })
-    return json.loads(result)
-
-
-def get_orders_with_payments(venue_id):
-    company = CompanyNew.get_by_iiko_id(venue_id)
-    result = __get_request(company, '/orders/get_orders_with_payments', {
-        'organization': venue_id,
-        'from': datetime.fromtimestamp(1406550552)  # TODO: timestamp
+        'organization': org_id,
     })
     return json.loads(result)
 
@@ -271,26 +262,18 @@ def _filter_menu(menu):
                if c['products'] or c['children']]
 
 
-def get_menu(venue_id, force_reload=False, filtered=True):
-    menu = memcache.get('iiko_menu_%s' % venue_id)
+def get_menu(org_id, force_reload=False, filtered=True):
+    menu = memcache.get('iiko_menu_%s' % org_id)
     if not menu or force_reload:
-        company = CompanyNew.get_by_iiko_id(venue_id)
+        company = CompanyNew.get_by_iiko_id(org_id)
         if not company.menu or force_reload:
             company.menu = _load_menu(company)
             company.put()
         menu = company.menu
-        memcache.set('iiko_menu_%s' % venue_id, menu, time=1*3600)
+        memcache.set('iiko_menu_%s' % org_id, menu, time=1*3600)
     if filtered:
         _filter_menu(menu)
     return menu
-
-
-def check_food(venue_id, items):
-    stop_list = get_stop_list(venue_id)
-    for item in stop_list['stopList'][0]['items']:
-        if item['productId'] in [x['id'] for x in items]:
-            return True
-    return False
 
 
 def set_gifts(order, order_from_dict, gifts):
@@ -421,16 +404,18 @@ def prepare_order(order, customer, payment_type):
         obj['customer']['id'] = customer.customer_id
 
     if not order.is_delivery:
-        obj['deliveryTerminalId'] = get_delivery_terminal_id(order.venue_id)
-    elif order.venue_id == CompanyNew.ORANGE_EXPRESS:
-        dt_mapping = {
-            u"Одинцово": "2b20fde1-727f-e430-013e-203bb2e09905",
-            u"Егорьевск": "2b20fde1-727f-e430-013e-203bb2e09af1",
-            u"Подольск": "e0a67a59-c018-2c9c-0149-893d7b97148e",
-            u"Климовск": "e0a67a59-c018-2c9c-0149-893d7b97148e",
-            u"Домодедово": "2d163ab4-ce5d-e5cf-014b-84e547cfdf79"
-        }
-        obj['deliveryTerminalId'] = dt_mapping[order.address['city']]
+        obj['deliveryTerminalId'] = order.delivery_terminal_id
+    else:
+        order.delivery_terminal_id = None
+        if order.venue_id == CompanyNew.ORANGE_EXPRESS:
+            dt_mapping = {
+                u"Одинцово": "2b20fde1-727f-e430-013e-203bb2e09905",
+                u"Егорьевск": "2b20fde1-727f-e430-013e-203bb2e09af1",
+                u"Подольск": "e0a67a59-c018-2c9c-0149-893d7b97148e",
+                u"Климовск": "e0a67a59-c018-2c9c-0149-893d7b97148e",
+                u"Домодедово": "2d163ab4-ce5d-e5cf-014b-84e547cfdf79"
+            }
+            obj['deliveryTerminalId'] = dt_mapping[order.address['city']]
 
     customer_id = customer.customer_id
     if customer_id:
@@ -452,16 +437,16 @@ def prepare_order(order, customer, payment_type):
     return obj
 
 
-def pre_check_order(company_id, order_dict):
-    pre_check = __post_request(company_id, '/orders/checkCreate', {
+def pre_check_order(company, order_dict):
+    pre_check = __post_request(company, '/orders/checkCreate', {
         'requestTimeout': 30
     }, order_dict)
     logging.info(pre_check)
     return json.loads(pre_check)
 
 
-def place_order(company_id, order_dict):
-    result = __post_request(company_id, '/orders/add', {
+def place_order(company, order_dict):
+    result = __post_request(company, '/orders/add', {
         'requestTimeout': 30
     }, order_dict)
     logging.info(result)
@@ -478,21 +463,21 @@ def order_info(order):
     return json.loads(result)
 
 
-def order_info1(order_id, venue_id):
-    company = CompanyNew.get_by_iiko_id(venue_id)
+def order_info1(order_id, org_id):
+    company = CompanyNew.get_by_iiko_id(org_id)
     result = __get_request(company, '/orders/info', {
         'requestTimeout': 30,
-        'organization': venue_id,
+        'organization': org_id,
         'order': order_id
     })
     logging.info(result)
     return json.loads(result)
 
 
-def get_history(client_id, venue_id):
-    company = CompanyNew.get_by_iiko_id(venue_id)
+def get_history(client_id, org_id):
+    company = CompanyNew.get_by_iiko_id(org_id)
     result = __get_request(company, '/orders/deliveryHistory', {
-        'organization': venue_id,
+        'organization': org_id,
         'customer': client_id,
         'requestTimeout': 20
     })
@@ -500,45 +485,18 @@ def get_history(client_id, venue_id):
     return obj
 
 
-def get_new_orders(venue_id, start_date, end_date):
-    company = CompanyNew.get_by_iiko_id(venue_id)
-    offset = timedelta(seconds=company.get_timezone_offset())
-    if not start_date:
-        start_date = datetime(2000, 1, 1, 0, 0, 0)
-    start_date += offset
-    if not end_date:
-        end_date = datetime.now()
-    end_date += offset
-
-    result = __get_request(company, '/orders/deliveryOrders', {
-        'organization': venue_id,
-        'dateFrom': start_date.strftime('%Y-%m-%d %H:%M:%S'),
-        'dateTo': end_date.strftime('%Y-%m-%d %H:%M:%S'),
-    })
-    obj = json.loads(result)
-    return obj
-
-
-def get_payment_types(venue_id):
-    company = CompanyNew.get_by_iiko_id(venue_id)
+def get_payment_types(org_id):
+    company = CompanyNew.get_by_iiko_id(org_id)
     result = __get_request(company, '/paymentTypes/getPaymentTypes', {
-        'organization': venue_id
+        'organization': org_id
     })
     obj = json.loads(result)
     return obj
 
 
-def get_delivery_restrictions(venue_id):
-    company = CompanyNew.get_by_iiko_id(venue_id)
-    result = __get_request(company, '/deliverySettings/getDeliveryRestrictions', {
-        'organization': venue_id,
-    })
-    return json.loads(result)
-
-
-def get_venue_promos(venue_id):
-    url = '/organization/%s/marketing_campaigns' % venue_id
-    company = CompanyNew.get_by_iiko_id(venue_id)
+def get_venue_promos(org_id):
+    url = '/organization/%s/marketing_campaigns' % org_id
+    company = CompanyNew.get_by_iiko_id(org_id)
     promos = json.loads(__get_request(company, url, {}))
     return [{
         'id': promo['id'],
@@ -553,7 +511,7 @@ def get_venue_promos(venue_id):
     } for i, promo in enumerate(promos)]
 
 
-def list_menu(venue_id):
+def list_menu(org_id):
 
     def get_categories(cat_parent):
         result_c = []
@@ -567,7 +525,7 @@ def list_menu(venue_id):
             result_p.append(product)
         return result_p
 
-    menu = get_menu(venue_id, filtered=False)
+    menu = get_menu(org_id, filtered=False)
     queue = deque(menu)
     products = []
     while len(queue):
@@ -580,15 +538,15 @@ def list_menu(venue_id):
     return products
 
 
-def get_product_from_menu(venue_id, product_code=None, product_id=None):
-    menu = list_menu(venue_id)
+def get_product_from_menu(org_id, product_code=None, product_id=None):
+    menu = list_menu(org_id)
     for product in menu:
         if product['productId'] == product_id or product['code'] == product_code:
             return product
 
 
-def get_product_by_modifier_item(venue_id, id_modifier):
-    menu = list_menu(venue_id)
+def get_product_by_modifier_item(org_id, id_modifier):
+    menu = list_menu(org_id)
     for product in menu:
         for mod in product['modifiers']:
             for m_item in mod['items']:
@@ -596,11 +554,11 @@ def get_product_by_modifier_item(venue_id, id_modifier):
                     return product
 
 
-def get_group_modifier_item(venue_id, product_code=None, product_id=None, order_mod_code=None, order_mod_id=None):
-    product = get_product_from_menu(venue_id, product_code=product_code, product_id=product_id)
+def get_group_modifier_item(org_id, product_code=None, product_id=None, order_mod_code=None, order_mod_id=None):
+    product = get_product_from_menu(org_id, product_code=product_code, product_id=product_id)
     if not product:
         modifiers = []
-        for item in list_menu(venue_id):
+        for item in list_menu(org_id):
             modifiers.extend(item.get('modifiers'))
     else:
         modifiers = product.get('modifiers', [])
@@ -610,8 +568,8 @@ def get_group_modifier_item(venue_id, product_code=None, product_id=None, order_
                 return m_item
 
 
-def get_group_modifier(venue_id, group_id, modifier_id):
-    menu = get_menu(venue_id, filtered=False)
+def get_group_modifier(org_id, group_id, modifier_id):
+    menu = get_menu(org_id, filtered=False)
     group_modifiers, modifiers = _get_menu_modifiers(menu)
     items = group_modifiers[group_id]['items']
     for item in items:
@@ -619,8 +577,8 @@ def get_group_modifier(venue_id, group_id, modifier_id):
             return item
 
 
-def get_promo_by_id(venue_id, promo_id):
-    promos = get_venue_promos(venue_id)
+def get_promo_by_id(org_id, promo_id):
+    promos = get_venue_promos(org_id)
     for promo in promos:
         if promo['id'] == promo_id:
             return promo
@@ -712,29 +670,29 @@ def get_order_promos(order, order_dict, set_info=False):
     return result
 
 
-def get_delivery_terminals(venue_id):
-    memcache_key = "deliveryTerminals_%s" % venue_id
+def get_delivery_terminals(org_id):
+    memcache_key = "deliveryTerminals_%s" % org_id
     result = memcache.get(memcache_key)
     if not result:
-        company = CompanyNew.get_by_iiko_id(venue_id)
+        company = CompanyNew.get_by_iiko_id(org_id)
         response = __get_request(company, '/deliverySettings/getDeliveryTerminals', {
-            'organization': venue_id
+            'organization': org_id
         })
         result = json.loads(response)['deliveryTerminals']
         memcache.set(memcache_key, result, time=24*3600)
     return result
 
 
-def get_delivery_terminal_id(venue_id):
-    terminals = get_delivery_terminals(venue_id)
+def get_delivery_terminal_id(org_id):
+    terminals = get_delivery_terminals(org_id)
     if terminals:
         return terminals[0]['deliveryTerminalId']
     return None
 
 
-def get_customer_by_phone(company_id, phone, venue_id):
-    result = __get_request(company_id, '/customers/get_customer_by_phone', {
-        'organization': venue_id,
+def get_customer_by_phone(company, phone):
+    result = __get_request(company, '/customers/get_customer_by_phone', {
+        'organization': company.iiko_org_id,
         'phone': phone
     })
     if result:
@@ -743,17 +701,17 @@ def get_customer_by_phone(company_id, phone, venue_id):
         return 'failure'
 
 
-def get_customer_by_id(company_id, customer_id, venue_id):
-    result = __get_request(company_id, '/customers/get_customer_by_id', {
-        'organization': venue_id,
+def get_customer_by_id(company, customer_id):
+    result = __get_request(company, '/customers/get_customer_by_id', {
+        'organization': company.iiko_org_id,
         'id': customer_id
     })
     return json.loads(result)
 
 
-def create_or_update_customer(company_id, venue_id, data):
-    result = __post_request(company_id, '/customers/create_or_update', {
-        'organization': venue_id
+def create_or_update_customer(company, data):
+    result = __post_request(company, '/customers/create_or_update', {
+        'organization': company.iiko_org_id
     }, {'customer': data})
     return result.strip('"')
 

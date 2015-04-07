@@ -2,7 +2,7 @@
 
 import logging
 from api.base import BaseHandler
-from models.iiko import Order
+from models.iiko import Order, DeliveryTerminal
 from methods import iiko_api
 import json
 
@@ -21,19 +21,23 @@ class OrdersStatusHandler(BaseHandler):
 
         for item in arr["orders"]:
             # get ids and info
-            venue_id = item['venue_id']
+            delivery_terminal_id = item['venue_id']
+            delivery_terminal = DeliveryTerminal.get_by_id(delivery_terminal_id)
+            if not delivery_terminal:
+                # old version: got organization id instead of DT id
+                delivery_terminal = DeliveryTerminal.get_any(delivery_terminal_id)
+                delivery_terminal_id = delivery_terminal.key.id()
             order_id = item['order_id']
 
-            order_info = iiko_api.order_info1(order_id, venue_id)
+            order_info = iiko_api.order_info1(order_id, delivery_terminal.iiko_organization_id)
             if 'httpStatusCode' not in order_info:
-                venue = Venue.venue_by_id(venue_id)
-                address = venue.address
-                name = venue.name
+                address = delivery_terminal.address
+                name = delivery_terminal.name
 
                 # make dict
                 status_list.append({
                     'order_id': order_id,
-                    'venue_id': venue_id,
+                    'venue_id': delivery_terminal_id,
                     'status': Order.parse_status(order_info['status']),
                     'address': address,
                     'name': name,

@@ -12,7 +12,7 @@ import base
 from methods import iiko_api, working_hours, filter_phone
 from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum, check_extended_status, get_bindings
 from models import iiko
-from models.iiko import CompanyNew, ClientInfo, Order
+from models.iiko import CompanyNew, ClientInfo, Order, DeliveryTerminal
 from models.specials import MivakoGift
 from specials import fix_syrop, fix_modifiers_by_own
 
@@ -28,7 +28,7 @@ class PlaceOrderHandler(base.BaseHandler):
             'description': description
         })
 
-    def post(self, venue_id):
+    def post(self, delivery_terminal_id):
         logging.info(self.request.POST)
         name = self.request.get('name').strip()
         phone = filter_phone(self.request.get('phone'))
@@ -61,8 +61,15 @@ class PlaceOrderHandler(base.BaseHandler):
         customer.name = name
         customer.custom_data = custom_data
 
-        company = CompanyNew.get_by_iiko_id(venue_id)
-        company_id = company.key.id()
+        delivery_terminal = DeliveryTerminal.get_by_id(delivery_terminal_id)
+        if delivery_terminal:
+            org_id = delivery_terminal.iiko_organization_id
+        else:
+            org_id = delivery_terminal_id
+        company = CompanyNew.get_by_iiko_id(org_id)
+        if not delivery_terminal:
+            delivery_terminal = DeliveryTerminal.get_any(company.iiko_org_id)
+            delivery_terminal_id = delivery_terminal.key.id()
 
         order = iiko.Order()
         order.sum = float(order_sum)
@@ -85,7 +92,8 @@ class PlaceOrderHandler(base.BaseHandler):
                     start, end = working_hours.parse_company_schedule(company.schedule, local_time.isoweekday())
                     return self.send_error(u'Заказы будут доступны c %s до %s. Попробуйте в следующий раз.' % (start, end))
 
-        order.venue_id = venue_id
+        order.delivery_terminal_id = delivery_terminal_id
+        order.venue_id = company.iiko_org_id
         gifts = json.loads(self.request.get('gifts')) if self.request.get('gifts') else []
         order.customer = customer.key
 
@@ -95,9 +103,9 @@ class PlaceOrderHandler(base.BaseHandler):
                 for mod in item["modifiers"]:
                     if mod["amount"] == 0:
                         mod["amount"] = 1
-        if venue_id == CompanyNew.COFFEE_CITY:
+        if company.iiko_org_id == CompanyNew.COFFEE_CITY:
             items = fix_syrop.set_syrop_items(items)
-            items = fix_modifiers_by_own.set_modifier_by_own(venue_id, items)
+            items = fix_modifiers_by_own.set_modifier_by_own(company.iiko_org_id, items)
         order.items = items
 
         order.comment = comment
@@ -112,15 +120,15 @@ class PlaceOrderHandler(base.BaseHandler):
                 self.abort(400)
 
         order_dict = iiko_api.prepare_order(order, customer, payment_type)
-        pre_check_result = iiko_api.pre_check_order(company_id, order_dict)
+        pre_check_result = iiko_api.pre_check_order(company, order_dict)
         if 'code' in pre_check_result:
             logging.warning('iiko pre check failed')
             self.abort(400)
 
         error = None
         for restriction in config.RESTRICTIONS:
-            if venue_id in restriction['venues']:
-                error = restriction['method'](order_dict, restriction['venues'][venue_id])
+            if company.iiko_org_id in restriction['venues']:
+                error = restriction['method'](order_dict, restriction['venues'][company.iiko_org_id])
                 logging.info(error)
                 if error:
                     break
@@ -224,7 +232,7 @@ class PlaceOrderHandler(base.BaseHandler):
                 self.abort(400)
         order.alfa_order_id = order_id
 
-        result = iiko_api.place_order(company_id, order_dict)
+        result = iiko_api.place_order(company, order_dict)
 
         if 'code' in result.keys():
             logging.error('iiko failure')
@@ -254,7 +262,7 @@ class PlaceOrderHandler(base.BaseHandler):
 
         order.put()
 
-        if venue_id == CompanyNew.ORANGE_EXPRESS:
+        if company.iiko_org_id == CompanyNew.ORANGE_EXPRESS:
             try:
                 send_express_email(order, customer, company)
             except DownloadError:
@@ -273,7 +281,7 @@ class PlaceOrderHandler(base.BaseHandler):
                 #'discounts': order.discount_sum,  # it was added
                 'payments': order_dict['order']['paymentItems'],  # it was added
                 'number': order.number,
-                'venue_id': order.venue_id,
+                'venue_id': order.delivery_terminal_id,
                 'address': order.address,
                 'date': int(self.request.get('date')),
                 },
@@ -293,68 +301,6 @@ class OrderInfoRequestHandler(base.BaseHandler):
         self.render_json({
             'order': order.to_dict()
         })
-
-
-class VenueNewOrderListHandler(base.BaseHandler):
-    """ /api/venue/%s/new_orders """
-    def get(self, venue_id):
-        start = self.request.get_range("start")
-        end = self.request.get_range("end")
-        start_date = datetime.datetime.fromtimestamp(start) if start else None
-        end_date = datetime.datetime.fromtimestamp(end) if end else None
-        orders = iiko_api.get_new_orders(venue_id, start_date, end_date)
-        logging.info(orders)
-
-        menu = iiko_api.get_menu(venue_id)
-        images_map = {}
-
-        def process_category(category):
-            for product in category['products']:
-                images_map[product['productId']] = product['images']
-            for subcategory in category['children']:
-                process_category(subcategory)
-        for c in menu:
-            process_category(c)
-
-        order_list = []
-        for order in orders['deliveryOrders']:
-            order_items = []
-            for item in order['items']:
-                order_items.append({
-                    'sum': item['sum'],
-                    'amount': item['amount'],
-                    'name': item['name'],
-                    'modifiers': item['modifiers'],
-                    'id': item['id'],
-                    'images': images_map.get(item['id'], [])
-                })
-
-            address = {}
-            if order['address']:
-                address = {'city': order['address']['city'],
-                           'street': order['address']['street'],
-                           'home': order['address']['home'],
-                           'apartment': order['address']['apartment'],
-                           'housing': order['address']['housing'],
-                           'entrance': order['address']['entrance'],
-                           'floor': order['address']['floor'], }
-
-            order_list.append({
-                'order_id': order['orderId'],
-                'number': order['number'],
-                'address': address,
-                'createdDate': time.mktime(datetime.datetime.strptime(order['createdTime'], "%Y-%m-%d %H:%M:%S").timetuple()),
-                'deliveryDate': time.mktime(datetime.datetime.strptime(order['deliveryDate'], "%Y-%m-%d %H:%M:%S").timetuple()),
-                'client_id': order['customer']['id'],
-                'phone': order['customer']['phone'],
-                'discount': order['discount'],
-                'sum': order['sum'],
-                'items': order_items,
-                'venue_id': venue_id,
-                'status': iiko.Order.parse_status(order['status'])
-            })
-        logging.info(len(order_list))
-        self.render_json({'orders': order_list})
 
 
 class OrderRequestCancelHandler(base.BaseHandler):

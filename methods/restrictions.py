@@ -41,8 +41,8 @@ def restrict_product_by_time(order_dict, restriction_array):
     for item in order_dict['order']['items']:
         if item['id'] not in item_ids:
             item_ids.append(item['id'])
-    venue_id = order_dict['restaurantId']
-    menu = get_menu(venue_id=venue_id)
+    org_id = order_dict['restaurantId']
+    menu = get_menu(org_id=org_id)
     for restriction in restriction_array:
         restricted_products = get_products_by_category(menu, restriction['category_id'])
         restricted_product_ids = [product['productId'] for product in restricted_products]
@@ -51,6 +51,6 @@ def restrict_product_by_time(order_dict, restriction_array):
         for item_id in item_ids:
             if item_id in restricted_product_ids and\
                     not is_datetime_valid(schedule, order_datetime):
-                item = get_product_from_menu(venue_id, product_id=item_id)
+                item = get_product_from_menu(org_id, product_id=item_id)
                 start, end = parse_company_schedule(schedule, order_datetime.isoweekday())
                 return u'%s невозможно сейчас заказать. Попробуйте в другое время с %s до %s' % (item['name'], start, end)
