@@ -103,3 +103,11 @@ class CATGetCompanyIdHandler(BaseHandler):
             "company_id": 0,
             "base_url": "http://example.com/"
         })
+
+
+class CATGetCompanyIdHandler2(BaseHandler):
+    def get(self):
+        self.render_json({
+            "company_id": 5660160231997440,
+            "base_url": "http://m.empatika-resto-test.appspot.com/api/"
+        })

@@ -107,6 +107,7 @@ app = webapp2.WSGIApplication([
     ('/api/specials/cat_add_social', specials.CATAddSocialHandler),
     ('/api/specials/cat_places', specials.CATFetchCoffeeShopsHandler),
     ('/api/specials/cat_company_id', specials.CATGetCompanyIdHandler),
+    ('/api/specials/cat_company_id_2', specials.CATGetCompanyIdHandler2),
 
     webapp2.Route('/get/<app:[a-z]{,3}>', share.GATrackDownloadHandler),
 
