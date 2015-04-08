@@ -46,7 +46,6 @@ class PlaceOrderHandler(base.BaseHandler):
         payment_type = self.request.get('paymentType')
         address = self.request.get('address')
         comment = self.request.get('comment')
-        order_sum = self.request.get('sum')
         binding_id = self.request.get('binding_id')
         alpha_client_id = self.request.get('alpha_client_id')
 
@@ -72,7 +71,6 @@ class PlaceOrderHandler(base.BaseHandler):
             delivery_terminal_id = delivery_terminal.key.id()
 
         order = iiko.Order()
-        order.sum = float(order_sum)
         order.date = datetime.datetime.utcfromtimestamp(int(self.request.get('date')))
 
         # TODO: ios 7 times fuckup
@@ -107,6 +105,8 @@ class PlaceOrderHandler(base.BaseHandler):
             items = fix_syrop.set_syrop_items(items)
             items = fix_modifiers_by_own.set_modifier_by_own(company.iiko_org_id, items)
         order.items = items
+        order.sum = iiko_api.calc_sum(items, company.iiko_org_id)
+        logging.info("calculated sum: %s, app sum: %s", order.sum, self.request.get('sum'))
 
         order.comment = comment
         order.is_delivery = int(delivery_type) == 0

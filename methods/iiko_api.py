@@ -352,6 +352,27 @@ def add_bonus_to_payment(order, bonus_sum, is_deducted):
         return False
 
 
+def calc_sum(items, iiko_org_id):
+    menu = list_menu(iiko_org_id)
+    menu_dict = {}
+    mods_dict = {}
+    for p in menu:
+        menu_dict[p['productId']] = p
+        for mod in p['single_modifiers']:
+            mods_dict[mod['id']] = mod
+        for group in p['modifiers']:
+            for mod in group['items']:
+                mods_dict[mod['id']] = mod
+
+    result = 0.0
+    for item in items:
+        result += menu_dict[item['id']]['price'] * item['amount']
+        for mod in item['modifiers']:
+            result += mods_dict[mod['id']]['price'] * mod['amount']
+
+    return result
+
+
 def prepare_order(order, customer, payment_type):
     company = CompanyNew.get_by_iiko_id(order.venue_id)
     local_date = order.date + timedelta(seconds=company.get_timezone_offset())
