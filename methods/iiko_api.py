@@ -85,7 +85,7 @@ def _fetch_access_token(company):
 def get_venues(org_id):
     venues = memcache.get('iiko_venues_%s' % org_id)
     if not venues:
-        company = CompanyNew.get_by_iiko_id(org_id)
+        company = CompanyNew.get_by_id(org_id)
         result = __get_request(company, '/organization/list', {})
         logging.info(result)
         obj = json.loads(result)

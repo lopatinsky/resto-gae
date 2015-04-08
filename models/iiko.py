@@ -382,6 +382,7 @@ class Venue(ndb.Model):
 class DeliveryTerminal(ndb.Model):
     company_id = ndb.IntegerProperty()
     iiko_organization_id = ndb.StringProperty()
+    active = ndb.BooleanProperty(default=False)
     name = ndb.StringProperty(indexed=False)
     phone = ndb.StringProperty(indexed=False)
     address = ndb.StringProperty(indexed=False)
@@ -402,7 +403,7 @@ class DeliveryTerminal(ndb.Model):
 
     @classmethod
     def get_any(cls, iiko_org_id):
-        return cls.query(cls.iiko_organization_id == iiko_org_id).get()
+        return cls.query(cls.iiko_organization_id == iiko_org_id, cls.active == True).get()
 
 
 class Company(ndb.Model):

@@ -39,6 +39,7 @@ class CreateNewCompaniesHandler(BaseHandler):
             for dt in dts:
                 DeliveryTerminal(
                     id=dt['deliveryTerminalId'],
+                    active=dt['deliveryTerminalId'] != 'd7fd5599-814a-79be-0146-b83a4192096f',
                     phone=c.phone or '',
                     company_id=c.key.id(),
                     iiko_organization_id=venue.venue_id,
