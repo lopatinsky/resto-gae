@@ -2,6 +2,8 @@
 import copy
 
 from api.base import BaseHandler
+from api.specials import fix_modifiers_by_own
+from api.specials import fix_syrop
 from methods.maps import get_address_by_key
 import json
 from methods import iiko_api, working_hours, filter_phone
@@ -75,11 +77,16 @@ class GetOrderPromosHandler(BaseHandler):
         customer.phone = phone
         customer.name = name
 
+        items = json.loads(self.request.get('items'))
+        if company.iiko_org_id == CompanyNew.COFFEE_CITY:
+            items = fix_syrop.set_syrop_items(items)
+            items = fix_modifiers_by_own.set_modifier_by_own(company.iiko_org_id, items)
+
         order = iiko.Order()
         order.date = datetime.datetime.fromtimestamp(date)
         order.venue_id = company.iiko_org_id
         order.sum = float(order_sum)
-        order.items = json.loads(self.request.get('items'))
+        order.items = items
 
         order_dict = iiko_api.prepare_order(order, customer, None)
 

@@ -59,7 +59,8 @@ def set_syrop_items(items):
                         items.append({
                             'name': modifier['name'],
                             'id': modifier['id'],
-                            'amount': modifier['amount']
+                            'amount': modifier['amount'],
+                            'modifiers': [],
                         })
                     modifiers.remove(modifier)
     return items
