@@ -39,3 +39,9 @@ def set_modifier_by_own(iiko_org_id, items):
                     else:
                         item['modifiers'] = [new_modifier]
     return items
+
+
+def remove_modifiers_from_item(item):
+    for m in item['modifiers'][:]:
+        if m['groupId'] == BY_OWN_GROUP_MODIFIER_ID:
+            item['modifiers'].remove(m)

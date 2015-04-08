@@ -268,6 +268,12 @@ class PlaceOrderHandler(base.BaseHandler):
             except DownloadError:
                 logging.warning('mandrill is not responsed')
 
+        response_items = order.items
+        if company.iiko_org_id == CompanyNew.COFFEE_CITY:
+            response_items = json.loads(json.dumps(order.items))
+            for item in response_items:
+                fix_modifiers_by_own.remove_modifiers_from_item(item)
+
         resp = {
             'customer_id': customer.customer_id,
             #'success': True,
@@ -276,7 +282,7 @@ class PlaceOrderHandler(base.BaseHandler):
             'order': {
                 'order_id': order.order_id,
                 'status': order.status,
-                'items': order.items,
+                'items': response_items,
                 'sum': order.sum,
                 #'discounts': order.discount_sum,  # it was added
                 'payments': order_dict['order']['paymentItems'],  # it was added
@@ -288,6 +294,7 @@ class PlaceOrderHandler(base.BaseHandler):
             'error': False,
             'error_code': 0,
         }
+        logging.info(resp)
 
         self.render_json(resp)
 

@@ -2,6 +2,7 @@
 
 import logging
 from api.base import BaseHandler
+from api.specials import fix_modifiers_by_own
 from methods import iiko_api
 import time
 from datetime import datetime
@@ -32,6 +33,8 @@ class HistoryHandler(BaseHandler):
                             'modifiers': order_items['modifiers'],
                             'id': order_items['id'],
                         }
+                        if company.iiko_org_id == CompanyNew.COFFEE_CITY:
+                            fix_modifiers_by_own.remove_modifiers_from_item(item)
                         if order_items['sum'] != 0:
                             items_list.append(item)
                         else:
