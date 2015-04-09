@@ -171,6 +171,8 @@ def _load_menu(company):
 
         if company.iiko_org_id == CompanyNew.VENEZIA:
             product['name'] = product['name'].lstrip("0123456789. ")
+        if company.iiko_org_id == CompanyNew.COFFEE_CITY:
+            product['weight'] = 0
 
         category_products[product['parentGroup']].append({
             'price': product['price'],
