@@ -26,6 +26,9 @@ webapp2_config = {
 }
 
 app = webapp2.WSGIApplication([
+    # customer
+    ('/api/customer/register', RegisterHandler),
+
     # payment
     ('/api/alfa/registration', PreCheckHandler),
     ('/api/alfa/check', CheckStatusHandler),

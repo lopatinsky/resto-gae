@@ -24,7 +24,7 @@ class GetInvitationUrlsHandler(BaseHandler):
         customer = Customer.customer_by_customer_id(customer_id)
         if not customer:
             self.abort(400)
-        share = Share(share_type=branch_io.SHARE, sender=customer.key)
+        share = Share(share_type=branch_io.INVITATION, sender=customer.key)
         share.put()
 
         text_id, values = GetInvitationUrlsHandler.get_general_shared_dict()

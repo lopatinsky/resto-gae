@@ -17,3 +17,4 @@ from alfa_bank import CheckStatusHandler, CreateByCardHandler, PayByCardHandler,
 from image_proxy import ImageProxyHandler
 from automation import CreateOrUpdateCompanyHandler, GetCompanyHandler, GetCompaniesHandler, UploadIconsHandler,\
     DownloadIconsHandler
+from register import RegisterHandler
