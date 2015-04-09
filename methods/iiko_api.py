@@ -736,10 +736,7 @@ def get_customer_by_phone(company_id, phone, venue_id):
         'organization': venue_id,
         'phone': phone
     })
-    if result:
-        return json.loads(result)
-    else:
-        return 'failure'
+    return json.loads(result)
 
 
 def get_customer_by_id(company_id, customer_id, venue_id):

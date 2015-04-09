@@ -205,6 +205,7 @@ class Order(ndb.Model):
 
     def _handle_changes(self, changes):
         from methods.alfa_bank import pay_by_card, get_back_blocked_sum
+        from models.specials import SharedBonus
         if self.source != 'app':
             return
 
@@ -220,6 +221,10 @@ class Order(ndb.Model):
                     logging.info("pay")
                     logging.info(str(pay_result))
                     if 'errorCode' not in pay_result.keys() or str(pay_result['errorCode']) == '0':
+                        bonus = SharedBonus.query(SharedBonus.recipient == self.customer,
+                                                  SharedBonus.status == SharedBonus.READY).get()
+                        venue = Venue.venue_by_id(self.venue_id)
+                        bonus.deactivate(venue.company_id, venue.venue_id)
                         logging.info("pay succeeded")
                     else:
                         logging.warning("pay failed")
@@ -329,6 +334,7 @@ class Venue(ndb.Model):
 
     def get_payment_type(self, type_id):
         for item in ndb.get_multi(self.payment_types):
+            logging.info(self.payment_types)
             if item.type_id == int(type_id):
                 return item
         return None

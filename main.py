@@ -110,6 +110,10 @@ app = webapp2.WSGIApplication([
 
     webapp2.Route('/get/<app:[a-z]{,3}>', share.GATrackDownloadHandler),
 
+    # branch_features
+    ('/shared/invitation/get_url', specials.GetInvitationUrlsHandler),
+    ('/shared/gift/get_url', specials.GetGiftUrlsHandler),
+
     ('/img/(.*)', ImageProxyHandler),
 
     ('/', MainHandler),

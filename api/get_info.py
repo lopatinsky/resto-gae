@@ -33,7 +33,17 @@ class GetVenuePromosHandler(BaseHandler):
         venue_id = self.request.get('venue_id')
         phone = filter_phone(self.request.get('phone'))
         company_id = Venue.venue_by_id(venue_id).company_id
+        branch = []
+        if venue_id in config.INVITATION_BRANCH_VENUES:
+            branch.append({
+                'info': 'Пригласи друга'
+            })
+        if venue_id in config.GIFT_BRANCH_VENUES:
+            branch.append({
+                'info': 'Подари другу'
+            })
         return self.render_json({
+            "branch": branch,
             "promos": iiko_api.get_venue_promos(venue_id),
             "balance": iiko_api.get_customer_by_phone(company_id, phone, venue_id).get('balance', 0.0)
         })
