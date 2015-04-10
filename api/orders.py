@@ -69,6 +69,7 @@ class PlaceOrderHandler(base.BaseHandler):
         if not delivery_terminal:
             delivery_terminal = DeliveryTerminal.get_any(company.iiko_org_id)
             delivery_terminal_id = delivery_terminal.key.id()
+        response_delivery_terminal_id = delivery_terminal_id
 
         order = iiko.Order()
         order.date = datetime.datetime.utcfromtimestamp(int(self.request.get('date')))
@@ -119,6 +120,7 @@ class PlaceOrderHandler(base.BaseHandler):
             except:
                 self.abort(400)
 
+        # this resets order.delivery_terminal_id if it is delivery (not takeout)
         order_dict = iiko_api.prepare_order(order, customer, payment_type)
         pre_check_result = iiko_api.pre_check_order(company, order_dict)
         if 'code' in pre_check_result:
@@ -287,7 +289,7 @@ class PlaceOrderHandler(base.BaseHandler):
                 #'discounts': order.discount_sum,  # it was added
                 'payments': order_dict['order']['paymentItems'],  # it was added
                 'number': order.number,
-                'venue_id': order.delivery_terminal_id,
+                'venue_id': response_delivery_terminal_id,
                 'address': order.address,
                 'date': int(self.request.get('date')),
                 },

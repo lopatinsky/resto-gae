@@ -369,7 +369,7 @@ def calc_sum(items, iiko_org_id):
     result = 0.0
     for item in items:
         result += menu_dict[item['id']]['price'] * item['amount']
-        for mod in item['modifiers']:
+        for mod in item.get('modifiers', []):
             result += mods_dict[mod['id']]['price'] * mod['amount']
 
     return result
