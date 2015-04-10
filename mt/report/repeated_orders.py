@@ -11,7 +11,7 @@ import calendar
 
 class RepeatedOrdersReportHandler(BaseHandler):
 
-    def get_app_repeated_orders(self, chosen_year, chosen_month, chosen_day, venue_id):
+    def get_app_repeated_orders(self, chosen_year, chosen_month, chosen_day, org_id):
         days = []
         total = {
             'new_number': 0,
@@ -31,9 +31,9 @@ class RepeatedOrdersReportHandler(BaseHandler):
             end = suitable_date(day, chosen_month, chosen_year, False)
             query = iiko.Order.query(iiko.Order.date >= start, iiko.Order.date <= end,
                                      iiko.Order.status == iiko.Order.CLOSED)
-            if venue_id:
-                query.filter(iiko.Order.venue_id == venue_id)
-                query = query.filter(iiko.Order.venue_id == venue_id)
+            if org_id:
+                query.filter(iiko.Order.venue_id == org_id)
+                query = query.filter(iiko.Order.venue_id == org_id)
             for order in query.fetch():
                 customer_key = order.customer
                 first_order = iiko.Order.query(iiko.Order.customer == customer_key,
@@ -58,9 +58,9 @@ class RepeatedOrdersReportHandler(BaseHandler):
             total['old_sum'] += old_sum
         return days, total
 
-    def get_iiko_repeated_orders(self, chosen_year, chosen_month, chosen_day, venue_id, chosen_client_number):
-        venue = iiko.Venue.venue_by_id(venue_id)
-        if not venue:
+    def get_iiko_repeated_orders(self, chosen_year, chosen_month, chosen_day, org_id, chosen_client_number):
+        company = iiko.CompanyNew.get_by_iiko_id(org_id)
+        if not company:
             return [], {}
         day_orders = []
         clients_id = []
@@ -70,7 +70,7 @@ class RepeatedOrdersReportHandler(BaseHandler):
                     continue
             start = suitable_date(day, chosen_month, chosen_year, True)
             end = suitable_date(day, chosen_month, chosen_year, False)
-            orders = iiko_api.get_orders(venue, start, end, status='CLOSED')
+            orders = iiko_api.get_orders(company, start, end, status='CLOSED')
             orders = orders.get('deliveryOrders', [])
             day_orders.append(orders)
             for order in orders:
@@ -87,7 +87,7 @@ class RepeatedOrdersReportHandler(BaseHandler):
 
         first_orders = {}
         for client_id in clients_id:
-            orders = iiko_api.get_history(client_id, venue_id)
+            orders = iiko_api.get_history(client_id, org_id)
             orders = orders['historyOrders']
             for order in orders:
                 if not first_orders.get(client_id):
@@ -134,7 +134,7 @@ class RepeatedOrdersReportHandler(BaseHandler):
 
     def get(self):
         chosen_type = self.request.get("selected_type")
-        venue_id = self.request.get("selected_venue")
+        org_id = self.request.get("selected_company")
         chosen_year = self.request.get_range("selected_year")
         chosen_month = self.request.get_range("selected_month")
         chosen_day = self.request.get_range("selected_day")
@@ -143,27 +143,27 @@ class RepeatedOrdersReportHandler(BaseHandler):
             chosen_month = 0
         if not chosen_month:
             chosen_day = 0
-        if not venue_id:
+        if not org_id:
             chosen_type = 'app'
             chosen_year = datetime.now().year
             chosen_month = datetime.now().month
             chosen_day = 0
-        if venue_id == '0':
-            venue_id = None
+        if org_id == '0':
+            org_id = None
 
         if chosen_type == 'app':
-            days, total = self.get_app_repeated_orders(chosen_year, chosen_month, chosen_day, venue_id)
+            days, total = self.get_app_repeated_orders(chosen_year, chosen_month, chosen_day, org_id)
         else:
-            days, total = self.get_iiko_repeated_orders(chosen_year, chosen_month, chosen_day, venue_id,
+            days, total = self.get_iiko_repeated_orders(chosen_year, chosen_month, chosen_day, org_id,
                                                         chosen_client_number)
 
         values = {
-            'venues': iiko.Venue.query().fetch(),
+            'companies': iiko.CompanyNew.query().fetch(),
             'days': days,
             'total': total,
             'chosen_type': chosen_type,
             'chosen_client_number': chosen_client_number,
-            'chosen_venue': iiko.Venue.venue_by_id(venue_id) if venue_id else None,
+            'chosen_company': iiko.CompanyNew.get_by_iiko_id(org_id) if org_id else None,
             'start_year': PROJECT_STARTING_YEAR,
             'end_year': datetime.now().year,
             'chosen_year': chosen_year,

@@ -2,7 +2,7 @@
 __author__ = 'dvpermyakov'
 
 from base import BaseHandler
-from models.iiko import Company
+from models.iiko import CompanyNew
 from models.admin import PushAdmin
 from webapp2_extras import security
 import logging
@@ -10,7 +10,7 @@ import logging
 
 class AutoCreatePushAdmins(BaseHandler):
     def post(self):
-        companies = Company.query().fetch()
+        companies = CompanyNew.query().fetch()
         for company in companies:
             if PushAdmin.query(PushAdmin.company == company.key).get():
                 continue

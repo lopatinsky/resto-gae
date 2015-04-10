@@ -1,5 +1,5 @@
 from . import InstanceResource, ListResource
-from methods.twilio.libs.twilio.six import iteritems
+from ...six import iteritems
 
 
 class ConnectApp(InstanceResource):

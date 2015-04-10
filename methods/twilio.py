@@ -4,7 +4,7 @@ ACCOUNT_SID = 'AC5d5afb5b56277b1a8b281beb198020e8'
 AUTH_TOKEN = 'ae8a9880257d3adf64fb9fe3d0967981'
 FROM_NUMBER = '+14804481171'
 
-from libs.twilio import rest
+from lib.twilio import rest
 import logging
 
 

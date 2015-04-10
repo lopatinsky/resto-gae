@@ -1,26 +1,23 @@
 from datetime import datetime
 from ..base import BaseHandler
-from models.iiko import Venue
+from models.iiko import CompanyNew
 from models.square_table import JsonStorage
 
 
 class SquareTableHandler(BaseHandler):
     def get(self):
         square_list = JsonStorage.get("square_table")
-        venues = Venue.query().fetch()
+        companies = CompanyNew.query().fetch()
         if square_list:
-            for venue in venues:
-                square = square_list.get(venue.venue_id)
-                if not square:
-                    continue
+            for square in square_list.values():
                 for row in square:
                     for cell in row:
                         cell["begin"] = datetime.fromtimestamp(cell["begin"])
                         cell["end"] = datetime.fromtimestamp(cell["end"])
-            venue_id = self.request.get_range('selected_venue')
-            if not venue_id:
-                venue_id = Venue.venue_by_id(Venue.ORANGE_EXPRESS).key.id()
-            self.render('reported_square_table.html', square=square_list, chosen_venue=Venue.get_by_id(venue_id),
-                        venues=venues)
+            company_id = self.request.get_range('selected_company')
+            if not company_id:
+                company_id = CompanyNew.get_by_iiko_id(CompanyNew.ORANGE_EXPRESS).key.id()
+            self.render('reported_square_table.html', square=square_list,
+                        chosen_company=CompanyNew.get_by_id(company_id), companies=companies)
         else:
             self.response.write("Report not ready")

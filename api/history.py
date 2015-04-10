@@ -2,23 +2,23 @@
 
 import logging
 from api.base import BaseHandler
+from api.specials import fix_modifiers_by_own
 from methods import iiko_api
 import time
 from datetime import datetime
+from models.iiko import DeliveryTerminal, CompanyNew
 
 
 class HistoryHandler(BaseHandler):
     """ /api/history """
-    overall_history = list()
-
     def get(self):
         client_id = self.request.get('client_id')
         org_id = self.request.get('organisation_id')
-        for venue in iiko_api.get_venues(org_id):
-            logging.info(str(venue))
-            history = iiko_api.get_history(client_id, venue.venue_id)
+        overall_history = []
+        company = CompanyNew.get_by_id(int(org_id))
+        history = iiko_api.get_history(client_id, company.iiko_org_id)
+        for delivery_terminal in DeliveryTerminal.get_any(company.iiko_org_id), :
             orders_history = list()
-            self.overall_history = list()
             if 'historyOrders' not in history or not history['historyOrders']:
                 pass
             else:
@@ -33,6 +33,8 @@ class HistoryHandler(BaseHandler):
                             'modifiers': order_items['modifiers'],
                             'id': order_items['id'],
                         }
+                        if company.iiko_org_id == CompanyNew.COFFEE_CITY:
+                            fix_modifiers_by_own.remove_modifiers_from_item(item)
                         if order_items['sum'] != 0:
                             items_list.append(item)
                         else:
@@ -66,13 +68,13 @@ class HistoryHandler(BaseHandler):
                         'sum': order['sum'],
                         'items': items_list,
                         'gifts': gift_list,
-                        'venue_id': venue.venue_id,
+                        'venue_id': delivery_terminal.key.id(),
                     })
-            self.overall_history.append({
-                'venue_id': venue.venue_id,
-                'address': venue.address,
-                'name': venue.name,
+            overall_history.append({
+                'venue_id': delivery_terminal.key.id(),
+                'address': delivery_terminal.address,
+                'name': delivery_terminal.name,
                 'local_history': orders_history
             })
 
-        self.render_json({'history': self.overall_history})
+        self.render_json({'history': overall_history})

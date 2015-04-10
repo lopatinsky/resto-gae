@@ -1,7 +1,7 @@
 # coding=utf-8
 from ..base import BaseHandler
 import logging
-from models.iiko import Customer, PaymentType, Venue
+from models.iiko import Customer, PaymentType, CompanyNew
 from models.specials import Share, SharedGift
 from methods import branch_io
 from config import config
@@ -17,8 +17,9 @@ class GetInvitationUrlsHandler(BaseHandler):
         }
 
     def get(self):
-        venue_id = self.request.get('venue_id')
-        if not venue_id in config.INVITATION_BRANCH_VENUES:
+        company_id = self.request.get_range('company_id')
+        org_id = CompanyNew.get_by_id(company_id).iiko_org_id
+        if not org_id in config.INVITATION_BRANCH_VENUES:
             self.abort(403)
         customer_id = self.request.get('customer_id')
         customer = Customer.customer_by_customer_id(customer_id)
@@ -36,7 +37,7 @@ class GetInvitationUrlsHandler(BaseHandler):
         else:
             user_agent = 'unknown'
         urls = [{
-            'url': branch_io.create_url(venue_id, share.key.id(), branch_io.INVITATION, channel, user_agent,
+            'url': branch_io.create_url(org_id, share.key.id(), branch_io.INVITATION, channel, user_agent,
                                         custom_tags={"text_id": text_id}),
             'channel': channel
         } for channel in branch_io.CHANNELS]

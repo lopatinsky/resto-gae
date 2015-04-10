@@ -1,6 +1,6 @@
 from .notifications import Notifications
 from .recordings import Recordings
-from methods.twilio.libs.twilio.rest.resources.call_feedback import (
+from .call_feedback import (
     CallFeedbackFactory,
     CallFeedbackSummary,
 )

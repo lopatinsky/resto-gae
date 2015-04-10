@@ -2,7 +2,7 @@ import logging
 import os
 import platform
 
-from methods.twilio.libs.twilio.six import (
+from ...six import (
     integer_types,
     string_types,
     binary_type,

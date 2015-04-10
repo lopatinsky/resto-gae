@@ -2,12 +2,14 @@
 import copy
 
 from api.base import BaseHandler
+from api.specials import fix_modifiers_by_own
+from api.specials import fix_syrop
 from methods.maps import get_address_by_key
 import json
 from methods import iiko_api, working_hours, filter_phone
 from models import iiko
 import datetime
-from models.iiko import Company, ClientInfo, Venue
+from models.iiko import CompanyNew, ClientInfo, DeliveryTerminal
 from config import config
 import logging
 
@@ -30,22 +32,29 @@ class GetAddressByKeyHandler(BaseHandler):
 class GetVenuePromosHandler(BaseHandler):
 
     def get(self):
-        venue_id = self.request.get('venue_id')
+        delivery_terminal_id = self.request.get('venue_id')
+        delivery_terminal = DeliveryTerminal.get_by_id(delivery_terminal_id)
+        if delivery_terminal:
+            org_id = delivery_terminal.iiko_organization_id
+            company = CompanyNew.get_by_iiko_id(org_id)
+        else:
+            org_id = delivery_terminal_id
+            company = CompanyNew.get_by_iiko_id(org_id)
         phone = filter_phone(self.request.get('phone'))
-        company_id = Venue.venue_by_id(venue_id).company_id
+
         branch = []
-        if venue_id in config.INVITATION_BRANCH_VENUES:
+        if org_id in config.INVITATION_BRANCH_VENUES:
             branch.append({
                 'info': 'Пригласи друга'
             })
-        if venue_id in config.GIFT_BRANCH_VENUES:
+        if org_id in config.GIFT_BRANCH_VENUES:
             branch.append({
                 'info': 'Подари другу'
             })
         return self.render_json({
             "branch": branch,
-            "promos": iiko_api.get_venue_promos(venue_id),
-            "balance": iiko_api.get_customer_by_phone(company_id, phone, venue_id).get('balance', 0.0)
+            "promos": iiko_api.get_venue_promos(org_id),
+            "balance": iiko_api.get_customer_by_phone(company, phone).get('balance', 0.0)
         })
 
 
@@ -58,9 +67,12 @@ class GetOrderPromosHandler(BaseHandler):
         })
 
     def post(self):
-        venue_id = self.request.get('venue_id')
-        venue = Venue.venue_by_id(venue_id)
-        company = Company.get_by_id(venue.company_id)
+        delivery_terminal_id = self.request.get('venue_id')
+        delivery_terminal = DeliveryTerminal.get_by_id(delivery_terminal_id)
+        if delivery_terminal:
+            company = CompanyNew.get_by_id(delivery_terminal.company_id)
+        else:
+            company = CompanyNew.get_by_iiko_id(delivery_terminal_id)
         name = self.request.get('name').strip()
         phone = filter_phone(self.request.get('phone'))
         customer_id = self.request.get('customer_id')
@@ -76,15 +88,20 @@ class GetOrderPromosHandler(BaseHandler):
         customer.phone = phone
         customer.name = name
 
+        items = json.loads(self.request.get('items'))
+        if company.iiko_org_id == CompanyNew.COFFEE_CITY:
+            items = fix_syrop.set_syrop_items(items)
+            items = fix_modifiers_by_own.set_modifier_by_own(company.iiko_org_id, items)
+
         order = iiko.Order()
         order.date = datetime.datetime.fromtimestamp(date)
-        order.venue_id = venue_id
+        order.venue_id = company.iiko_org_id
         order.sum = float(order_sum)
-        order.items = json.loads(self.request.get('items'))
+        order.items = items
 
         order_dict = iiko_api.prepare_order(order, customer, None)
 
-        local_time = order.date + datetime.timedelta(seconds=venue.get_timezone_offset())
+        local_time = order.date + datetime.timedelta(seconds=company.get_timezone_offset())
         is_open = working_hours.is_datetime_valid(company.schedule, local_time) if company.schedule else True
 
         if not is_open:
@@ -99,8 +116,8 @@ class GetOrderPromosHandler(BaseHandler):
 
         error = None
         for restriction in config.RESTRICTIONS:
-            if venue_id in restriction['venues']:
-                error = restriction['method'](order_dict, restriction['venues'][venue_id])
+            if company.iiko_org_id in restriction['venues']:
+                error = restriction['method'](order_dict, restriction['venues'][company.iiko_org_id])
                 logging.info(error)
                 if error:
                     break
@@ -127,8 +144,8 @@ class GetOrderPromosHandler(BaseHandler):
                     'weight': gift['weight']
                 })
         accumulated_gifts = 0
-        if venue_id == Venue.EMPATIKA:
-            free_cup = iiko_api.get_product_from_menu(venue_id, product_code=CAT_FREE_CUP_CODE)
+        if company.iiko_org_id == CompanyNew.EMPATIKA:
+            free_cup = iiko_api.get_product_from_menu(company.iiko_org_id, product_code=CAT_FREE_CUP_CODE)
             FREE_CUP_IN_ORDER = 10
             CUPS_IN_ORDER = FREE_CUP_IN_ORDER * CUPS_BEFORE_FREE_CUP
             mock_order = copy.deepcopy(order)
@@ -144,7 +161,7 @@ class GetOrderPromosHandler(BaseHandler):
             accumulated_gifts = int(mock_order.discount_sum / free_cup['price']) - FREE_CUP_IN_ORDER
 
         discount_gifts = 0
-        if venue_id == Venue.EMPATIKA:
+        if company.iiko_org_id == CompanyNew.EMPATIKA:
             for item in order.items:
                 if item['code'] == CAT_FREE_CUP_CODE or item['code'] == CAT_FREE_CUP_2_CODE:
                     if item.get('discount_sum'):
@@ -165,7 +182,7 @@ class GetOrderPromosHandler(BaseHandler):
 
 class GetCompanyInfoHandler(BaseHandler):
     def get(self, company_id):
-        company = Company.get_by_id(int(company_id))
+        company = CompanyNew.get_by_id(int(company_id))
         news = company.get_news()
         self.render_json({
             "news": news.dict() if news else None,

@@ -12,11 +12,11 @@
             <option value="app" {% if chosen_type == "app" %}selected{% endif %}>App</option>
             <option value="iiko" {% if chosen_type == "iiko" %}selected{% endif %}>IIko</option>
          </select>
-         <select name="selected_venue">
-             <option value=0 {% if not chosen_venue %}selected{% endif %}>Все кофейни</option>
-             {% for venue in venues %}
-                  <option value="{{ venue.venue_id }}" {% if chosen_venue == venue %} selected {% endif %}>
-                      {{ venue.name }}
+         <select name="selected_company">
+             <option value=0 {% if not chosen_company %}selected{% endif %}>Все кофейни</option>
+             {% for company in companies %}
+                  <option value="{{ company.iiko_org_id }}" {% if chosen_company == company %} selected {% endif %}>
+                      {{ company.app_title }}
                   </option>
              {% endfor %}
          </select>

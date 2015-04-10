@@ -20,9 +20,9 @@ def remove_modifiers(menu):
     return menu
 
 
-def set_modifier_by_own(venue_id, items):
+def set_modifier_by_own(iiko_org_id, items):
     for item in items:
-        product = iiko_api.get_product_from_menu(venue_id, product_id=item['id'])
+        product = iiko_api.get_product_from_menu(iiko_org_id, product_id=item['id'])
         logging.info(product)
         if product.get('modifiers'):
             for modifier in product['modifiers']:
@@ -39,3 +39,9 @@ def set_modifier_by_own(venue_id, items):
                     else:
                         item['modifiers'] = [new_modifier]
     return items
+
+
+def remove_modifiers_from_item(item):
+    for m in item['modifiers'][:]:
+        if m['groupId'] == BY_OWN_GROUP_MODIFIER_ID:
+            item['modifiers'].remove(m)

@@ -4,7 +4,7 @@ import webapp2
 from api import *
 from api import admin, specials
 from api import push_admin as api_push_admin
-from mt import CreateCompaniesLinks, CompanySettingsHandler, report, push_admins, push
+from mt import CreateCompaniesLinks, CompanySettingsHandler, report, push_admins, push, migration
 from webapp2 import Route
 import share
 from api import promo_phone
@@ -82,12 +82,12 @@ app = webapp2.WSGIApplication([
     ('/mt/report/repeated_orders', report.RepeatedOrdersReportHandler),
     ('/mt/report/square_table', report.SquareTableHandler),
 
+    ('/mt/migrate', migration.CreateNewCompaniesHandler),
+
     # venue
     ('/api/venue/(.*)/menu', MenuHandler),
     ('/api/payment_types/(.*)', GetPaymentTypesHandler),
     ('/api/venue/(.*)/order/new', PlaceOrderHandler),
-    ('/api/venue/(.*)/new_orders', VenueNewOrderListHandler),
-    ('/api/check_delivery', GetDeliveryRestrictionsHandler),
     ('/api/iiko_promos', GetVenuePromosHandler),
     ('/api/promo_phone/request_code', promo_phone.RequestCodeHandler),
     ('/api/promo_phone/confirm', promo_phone.ConfirmHandler),
@@ -97,7 +97,6 @@ app = webapp2.WSGIApplication([
     ('/api/order/(.*)/request_cancel', OrderRequestCancelHandler),
     ('/api/order/(.*)', OrderInfoRequestHandler),
     ('/api/status', OrdersStatusHandler),
-    ('/api/get_orders_with_bonuses', GetOrdersWithBonusesHandler),
     ('/api/get_order_promo', GetOrderPromosHandler),
 
     # utility

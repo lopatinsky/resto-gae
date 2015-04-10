@@ -15,7 +15,7 @@ from methods import iiko_api
 
 class GetCompaniesHandler(BaseHandler):
     def get(self):
-        companies = iiko.Company.query().fetch()
+        companies = iiko.CompanyNew.query().fetch()
         company_list = []
         for company in companies:
             company_json = {
@@ -61,7 +61,7 @@ class CreateOrUpdateCompanyHandler(BaseHandler):
 
         if company_id and company_id != '-1':
             company_id = int(company_id)
-            company = iiko.Company.get_by_id(company_id)
+            company = iiko.CompanyNew.get_by_id(company_id)
             if not company:
                 self.abort(404)
             if company_params['app_title']:
@@ -100,7 +100,7 @@ class CreateOrUpdateCompanyHandler(BaseHandler):
             delivery_self.put()
             delivery_pickup = iiko.DeliveryType(delivery_id=0, name='delivery', available=is_delivery)
             delivery_pickup.put()
-            company = iiko.Company(**company_params)
+            company = iiko.CompanyNew(**company_params)
             company.delivery_types.append(delivery_self.key)
             company.delivery_types.append(delivery_pickup.key)
 
@@ -136,7 +136,7 @@ class UploadIconsHandler(BaseHandler):
         company_id = self.request.get_range('company_id')
         company = None
         if company_id:
-            company = iiko.Company.get_by_id(company_id)
+            company = iiko.CompanyNew.get_by_id(company_id)
         if company:
             company.icon1 = db.Blob(self.request.get('icon1', None))
             company.icon2 = db.Blob(self.request.get('icon2', None))
@@ -155,7 +155,7 @@ class DownloadIconsHandler(BaseHandler):
         icon_type = self.request.get('type')
         company = None
         if company_id:
-            company = iiko.Company.get_by_id(company_id)
+            company = iiko.CompanyNew.get_by_id(company_id)
         if company:
             self.response.headers['Content-Type'] = 'image/png'
             if icon_type == 'company_icon':
@@ -212,7 +212,7 @@ class GetCompanyHandler(BaseHandler):
         company_id = self.request.get_range('company_id')
         device_format = self.request.get('platform')
         file_format = self.request.get('file_format', 'json')
-        company = iiko.Company.get_by_id(company_id)
+        company = iiko.CompanyNew.get_by_id(company_id)
 
         if file_format == 'json':
             company_json = {
@@ -228,7 +228,7 @@ class GetCompanyHandler(BaseHandler):
                 'site': company.site,
                 'color': company.color,
                 'analytics_key': company.analytics_key,
-                'delivery_types': iiko.Company.get_delivery_types(company_id)
+                'delivery_types': iiko.CompanyNew.get_delivery_types(company_id)
             }
             self.render_json(company_json)
             return

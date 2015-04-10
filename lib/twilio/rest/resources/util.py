@@ -1,6 +1,6 @@
 import datetime
 from email.utils import parsedate
-from methods.twilio.libs.twilio.six import iteritems
+from ...six import iteritems
 
 
 def transform_params(parameters):

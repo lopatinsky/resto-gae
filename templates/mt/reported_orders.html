@@ -8,11 +8,11 @@
                             'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь' %}
 
     <form method="get">
-         <select name="selected_venue">
-             <option value=0 {% if not chosen_venue %}selected{% endif %}>Все кофейни</option>
-             {% for venue in venues %}
-                  <option value="{{ venue.venue_id }}" {% if chosen_venue == venue %} selected {% endif %}>
-                      {{ venue.name }}
+         <select name="selected_company">
+             <option value=0 {% if not chosen_company %}selected{% endif %}>Все кофейни</option>
+             {% for company in companies %}
+                  <option value="{{ company.iiko_org_id }}" {% if chosen_company == company %} selected {% endif %}>
+                      {{ company.app_title }}
                   </option>
              {% endfor %}
          </select>
@@ -45,7 +45,7 @@
     <table style="border-collapse:collapse; width:100%" border="1">
          <tr>
              <th>Number</th>
-             <th>Venue Name</th>
+             <th>Company Name</th>
              <th>Date</th>
              <th>Status</th>
              <th>Payment Type</th>

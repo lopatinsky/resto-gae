@@ -2,7 +2,6 @@
 import logging
 from google.appengine.ext import ndb
 from google.appengine.api import memcache
-from datetime import datetime, timedelta
 import time
 from methods import maps
 from methods.parse_com import send_push, IOS_DEVICE, ANDROID_DEVICE, make_order_push_data
@@ -38,13 +37,6 @@ class DeliveryType(ndb.Model):
             'name': self.name,
             'available': self.available
         }
-
-    @classmethod
-    def check_existence(cls, delivery_id):
-        for typ in DeliveryType.query():
-            if typ.delivery_id == int(delivery_id):
-                return typ
-        return None
 
 
 class AvailableConfirmation(ndb.Model):
@@ -135,7 +127,8 @@ class Order(ndb.Model):
     items = ndb.JsonProperty()
     is_delivery = ndb.BooleanProperty(default=False)
     address = ndb.JsonProperty()
-    venue_id = ndb.StringProperty()
+    venue_id = ndb.StringProperty()  # actually iiko organization id
+    delivery_terminal_id = ndb.StringProperty()
     customer = ndb.KeyProperty()
     order_id = ndb.StringProperty()
     number = ndb.StringProperty()
@@ -198,7 +191,7 @@ class Order(ndb.Model):
             'comment': self.comment,
             'sum': self.sum,
             'items': self.items,
-            'venue_id': self.venue_id,
+            'venue_id': self.delivery_terminal_id,
             'status': self.status,
             'cancel_requested': self.cancel_requested,
         }
@@ -213,8 +206,7 @@ class Order(ndb.Model):
             if self.payment_type == '2':
                 logging.info("order paid by card")
 
-                venue = Venue.venue_by_id(self.venue_id)
-                company = Company.get_by_id(venue.company_id)
+                company = CompanyNew.get_by_iiko_id(self.venue_id)
 
                 if self.status == Order.CLOSED:
                     pay_result = pay_by_card(company, self.alfa_order_id, 0)
@@ -223,8 +215,8 @@ class Order(ndb.Model):
                     if 'errorCode' not in pay_result.keys() or str(pay_result['errorCode']) == '0':
                         bonus = SharedBonus.query(SharedBonus.recipient == self.customer,
                                                   SharedBonus.status == SharedBonus.READY).get()
-                        venue = Venue.venue_by_id(self.venue_id)
-                        bonus.deactivate(venue.company_id, venue.venue_id)
+                        company = CompanyNew.get_by_iiko_id(self.venue_id)
+                        bonus.deactivate(company)
                         logging.info("pay succeeded")
                     else:
                         logging.warning("pay failed")
@@ -244,8 +236,8 @@ class Order(ndb.Model):
             send_push(channels=["order_%s" % self.order_id], data=data, device_type=device)
 
     @classmethod
-    def _do_load_from_object(cls, order, order_id, venue_id, iiko_order):
-        venue = Venue.venue_by_id(venue_id)
+    def _do_load_from_object(cls, order, order_id, org_id, iiko_order):
+        company = CompanyNew.get_by_iiko_id(org_id)
         changes = {}
 
         def _attr(name, new_value=None):
@@ -258,7 +250,7 @@ class Order(ndb.Model):
 
         if not order:
             changes['order'] = None
-            order = Order(order_id=order_id, venue_id=venue_id, source='iiko')
+            order = Order(order_id=order_id, venue_id=org_id, source='iiko')
             order.is_delivery = iiko_order['orderType']['orderServiceType'] == 'DELIVERY_BY_COURIER'
             customer = Customer.customer_by_customer_id(iiko_order['customerId'])
             order.customer = customer.key if customer else None  # TODO create customer
@@ -268,10 +260,10 @@ class Order(ndb.Model):
         _attr('address')
         _attr('number')
 
-        date = iiko_api.parse_iiko_time(iiko_order['deliveryDate'], venue)
+        date = iiko_api.parse_iiko_time(iiko_order['deliveryDate'], company)
         _attr('date', date)
 
-        created_time = iiko_api.parse_iiko_time(iiko_order['createdTime'], venue)
+        created_time = iiko_api.parse_iiko_time(iiko_order['createdTime'], company)
         _attr('created_in_iiko', created_time)
 
         _attr('status', Order.parse_status(iiko_order['status']))
@@ -286,25 +278,25 @@ class Order(ndb.Model):
     @classmethod
     def load_from_object(cls, iiko_order):
         order_id = iiko_order['orderId']
-        venue_id = iiko_order['organization']
+        org_id = iiko_order['organization']
         order = cls.order_by_id(order_id)
-        return cls._do_load_from_object(order, order_id, venue_id, iiko_order)
+        return cls._do_load_from_object(order, order_id, org_id, iiko_order)
 
     @classmethod
-    def _do_load(cls, order, order_id, venue_id):
-        iiko_order = iiko_api.order_info1(order_id, venue_id)
-        return cls._do_load_from_object(order, order_id, venue_id, iiko_order)
+    def _do_load(cls, order, order_id, org_id):
+        iiko_order = iiko_api.order_info1(order_id, org_id)
+        return cls._do_load_from_object(order, order_id, org_id, iiko_order)
 
     @classmethod
-    def load(cls, order_id, venue_id):
+    def load(cls, order_id, org_id):
         order = cls.order_by_id(order_id)
-        return cls._do_load(order, order_id, venue_id)
+        return cls._do_load(order, order_id, org_id)
 
     def reload(self):
         self._do_load(self, self.order_id, self.venue_id)
 
 
-class Venue(ndb.Model):
+class _Venue(ndb.Model):
     COFFEE_CITY = "02b1b1f7-4ec8-11e4-80cc-0025907e32e9"
     EMPATIKA = "95e4a970-b4ea-11e3-8bac-50465d4d1d14"
     MIVAKO = "6a05d004-e03d-11e3-bae4-001b21b8a590"
@@ -393,7 +385,34 @@ class Venue(ndb.Model):
         }
 
 
-class Company(ndb.Model):
+class DeliveryTerminal(ndb.Model):
+    company_id = ndb.IntegerProperty()
+    iiko_organization_id = ndb.StringProperty()
+    active = ndb.BooleanProperty(default=False)
+    name = ndb.StringProperty(indexed=False)
+    phone = ndb.StringProperty(indexed=False)
+    address = ndb.StringProperty(indexed=False)
+    location = ndb.GeoPtProperty(indexed=False)
+    
+    def to_dict(self):
+        company = CompanyNew.get_by_id(self.company_id)
+        return {
+            'venueId': self.key.id(),
+            'name': self.name,
+            'address': self.address,
+            'latitude': self.location.lat,
+            'longitude': self.location.lon,
+            'logoUrl': '',
+            'phone': self.phone,
+            'payment_types': [x.to_dict() for x in ndb.get_multi(company.payment_types)]
+        }
+
+    @classmethod
+    def get_any(cls, iiko_org_id):
+        return cls.query(cls.iiko_organization_id == iiko_org_id, cls.active == True).get()
+
+
+class _Company(ndb.Model):
     name = ndb.StringProperty()  # iiko login
     password = ndb.StringProperty()
     delivery_types = ndb.KeyProperty(kind=DeliveryType, repeated=True)
@@ -436,6 +455,96 @@ class Company(ndb.Model):
 
     def get_news(self):
         return News.query(News.company_id == self.key.id(), News.active == True).get()
+
+
+class IikoApiLogin(ndb.Model):
+    @property
+    def login(self):
+        return self.key.id()
+
+    password = ndb.StringProperty(indexed=False)
+
+
+class CompanyNew(ndb.Model):
+    COFFEE_CITY = "02b1b1f7-4ec8-11e4-80cc-0025907e32e9"
+    EMPATIKA = "95e4a970-b4ea-11e3-8bac-50465d4d1d14"
+    MIVAKO = "6a05d004-e03d-11e3-bae4-001b21b8a590"
+    ORANGE_EXPRESS = "768c213e-5bc1-4135-baa3-45f719dbad7e"
+    SUSHILAR = "a9d16dff-7680-43f1-b1a1-74784bc75f60"
+    VENEZIA = "b4c224da-b1d2-11e4-80d8-002590dc3769"
+
+    iiko_login = ndb.StringProperty()
+    iiko_org_id = ndb.StringProperty()
+
+    address = ndb.StringProperty(indexed=False)
+    latitude = ndb.FloatProperty(indexed=False)
+    longitude = ndb.FloatProperty(indexed=False)
+
+    delivery_types = ndb.KeyProperty(kind=DeliveryType, repeated=True)
+    payment_types = ndb.KeyProperty(kind=PaymentType, repeated=True)
+    menu = ndb.JsonProperty()
+
+    app_name = ndb.StringProperty()  # TODO REMOVE: part of user-agent to identify app in alfa handler
+    app_title = ndb.StringProperty()
+    alpha_login = ndb.StringProperty(indexed=False)
+    alpha_pass = ndb.StringProperty(indexed=False)
+    card_button_text = ndb.StringProperty()
+    card_button_subtext = ndb.StringProperty()
+
+    is_iiko_system = ndb.BooleanProperty(default=False)
+    new_endpoints = ndb.BooleanProperty(default=False)
+
+    description = ndb.StringProperty()
+    min_order_sum = ndb.IntegerProperty()
+    email = ndb.StringProperty()
+    support_emails = ndb.StringProperty(repeated=True)
+    site = ndb.StringProperty()
+    cities = ndb.StringProperty(repeated=True)
+    phone = ndb.StringProperty()
+    schedule = ndb.JsonProperty()
+    icon1 = ndb.BlobProperty()
+    icon2 = ndb.BlobProperty()
+    icon3 = ndb.BlobProperty()
+    icon4 = ndb.BlobProperty()
+    company_icon = ndb.BlobProperty()
+    color = ndb.StringProperty()
+    analytics_key = ndb.StringProperty()
+
+    @classmethod
+    def get_payment_types(cls, venue_id):
+        venue = cls.get_by_iiko_id(venue_id)
+        output = []
+        for item in ndb.get_multi(venue.payment_types):
+            output.append(item.to_dict())
+        return output
+
+    def get_payment_type(self, type_id):
+        for item in ndb.get_multi(self.payment_types):
+            if item.type_id == int(type_id):
+                return item
+        return None
+
+    @classmethod
+    def get_delivery_types(cls, org_id):
+        org = cls.get_by_id(int(org_id))
+        output = []
+        for item in ndb.get_multi(org.delivery_types):
+            output.append(item.to_dict())
+        return output
+
+    def get_news(self):
+        return News.query(News.company_id == self.key.id(), News.active == True).get()
+
+    @classmethod
+    def get_by_iiko_id(cls, iiko_org_id):
+        return cls.query(cls.iiko_org_id == iiko_org_id).get()
+
+    def get_timezone_offset(self):
+        result = memcache.get('venue_%s_timezone' % self.iiko_org_id)
+        if not result:
+            result = maps.get_timezone_by_coords(self.latitude, self.longitude)
+            memcache.set('venue_%s_timezone' % self.iiko_org_id, result, time=24*3600)
+        return result
 
 
 class ImageCache(ndb.Model):

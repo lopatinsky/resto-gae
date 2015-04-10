@@ -24,10 +24,10 @@
     </select>
 
     <form>
-        <select name="selected_venue">
-         {% for venue in venues %}
-              <option value="{{ venue.key.id() }}" {% if chosen_venue == venue %} selected {% endif %}>
-                  {{ venue.name }}
+        <select name="selected_company">
+         {% for company in companies %}
+              <option value="{{ company.key.id() }}" {% if chosen_company == company %} selected {% endif %}>
+                  {{ company.name }}
               </option>
          {% endfor %}
         </select>
@@ -36,18 +36,18 @@
 
     <br>
 
-    {% if square.get(chosen_venue.venue_id) %}
+    {% if square.get(chosen_company.iiko_org_id) %}
         <table style="border-collapse:collapse; width:100%" border="1" class="0">
             <tr>
                 <th></th>
-                {% for column in square[chosen_venue.venue_id][0] %}
+                {% for column in square[chosen_company.iiko_org_id][0] %}
                     <th>
                         {{ '%s.%s.%s - %s.%s.%s' % (column.begin.day, column.begin.month, column.begin.year,
                             column.end.day, column.end.month, column.end.year) }}
                     </th>
                 {% endfor %}
             </tr>
-            {% for row in square[chosen_venue.venue_id] %}
+            {% for row in square[chosen_company.iiko_org_id] %}
                 <tr>
                     <th>
                         {{ '%s.%s.%s - %s.%s.%s' % (row[loop.index - 1].begin.day, row[loop.index - 1].begin.month, row[loop.index - 1].begin.year,

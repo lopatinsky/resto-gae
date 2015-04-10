@@ -3,25 +3,25 @@ from google.appengine.api import urlfetch
 import json
 from config import config
 import logging
-from models.iiko import Venue
+from models.iiko import CompanyNew
 
 APP_KEY = {
-    Venue.EMPATIKA: '112172995912421866',
-    Venue.COFFEE_CITY: '112172995912421866'
+    CompanyNew.EMPATIKA: '112172995912421866',
+    CompanyNew.COFFEE_CITY: '112172995912421866'
 }
 BASE_URL = 'https://api.branch.io'
 
 ANDROID_URL = {
-    Venue.EMPATIKA: "http://coffeeandthecity.ru/",
-    Venue.COFFEE_CITY: "http://coffeeandthecity.ru/"
+    CompanyNew.EMPATIKA: "http://coffeeandthecity.ru/",
+    CompanyNew.COFFEE_CITY: "http://coffeeandthecity.ru/"
 }
 IOS_URL = {
-    Venue.EMPATIKA: "http://coffeeandthecity.ru/",
-    Venue.COFFEE_CITY: "http://coffeeandthecity.ru/"
+    CompanyNew.EMPATIKA: "http://coffeeandthecity.ru/",
+    CompanyNew.COFFEE_CITY: "http://coffeeandthecity.ru/"
 }
 DESKTOP_URL = {
-    Venue.EMPATIKA: "http://coffeeandthecity.ru/",
-    Venue.COFFEE_CITY: "http://coffeeandthecity.ru/"
+    CompanyNew.EMPATIKA: "http://coffeeandthecity.ru/",
+    CompanyNew.COFFEE_CITY: "http://coffeeandthecity.ru/"
 }
 
 VK = 0

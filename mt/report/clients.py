@@ -57,12 +57,12 @@ class ClientsReportHandler(BaseHandler):
         }
         return clients, total
 
-    def get_clients_info(self, chosen_year=0, chosen_month=0, chosen_day=0, venue_id=None, chosen_type='app'):
+    def get_clients_info(self, chosen_year=0, chosen_month=0, chosen_day=0, org_id=None, chosen_type='app'):
         start = suitable_date(chosen_day, chosen_month, chosen_year, True)
         end = suitable_date(chosen_day, chosen_month, chosen_year, False)
         query = iiko.Order.query(iiko.Order.date >= start, iiko.Order.date <= end)
-        if venue_id:
-            query = query.filter(iiko.Order.venue_id == venue_id)
+        if org_id:
+            query = query.filter(iiko.Order.venue_id == org_id)
         orders = query.fetch()
 
         clients = {}
@@ -88,7 +88,7 @@ class ClientsReportHandler(BaseHandler):
 
     def get(self):
         chosen_type = self.request.get("selected_type")
-        venue_id = self.request.get("selected_venue")
+        org_id = self.request.get("selected_company")
         chosen_year = self.request.get_range("selected_year")
         chosen_month = self.request.get_range("selected_month")
         chosen_day = self.request.get_range("selected_day")
@@ -96,20 +96,20 @@ class ClientsReportHandler(BaseHandler):
             chosen_month = 0
         if not chosen_month:
             chosen_day = 0
-        if not venue_id:
-            venue_id = 0
+        if not org_id:
+            org_id = 0
             chosen_type = 'app'
             chosen_year = datetime.now().year
             chosen_month = datetime.now().month
             chosen_day = datetime.now().day
-        if venue_id == '0':
-            venue_id = None
-        clients, total = self.get_clients_info(chosen_year, chosen_month, chosen_day, venue_id, chosen_type)
+        if org_id == '0':
+            org_id = None
+        clients, total = self.get_clients_info(chosen_year, chosen_month, chosen_day, org_id, chosen_type)
         values = {
-            'venues': iiko.Venue.query().fetch(),
+            'companies': iiko.CompanyNew.query().fetch(),
             'clients': clients,
             'total': total,
-            'chosen_venue': iiko.Venue.venue_by_id(venue_id) if venue_id else None,
+            'chosen_company': iiko.CompanyNew.get_by_iiko_id(org_id),
             'start_year': PROJECT_STARTING_YEAR,
             'end_year': datetime.now().year,
             'chosen_year': chosen_year,
