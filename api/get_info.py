@@ -29,6 +29,30 @@ class GetAddressByKeyHandler(BaseHandler):
         return json.loads(self.render_json(info)).get()
 
 
+def _do_get_promos(company, phone):
+    branch = []
+    if company.iiko_org_id in config.INVITATION_BRANCH_VENUES:
+        branch.append({
+            'info': 'Пригласи друга'
+        })
+    if company.iiko_org_id in config.GIFT_BRANCH_VENUES:
+        branch.append({
+            'info': 'Подари другу'
+        })
+    return {
+        "branch": branch,
+        "promos": iiko_api.get_venue_promos(company.iiko_org_id),
+        "balance": iiko_api.get_customer_by_phone(company, phone).get('balance', 0.0)
+    }
+
+
+class CompanyPromosHandler(BaseHandler):
+    def get(self, company_id):
+        company = CompanyNew.get_by_id(int(company_id))
+        phone = filter_phone(self.request.get('phone'))
+        self.render_json(_do_get_promos(company, phone))
+
+
 class GetVenuePromosHandler(BaseHandler):
 
     def get(self):
@@ -36,26 +60,12 @@ class GetVenuePromosHandler(BaseHandler):
         delivery_terminal = DeliveryTerminal.get_by_id(delivery_terminal_id)
         if delivery_terminal:
             org_id = delivery_terminal.iiko_organization_id
-            company = CompanyNew.get_by_iiko_id(org_id)
         else:
             org_id = delivery_terminal_id
-            company = CompanyNew.get_by_iiko_id(org_id)
+        company = CompanyNew.get_by_iiko_id(org_id)
         phone = filter_phone(self.request.get('phone'))
 
-        branch = []
-        if org_id in config.INVITATION_BRANCH_VENUES:
-            branch.append({
-                'info': 'Пригласи друга'
-            })
-        if org_id in config.GIFT_BRANCH_VENUES:
-            branch.append({
-                'info': 'Подари другу'
-            })
-        return self.render_json({
-            "branch": branch,
-            "promos": iiko_api.get_venue_promos(org_id),
-            "balance": iiko_api.get_customer_by_phone(company, phone).get('balance', 0.0)
-        })
+        self.render_json(_do_get_promos(company, phone))
 
 
 class GetOrderPromosHandler(BaseHandler):

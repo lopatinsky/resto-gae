@@ -15,3 +15,11 @@ class GetPaymentTypesHandler(BaseHandler):
         else:
             iiko_org_id = delivery_terminal_id
         return self.render_json({"types": CompanyNew.get_payment_types(iiko_org_id)})
+
+
+class CompanyPaymentTypesHandler(BaseHandler):
+    def get(self, company_id):
+        company = CompanyNew.get_by_id(int(company_id))
+        self.render_json({
+            "types": [pt.get().to_dict() for pt in company.payment_types]
+        })

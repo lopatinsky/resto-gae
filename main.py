@@ -43,6 +43,9 @@ app = webapp2.WSGIApplication([
 
     # company info
     ('/api/company/(\d+)/info', GetCompanyInfoHandler),
+    ('/api/company/(\d+)/menu', CompanyMenuHandler),
+    ('/api/company/(\d+)/payment_types', CompanyPaymentTypesHandler),
+    ('/api/company/(\d+)/promos', CompanyPromosHandler),
     ('/api/venues/(.*)', VenuesHandler),
     ('/api/delivery_types', GetAvailableDeliveryTypesHandler),
     ('/api/company/(\d+)/user_data', SaveClientInfoHandler),
