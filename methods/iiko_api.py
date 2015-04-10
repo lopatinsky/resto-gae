@@ -11,10 +11,6 @@ from google.appengine.api import memcache, urlfetch
 import webapp2
 
 from models.iiko import CompanyNew, IikoApiLogin
-try:
-    from models.iiko import Venue
-except ImportError:
-    Venue = None
 from methods.image_cache import convert_url
 
 
@@ -80,23 +76,6 @@ def _fetch_access_token(company):
         __get_iiko_base_url(company) + '/auth/access_token?user_id=%s&user_secret=%s' %
         (iiko_api_login.login, iiko_api_login.password), deadline=10, validate_certificate=False)
     return result.content.strip('"')
-
-
-def get_venues(org_id):
-    venues = memcache.get('iiko_venues_%s' % org_id)
-    if not venues:
-        company = CompanyNew.get_by_id(org_id)
-        result = __get_request(company, '/organization/list', {})
-        logging.info(result)
-        obj = json.loads(result)
-        if not isinstance(obj, list):
-            return []
-        logging.info(obj)
-        venues = list()
-        for v in obj:
-            venues.append(Venue.venue_with_dict(v, org_id))
-        memcache.set('iiko_venues_%s' % org_id, venues, time=30*60)
-    return venues
 
 
 def get_stop_list(org_id):
@@ -691,26 +670,6 @@ def get_order_promos(order, order_dict, set_info=False):
                 dis_info['imageUrl'] = promo['imageUrl']
 
     return result
-
-
-def get_delivery_terminals(org_id):
-    memcache_key = "deliveryTerminals_%s" % org_id
-    result = memcache.get(memcache_key)
-    if not result:
-        company = CompanyNew.get_by_iiko_id(org_id)
-        response = __get_request(company, '/deliverySettings/getDeliveryTerminals', {
-            'organization': org_id
-        })
-        result = json.loads(response)['deliveryTerminals']
-        memcache.set(memcache_key, result, time=24*3600)
-    return result
-
-
-def get_delivery_terminal_id(org_id):
-    terminals = get_delivery_terminals(org_id)
-    if terminals:
-        return terminals[0]['deliveryTerminalId']
-    return None
 
 
 def get_customer_by_phone(company, phone):
