@@ -97,7 +97,7 @@ class ClientsReportHandler(BaseHandler):
         if not chosen_month:
             chosen_day = 0
         if not org_id:
-            org_id = 0
+            org_id = '0'
             chosen_type = 'app'
             chosen_year = datetime.now().year
             chosen_month = datetime.now().month

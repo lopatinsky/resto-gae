@@ -32,7 +32,7 @@ class BuildSquareTableHandler(RequestHandler):
         orders = Order.query(Order.status == Order.CLOSED, Order.venue_id == company.iiko_org_id).fetch()
 
         if not orders:
-            return None
+            return []
 
         clients = []
         for order in orders:

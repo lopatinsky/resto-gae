@@ -27,7 +27,7 @@
         <select name="selected_company">
          {% for company in companies %}
               <option value="{{ company.key.id() }}" {% if chosen_company == company %} selected {% endif %}>
-                  {{ company.name }}
+                  {{ company.app_title }}
               </option>
          {% endfor %}
         </select>
@@ -70,7 +70,7 @@
 
     <script src="http://code.jquery.com/jquery-latest.js"></script>
     <script>
-        $("select").change(function() {
+        $("select[name=selected_type]").change(function() {
             $(document.body).removeClass("t0 t1 t2 t3 t4").addClass($(this).val());
         }).change();
     </script>
