@@ -89,7 +89,7 @@
                             {% endif %}
                          </td>
                          <td>{{ company.info[payment['type']][status]["orders_sum"] }}</td>
-                         <td>{{ company.info[payment['type']][status]["orders_sum"] / venue.info[payment['type']][status]["orders_number"] if venue.info[payment['type']][status]["orders_number"] else 0 }}</td>
+                         <td>{{ company.info[payment['type']][status]["orders_sum"] / company.info[payment['type']][status]["orders_number"] if company.info[payment['type']][status]["orders_number"] else 0 }}</td>
                      {% endfor %}
                  {% endfor %}
              </tr>
