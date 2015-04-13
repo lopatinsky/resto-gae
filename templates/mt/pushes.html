@@ -13,7 +13,7 @@
         <label>Заголовок (Android): <input type="text" name="head"></label><br>
         {% if has_choices %}
             {% for company in companies %}
-                <label><input type="checkbox" name={{ company.key.id() }}>{{ company.name }}</label>
+                <label><input type="checkbox" name="{{ company.key.id() }}">{{ company.app_title }}</label>
             {% endfor %}
         {% endif %}
         <br>

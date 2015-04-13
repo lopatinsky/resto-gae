@@ -38,7 +38,8 @@ class PushHistoryHandler(BaseHandler):
             if self.user.company.id() not in push.company_ids or len(push.company_ids) > 1:
                 mass_pushes.remove(push)
                 continue
-            push.companies = ''.join(['%s, ' % CompanyNew.get_by_id(company_id).name for company_id in push.company_ids])
+            push.companies = ''.join(['%s, ' % CompanyNew.get_by_id(company_id).app_title
+                                      for company_id in push.company_ids])
             push.android_number = len(push.android_channels)
             push.ios_number = len(push.ios_channels)
 
