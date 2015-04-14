@@ -14,7 +14,7 @@ class AutoCreatePushAdmins(BaseHandler):
         for company in companies:
             if PushAdmin.query(PushAdmin.company == company.key).get():
                 continue
-            success, info = PushAdmin.create(company.name.strip().lower(), company.key, '0000')
+            success, info = PushAdmin.create(company.app_title.strip().lower(), company.key, '0000')
             if not success:
                 logging.info(info)
                 self.abort(500)
