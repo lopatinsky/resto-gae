@@ -16,7 +16,7 @@ class LoginHandler(BaseHandler):
         values = {
             'token': token,
             'company_id': info['company_id'],
-            'custom': info['custom'],
+            'delivery_terminal_id': info['venue_id']
         }
         admin = Admin(**values)
         admin.put()

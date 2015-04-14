@@ -41,4 +41,4 @@ class PushAdmin(User):
 class Admin(ndb.Model):
     token = ndb.StringProperty(required=True)
     company_id = ndb.StringProperty(indexed=False, required=True)
-    custom = ndb.JsonProperty()
+    delivery_terminal_id = ndb.StringProperty(indexed=False, required=True)
