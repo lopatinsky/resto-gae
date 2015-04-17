@@ -215,8 +215,9 @@ class Order(ndb.Model):
                     if 'errorCode' not in pay_result.keys() or str(pay_result['errorCode']) == '0':
                         bonus = SharedBonus.query(SharedBonus.recipient == self.customer,
                                                   SharedBonus.status == SharedBonus.READY).get()
-                        company = CompanyNew.get_by_iiko_id(self.venue_id)
-                        bonus.deactivate(company)
+                        if bonus:
+                            company = CompanyNew.get_by_iiko_id(self.venue_id)
+                            bonus.deactivate(company)
                         logging.info("pay succeeded")
                     else:
                         logging.warning("pay failed")
