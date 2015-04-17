@@ -9,7 +9,7 @@ from google.appengine.api.urlfetch_errors import DownloadError
 from api.specials.express_emails import send_express_email
 from api.specials.mivako_promo import MIVAKO_NY2015_ENABLED
 import base
-from methods import iiko_api, working_hours, filter_phone
+from methods import email, iiko_api, working_hours, filter_phone
 from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum, check_extended_status, get_bindings
 from models import iiko
 from models.iiko import CompanyNew, ClientInfo, Order, DeliveryTerminal
@@ -125,6 +125,7 @@ class PlaceOrderHandler(base.BaseHandler):
         pre_check_result = iiko_api.pre_check_order(company, order_dict)
         if 'code' in pre_check_result:
             logging.warning('iiko pre check failed')
+            email.send_error("iiko", "iiko pre check failed", pre_check_result["description"])
             self.abort(400)
 
         error = None
@@ -243,7 +244,8 @@ class PlaceOrderHandler(base.BaseHandler):
                 return_result = get_back_blocked_sum(company, order_id)
                 logging.info('return')
                 logging.info(return_result)
-            self.response.set_status(500)
+            email.send_error("iiko", "iiko place order failed", result["description"])
+            self.response.set_status(400)
             return self.render_json(result)
         if not customer_id:
             customer.customer_id = result['customerId']

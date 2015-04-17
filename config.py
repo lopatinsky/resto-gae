@@ -14,6 +14,12 @@ class ProductionConfig(RestoConfig):
     CHECK_SCHEDULE = False
     RESTRICTIONS = []
     BRANCH_IO_TAG = 'production'
+    DEBUG = False
+
+    ERROR_EMAILS = {
+        "server": "admins",
+        "iiko": "admins",
+    }
 
 
 class TestingConfig(RestoConfig):
@@ -46,6 +52,10 @@ class TestingConfig(RestoConfig):
         CompanyNew.EMPATIKA,
         CompanyNew.COFFEE_CITY
     ]
+    DEBUG = True
+
+    ERROR_EMAILS = {
+    }
 
 
 if app_identity.get_application_id() == "empatika-resto":

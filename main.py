@@ -1,14 +1,33 @@
 # coding=utf-8
+from google.appengine.api import app_identity
+import sys
 
 import webapp2
 from api import *
 from api import admin, specials
 from api import push_admin as api_push_admin
+from config import config
+from methods import email
 from mt import CreateCompaniesLinks, CompanySettingsHandler, report, push_admins, push, migration
 from webapp2 import Route
 import share
 from api import promo_phone
 import tasks
+
+
+_APP_ID = app_identity.get_application_id()
+
+
+def handle_500(request, response, exception):
+    body = """URL: %s
+User-Agent: %s
+Exception: %s
+Logs: https://appengine.google.com/logs?app_id=s~%s&severity_level_override=0&severity_level=3""" \
+           % (request.url, request.headers['User-Agent'], exception, _APP_ID)
+    email.send_error("server", "Error 500", body)
+
+    exc_info = sys.exc_info()
+    raise exc_info[0], exc_info[1], exc_info[2]
 
 
 class MainHandler(webapp2.RequestHandler):
@@ -124,4 +143,6 @@ app = webapp2.WSGIApplication([
 
     ('/', MainHandler),
     ('/promo_phone/close_confirmation', tasks.CloseConfirmationHandler),
-], debug=True, config=webapp2_config)
+], debug=config.DEBUG, config=webapp2_config)
+
+app.error_handlers[500] = handle_500
