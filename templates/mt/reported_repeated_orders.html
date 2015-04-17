@@ -17,7 +17,7 @@
              <option value=0 {% if not chosen_company %}selected{% endif %}>Все кофейни</option>
              {% for company in companies %}
                   <option value="{{ company.iiko_org_id }}" {% if chosen_company == company %} selected {% endif %}>
-                      {{ chosen_company.app_title }}
+                      {{ company.app_title }}
                   </option>
              {% endfor %}
          </select>
