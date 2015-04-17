@@ -412,7 +412,7 @@ def prepare_order(order, customer, payment_type):
         if order.venue_id == CompanyNew.ORANGE_EXPRESS:
             dt_mapping = {
                 u"Одинцово": "2b20fde1-727f-e430-013e-203bb2e09905",
-                u"Егорьевск": "2b20fde1-727f-e430-013e-203bb2e09af1",
+                u"Егорьевск": "7658baf0-cc65-28b5-014b-7cde6614cfbe",
                 u"Подольск": "e0a67a59-c018-2c9c-0149-893d7b97148e",
                 u"Климовск": "e0a67a59-c018-2c9c-0149-893d7b97148e",
                 u"Домодедово": "2d163ab4-ce5d-e5cf-014b-84e547cfdf79"
