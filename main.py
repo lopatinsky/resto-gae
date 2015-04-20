@@ -12,6 +12,7 @@ from mt import CreateCompaniesLinks, CompanySettingsHandler, report, push_admins
 from webapp2 import Route
 import share
 from api import promo_phone
+from iikobiz import IikoBizAppHandler
 import tasks
 
 
@@ -142,6 +143,7 @@ app = webapp2.WSGIApplication([
     ('/img/(.*)', ImageProxyHandler),
 
     ('/', MainHandler),
+    ('/iiko_biz_app', IikoBizAppHandler),
     ('/promo_phone/close_confirmation', tasks.CloseConfirmationHandler),
 ], debug=config.DEBUG, config=webapp2_config)
 
