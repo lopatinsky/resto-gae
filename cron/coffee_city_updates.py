@@ -3,6 +3,7 @@ import datetime
 from google.appengine.api import taskqueue
 
 from webapp2 import RequestHandler
+from config import config
 from methods import iiko_api
 from models.iiko import Order, CompanyNew
 
@@ -11,7 +12,10 @@ class CoffeeCityUpdatesHandler(RequestHandler):
     def get(self):
         today = datetime.datetime.combine(datetime.date.today(), datetime.time())
         tomorrow = today + datetime.timedelta(days=1)
-        org_ids = [CompanyNew.EMPATIKA, CompanyNew.COFFEE_CITY]
+        if config.DEBUG:
+            org_ids = [CompanyNew.EMPATIKA, CompanyNew.COFFEE_CITY]
+        else:
+            org_ids = [CompanyNew.COFFEE_CITY]
         for org_id in org_ids:
             iiko_orders = iiko_api.get_orders(CompanyNew.get_by_iiko_id(org_id), today, tomorrow)['deliveryOrders']
             for order in iiko_orders:
