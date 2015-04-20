@@ -314,6 +314,26 @@ h3 {
   cursor: pointer;
 }
 
+.form-message {
+    margin-top: 16px;
+}
+
+#form-message-text {
+    font-size: 20px;
+    opacity: 1;
+    -webkit-transition: opacity 0.5s;
+    -moz-transition:    opacity 0.5s;
+    -ms-transition:     opacity 0.5s;
+    -o-transition:      opacity 0.5s;
+    transition:         opacity 0.5s;
+}
+
+#form-message-text.hidden {
+    height: 0;
+    overflow: hidden;
+    opacity: 0;
+}
+
 #scheme {
   height: 480px;
   padding: 80px 10%;

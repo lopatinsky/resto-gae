@@ -87,11 +87,16 @@
     <h4>Оцените сами - график повторных заказов через<br>наши приложения за последние 3 месяца</h4>
     <img src="/static/img/landing/graph.png" alt="График">
     <h4 id="form"><span>Оставьте свои данные, чтобы </span>скачать тестовое приложение.</h4>
-    <form action="handler.php">
-      <input type="text" name="email" placeholder="example@mail.ru">
+    <form id="form-element">
+      <input type="email" name="email" placeholder="example@mail.ru">
       <input type="text" name="phone" placeholder="+7 (999) 999-99-99">
       <input type="submit" value="Получить тестовое &#010;приложение">
     </form>
+    <div class="form-message">
+      <div class="hidden" id="form-message-text">
+        Спасибо! Мы свяжемся с Вами в течение дня.
+      </div>
+    </div>
   </div>
   <div id="scheme">
     <h2>Схема работы</h2>
@@ -112,7 +117,49 @@
 
   <script src="/static/js/smooth-scroll.min.js"></script>
   <script>
-      smoothScroll.init();
+      (function() {
+          smoothScroll.init();
+
+          function serialize(obj) {
+              var str = [];
+              for(var p in obj) if (obj.hasOwnProperty(p)) {
+                  str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+              }
+              return str.join("&");
+          }
+
+          var form = document.getElementById("form-element");
+          var message = document.getElementById("form-message-text");
+          var pendingRequest = null;
+          form.addEventListener("submit", function(e) {
+              e.preventDefault();
+
+              if (pendingRequest) {
+                  return;
+              }
+
+              message.className = "hidden";
+              pendingRequest = new XMLHttpRequest();
+              pendingRequest.open("POST", "/iiko_biz_submit");
+              pendingRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+              var data = serialize({
+                  "email": form.email.value,
+                  "phone": form.phone.value
+              });
+              pendingRequest.onreadystatechange = function() {
+                  if (pendingRequest.readyState == 4) {
+                      if (message.textContent !== undefined) {
+                          message.textContent = pendingRequest.responseText;
+                      } else {
+                          message.innerHTML = pendingRequest.responseText;
+                      }
+                      message.className = "";
+                      pendingRequest = null;
+                  }
+              };
+              pendingRequest.send(data);
+          }, false);
+      })();
   </script>
 </body>
 </html>

@@ -13,7 +13,7 @@ from webapp2 import Route
 from webapp2_extras import jinja2
 import share
 from api import promo_phone
-from iikobiz import IikoBizAppHandler
+from iikobiz import IikoBizAppHandler, IikoBizSubmitHandler
 import tasks
 
 
@@ -145,6 +145,7 @@ app = webapp2.WSGIApplication([
 
     ('/', MainHandler),
     ('/iiko_biz_app', IikoBizAppHandler),
+    ('/iiko_biz_submit', IikoBizSubmitHandler),
     ('/promo_phone/close_confirmation', tasks.CloseConfirmationHandler),
 ], debug=config.DEBUG, config=webapp2_config)
 
