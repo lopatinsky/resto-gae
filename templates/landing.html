@@ -7,14 +7,14 @@
 </head>
 <body>
   <div class="welcome">
-    <a href="#home"><h2>Ru-beacon</h2></a>
+    <h2>Ru-beacon</h2>
     <div class="menu">
       <ul>
-        <a href="#clients"><li>Клиенты</li></a>
-        <a href="#scheme"><li>Схема работы</li></a>
-        <a href="#price"><li>Стоимость</li></a>
+        <li><a href="#examples" data-scroll>Клиенты</a></li>
+        <li><a href="#price" data-scroll>Стоимость</a></li>
+        <li><a href="#scheme" data-scroll>Схема работы</a></li>
       </ul>
-      <button><a href="#form">Создать приложение</a></button>
+      <a href="#form" id="menu-button" data-scroll>Создать приложение</a>
     </div>
     <h1><span>Создай бесплатно</span> приложение и получишь<br>
 <span>на 10% больше заказов</span> уже через месяц</h1>
@@ -28,19 +28,19 @@
         <li><img src="/static/img/landing/icon3.png"><p>Продвижение и обновления<br> бесплатно</p></li>
       </ul>
     </div>
-    <a href="#down"><img class="down" src="/static/img/landing/down.png" alt="down"></a>
+    <a href="#examples" data-scroll><img class="down" src="/static/img/landing/down.png" alt="down"></a>
   </div>
-  <div class="examples">
+  <div id="examples">
     <div class="info">
       <h2>Даблби</h2>
-      <h3>17 кофеен</h3>
+      <h3>21 кофейня</h3>
       <ul>
         <li><span>7000+</span> скачиваний</li>
         <li><span>450+</span> постоянных пользователей</li>
         <li><span>3000+</span> заказов в неделю через приложение</li>
       </ul>
-      <a href="#a"><img class="apple" src="/static/img/landing/apple.png" alt=""></a>
-      <a href="#g"><img class="google" src="/static/img/landing/google.png" alt=""></a>
+      <a href="http://dblb.mobi/get/splash/i" target="_blank"><img class="apple" src="/static/img/landing/apple.png" alt=""></a>
+      <a href="http://dblb.mobi/get/splash/a" target="_blank"><img class="google" src="/static/img/landing/google.png" alt=""></a>
     </div>
     <img src="/static/img/landing/phones.png" alt="">
   </div>
@@ -79,21 +79,21 @@
   <br><br>
 	•	Рассылки. Сообщение клиенту, проходящему рядом с заведением. </p>
   </div>
-  <div class="price">
+  <div id="price">
     <h2>Стоимость</h2>
     <p>Разработка приложения, обновления, продвижение и промо-материалы</p>
     <img src="/static/img/landing/free.png" alt="Бесплатно">
     <p>Мы берем деньги <span>только за результат</span> - процент продаж через приложение.<br>Для каждого клиента процент высчитывается отдельно.</p>
     <h4>Оцените сами - график повторных заказов через<br>наши приложения за последние 3 месяца</h4>
     <img src="/static/img/landing/graph.png" alt="График">
-    <h4><span>Оставьте свои данные, чтобы </span>скачать тестовое приложение.</h4>
+    <h4 id="form"><span>Оставьте свои данные, чтобы </span>скачать тестовое приложение.</h4>
     <form action="handler.php">
       <input type="text" name="email" placeholder="example@mail.ru">
       <input type="text" name="phone" placeholder="+7 (999) 999-99-99">
       <input type="submit" value="Получить тестовое &#010;приложение">
     </form>
   </div>
-  <div class="scheme">
+  <div id="scheme">
     <h2>Схема работы</h2>
     <ul>
       <li><img src="/static/img/landing/mini1.png" alt=""><p>Отправьте заявку и получите тестовое приложение.</p></li>
@@ -109,5 +109,10 @@
     <h3>+7 (495) 983 2923<br>team@ru-beacon.ru</h3>
     </div>
   </div>
+
+  <script src="/static/js/smooth-scroll.min.js"></script>
+  <script>
+      smoothScroll.init();
+  </script>
 </body>
 </html>

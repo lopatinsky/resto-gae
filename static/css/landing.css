@@ -39,7 +39,7 @@ h3 {
   font-family: ProximaNovaLight, "HelveticaNeue-Light", "Segoe WP", "Segoe UI", "Roboto Light", sans-serif;
 }
 
-button {
+#menu-button {
   border-radius: 4px;
   border: 4px solid #4CAF50;
   background: #4CAF50;
@@ -132,7 +132,7 @@ button {
   margin-left: -32px;
 }
 
-.examples {
+#examples {
   position: relative;
   height: 440px;
   color: white;
@@ -140,17 +140,17 @@ button {
   padding: 80px 10%;
 }
 
-.examples .info {
+#examples .info {
   width: 50%;
   position: relative;
 }
 
-.examples h2 {
+#examples h2 {
   position: absolute;
   left: 0;
 }
 
-.examples h3 {
+#examples h3 {
   position: absolute;
   right: 0;
   display: inline-block;
@@ -160,35 +160,35 @@ button {
   font-size: 20px;
 }
 
-.examples ul {
+#examples ul {
   position: absolute;
   left: 0;
   top: 120px;
 }
 
-.examples ul li {
+#examples ul li {
   margin-bottom: 40px;
   font-size: 24px;
 }
 
-.examples ul li span {
+#examples ul li span {
   font-family: ProximaNovaBold, "Helvetica Neue", Verdana, Arial, sans-serif;
   font-style: italic;
 }
 
-.examples .apple {
+#examples .apple {
   position: absolute;
   left: 0;
   top: 360px;
 }
 
-.examples .google {
+#examples .google {
   position: absolute;
   left: 240px;
   top: 360px;
 }
 
-.examples img {
+#examples img {
   z-index: 2;
   position: absolute;
   bottom: -100px;
@@ -259,7 +259,7 @@ button {
   font-size: 24px;
 }
 
-.price {
+#price {
   height: 960px;
   padding: 80px 10%;
   position: relative;
@@ -267,21 +267,21 @@ button {
   background: #FFF0BE;
 }
 
-.price h2 {
+#price h2 {
   margin-bottom: 30px; 
 }
 
-.price p {
+#price p {
   font-size: 20px;
   margin: 25px 0;
   vertical-align: top;
 }
 
-.price p span {
+#price p span {
   font-family: ProximaNovaBold, "Helvetica Neue", Verdana, Arial, sans-serif;
 }
 
-.price h4 {
+#price h4 {
   margin: 40px 0 20px;
   padding-top: 50px;
   border-top: 1px solid #DCCC9A;
@@ -289,7 +289,7 @@ button {
   font-size: 24px;
 }
 
-.price form input {
+#price form input {
   width: 250px;
   height: 60px;
   background: #FFFFFF;
@@ -303,7 +303,7 @@ button {
   color: #AAAAAA;
 }
 
-.price form input[type="submit"] {
+#price form input[type="submit"] {
   height: 55px;
   width: 220px;
   font-size: 18px;
@@ -314,7 +314,7 @@ button {
   cursor: pointer;
 }
 
-.scheme {
+#scheme {
   height: 480px;
   padding: 80px 10%;
   position: relative;
@@ -322,24 +322,24 @@ button {
   background: white;
 }
 
-.scheme ul {
+#scheme ul {
   margin-top: 40px;
 }
 
-.scheme ul li {
+#scheme ul li {
   margin-bottom: 40px;
   font-size: 20px;
   list-style: none;
 }
 
-.scheme ul li img{
+#scheme ul li img{
   margin-right: 25px;
   vertical-align: top;
   display: inline-block;
   width: 20px;
 }
 
-.scheme ul li p{
+#scheme ul li p{
   display: inline-block;
 }
 
