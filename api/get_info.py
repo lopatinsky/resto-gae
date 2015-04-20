@@ -14,8 +14,10 @@ from config import config
 import logging
 
 
-CAT_FREE_CUP_CODE = '3308081521040829'
-CAT_FREE_CUP_2_CODE = '3308081521040830'
+CAT_FREE_CUP_CODES = {
+    CompanyNew.EMPATIKA: ['3308081521040829', '3308081521040830'],
+    CompanyNew.COFFEE_CITY: ['0264', '0265', '0266', '0267', '0268', '0269', '0272'],
+}
 CUPS_BEFORE_FREE_CUP = 5
 
 
@@ -154,8 +156,9 @@ class GetOrderPromosHandler(BaseHandler):
                     'weight': gift['weight']
                 })
         accumulated_gifts = 0
-        if company.iiko_org_id == CompanyNew.EMPATIKA:
-            free_cup = iiko_api.get_product_from_menu(company.iiko_org_id, product_code=CAT_FREE_CUP_CODE)
+        if company.iiko_org_id in (CompanyNew.EMPATIKA, CompanyNew.COFFEE_CITY):
+            free_codes = CAT_FREE_CUP_CODES[company.iiko_org_id]
+            free_cup = iiko_api.get_product_from_menu(company.iiko_org_id, product_code=free_codes[0])
             FREE_CUP_IN_ORDER = 10
             CUPS_IN_ORDER = FREE_CUP_IN_ORDER * CUPS_BEFORE_FREE_CUP
             mock_order = copy.deepcopy(order)
@@ -171,9 +174,10 @@ class GetOrderPromosHandler(BaseHandler):
             accumulated_gifts = int(mock_order.discount_sum / free_cup['price']) - FREE_CUP_IN_ORDER
 
         discount_gifts = 0
-        if company.iiko_org_id == CompanyNew.EMPATIKA:
+        if company.iiko_org_id in (CompanyNew.EMPATIKA, CompanyNew.COFFEE_CITY):
             for item in order.items:
-                if item['code'] == CAT_FREE_CUP_CODE or item['code'] == CAT_FREE_CUP_2_CODE:
+                free_codes = CAT_FREE_CUP_CODES[company.iiko_org_id]
+                if item['code'] in free_codes:
                     if item.get('discount_sum'):
                         price = (item['sum'] + item['discount_sum']) / item['amount']
                         discount_gifts += item['discount_sum'] / price

@@ -17,6 +17,8 @@ from methods.image_cache import convert_url
 OLD_IIKO_BASE_URL = 'https://iiko.net:9900/api/0'
 NEW_IIKO_BASE_URL = 'https://iiko.biz:9900/api/0'
 
+CAT_GIFTS_GROUP_ID = 'fca63e6b-b622-4d99-9453-b8c3372c6179'
+
 
 def __get_iiko_base_url(company):
     return NEW_IIKO_BASE_URL if company.new_endpoints else OLD_IIKO_BASE_URL
@@ -153,6 +155,10 @@ def _load_menu(company):
         if company.iiko_org_id == CompanyNew.COFFEE_CITY:
             product['weight'] = 0
 
+        if company.iiko_org_id == CompanyNew.COFFEE_CITY and product['parentGroup'] == CAT_GIFTS_GROUP_ID:
+            product['price'] = 1
+            product['name'] += ' '
+
         category_products[product['parentGroup']].append({
             'price': product['price'],
             'name': product['name'].capitalize(),
@@ -181,6 +187,9 @@ def _load_menu(company):
             continue
         if not cat['isIncludedInMenu']:
             continue
+        if company.iiko_org_id == CompanyNew.COFFEE_CITY and cat['id'] == CAT_GIFTS_GROUP_ID:
+            cat['parentGroup'] = None
+            cat['order'] = 4
         products = sorted(category_products[cat['id']], key=operator.itemgetter('order'))
         categories[cat['id']] = {
             'id': cat['id'],
@@ -635,7 +644,9 @@ def get_order_promos(order, order_dict, set_info=False):
             if product:
                 free_product['id'] = product['productId']
                 free_product['name'] = product['name']
-                free_product['price'] = product['price'] if product['price'] else free_product['modifiers'][0]['price']
+                free_product['price'] = product['price']
+                if not product['price'] and product.get('modifiers'):
+                    free_product['price'] = product['modifiers'][0]['price']
                 free_product['amount'] = 1
                 free_product['sum'] = 0
                 free_product['weight'] = product['weight']
