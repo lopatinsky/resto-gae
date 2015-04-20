@@ -10,6 +10,7 @@ from config import config
 from methods import email
 from mt import CreateCompaniesLinks, CompanySettingsHandler, report, push_admins, push, migration
 from webapp2 import Route
+from webapp2_extras import jinja2
 import share
 from api import promo_phone
 from iikobiz import IikoBizAppHandler
@@ -33,7 +34,7 @@ Logs: https://appengine.google.com/logs?app_id=s~%s&severity_level_override=0&se
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-        self.redirect("http://ru-beacon.ru/")
+        self.response.write(jinja2.get_jinja2(app=self.app).render_template("landing.html"))
 
 webapp2_config = {
     "webapp2_extras.sessions": {
