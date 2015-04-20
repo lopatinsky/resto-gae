@@ -21,6 +21,13 @@ class ProductionConfig(RestoConfig):
         "iiko": "admins",
     }
 
+    GIFT_BRANCH_VENUES = [
+        CompanyNew.COFFEE_CITY,
+    ]
+    INVITATION_BRANCH_VENUES = [
+        CompanyNew.COFFEE_CITY,
+    ]
+
 
 class TestingConfig(RestoConfig):
     ALFA_BASE_URL = "https://test.paymentgate.ru/testpayment"
