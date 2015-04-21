@@ -1,6 +1,7 @@
 # coding=utf-8
 from google.appengine.api import app_identity
 import sys
+from google.appengine.api.urlfetch import DeadlineExceededError
 
 import webapp2
 from api import *
@@ -26,7 +27,10 @@ User-Agent: %s
 Exception: %s
 Logs: https://appengine.google.com/logs?app_id=s~%s&severity_level_override=0&severity_level=3""" \
            % (request.url, request.headers['User-Agent'], exception, _APP_ID)
-    email.send_error("server", "Error 500", body)
+    if isinstance(exception, DeadlineExceededError) and ":9900/" in exception.message:
+        email.send_error("iiko", "iiko deadline", body)
+    else:
+        email.send_error("server", "Error 500", body)
 
     exc_info = sys.exc_info()
     raise exc_info[0], exc_info[1], exc_info[2]
