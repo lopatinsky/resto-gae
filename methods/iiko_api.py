@@ -112,6 +112,27 @@ def _get_menu_modifiers(menu):
     return group_modifiers, modifiers
 
 
+def _fix_categories_images(menu):
+    cat_stack = menu[:]
+    i = 0
+    while i < len(cat_stack):
+        cat_stack.extend(cat_stack[i].get('children', []))
+        i += 1
+    for cat in cat_stack[::-1]:
+        if cat['image']:
+            continue
+        if cat.get('children'):
+            for child in cat['children']:
+                if child['image']:
+                    cat['image'].append(child['image'][0])
+                    break
+        else:
+            for product in cat['products']:
+                if product['images']:
+                    cat['image'].append({'imageUrl': product['images'][0]})
+                    break
+
+
 def _clone(d):
     return json.loads(json.dumps(d))
 
@@ -230,7 +251,9 @@ def _load_menu(company):
         if children:
             cat['children'] = sorted(children, key=operator.itemgetter('order'))
 
-    return sorted(categories.values(), key=operator.itemgetter('order'))
+    menu = sorted(categories.values(), key=operator.itemgetter('order'))
+    _fix_categories_images(menu)
+    return menu
 
 
 def _filter_menu(menu):
