@@ -7,6 +7,7 @@ from methods import filter_phone
 
 class IikoBizAppHandler(RequestHandler):
     def get(self):
+        return self.redirect("http://rbcn.mobi/")
         self.response.content_type = "text/plain"
         self.response.write("""Hello world!
 This is a stub for iiko.biz integration page.
