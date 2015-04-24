@@ -6,7 +6,11 @@
 <body>
     {% if user %}
         {% include '/mt/push_admins/header.html' %}
-        <a href="/api/push_admin/pushes">Послать пуши</a>
+        <a href="/api/push_admin/pushes">Послать пуши</a><br>
+        <a href="/api/push_admin/menu_reload">Обновить меню</a>
+        {% if menu_reload %}
+            Меню обновлено
+        {% endif %}
     {% else %}
         <a href="/mt/push/send">Послать пуши</a>
     {% endif %}

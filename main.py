@@ -91,6 +91,7 @@ app = webapp2.WSGIApplication([
     Route('/api/push_admin/logout', api_push_admin.LogoutHandler),
     Route('/api/push_admin/pushes', api_push_admin.PushSendingHandler, 'pushes'),
     Route('/api/push_admin/history', api_push_admin.PushHistoryHandler, 'admin_push_history'),
+    Route('/api/push_admin/menu_reload', api_push_admin.ReloadMenuHandler),
 
     # maintenance
     ('/mt/company/links', CreateCompaniesLinks),
