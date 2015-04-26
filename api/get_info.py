@@ -183,13 +183,16 @@ class GetOrderPromosHandler(BaseHandler):
                         discount_gifts += item['discount_sum'] / price
                 item['amount'] = int(item['amount'])
 
+        balance = iiko_api.get_customer_by_phone(company, phone).get('balance', 0.0)
+
         result = {
             "order_discounts": discount_sum,
             "max_bonus_payment": max_bonus_payment if max_bonus_payment > 0 else 0,
             "gifts": gifts,
             "error": False,
             "accumulated_gifts": max(0, int(accumulated_gifts - discount_gifts)),
-            "items": order.items
+            "items": order.items,
+            "balance": balance
         }
         return self.render_json(result)
 
