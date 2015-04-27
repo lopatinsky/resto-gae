@@ -8,7 +8,7 @@ from google.appengine.api import app_identity, blobstore, images, urlfetch
 from models.iiko import ImageCache
 from lib import cloudstorage
 
-MAX_SIZE = 400.
+MAX_SIZE = 750.
 _BUCKET = app_identity.get_default_gcs_bucket_name()
 
 
