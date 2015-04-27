@@ -1,5 +1,6 @@
 # coding=utf-8
 from datetime import timedelta
+import logging
 from config import config
 from methods import iiko_api, working_hours
 
@@ -11,11 +12,10 @@ def check_stop_list(items, delivery):
         item_id = item.get('id')
         item = iiko_api.get_product_from_menu(delivery.iiko_organization_id, product_id=item_id)
         if not item:
-            return True, None
+            logging.warning("Item is not found")
         if item_id in delivery.item_stop_list:
             return False, u'Продукт %s был помещен в стоп-лист' % item.get('name')
-        else:
-            return True, None
+    return True, None
 
 
 def check_company_schedule(company, order):
