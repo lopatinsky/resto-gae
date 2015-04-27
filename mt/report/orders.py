@@ -53,7 +53,7 @@ class OrdersReportHandler(BaseHandler):
         values = {
             'companies': iiko.CompanyNew.query().fetch(),
             'orders': orders,
-            'chosen_venue': iiko.CompanyNew.get_by_iiko_id(org_id),
+            'chosen_company': iiko.CompanyNew.get_by_iiko_id(org_id),
             'start_year': PROJECT_STARTING_YEAR,
             'end_year': datetime.now().year,
             'chosen_year': chosen_year,
