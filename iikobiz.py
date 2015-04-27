@@ -24,6 +24,5 @@ class IikoBizSubmitHandler(RequestHandler):
             return
         phone = "+%s (%s) %s-%s-%s" % (phone[0], phone[1:4], phone[4:7], phone[7:9], phone[9:])
         mail_body = u"Телефон: %s, email: %s" % (phone, email)
-        mail.send_mail("landing@empatika-resto.appspotmail.com", "mdburshteyn@gmail.com",
-                       "Новая заявка с landing", mail_body)
+        mail.send_mail_to_admins("landing@empatika-resto.appspotmail.com", "Новая заявка с landing", mail_body)
         self.response.write(u"Спасибо! Мы свяжемся с Вами в течение дня.")
