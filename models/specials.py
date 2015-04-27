@@ -95,7 +95,6 @@ class SharedGift(ndb.Model):
     status = ndb.IntegerProperty(choices=[READY, DONE], default=READY)
 
     def deactivate(self, company_id, venue_id, customer_id):
-        from methods.iiko_api import add_bonus_to_customer, get_customer_by_id
 
         #add_bonus_to_customer(company_id, phone, venue_id, self.total_sum)
         share = Share.get_by_id(self.share_id)

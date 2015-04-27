@@ -305,7 +305,16 @@ class DeliveryTerminal(ndb.Model):
     phone = ndb.StringProperty(indexed=False)
     address = ndb.StringProperty(indexed=False)
     location = ndb.GeoPtProperty(indexed=False)
-    
+
+    item_stop_list = ndb.StringProperty(repeated=True)
+
+    def dynamic_dict(self):
+        return {
+            'stop_list': {
+                'items': self.item_stop_list
+            }
+        }
+
     def to_dict(self):
         company = CompanyNew.get_by_id(self.company_id)
         return {

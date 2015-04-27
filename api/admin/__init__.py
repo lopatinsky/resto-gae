@@ -6,6 +6,8 @@ from methods import iiko_api
 from models.admin import Admin
 from models.iiko import Order
 from auth import LoginHandler, LogoutHandler
+from menu import MenuHandler, DynamicInfoHandler
+from stop_list import ItemStopListHandler
 
 
 def _build_images_map(org_id):

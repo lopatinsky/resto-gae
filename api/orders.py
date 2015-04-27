@@ -15,6 +15,7 @@ from models import iiko
 from models.iiko import CompanyNew, ClientInfo, Order, DeliveryTerminal
 from models.specials import MivakoGift
 from specials import fix_syrop, fix_modifiers_by_own
+from methods.orders.validation import check_stop_list
 
 
 class PlaceOrderHandler(base.BaseHandler):
@@ -181,6 +182,11 @@ class PlaceOrderHandler(base.BaseHandler):
                         iiko_gifts.append(iiko_gift)
 
                 iiko_api.set_gifts(order, order_dict['order'], iiko_gifts)
+
+        # todo: set here validation stop-list
+        success, description = check_stop_list(items, delivery_terminal)
+        if not success:
+            return self.send_error(description)
 
         # pay after pre check
         order_id = None
