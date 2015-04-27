@@ -4,18 +4,17 @@ import logging
 import datetime
 import time
 import re
-from config import config
 from google.appengine.api.urlfetch_errors import DownloadError
 from api.specials.express_emails import send_express_email
 from api.specials.mivako_promo import MIVAKO_NY2015_ENABLED
 import base
-from methods import email, iiko_api, working_hours, filter_phone
+from methods import email, iiko_api, filter_phone
 from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum, check_extended_status, get_bindings
 from models import iiko
 from models.iiko import CompanyNew, ClientInfo, Order, DeliveryTerminal
 from models.specials import MivakoGift
 from specials import fix_syrop, fix_modifiers_by_own
-from methods.orders.validation import check_stop_list
+from methods.orders.validation import check_stop_list, check_company_schedule, check_config_restrictions
 
 
 class PlaceOrderHandler(base.BaseHandler):
@@ -85,12 +84,9 @@ class PlaceOrderHandler(base.BaseHandler):
             logging.info('new date(ios 7): %s' % order.date)
         # TODO: ios 7 times fuckup
 
-        local_time = order.date + datetime.timedelta(seconds=company.get_timezone_offset())
-        if company.schedule:
-            if not working_hours.is_datetime_valid(company.schedule, local_time):
-                if config.CHECK_SCHEDULE:
-                    start, end = working_hours.parse_company_schedule(company.schedule, local_time.isoweekday())
-                    return self.send_error(u'Заказы будут доступны c %s до %s. Попробуйте в следующий раз.' % (start, end))
+        success, description = check_company_schedule(company, order)
+        if not success:
+            self.send_error(description)
 
         order.delivery_terminal_id = delivery_terminal_id
         order.venue_id = company.iiko_org_id
@@ -129,15 +125,9 @@ class PlaceOrderHandler(base.BaseHandler):
             email.send_error("iiko", "iiko pre check failed", pre_check_result["description"])
             self.abort(400)
 
-        error = None
-        for restriction in config.RESTRICTIONS:
-            if company.iiko_org_id in restriction['venues']:
-                error = restriction['method'](order_dict, restriction['venues'][company.iiko_org_id])
-                logging.info(error)
-                if error:
-                    break
-        if error:
-            return self.send_error(error)
+        success, description = check_config_restrictions(company, order_dict)
+        if not success:
+            return self.send_error(description)
 
         order.discount_sum = 0.0
         order.bonus_sum = 0.0
