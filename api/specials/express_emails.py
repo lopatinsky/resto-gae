@@ -19,6 +19,6 @@ def send_express_email(order, customer, company):
     return mandrill.send_email(
         "noreply-order@ru-beacon.ru",
         [_CITY_MAPPING.get(order.address['city'])],
-        ["beacon-team@googlegroups.com"],
+        [],
         u"Новый заказ",
         body)
