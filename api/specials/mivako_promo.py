@@ -48,3 +48,46 @@ class MivakoPromoSendGiftHandler(BaseHandler):
 Получи его при заказе в ресторане www.mivako.ru
 Скачай приложение: https://clck.ru/9NFUj"""
         })
+
+
+def get_mivako_iiko_promos():
+    return [
+        {
+            "name": "Первый заказ",
+            "description": "Вы получаете в подарок ролл \"Калифорния с лососем\"",
+            "start": None,
+            "end": None,
+            "image_url": None,
+            "id": "0",
+            "display_type": 1,
+        },
+        {
+            "name": "Бонусная программа",
+            "description": "При каждом заказе Вы получаете 5% от суммы заказа на свой бонусный счет",
+            "start": None,
+            "end": None,
+            "image_url": None,
+            "id": "1",
+            "display_type": 1,
+        },
+        {
+            "name": "Подарок за повторный заказ в течение недели",
+            "description": "Сделайте повторный заказ в течение недели и получите Калифорнию с кунжутом в подарок!",
+            "start": None,
+            "end": None,
+            "image_url": None,
+            "id": "2",
+            "display_type": 1,
+        },
+        {
+            "name": "День рождения",
+            "description": "Если Вы именинник, то для Вас мы сделаем прекрасный подарок - бесплатный ролл. "
+                           "Сообщите о своем дне роджения оператору и приготовьте паспорт - его необходимо показать "
+                           "курьеру при доставке.",
+            "start": None,
+            "end": None,
+            "image_url": None,
+            "id": "3",
+            "display_type": 1,
+        }
+    ]
