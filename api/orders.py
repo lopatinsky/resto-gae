@@ -23,6 +23,7 @@ class PlaceOrderHandler(base.BaseHandler):
     def send_error(self, description):
         self.response.set_status(400)
         logging.warning(description)
+        email.send_error("order", "Our pre check failed", description)
         self.render_json({
             'error': True,
             'description': description
@@ -86,11 +87,11 @@ class PlaceOrderHandler(base.BaseHandler):
 
         pt = company.get_payment_type(payment_type)
         if not pt or not pt.available:
-            self.send_error(u"Выбранный способ оплаты недоступен.")
+            return self.send_error(u"Выбранный способ оплаты недоступен.")
 
         success, description = check_company_schedule(company, order)
         if not success:
-            self.send_error(description)
+            return self.send_error(description)
 
         order.delivery_terminal_id = delivery_terminal_id
         order.venue_id = company.iiko_org_id
