@@ -84,6 +84,10 @@ class PlaceOrderHandler(base.BaseHandler):
             logging.info('new date(ios 7): %s' % order.date)
         # TODO: ios 7 times fuckup
 
+        pt = company.get_payment_type(payment_type)
+        if not pt or not pt.available:
+            self.send_error(u"Выбранный способ оплаты недоступен.")
+
         success, description = check_company_schedule(company, order)
         if not success:
             self.send_error(description)
