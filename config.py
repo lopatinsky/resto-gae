@@ -11,7 +11,7 @@ class RestoConfig(object):
 
 class ProductionConfig(RestoConfig):
     ALFA_BASE_URL = "https://engine.paymentgate.ru/payment"
-    CHECK_SCHEDULE = False
+    CHECK_SCHEDULE = True
     RESTRICTIONS = []
     BRANCH_IO_TAG = 'production'
     DEBUG = False
