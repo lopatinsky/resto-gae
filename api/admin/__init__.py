@@ -4,7 +4,7 @@ import time
 from ..base import BaseHandler
 from methods import iiko_api
 from models.admin import Admin
-from models.iiko import Order
+from models.iiko import Order, Customer
 from auth import LoginHandler, LogoutHandler
 from menu import MenuHandler, DynamicInfoHandler
 from stop_list import ItemStopListHandler
@@ -73,3 +73,12 @@ class ClosedOrdersHandler(OrderListHandler):
         return Order.query(Order.status == Order.CLOSED,
                            Order.delivery_terminal_id == delivery_terminal_id,
                            Order.date >= self.today()).fetch()
+
+
+class ClientHistoryHandler(OrderListHandler):
+    def _get_orders(self, delivery_terminal_id):
+        customer_id = self.request.get("customer_id")
+        customer = Customer.customer_by_customer_id(customer_id)
+        if not customer:
+            return []
+        return Order.query(Order.customer == customer.key).fetch()

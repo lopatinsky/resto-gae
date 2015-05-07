@@ -86,6 +86,7 @@ app = webapp2.WSGIApplication([
     ('/api/admin/menu', admin.MenuHandler),
     ('/api/admin/dynamic_info', admin.DynamicInfoHandler),
     ('/api/admin/stop_list/items', admin.ItemStopListHandler),
+    ('/api/admin/customer_history', admin.ClientHistoryHandler),
     ('/api/admin/login', admin.LoginHandler),
     ('/api/admin/logout', admin.LogoutHandler),
 
