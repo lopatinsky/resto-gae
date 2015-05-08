@@ -74,9 +74,12 @@ def get_access_token(company, refresh=False):
 
 def _fetch_access_token(company):
     iiko_api_login = IikoApiLogin.get_by_id(company.iiko_login)
+    data = urllib.urlencode({
+        "user_id": iiko_api_login.login,
+        "user_secret": iiko_api_login.password
+    })
     result = urlfetch.fetch(
-        __get_iiko_base_url(company) + '/auth/access_token?user_id=%s&user_secret=%s' %
-        (iiko_api_login.login, iiko_api_login.password), deadline=10, validate_certificate=False)
+        __get_iiko_base_url(company) + '/auth/access_token?%s' % data, deadline=10, validate_certificate=False)
     return result.content.strip('"')
 
 
