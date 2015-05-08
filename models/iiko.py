@@ -348,6 +348,7 @@ class CompanyNew(ndb.Model):
     ORANGE_EXPRESS = "768c213e-5bc1-4135-baa3-45f719dbad7e"
     SUSHILAR = "a9d16dff-7680-43f1-b1a1-74784bc75f60"
     VENEZIA = "b4c224da-b1d2-11e4-80d8-002590dc3769"
+    DIMASH = "d3b9ba12-ee62-11e4-80cf-d8d38565926f"
 
     iiko_login = ndb.StringProperty()
     iiko_org_id = ndb.StringProperty()
