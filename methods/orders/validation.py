@@ -24,7 +24,8 @@ def check_company_schedule(company, order):
         if not working_hours.is_datetime_valid(company.schedule, local_time):
             if config.CHECK_SCHEDULE:
                 start, end = working_hours.parse_company_schedule(company.schedule, local_time.isoweekday())
-                return False, u'Заказы будут доступны c %s до %s. Попробуйте в следующий раз.' % (start, end)
+                return False, u'Вы выбрали некорректное время доставки. ' \
+                              u'Пожалуйста, выберите время между %s:00 и %s:00.' % (start, end)
     return True, None
 
 
