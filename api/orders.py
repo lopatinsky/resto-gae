@@ -75,15 +75,14 @@ class PlaceOrderHandler(base.BaseHandler):
         order = iiko.Order()
         order.date = datetime.datetime.utcfromtimestamp(int(self.request.get('date')))
 
-        # TODO: ios 7 times fuckup
         if self.request.get('str_date'):
             order.date = datetime.datetime.strptime(self.request.get('str_date'), '%Y-%m-%d %H:%M:%S')
             order.date -= datetime.timedelta(seconds=company.get_timezone_offset())
             logging.info('new date(str): %s' % order.date)
-        elif 'iOS 7' in self.request.headers['User-Agent']:
-            order.date += datetime.timedelta(hours=1)
-            logging.info('new date(ios 7): %s' % order.date)
-        # TODO: ios 7 times fuckup
+            if order.date < datetime.datetime.now() and \
+                    ('/2.0 ' in self.request.user_agent or '/2.0.1' in self.request.user_agent):
+                order.date += datetime.timedelta(hours=12)
+                logging.info("ios v2.0 fuckup, adding 12h: %s", order.date)
 
         pt = company.get_payment_type(payment_type)
         if not pt or not pt.available:
