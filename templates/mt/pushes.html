@@ -9,8 +9,8 @@
     {% endif %}
 
     <form method="post">
-        <label>Сообщение: <input type="text" name="text"></label><br>
-        <label>Заголовок (Android): <input type="text" name="head"></label><br>
+        <label>Сообщение: <input type="text" name="text" size="100"></label><br>
+        <label>Заголовок (Android): <input type="text" name="head" size=90"></label><br>
         {% if has_choices %}
             {% for company in companies %}
                 <label><input type="checkbox" name="{{ company.key.id() }}">{{ company.app_title }}</label>
