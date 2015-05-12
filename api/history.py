@@ -28,7 +28,7 @@ class HistoryHandler(BaseHandler):
         for delivery_terminal in DeliveryTerminal.get_any(company.iiko_org_id), :
             orders_history = list()
             if history:
-                for order in history['historyOrders']:
+                for order in history:
                     items_list = list()
                     gift_list = list()
                     for order_items in order['items']:
