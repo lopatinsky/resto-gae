@@ -32,7 +32,9 @@ class PlaceOrderHandler(base.BaseHandler):
     def post(self, delivery_terminal_id):
         logging.info(self.request.POST)
         name = self.request.get('name').strip()
-        phone = filter_phone(self.request.get('phone'))
+        phone = filter_phone(self.request.get('phone'), check=True)
+        if not phone:
+            return self.send_error(u"Номер телефона имеет неверный формат. ")
         custom_data = None
         try:
             custom_data = json.loads(self.request.get('custom_data'))
