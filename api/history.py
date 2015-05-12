@@ -1,12 +1,11 @@
 # coding=utf-8
 
-import logging
 from api.base import BaseHandler
 from api.specials import fix_modifiers_by_own
 from methods import iiko_api
 import time
 from datetime import datetime
-from models.iiko import DeliveryTerminal, CompanyNew
+from models.iiko import DeliveryTerminal, CompanyNew, Customer
 
 
 class HistoryHandler(BaseHandler):
@@ -16,12 +15,19 @@ class HistoryHandler(BaseHandler):
         org_id = self.request.get('organisation_id')
         overall_history = []
         company = CompanyNew.get_by_id(int(org_id))
-        history = iiko_api.get_history(client_id, company.iiko_org_id)
+        client = Customer.customer_by_customer_id(client_id)
+        if client:
+            response = iiko_api.get_history_by_phone(client.phone, company.iiko_org_id)
+            history = []
+            if "customersDeliveryHistory" in response:
+                for customer_info in response["customersDeliveryHistory"]:
+                    history.extend(customer_info["deliveryHistory"])
+        else:
+            response = iiko_api.get_history(client_id, company.iiko_org_id)
+            history = response.get("historyOrders", [])
         for delivery_terminal in DeliveryTerminal.get_any(company.iiko_org_id), :
             orders_history = list()
-            if 'historyOrders' not in history or not history['historyOrders']:
-                pass
-            else:
+            if history:
                 for order in history['historyOrders']:
                     items_list = list()
                     gift_list = list()
