@@ -4,6 +4,7 @@ from google.appengine.ext import ndb
 from google.appengine.api import memcache
 import time
 from methods import maps
+from methods.maps import get_address_coordinates
 from methods.parse_com import send_push, IOS_DEVICE, ANDROID_DEVICE, make_order_push_data
 
 
@@ -422,6 +423,44 @@ class CompanyNew(ndb.Model):
             result = maps.get_timezone_by_coords(self.latitude, self.longitude)
             memcache.set('venue_%s_timezone' % self.iiko_org_id, result, time=24*3600)
         return result
+
+    @classmethod
+    def create(cls, login, password, company_id=None, org_id=None):
+        from config import config
+
+        IikoApiLogin.get_or_insert(login, password=password)
+
+        c = cls(id=company_id)
+        c.iiko_login = login
+
+        if org_id:
+            org = iiko_api.get_org(login, org_id)
+            c.iiko_org_id = org_id
+        else:
+            org = iiko_api.get_orgs(login)[0]
+            c.iiko_org_id = org['id']
+        c.app_title = org['name']
+        c.address = org['address'] or org['contact']['location']
+        c.latitude, c.longitude = get_address_coordinates(c.address)
+
+        delivery_types = [
+            DeliveryType(available=True, delivery_id=1, name="delivery"),
+            DeliveryType(available=False, delivery_id=2, name="self"),
+        ]
+        c.delivery_types = ndb.put_multi(delivery_types)
+
+        payment_types = [
+            PaymentType(available=True, type_id=1, name="cash", iiko_uuid="CASH"),
+            PaymentType(available=config.DEBUG, type_id=2, name="card", iiko_uuid="ECARD")
+        ]
+        c.payment_types = ndb.put_multi(payment_types)
+
+        if config.DEBUG:
+            c.alpha_login = "empatika_autopay-api"
+            c.alpha_pass = "empatika-autopay"
+        c.put()
+
+        return c
 
 
 class ImageCache(ndb.Model):
