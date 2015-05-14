@@ -20,12 +20,14 @@ class PushSendingHandler(BaseHandler):
         logging.info(self.request.POST)
 
         text = self.request.get('text')
+        full_text = self.request.get('full_text')
         head = self.request.get('head')
         android_avail = bool(self.request.get('android'))
         ios_avail = bool(self.request.get('ios'))
         chosen_companies = [self.user.company.id()]
 
-        push_venues(chosen_companies, text, head, android_avail, ios_avail, self.user.login, jinja2.get_jinja2(app=self.app))
+        push_venues(chosen_companies, text, full_text, head, android_avail, ios_avail, self.user.login,
+                    jinja2.get_jinja2(app=self.app))
 
         self.redirect_to('admin_push_history')
 

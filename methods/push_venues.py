@@ -3,12 +3,12 @@ __author__ = 'dvpermyakov'
 
 from models.iiko import ClientInfo, ANDROID_DEVICE, IOS_DEVICE, CompanyNew
 from models.specials import MassPushHistory
-from methods.parse_com import send_push, make_general_push_data
+from methods.parse_com import send_push, make_mass_push_data
 from methods.mandrill import send_email
 import json
 
 
-def push_venues(chosen_companies, text, head, android_avail, ios_avail, user_login, jinja):
+def push_venues(chosen_companies, text, full_text, head, android_avail, ios_avail, user_login, jinja):
 
     def get_client_channel(client_id):
         return 'client_%s' % client_id
@@ -36,7 +36,7 @@ def push_venues(chosen_companies, text, head, android_avail, ios_avail, user_log
 
     result = {}
     if android_avail:
-        data = make_general_push_data(text, ANDROID_DEVICE, head)
+        data = make_mass_push_data(text, full_text, ANDROID_DEVICE, head)
         response = send_push(android_channels, data, ANDROID_DEVICE)
         result['android'] = {
             'data': data,
@@ -44,7 +44,7 @@ def push_venues(chosen_companies, text, head, android_avail, ios_avail, user_log
             'response': response['result'] if response.get('result') else False
         }
     if ios_avail:
-        data = make_general_push_data(text, IOS_DEVICE)
+        data = make_mass_push_data(text, full_text, IOS_DEVICE, head)
         response = send_push(ios_channels, data, IOS_DEVICE)
         result['ios'] = {
             'data': data,
