@@ -388,6 +388,9 @@ class CompanyNew(ndb.Model):
     color = ndb.StringProperty()
     analytics_key = ndb.StringProperty()
 
+    ios_push_channel = ndb.StringProperty()
+    android_push_channel = ndb.StringProperty()
+
     @classmethod
     def get_payment_types(cls, venue_id):
         venue = cls.get_by_iiko_id(venue_id)

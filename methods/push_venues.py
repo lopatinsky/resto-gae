@@ -1,4 +1,5 @@
 # coding=utf-8
+
 __author__ = 'dvpermyakov'
 
 from models.iiko import ClientInfo, ANDROID_DEVICE, IOS_DEVICE, CompanyNew
@@ -16,6 +17,14 @@ def push_venues(chosen_companies, text, full_text, head, android_avail, ios_avai
     clients = ClientInfo.query().fetch()
     android_channels = []
     ios_channels = []
+
+    for chosen_company in chosen_companies:
+        company = CompanyNew.get_by_id(chosen_company)
+        if company.ios_push_channel:
+            ios_channels.append(company.ios_push_channel)
+        if company.android_push_channel:
+            android_channels.append(company.android_push_channel)
+
     for client in clients:
         if client.company_id not in chosen_companies:
             continue
