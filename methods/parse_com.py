@@ -51,16 +51,15 @@ def make_order_push_data(order_id, order_number, order_status, order_status_desc
         'order_id': order_id,
         'order_status': order_status
     }
-    if device == ANDROID_DEVICE:
-        data.update({
-            'head': head,
-            'text': message,
-            'action': 'com.empatika.iiko'
-        })
-    elif device == IOS_DEVICE:
-        data.update({
-            'alert': message
-        })
+    data.update(make_general_push_data(message, device, head))
+    return data
+
+
+def make_mass_push_data(text, full_text, device, head=None):
+    data = {
+        'popup_text': full_text
+    }
+    data.update(make_general_push_data(text, device, head))
     return data
 
 
