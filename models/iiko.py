@@ -362,7 +362,7 @@ class CompanyNew(ndb.Model):
     payment_types = ndb.KeyProperty(kind=PaymentType, repeated=True)
     menu = ndb.JsonProperty()
 
-    app_name = ndb.StringProperty()  # TODO REMOVE: part of user-agent to identify app in alfa handler
+    app_name = ndb.StringProperty(repeated=True)  # TODO REMOVE: part of user-agent to identify app in alfa handler
     app_title = ndb.StringProperty()
     alpha_login = ndb.StringProperty(indexed=False)
     alpha_pass = ndb.StringProperty(indexed=False)
