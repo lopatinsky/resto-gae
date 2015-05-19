@@ -25,8 +25,8 @@ APPS = {
     ),
     "cat": (
         "coffee_city",
-        "http://coffeeandthecity.ru/",
-        "http://coffeeandthecity.ru/",
+        "https://itunes.apple.com/ru/app/id978997070",
+        "https://play.google.com/store/apps/details?id=com.rubeacon.coffeeandthecity",
         True
     ),
     "mvk": (
