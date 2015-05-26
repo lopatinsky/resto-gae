@@ -223,6 +223,8 @@ class PlaceOrderHandler(base.BaseHandler):
                     if str(status_check_result.get('errorCode')) == '0' and \
                             status_check_result['actionCode'] == 0 and status_check_result['orderStatus'] == 1:
                         # payment succeeded
+                        order.comment += u"\nЗаказ оплачен картой через приложение"
+                        order_dict["order"]["comment"] = order.comment
                         if MIVAKO_NY2015_ENABLED and company.name == "empatikaMivako" and \
                                 status_check_result["cardAuthInfo"]["pan"][0:2] in ("51", "52", "53", "54", "55"):
                             logging.info("Mivako NewYear2015 promo")
