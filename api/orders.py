@@ -16,16 +16,21 @@ from models.specials import MivakoGift
 from specials import fix_syrop, fix_modifiers_by_own
 from methods.orders.validation import check_stop_list, check_company_schedule, check_config_restrictions
 
+GENERAL_ERROR = -1
+MIN_SUM_ERROR = 0
+NOT_VALID_TIME_ERROR = 1
+
 
 class PlaceOrderHandler(base.BaseHandler):
     """ /api/venue/%s/order/new """
 
-    def send_error(self, description):
+    def send_error(self, description, error_code=GENERAL_ERROR):
         self.response.set_status(400)
         logging.warning(description)
         email.send_error("order", "Our pre check failed", description)
         self.render_json({
             'error': True,
+            'error_code': error_code,
             'description': description
         })
 
@@ -92,7 +97,7 @@ class PlaceOrderHandler(base.BaseHandler):
 
         success, description = check_company_schedule(company, order)
         if not success:
-            return self.send_error(description)
+            return self.send_error(description, error_code=NOT_VALID_TIME_ERROR)
 
         order.delivery_terminal_id = delivery_terminal_id
         order.venue_id = company.iiko_org_id
