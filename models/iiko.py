@@ -465,6 +465,21 @@ class CompanyNew(ndb.Model):
 
         return c
 
+    def load_delivery_terminals(self):
+        iiko_dts = iiko_api.get_delivery_terminals(self)
+        dts = map(lambda iiko_dt: DeliveryTerminal(
+            id=iiko_dt['deliveryTerminalId'],
+            company_id=self.key.id(),
+            iiko_organization_id=self.iiko_org_id,
+            active=True,
+            name=iiko_dt['deliveryRestaurantName'],
+            phone=self.phone,
+            address=iiko_dt['address'],
+            location=ndb.GeoPt(self.latitude, self.longitude)
+        ), iiko_dts)
+        ndb.put_multi(dts)
+        return dts
+
 
 class ImageCache(ndb.Model):
     # key name is urlsafe_b64encoded image URL

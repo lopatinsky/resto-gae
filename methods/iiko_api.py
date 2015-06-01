@@ -774,3 +774,10 @@ def get_org(iiko_api_login, org_id):
     dummy = CompanyNew(iiko_login=iiko_api_login)
     result = __get_request(dummy, '/organization/%s' % org_id, {})
     return json.loads(result)
+
+
+def get_delivery_terminals(company):
+    result = __get_request(company, '/deliverySettings/getDeliveryTerminals', {
+        'organization': company.iiko_org_id
+    })
+    return json.loads(result)['deliveryTerminals']
