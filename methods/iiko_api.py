@@ -789,7 +789,7 @@ def get_delivery_terminals(company):
 def get_iikonet_payment_type(order):
     _default = "INET"
     if order.venue_id == CompanyNew.ORANGE_EXPRESS:
-        city = order.address.get("city")
+        city = order.address.get("city") if order.address else None
         return {
             u"Егорьевск": "INET1",
             u"Одинцово": "INET2",
