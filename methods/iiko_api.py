@@ -470,6 +470,9 @@ def prepare_order(order, customer, payment_type):
                 'isExternal': True,
                 'isPreliminary': True
             })
+        elif typ.type_id == 1 and company.iiko_org_id == CompanyNew.BON_APPETIT:
+            del obj['order']['paymentItems'][0]
+            logging.info(obj)
 
     return obj
 
