@@ -423,7 +423,7 @@ def prepare_order(order, customer, payment_type):
         obj['order']['paymentItems'].append({
             "sum": 0.0,
             'paymentType': {
-                "code": "INET",
+                "code": get_iikonet_payment_type(order),
                 "name": "iiko.Net",
                 "comment": "",
                 "combinatable": True,
@@ -781,3 +781,17 @@ def get_delivery_terminals(company):
         'organization': company.iiko_org_id
     })
     return json.loads(result)['deliveryTerminals']
+
+
+def get_iikonet_payment_type(order):
+    _default = "INET"
+    if order.venue_id == CompanyNew.ORANGE_EXPRESS:
+        city = order.address.get("city")
+        return {
+            u"Егорьевск": "INET1",
+            u"Одинцово": "INET2",
+            u"Домодедово": "INET3",
+            u"Подольск": "INET4",
+            u"Климовск": "INET4",
+        }.get(city, _default)
+    return _default
