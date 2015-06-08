@@ -257,10 +257,20 @@ class Order(ndb.Model):
             customer = Customer.customer_by_customer_id(iiko_order['customerId'])
             order.customer = customer.key if customer else None  # TODO create customer
 
-        _attr('sum')
+        new_sum = iiko_order['sum']
+        for payment in iiko_order['payments']:
+            if 'INET' in payment['paymentType']['code']:
+                new_sum -= payment['sum']
+        _attr('sum', new_sum)
+
         _attr('items')
         _attr('address')
         _attr('number')
+
+        delivery_terminal_id = None
+        if iiko_order['deliveryTerminal']:
+            delivery_terminal_id = iiko_order['deliveryTerminal']['deliveryTerminalId']
+        _attr('delivery_terminal_id', delivery_terminal_id)
 
         date = iiko_api.parse_iiko_time(iiko_order['deliveryDate'], company)
         _attr('date', date)
