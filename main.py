@@ -111,6 +111,7 @@ app = webapp2.WSGIApplication([
     ('/mt/report', report.ReportHandler),
     ('/mt/report/venues', report.VenueReportHandler),
     ('/mt/report/orders', report.OrdersReportHandler),
+    ('/mt/report/orders_lite', report.OrdersLiteReportHandler),
     ('/mt/report/clients', report.ClientsReportHandler),
     ('/mt/report/repeated_orders', report.RepeatedOrdersReportHandler),
     ('/mt/report/square_table', report.SquareTableHandler),
