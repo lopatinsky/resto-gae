@@ -1,4 +1,5 @@
 # coding=utf-8
+from models.iiko import DeliveryTerminal
 
 __author__ = 'dvpermyakov'
 
@@ -39,6 +40,12 @@ class OrdersLiteReportHandler(BaseHandler):
                 company_map[iiko_org_id] = iiko.CompanyNew.get_by_iiko_id(order.venue_id)
             return company_map[iiko_org_id]
 
+        dt_map = {}
+        def get_dt(dt_id):
+            if dt_id not in dt_map:
+                dt_map[dt_id] = DeliveryTerminal.get_by_id(dt_id)
+            return dt_map[dt_id]
+
         for order in orders:
             order.status_str = iiko.Order.STATUS_MAPPING[order.status][0]
             order.venue_name = get_company(order.venue_id).app_title
@@ -48,6 +55,8 @@ class OrdersLiteReportHandler(BaseHandler):
                 order.payment_name = 'CARD'
             else:
                 order.payment_name = 'UNKNOWN'
+            dt = get_dt(order.delivery_terminal_id)
+            order.delivery_terminal_name = dt.name if dt else order.delivery_terminal_id
         values = {
             'companies': iiko.CompanyNew.query().fetch(),
             'orders': orders,

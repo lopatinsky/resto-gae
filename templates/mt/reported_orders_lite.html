@@ -51,7 +51,7 @@
              <th>Status</th>
              <th>Payment Type</th>
              <th>Sum</th>
-             <th>City</th>
+             <th>Terminal</th>
          </tr>
          {% for order in orders %}
              <tr>
@@ -62,7 +62,7 @@
                  <td>{{ order.status_str }}</td>
                  <td>{{ order.payment_name }}</td>
                  <td>{{ order.sum }}</td>
-                 <td>{{ order.address.city }}</td>
+                 <td>{{ order.delivery_terminal_name }}</td>
              </tr>
          {% endfor %}
      </table>
