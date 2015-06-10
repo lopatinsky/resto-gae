@@ -8,7 +8,7 @@ from models.iiko import Order
 from models.specials import OrderSmsHistory
 
 
-_CONFIRMATION_TEXT = u"Ваш заказ №%s готовится, ожидайте доставку. Оранжевый Экспресс"
+_CONFIRMATION_TEXT = u"Ваш заказ №%s готовится, ожидайте доставку. %s"
 
 
 class SmsAdminHandler(BaseHandler):
@@ -20,15 +20,16 @@ class SmsAdminHandler(BaseHandler):
         history = OrderSmsHistory.query(OrderSmsHistory.company == company.key) \
                                  .order(-OrderSmsHistory.sent).fetch(10)
         self.render('/mt/sms_admin.html', company=company, user=self.user, orders=orders, history=history,
-                    confirmation_text=_CONFIRMATION_TEXT)
+                    confirmation_text=_CONFIRMATION_TEXT % ("_____", company.app_title))
 
     @push_admin_user_required
     def post(self):
+        company = self.user.company.get()
         order_id = self.request.get_range('order_id')
         order = Order.get_by_id(order_id)
         customer_phone = filter_phone(order.customer.get().phone)[1:]
 
-        sms_text = _CONFIRMATION_TEXT % order.number
+        sms_text = _CONFIRMATION_TEXT % (order.number, company.app_title)
 
         success, _ = sms_pilot.send_sms("INFORM", [customer_phone], sms_text)
         OrderSmsHistory(
