@@ -242,9 +242,11 @@ class Order(ndb.Model):
         company = CompanyNew.get_by_iiko_id(org_id)
         changes = {}
 
-        def _attr(name, new_value=None):
+        no_new_value = object()
+
+        def _attr(name, new_value=no_new_value):
             old_value = getattr(order, name)
-            if not new_value:
+            if new_value is no_new_value:
                 new_value = iiko_order[name]
             if old_value != new_value:
                 changes[name] = old_value
