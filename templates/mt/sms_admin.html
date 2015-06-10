@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    {% if user %}
+        {% include '/mt/push_admins/header.html' %}
+    {% endif %}
+
+    <h2>Отправить подтверждение</h2>
+    <p>
+        Текст подтверждения:<br>
+        {{ confirmation_text % "_____" }}
+    </p>
+    <form method="post">
+        <table border="1">
+            <tr>
+                <th>Номер заказа</th>
+                <th>Имя клиента</th>
+                <th>Телефон клиента</th>
+                <th>Отправить подтверждение</th>
+            </tr>
+            {% for order in orders %}
+                <tr>
+                    {% set customer = order.customer.get() %}
+                    <td>{{ order.number }}</td>
+                    <td>{{ customer.name }}</td>
+                    <td>{{ customer.phone }}</td>
+                    <td>
+                        <button type="submit" name="order_id" value="{{ order.key.id() }}">Отправить</button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </form>
+
+    <h2>Недавно отправленные</h2>
+    <table border="1">
+        <tr>
+            <th>Время отправки</th>
+            <th>Номер заказа</th>
+            <th>Телефон клиента</th>
+            <th>Результат</th>
+        </tr>
+        {% for item in history %}
+            <tr bgcolor="{{ "#88ff88" if item.success else "#ff8888" }}">
+                <td>{{ item.sent }}</td>
+                <td>{{ item.order.get().number }}</td>
+                <td>{{ item.phone }}</td>
+                <td>{{ "Отправлено" if item.success else "Ошибка" }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <a href="/api/push_admin/history">Назад</a>
+</body>
+</html>

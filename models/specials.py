@@ -1,7 +1,7 @@
 # coding=utf-8
 
 from google.appengine.ext import ndb
-from models.iiko import Customer, PaymentType
+from models.iiko import Customer, PaymentType, Order, CompanyNew
 
 
 class MivakoGift(ndb.Model):
@@ -102,3 +102,12 @@ class SharedGift(ndb.Model):
         self.status = self.DONE
         self.recipient_id = customer_id
         self.put()
+
+
+class OrderSmsHistory(ndb.Model):
+    sent = ndb.DateTimeProperty(auto_now_add=True)
+    order = ndb.KeyProperty(Order, indexed=False)
+    text = ndb.TextProperty()
+    phone = ndb.TextProperty()
+    company = ndb.KeyProperty(CompanyNew)
+    success = ndb.BooleanProperty(default=True)

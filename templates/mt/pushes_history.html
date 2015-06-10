@@ -7,7 +7,8 @@
     {% if user %}
         {% include '/mt/push_admins/header.html' %}
         <a href="/api/push_admin/pushes">Послать пуши</a><br>
-        <a href="/api/push_admin/menu_reload">Обновить меню</a>
+        <a href="/api/push_admin/menu_reload">Обновить меню</a><br/>
+        <a href="/api/push_admin/sms">Послать СМС-подтверждение заказа</a>
         {% if menu_reload %}
             Меню обновлено
         {% endif %}

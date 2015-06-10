@@ -30,3 +30,9 @@ indexes:
   properties:
   - name: status
   - name: date
+
+- kind: OrderSmsHistory
+  properties:
+  - name: company
+  - name: sent
+    direction: desc
