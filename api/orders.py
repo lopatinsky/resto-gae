@@ -116,6 +116,8 @@ class PlaceOrderHandler(base.BaseHandler):
         order.items = items
         order.sum = iiko_api.calc_sum(items, company.iiko_org_id)
         logging.info("calculated sum: %s, app sum: %s", order.sum, self.request.get('sum'))
+        if company.min_order_sum and order.sum < company.min_order_sum:
+            return self.send_error(u"Минимальная сумма заказа %s рублей!" % company.min_order_sum)
 
         order.comment = comment
         order.is_delivery = int(delivery_type) == 0
