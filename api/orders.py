@@ -5,7 +5,6 @@ import datetime
 import time
 import re
 from google.appengine.api.urlfetch_errors import DownloadError
-from api.specials.express_emails import send_express_email
 from api.specials.mivako_promo import MIVAKO_NY2015_ENABLED
 import base
 from methods import email, iiko_api, filter_phone
@@ -277,11 +276,10 @@ class PlaceOrderHandler(base.BaseHandler):
 
         order.put()
 
-        if company.iiko_org_id == CompanyNew.ORANGE_EXPRESS:
-            try:
-                send_express_email(order, customer, company)
-            except DownloadError:
-                logging.warning('mandrill is not responsed')
+        try:
+            email.send_order_email(order, customer, company)
+        except DownloadError:
+            logging.warning('mandrill is not responsed')
 
         response_items = order.items
         if company.iiko_org_id == CompanyNew.COFFEE_CITY:
