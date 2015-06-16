@@ -1,41 +1,11 @@
+# coding=utf-8
 import datetime
 import webapp2
 from .lib_ga import ga_track_event, ga_track_page
+from models.specials import AnalyticsLink
 
 
 GA_TID = "UA-57935469-8"
-
-
-APPS = {
-    # 0: app identifier
-    # 1: ios url
-    # 2: android url
-    # 3: True -> ios url by default, False -> android
-    "slr": (
-        "sushilar",
-        "https://itunes.apple.com/ru/app/id958993914",
-        "https://play.google.com/store/apps/details?id=com.sushilar",
-        False
-    ),
-    "oex": (
-        "orange_express",
-        "https://itunes.apple.com/ru/app/id961351009",
-        "https://play.google.com/store/apps/details?id=com.orangexpress",
-        False
-    ),
-    "cat": (
-        "coffee_city",
-        "https://itunes.apple.com/ru/app/id978997070",
-        "https://play.google.com/store/apps/details?id=com.rubeacon.coffeeandthecity",
-        True
-    ),
-    "mvk": (
-        "mivako",
-        "https://itunes.apple.com/ru/app/id920888388",
-        "https://play.google.com/store/apps/details?id=com.empatika.iiko.mivako",
-        True
-    ),
-}
 
 
 class GATrackBaseRequestHandler(webapp2.RequestHandler):
@@ -88,20 +58,10 @@ class GATrackRequestHandler(GATrackBaseRequestHandler):
 
 
 class GATrackDownloadHandler(GATrackRequestHandler):
-    page = None
-    name = None
-    ios_url = None
-    android_url = None
-    default_url = None
-
-    def _load_app_info(self, app_info):
-        self.name, self.ios_url, self.android_url, default_ios = app_info
-        self.default_url = self.ios_url if default_ios else self.android_url
-        self.page = "download_%s" % self.name
-        print self.__dict__
+    link = None
 
     def set_campaign(self, app):
-        self.campaign["cn"] = "link_%s" % self.name
+        self.campaign["cn"] = "link_%s" % self.link.name
         source = self.request.get("source")
         if source:
             self.campaign["cs"] = source
@@ -111,23 +71,28 @@ class GATrackDownloadHandler(GATrackRequestHandler):
 
     def dispatch(self):
         app = self.request.route_kwargs["app"]
-        if app in APPS:
-            self._load_app_info(APPS[app])
+        self.link = AnalyticsLink.get_by_id(app)
+        if self.link:
             super(GATrackDownloadHandler, self).dispatch()
         else:
             self.abort(404)
 
     def page_titles(self, app):
-        return [self.page]
+        return [self.link.ga_page]
+
+    def redirect(self, uri, *args, **kwargs):
+        if isinstance(uri, unicode):
+            uri = uri.encode('utf-8')
+        super(GATrackDownloadHandler, self).redirect(uri, *args, **kwargs)
 
     def action(self, app):
         ua = self.request.headers['User-Agent']
         if 'Android' in ua:
-            self.track_event(self.page, 'download_auto', 'android')
-            self.redirect(self.android_url)
+            self.track_event(self.link.ga_page, 'download_auto', 'android')
+            self.redirect(self.link.android_url)
         elif "iPhone" in ua or "iPad" in ua or "iPad" in ua:
-            self.track_event(self.page, 'download_auto', 'ios')
-            self.redirect(self.ios_url)
+            self.track_event(self.link.ga_page, 'download_auto', 'ios')
+            self.redirect(self.link.ios_url)
         else:
-            self.track_event(self.page, 'download_auto', 'other')
-            self.redirect(self.default_url)
+            self.track_event(self.link.ga_page, 'download_auto', 'other')
+            self.redirect(self.link.default_url)

@@ -1,4 +1,5 @@
 # coding=utf-8
+import urllib
 
 from google.appengine.ext import ndb
 from models.iiko import Customer, PaymentType, Order, CompanyNew
@@ -111,3 +112,45 @@ class OrderSmsHistory(ndb.Model):
     phone = ndb.TextProperty()
     company = ndb.KeyProperty(CompanyNew)
     success = ndb.BooleanProperty(default=True)
+
+
+class AnalyticsLink(ndb.Model):
+    @property
+    def code(self):
+        return self.key.id()
+
+    name = ndb.StringProperty(required=True, indexed=False)
+    ios_url = ndb.StringProperty(required=True, indexed=False)
+    android_url = ndb.StringProperty(required=True, indexed=False)
+    ios_default = ndb.BooleanProperty(required=True, indexed=False)
+
+    @property
+    def ga_page(self):
+        return "download_%s" % self.name
+
+    @property
+    def default_url(self):
+        return self.ios_url if self.ios_default else self.android_url
+
+    @property
+    def link_url(self):
+        return "http://rbcn.mobi/get/%s" % self.code
+
+    @property
+    def qr_url(self):
+        url = "%s?source=%s&medium=qr" % (self.link_url, self.name)
+        return "http://chart.apis.google.com/chart?cht=qr&chs=540x540&chl=%s&chld=L|0" % urllib.quote(url)
+
+    @classmethod
+    def make_code(cls, name):
+        import itertools
+        for code in itertools.combinations(name, 3):
+            code_str = ''.join(code)
+            if not cls.get_by_id(code_str):
+                return code_str
+
+    @classmethod
+    def create(cls, name='', **kwargs):
+        link = cls(id=cls.make_code(name), name=name, **kwargs)
+        link.put()
+        return link

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Link</th>
+                <th>iOS URL</th>
+                <th>Android URL</th>
+                <th>iOS from PC?</th>
+                <th>QR code</th>
+                <th>Edit</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for link in links %}
+                <tr>
+                    <td>{{ link.name }}</td>
+                    <td>{{ link.link_url }}</td>
+                    <td>{{ link.ios_url }}</td>
+                    <td>{{ link.android_url }}</td>
+                    <td>{{ link.ios_default }}</td>
+                    <td><img src="{{ link.qr_url }}" alt="QR code" width="200"/></td>
+                    <td>
+                        <a href="/mt/qr/{{ link.code }}">Edit</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <form method="post">
+        <fieldset>
+            <legend>New link</legend>
+
+            <label for="name">Name</label>
+            <input type="text" name="name" id="name"/>
+            <br/>
+
+            <label for="ios_url">iOS URL</label>
+            <input type="text" name="ios_url" id="ios_url"/>
+            <br/>
+
+            <label for="android_url">Android URL</label>
+            <input type="text" name="android_url" id="android_url"/>
+            <br/>
+
+            <label>
+                iOS from PC?
+                <input type="checkbox" name="ios_default"/>
+            </label>
+            <br/>
+
+            <input type="submit" value="Create"/>
+        </fieldset>
+    </form>
+</body>
+</html>

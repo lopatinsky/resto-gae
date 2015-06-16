@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <form method="post">
+        <fieldset>
+            <legend>Edit link {{ link.name }}</legend>
+
+            <label for="ios_url">iOS URL</label>
+            <input type="text" name="ios_url" id="ios_url" value="{{ link.ios_url }}"/>
+            <br/>
+
+            <label for="android_url">Android URL</label>
+            <input type="text" name="android_url" id="android_url" value="{{ link.android_url }}"/>
+            <br/>
+
+            <label>
+                iOS from PC?
+                <input type="checkbox" name="ios_default" {% if link.ios_default %}checked="checked"{% endif %}/>
+            </label>
+            <br/>
+
+            <input type="submit" value="Save"/>
+        </fieldset>
+    </form>
+</body>
+</html>
