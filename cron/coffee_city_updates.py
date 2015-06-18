@@ -1,5 +1,6 @@
 # coding=utf-8
 import datetime
+import logging
 from google.appengine.api import taskqueue
 
 from webapp2 import RequestHandler
@@ -17,9 +18,12 @@ class CoffeeCityUpdatesHandler(RequestHandler):
         else:
             org_ids = [CompanyNew.COFFEE_CITY]
         for org_id in org_ids:
-            iiko_orders = iiko_api.get_orders(CompanyNew.get_by_iiko_id(org_id), today, tomorrow)['deliveryOrders']
-            for order in iiko_orders:
-                Order.load_from_object(order)
+            try:
+                iiko_orders = iiko_api.get_orders(CompanyNew.get_by_iiko_id(org_id), today, tomorrow)['deliveryOrders']
+                for order in iiko_orders:
+                    Order.load_from_object(order)
+            except Exception as e:
+                logging.exception(e)
         taskqueue.add(queue_name='updates', countdown=30, url='/task/update_coffee_city', method='GET')
 
 
