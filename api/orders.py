@@ -107,8 +107,9 @@ class PlaceOrderHandler(base.BaseHandler):
         for item in items:
             if "modifiers" in item:
                 for mod in item["modifiers"]:
-                    if mod["amount"] == 0:
+                    if mod["amount"] == 0 and mod.get("groupId"):
                         mod["amount"] = 1
+                item["modifiers"] = [mod for mod in item["modifiers"] if mod["amount"]]
         if company.iiko_org_id == CompanyNew.COFFEE_CITY:
             items = fix_syrop.set_syrop_items(items)
             items = fix_modifiers_by_own.set_modifier_by_own(company.iiko_org_id, items)
