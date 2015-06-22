@@ -14,17 +14,17 @@ from models.iiko import CompanyNew, IikoApiLogin
 from methods.image_cache import convert_url
 
 
-OLD_IIKO_BASE_URL = 'https://iiko.net:9900/api/0'
-NEW_IIKO_BASE_URL = 'https://iiko.biz:9900/api/0'
+IIKO_NET_BASE_URL = 'https://iiko.net:9900/api/0'
+IIKO_BIZ_BASE_URL = 'https://iiko.biz:9900/api/0'
 
 CAT_GIFTS_GROUP_ID = 'fca63e6b-b622-4d99-9453-b8c3372c6179'
 
 
-def __get_iiko_base_url(company):
-    return NEW_IIKO_BASE_URL if company.new_endpoints else OLD_IIKO_BASE_URL
+def __get_iiko_base_url(iiko_biz):
+    return IIKO_BIZ_BASE_URL if iiko_biz else IIKO_NET_BASE_URL
 
 
-def __get_request(company, api_path, params):
+def __get_request(company, api_path, params, force_iiko_net=False):
     def do():
         url = '%s%s' % (iiko_base_url, api_path)
         if params:
@@ -32,17 +32,18 @@ def __get_request(company, api_path, params):
         logging.info(url)
         return urlfetch.fetch(url, deadline=30, validate_certificate=False)
 
-    iiko_base_url = __get_iiko_base_url(company)
-    params['access_token'] = get_access_token(company)
+    iiko_biz = company.new_endpoints and not force_iiko_net
+    iiko_base_url = __get_iiko_base_url(iiko_biz)
+    params['access_token'] = get_access_token(company, iiko_biz=iiko_biz)
     result = do()
     if result.status_code == 401:
         logging.warning("bad token")
-        params['access_token'] = get_access_token(company, refresh=True)
+        params['access_token'] = get_access_token(company, iiko_biz=iiko_biz, refresh=True)
         result = do()
     return result.content
 
 
-def __post_request(company, api_path, params, payload):
+def __post_request(company, api_path, params, payload, force_iiko_net=False):
     def do():
         url = '%s%s' % (iiko_base_url, api_path)
         if params:
@@ -54,32 +55,35 @@ def __post_request(company, api_path, params, payload):
         return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=json_payload,
                               deadline=30, validate_certificate=False)
 
-    iiko_base_url = __get_iiko_base_url(company)
-    params['access_token'] = get_access_token(company)
+    iiko_biz = company.new_endpoints and not force_iiko_net
+    iiko_base_url = __get_iiko_base_url(iiko_biz)
+    params['access_token'] = get_access_token(company, iiko_biz=iiko_biz)
     result = do()
     if result.status_code == 401:
         logging.warning("bad token")
-        params['access_token'] = get_access_token(company, refresh=True)
+        params['access_token'] = get_access_token(company, iiko_biz=iiko_biz, refresh=True)
         result = do()
     return result.content
 
 
-def get_access_token(company, refresh=False):
-    token = memcache.get('iiko_token_%s' % company.iiko_login)
+def get_access_token(company, iiko_biz, refresh=False):
+    memcache_key_format = 'iiko_biz_token_%s' if iiko_biz else 'iiko_net_token_%s'
+    memcache_key = memcache_key_format % company.iiko_login
+    token = memcache.get(memcache_key)
     if not token or refresh:
-        token = _fetch_access_token(company)
-        memcache.set('iiko_token_%s' % company.iiko_login, token, time=10*60)
+        token = _fetch_access_token(company, iiko_biz)
+        memcache.set(memcache_key, token, time=10*60)
     return token
 
 
-def _fetch_access_token(company):
+def _fetch_access_token(company, iiko_biz):
     iiko_api_login = IikoApiLogin.get_by_id(company.iiko_login)
     data = urllib.urlencode({
         "user_id": iiko_api_login.login,
         "user_secret": iiko_api_login.password
     })
     result = urlfetch.fetch(
-        __get_iiko_base_url(company) + '/auth/access_token?%s' % data, deadline=10, validate_certificate=False)
+        __get_iiko_base_url(iiko_biz) + '/auth/access_token?%s' % data, deadline=10, validate_certificate=False)
     return result.content.strip('"')
 
 
@@ -664,7 +668,7 @@ def get_order_promos(order, order_dict, set_info=False):
     url = '/orders/calculate_loyalty_discounts'
     payload = order_request
     company = CompanyNew.get_by_iiko_id(order.venue_id)
-    result = json.loads(__post_request(company, url, {}, payload))
+    result = json.loads(__post_request(company, url, {}, payload, force_iiko_net=True))
 
     if result.get('availableFreeProducts'):
         for free_product in result.get('availableFreeProducts'):
