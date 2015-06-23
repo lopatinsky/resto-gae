@@ -14,17 +14,17 @@ from models.iiko import CompanyNew, IikoApiLogin
 from methods.image_cache import convert_url
 
 
-IIKO_NET_BASE_URL = 'https://iiko.net:9900/api/0'
+PLATIUS_BASE_URL = 'https://iiko.net:9900/api/0'
 IIKO_BIZ_BASE_URL = 'https://iiko.biz:9900/api/0'
 
 CAT_GIFTS_GROUP_ID = 'fca63e6b-b622-4d99-9453-b8c3372c6179'
 
 
 def __get_iiko_base_url(iiko_biz):
-    return IIKO_BIZ_BASE_URL if iiko_biz else IIKO_NET_BASE_URL
+    return IIKO_BIZ_BASE_URL if iiko_biz else PLATIUS_BASE_URL
 
 
-def __get_request(company, api_path, params, force_iiko_net=False):
+def __get_request(company, api_path, params, force_platius=False):
     def do():
         url = '%s%s' % (iiko_base_url, api_path)
         if params:
@@ -32,7 +32,7 @@ def __get_request(company, api_path, params, force_iiko_net=False):
         logging.info(url)
         return urlfetch.fetch(url, deadline=30, validate_certificate=False)
 
-    iiko_biz = company.new_endpoints and not force_iiko_net
+    iiko_biz = company.new_endpoints and not force_platius
     iiko_base_url = __get_iiko_base_url(iiko_biz)
     params['access_token'] = get_access_token(company, iiko_biz=iiko_biz)
     result = do()
@@ -43,7 +43,7 @@ def __get_request(company, api_path, params, force_iiko_net=False):
     return result.content
 
 
-def __post_request(company, api_path, params, payload, force_iiko_net=False):
+def __post_request(company, api_path, params, payload, force_platius=False):
     def do():
         url = '%s%s' % (iiko_base_url, api_path)
         if params:
@@ -55,7 +55,7 @@ def __post_request(company, api_path, params, payload, force_iiko_net=False):
         return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=json_payload,
                               deadline=30, validate_certificate=False)
 
-    iiko_biz = company.new_endpoints and not force_iiko_net
+    iiko_biz = company.new_endpoints and not force_platius
     iiko_base_url = __get_iiko_base_url(iiko_biz)
     params['access_token'] = get_access_token(company, iiko_biz=iiko_biz)
     result = do()
@@ -67,7 +67,7 @@ def __post_request(company, api_path, params, payload, force_iiko_net=False):
 
 
 def get_access_token(company, iiko_biz, refresh=False):
-    memcache_key_format = 'iiko_biz_token_%s' if iiko_biz else 'iiko_net_token_%s'
+    memcache_key_format = 'iiko_biz_token_%s' if iiko_biz else 'platius_token_%s'
     memcache_key = memcache_key_format % company.iiko_login
     token = memcache.get(memcache_key)
     if not token or refresh:
@@ -668,7 +668,7 @@ def get_order_promos(order, order_dict, set_info=False):
     url = '/orders/calculate_loyalty_discounts'
     payload = order_request
     company = CompanyNew.get_by_iiko_id(order.venue_id)
-    result = json.loads(__post_request(company, url, {}, payload, force_iiko_net=True))
+    result = json.loads(__post_request(company, url, {}, payload, force_platius=True))
 
     if result.get('availableFreeProducts'):
         for free_product in result.get('availableFreeProducts'):
@@ -731,7 +731,7 @@ def get_customer_by_phone(company, phone):
     result = __get_request(company, '/customers/get_customer_by_phone', {
         'organization': company.iiko_org_id,
         'phone': phone
-    }, force_iiko_net=True)
+    }, force_platius=True)
     return json.loads(result)
 
 
@@ -739,14 +739,14 @@ def get_customer_by_id(company, customer_id):
     result = __get_request(company, '/customers/get_customer_by_id', {
         'organization': company.iiko_org_id,
         'id': customer_id
-    }, force_iiko_net=True)
+    }, force_platius=True)
     return json.loads(result)
 
 
 def create_or_update_customer(company, data):
     result = __post_request(company, '/customers/create_or_update', {
         'organization': company.iiko_org_id
-    }, {'customer': data}, force_iiko_net=True)
+    }, {'customer': data}, force_platius=True)
     return result.strip('"')
 
 
