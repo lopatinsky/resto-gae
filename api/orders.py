@@ -127,7 +127,10 @@ class PlaceOrderHandler(base.BaseHandler):
                 self.abort(400)
             try:
                 order.address = json.loads(address)
-            except:
+                if not order.address["home"].strip():
+                    return self.send_error(u"Не введен номер дома. Пожалуйста, введите его и попробуйте еще раз.")
+            except Exception as e:
+                logging.exception(e)
                 self.abort(400)
 
         # this resets order.delivery_terminal_id if it is delivery (not takeout)
