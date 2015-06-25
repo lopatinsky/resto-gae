@@ -14,6 +14,7 @@
                 <th>Android URL</th>
                 <th>iOS from PC?</th>
                 <th>QR code</th>
+                <th>URL for Facebook</th>
                 <th>Edit</th>
             </tr>
         </thead>
@@ -26,6 +27,7 @@
                     <td>{{ link.android_url }}</td>
                     <td>{{ link.ios_default }}</td>
                     <td><img src="{{ link.qr_url }}" alt="QR code" width="200"/></td>
+                    <td>{{ link.fb_url }}</td>
                     <td>
                         <a href="/mt/qr/{{ link.code }}">Edit</a>
                     </td>

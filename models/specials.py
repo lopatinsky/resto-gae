@@ -138,8 +138,12 @@ class AnalyticsLink(ndb.Model):
 
     @property
     def qr_url(self):
-        url = "%s?source=%s&medium=qr" % (self.link_url, self.name)
+        url = self.link_url + "?m=qr"
         return "http://chart.apis.google.com/chart?cht=qr&chs=540x540&chl=%s&chld=L|0" % urllib.quote(url)
+
+    @property
+    def fb_url(self):
+        return self.link_url + "?m=fb"
 
     @classmethod
     def make_code(cls, name):
