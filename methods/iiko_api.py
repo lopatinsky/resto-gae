@@ -10,7 +10,7 @@ from collections import deque
 from google.appengine.api import memcache, urlfetch
 import webapp2
 
-from models.iiko import CompanyNew, IikoApiLogin
+from models.iiko import CompanyNew, IikoApiLogin, DeliveryTerminal
 from methods.image_cache import convert_url
 
 
@@ -457,6 +457,8 @@ def prepare_order(order, customer, payment_type):
                 u"Домодедово": "2d163ab4-ce5d-e5cf-014b-84e547cfdf79"
             }
             obj['deliveryTerminalId'] = dt_mapping[order.address['city']]
+        elif order.venue_id == CompanyNew.DIMASH:
+            obj['deliveryTerminalId'] = DeliveryTerminal.get_any(order.venue_id)
 
     customer_id = customer.customer_id
     if customer_id:
