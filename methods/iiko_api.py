@@ -770,14 +770,14 @@ def parse_iiko_time(time_str, company):
     return datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S") - timedelta(seconds=company.get_timezone_offset())
 
 
-def get_orgs(iiko_api_login):
-    dummy = CompanyNew(iiko_login=iiko_api_login)
+def get_orgs(iiko_api_login, new_endpoints):
+    dummy = CompanyNew(iiko_login=iiko_api_login, new_endpoints=new_endpoints)
     result = __get_request(dummy, '/organization/list', {})
     return json.loads(result)
 
 
-def get_org(iiko_api_login, org_id):
-    dummy = CompanyNew(iiko_login=iiko_api_login)
+def get_org(iiko_api_login, org_id, new_endpoints):
+    dummy = CompanyNew(iiko_login=iiko_api_login, new_endpoints=new_endpoints)
     result = __get_request(dummy, '/organization/%s' % org_id, {})
     return json.loads(result)
 

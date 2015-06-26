@@ -441,19 +441,20 @@ class CompanyNew(ndb.Model):
         return result
 
     @classmethod
-    def create(cls, login, password, company_id=None, org_id=None):
+    def create(cls, login, password, company_id=None, org_id=None, new_endpoints=True):
         from config import config
 
         IikoApiLogin.get_or_insert(login, password=password)
 
         c = cls(id=company_id)
+        c.new_endpoints = new_endpoints
         c.iiko_login = login
 
         if org_id:
-            org = iiko_api.get_org(login, org_id)
+            org = iiko_api.get_org(login, org_id, new_endpoints)
             c.iiko_org_id = org_id
         else:
-            org = iiko_api.get_orgs(login)[0]
+            org = iiko_api.get_orgs(login, new_endpoints)[0]
             c.iiko_org_id = org['id']
         c.app_title = org['name']
         c.address = org['address'] or org['contact']['location']
