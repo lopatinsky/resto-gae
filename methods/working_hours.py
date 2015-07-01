@@ -36,4 +36,6 @@ def parse_company_schedule(schedule_list, week_day):
             end_hour = int(schedule['hours'].split('-')[1])
             break
 
-    return start_hour, end_hour
+    # adding one additional hour at close time
+    # e.g. if schedule is 11-23, allow to order for 11-24
+    return start_hour, end_hour + 1
