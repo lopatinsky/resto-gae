@@ -55,6 +55,8 @@ class OrdersLiteReportHandler(BaseHandler):
                 order.payment_name = 'CASH'
             elif order.payment_type == iiko.Order.CARD:
                 order.payment_name = 'CARD'
+            elif order.payment_type == iiko.Order.COURIER_CARD:
+                order.payment_name = 'COURIER_CARD'
             else:
                 order.payment_name = 'UNKNOWN'
             dt = get_dt(order.delivery_terminal_id)

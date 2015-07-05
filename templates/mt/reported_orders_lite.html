@@ -50,6 +50,7 @@
              <th>Date</th>
              <th>Status</th>
              <th>Payment Type</th>
+             <th>Alfa ID</th>
              <th>Sum</th>
              <th>Terminal</th>
          </tr>
@@ -61,6 +62,7 @@
                  <td>{{ order.date }}</td>
                  <td>{{ order.status_str }}</td>
                  <td>{{ order.payment_name }}</td>
+                 <td>{{ order.alfa_order_id|d("", true) }}</td>
                  <td>{{ order.sum }}</td>
                  <td>{{ order.delivery_terminal_name }}</td>
              </tr>

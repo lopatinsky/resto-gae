@@ -83,6 +83,7 @@ class Order(ndb.Model):
     # payment types
     CASH = '1'
     CARD = '2'
+    COURIER_CARD = '3'
 
     STATUS_MAPPING = {
         NOT_APPROVED: [
