@@ -671,6 +671,7 @@ def get_order_promos(order, order_dict, set_info=False):
     payload = order_request
     company = CompanyNew.get_by_iiko_id(order.venue_id)
     result = json.loads(__post_request(company, url, {}, payload, force_platius=True))
+    logging.info(result)
 
     if result.get('availableFreeProducts'):
         for free_product in result.get('availableFreeProducts'):
