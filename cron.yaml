@@ -6,7 +6,11 @@ cron:
 
 - description: update menu
   url: /cron/update_menu
-  schedule: every day 00:00
+  schedule: every 1 hours synchronized
+
+- description: update menu images
+  url: /cron/update_menu_images
+  schedule: every day 01:00
 
 - description: send mivako gift emails
   url: /cron/mivako_gifts

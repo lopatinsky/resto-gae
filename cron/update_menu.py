@@ -49,6 +49,15 @@ class UpdateMenuHandler(webapp2.RequestHandler):
         for company in companies:
             try:
                 iiko_api.get_menu(company.iiko_org_id, force_reload=True)
+            except Exception as e:
+                logging.exception(e)
+
+
+class UpdateMenuImagesHandler(webapp2.RequestHandler):
+    def get(self):
+        companies = CompanyNew.query().fetch()
+        for company in companies:
+            try:
                 deferred.defer(_defer_load_images, company.iiko_org_id, 0)
             except Exception as e:
                 logging.exception(e)
