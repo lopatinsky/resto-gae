@@ -137,51 +137,57 @@ class GetOrderPromosHandler(BaseHandler):
         if error:
             return self.send_error(error)
 
-        promos = iiko_api.get_order_promos(order, order_dict)
-        iiko_api.set_discounts(order, order_dict['order'], promos)
-        promos = iiko_api.get_order_promos(order, order_dict)
+        if company.is_iiko_system and order.items:
+            promos = iiko_api.get_order_promos(order, order_dict)
+            iiko_api.set_discounts(order, order_dict['order'], promos)
+            promos = iiko_api.get_order_promos(order, order_dict)
 
-        discount_sum = order.discount_sum
+            discount_sum = order.discount_sum
 
-        max_bonus_payment = promos['maxPaymentSum']
+            max_bonus_payment = promos['maxPaymentSum']
 
-        gifts = []
-        if promos.get('availableFreeProducts'):
-            for gift in promos['availableFreeProducts']:
-                gifts.append({
-                    'id': gift['id'],
-                    'code': gift['code'],
-                    'name': gift['name'],
-                    'images': gift['images'],
-                    'weight': gift['weight']
-                })
-        accumulated_gifts = 0
-        if company.iiko_org_id in (CompanyNew.EMPATIKA, CompanyNew.COFFEE_CITY):
-            free_codes = CAT_FREE_CUP_CODES[company.iiko_org_id]
-            free_cup = iiko_api.get_product_from_menu(company.iiko_org_id, product_code=free_codes[0])
-            FREE_CUP_IN_ORDER = 10
-            CUPS_IN_ORDER = FREE_CUP_IN_ORDER * CUPS_BEFORE_FREE_CUP
-            mock_order = copy.deepcopy(order)
-            mock_order.sum = free_cup['price'] * CUPS_IN_ORDER
-            mock_order.items = [{
-                'id': free_cup['productId'],
-                'name': free_cup['name'],
-                'amount': CUPS_IN_ORDER
-            }]
-            mock_order_dict = iiko_api.prepare_order(mock_order, customer, None)
-            mock_promos = iiko_api.get_order_promos(mock_order, mock_order_dict)
-            iiko_api.set_discounts(mock_order, mock_order_dict['order'], mock_promos)
-            accumulated_gifts = int(mock_order.discount_sum / free_cup['price']) - FREE_CUP_IN_ORDER
-
-        discount_gifts = 0
-        if company.iiko_org_id in (CompanyNew.EMPATIKA, CompanyNew.COFFEE_CITY):
-            for item in order.items:
+            gifts = []
+            if promos.get('availableFreeProducts'):
+                for gift in promos['availableFreeProducts']:
+                    gifts.append({
+                        'id': gift['id'],
+                        'code': gift['code'],
+                        'name': gift['name'],
+                        'images': gift['images'],
+                        'weight': gift['weight']
+                    })
+            accumulated_gifts = 0
+            if company.iiko_org_id in (CompanyNew.EMPATIKA, CompanyNew.COFFEE_CITY):
                 free_codes = CAT_FREE_CUP_CODES[company.iiko_org_id]
-                if item['code'] in free_codes:
-                    if item.get('discount_sum'):
-                        price = (item['sum'] + item['discount_sum']) / item['amount']
-                        discount_gifts += item['discount_sum'] / price
-                item['amount'] = int(item['amount'])
+                free_cup = iiko_api.get_product_from_menu(company.iiko_org_id, product_code=free_codes[0])
+                FREE_CUP_IN_ORDER = 10
+                CUPS_IN_ORDER = FREE_CUP_IN_ORDER * CUPS_BEFORE_FREE_CUP
+                mock_order = copy.deepcopy(order)
+                mock_order.sum = free_cup['price'] * CUPS_IN_ORDER
+                mock_order.items = [{
+                    'id': free_cup['productId'],
+                    'name': free_cup['name'],
+                    'amount': CUPS_IN_ORDER
+                }]
+                mock_order_dict = iiko_api.prepare_order(mock_order, customer, None)
+                mock_promos = iiko_api.get_order_promos(mock_order, mock_order_dict)
+                iiko_api.set_discounts(mock_order, mock_order_dict['order'], mock_promos)
+                accumulated_gifts = int(mock_order.discount_sum / free_cup['price']) - FREE_CUP_IN_ORDER
+
+            discount_gifts = 0
+            if company.iiko_org_id in (CompanyNew.EMPATIKA, CompanyNew.COFFEE_CITY):
+                for item in order.items:
+                    free_codes = CAT_FREE_CUP_CODES[company.iiko_org_id]
+                    if item['code'] in free_codes:
+                        if item.get('discount_sum'):
+                            price = (item['sum'] + item['discount_sum']) / item['amount']
+                            discount_gifts += item['discount_sum'] / price
+                    item['amount'] = int(item['amount'])
+        else:
+            discount_sum = 0.0
+            max_bonus_payment = 0.0
+            gifts = []
+            accumulated_gifts = discount_gifts = 0
 
         balance = iiko_api.get_customer_by_phone(company, phone).get('balance', 0.0)
 
