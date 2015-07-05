@@ -42,6 +42,8 @@ class OrdersLiteReportHandler(BaseHandler):
 
         dt_map = {}
         def get_dt(dt_id):
+            if not dt_id:
+                return None
             if dt_id not in dt_map:
                 dt_map[dt_id] = DeliveryTerminal.get_by_id(dt_id)
             return dt_map[dt_id]
