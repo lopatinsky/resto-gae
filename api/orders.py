@@ -155,7 +155,6 @@ class PlaceOrderHandler(base.BaseHandler):
 
         order.discount_sum = 0.0
         order.bonus_sum = 0.0
-        promos = None
         if company.is_iiko_system:
             promos = iiko_api.get_order_promos(order, order_dict)
             logging.info('discount %s' % discount_sum)
@@ -196,6 +195,7 @@ class PlaceOrderHandler(base.BaseHandler):
                         iiko_gifts.append(iiko_gift)
 
                 iiko_api.set_gifts(order, order_dict['order'], iiko_gifts)
+        order.sum -= order.bonus_sum + order.discount_sum
 
         # todo: set here validation stop-list
         success, description = check_stop_list(items, delivery_terminal)
@@ -219,8 +219,7 @@ class PlaceOrderHandler(base.BaseHandler):
                 else:
                     logging.warning('binding not found')
 
-            payment = order.sum - order.discount_sum - order.bonus_sum
-            tie_result = tie_card(company, int(float(payment) * 100), int(time.time()), 'returnUrl', alpha_client_id,
+            tie_result = tie_card(company, int(order.sum * 100), int(time.time()), 'returnUrl', alpha_client_id,
                                   'MOBILE')
             logging.info("registration")
             logging.info(str(tie_result))
