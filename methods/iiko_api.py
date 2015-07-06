@@ -656,7 +656,7 @@ def get_order_promos(order, order_dict, set_info=False):
             logging.error('product is not found in menu!')
             continue
         item['code'] = product['code']
-        item['sum'] = product['price'] * item['amount'] - item.get('discount_sum', 0)
+        item['sum'] = product['price'] * item['amount']
         if item['sum'] == 0:
             if 'modifiers' in item:
                 for m in item['modifiers']:
