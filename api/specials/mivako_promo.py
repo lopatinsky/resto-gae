@@ -4,9 +4,6 @@ from ..base import BaseHandler
 from models.specials import MivakoGift
 
 
-MIVAKO_NY2015_ENABLED = False
-
-
 class MivakoPromoInfoHandler(BaseHandler):
     def get(self):
         promo_info = {
@@ -15,15 +12,6 @@ class MivakoPromoInfoHandler(BaseHandler):
             "image": "http://lh6.ggpht.com/"
                      "8zevGQVTtrVFeEE2CNfHX3fXjV4BiPCd_EtlIdAs0Zq_OZ0sU9wrz9w2TOsbWUkVChtviitwCdFfk5PObmLW0WXqc9A"
         }
-        if MIVAKO_NY2015_ENABLED:
-            promo_info["ny2015"] = {
-                "title": u"Новогодняя акция!",
-                "text": u"С 3 по 13 января оплати заказ<br>"
-                        u"картой <b>MasterCard</b> через приложение<br>"
-                        u"и получи ролл Дракон в подарок!",
-                "image": "http://lh5.ggpht.com/"
-                         "SQjmpZKTSMKo9KZisAt_Uetj5bVWaxbV9YqKh67ScXmovZXPVIS_ZM-j1Ug7-HoOsFm_YQ31DSiXn94R6N6W-xVVK0M"
-            }
         self.render_json(promo_info)
 
 
@@ -53,8 +41,8 @@ class MivakoPromoSendGiftHandler(BaseHandler):
 def get_mivako_iiko_promos():
     return [
         {
-            "name": "Первый заказ",
-            "description": "Вы получаете в подарок ролл \"Калифорния с лососем\"",
+            "name": u"Первый заказ",
+            "description": u"Скидка 20% на первый заказ",
             "start": None,
             "end": None,
             "image_url": None,
@@ -62,8 +50,8 @@ def get_mivako_iiko_promos():
             "display_type": 1,
         },
         {
-            "name": "Бонусная программа",
-            "description": "При каждом заказе Вы получаете 5% от суммы заказа на свой бонусный счет",
+            "name": u"Бонусная программа",
+            "description": u"При каждом заказе Вы получаете 5% от суммы заказа на свой бонусный счет",
             "start": None,
             "end": None,
             "image_url": None,
@@ -71,8 +59,8 @@ def get_mivako_iiko_promos():
             "display_type": 1,
         },
         {
-            "name": "Подарок за повторный заказ в течение недели",
-            "description": "Сделайте повторный заказ в течение недели и получите Калифорнию с кунжутом в подарок!",
+            "name": u"Подарок за повторный заказ в течение недели",
+            "description": u"Сделайте повторный заказ в течение недели и получите Калифорнию с кунжутом в подарок!",
             "start": None,
             "end": None,
             "image_url": None,
@@ -80,10 +68,10 @@ def get_mivako_iiko_promos():
             "display_type": 1,
         },
         {
-            "name": "День рождения",
-            "description": "Если Вы именинник, то для Вас мы сделаем прекрасный подарок - бесплатный ролл. "
-                           "Сообщите о своем дне роджения оператору и приготовьте паспорт - его необходимо показать "
-                           "курьеру при доставке.",
+            "name": u"День рождения",
+            "description": u"Если Вы именинник, то для Вас мы сделаем прекрасный подарок - бесплатный ролл. "
+                           u"Сообщите о своем дне роджения оператору и приготовьте паспорт - его необходимо показать "
+                           u"курьеру при доставке.",
             "start": None,
             "end": None,
             "image_url": None,

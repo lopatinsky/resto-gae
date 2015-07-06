@@ -5,13 +5,11 @@ import datetime
 import time
 import re
 from google.appengine.api.urlfetch_errors import DownloadError
-from api.specials.mivako_promo import MIVAKO_NY2015_ENABLED
 import base
 from methods import email, iiko_api, filter_phone
 from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum, check_extended_status, get_bindings
 from models import iiko
 from models.iiko import CompanyNew, ClientInfo, Order, DeliveryTerminal
-from models.specials import MivakoGift
 from specials import fix_syrop, fix_modifiers_by_own
 from methods.orders.validation import check_stop_list, check_company_schedule, check_config_restrictions
 
@@ -237,17 +235,6 @@ class PlaceOrderHandler(base.BaseHandler):
                         # payment succeeded
                         order.comment += u"\nЗаказ оплачен картой через приложение"
                         order_dict["order"]["comment"] = order.comment
-                        if MIVAKO_NY2015_ENABLED and company.name == "empatikaMivako" and \
-                                status_check_result["cardAuthInfo"]["pan"][0:2] in ("51", "52", "53", "54", "55"):
-                            logging.info("Mivako NewYear2015 promo")
-                            order.comment += u"\nОплата MasterCard через приложение: ролл Дракон в подарок"
-                            order_dict["order"]["comment"] = order.comment
-                            MivakoGift(
-                                sender="MasterCard",
-                                recipient=customer.phone,
-                                recipient_name=customer.name,
-                                gift_item=u"Ролл Дракон (оплата MasterCard через приложение)"
-                            ).put()
                     else:
                         self.abort(400)
                 else:
