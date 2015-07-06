@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <h1>Заказ №{{ order.number }}</h1>
+    <table width="100%" border="1" cellspacing="0">
+    {% for change in changes %}
+        <tr>
+            <th colspan="3" align="left">Изменения от {{ change.created }}</th>
+        </tr>
+        {% for entry in change.changes %}
+            <tr>
+                <th width="20%" align="left">{{ entry.what }}</th>
+                <td width="40%">{{ entry.old }}</td>
+                <td width="40%">{{ entry.new }}</td>
+            </tr>
+        {% endfor %}
+    {% endfor %}
+    </table>
+    <a href="/mt/changelogs">Назад</a>
+</body>
+</html>

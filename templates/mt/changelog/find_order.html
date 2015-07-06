@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    {% if search and not orders %}
+        <b>Ничего не найдено</b>
+    {% elif orders %}
+        {% if search %}Результаты поиска{% else %}Последние обновления{% endif %}
+        <ul>
+            {% for order in orders %}
+                <li>
+                    <a href="/mt/changelogs/{{ order.order_id }}">
+                        №{{ order.number }} на {{ order.sum }} р. на время {{ order.date }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <form method="post">
+        <fieldset>
+            <legend>Найти заказ</legend>
+            <label for="number">GUID или номер</label>
+            <input type="text" name="number" id="number"/>
+            <input type="submit" value="Искать"/>
+        </fieldset>
+    </form>
+</body>
+</html>

@@ -72,6 +72,18 @@ class Customer(ndb.Model):
             return IOS_DEVICE
 
 
+class OrderChangeLogEntry(ndb.Model):
+    what = ndb.StringProperty(indexed=False)
+    old = ndb.PickleProperty()
+    new = ndb.PickleProperty()
+
+
+class OrderChangeLog(ndb.Model):
+    order_id = ndb.StringProperty()
+    created = ndb.DateTimeProperty(auto_now_add=True)
+    changes = ndb.StructuredProperty(OrderChangeLogEntry, repeated=True, indexed=False)
+
+
 class Order(ndb.Model):
     # statuses
     UNKNOWN = -1
@@ -198,11 +210,26 @@ class Order(ndb.Model):
             'cancel_requested': self.cancel_requested,
         }
 
+    def _create_change_log(self, changes):
+        if not changes:
+            return None
+        log = OrderChangeLog(order_id=self.order_id)
+        log.changes = [OrderChangeLogEntry(what=name, old=old, new=getattr(self, name))
+                       for name, old in changes.items()]
+        log.put()
+        return log
+
+    def get_change_logs(self):
+        return OrderChangeLog.query(OrderChangeLog.order_id == self.order_id) \
+                             .order(OrderChangeLog.created).fetch()
+
     def _handle_changes(self, changes):
         from methods.alfa_bank import pay_by_card, get_back_blocked_sum
         from models.specials import SharedBonus
         if self.source != 'app':
             return
+
+        self._create_change_log(changes)
 
         if 'status' in changes:
             if self.payment_type == '2':

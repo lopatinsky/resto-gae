@@ -9,7 +9,7 @@ from api import admin, specials
 from api import push_admin as api_push_admin
 from config import config
 from methods import email
-from mt import CreateCompaniesLinks, CompanySettingsHandler, report, push_admins, push, migration, qr
+from mt import CreateCompaniesLinks, CompanySettingsHandler, report, push_admins, push, migration, qr, changes
 from webapp2 import Route
 from webapp2_extras import jinja2
 import share
@@ -121,6 +121,9 @@ app = webapp2.WSGIApplication([
 
     ('/mt/qr', qr.AnalyticsLinkListHandler),
     ('/mt/qr/([a-z]{,3})', qr.AnalyticsLinkEditHandler),
+
+    ('/mt/changelogs', changes.ChangeLogFindOrderHandler),
+    Route('/mt/changelogs/<order_id:.*>', changes.ViewChangeLogsHandler, "view_changelog"),
 
     # venue
     ('/api/venue/(.*)/menu', MenuHandler),

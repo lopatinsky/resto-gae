@@ -36,3 +36,8 @@ indexes:
   - name: company
   - name: sent
     direction: desc
+
+- kind: OrderChangeLog
+  properties:
+  - name: order_id
+  - name: created
