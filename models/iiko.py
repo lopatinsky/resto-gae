@@ -221,7 +221,7 @@ class Order(ndb.Model):
 
     def get_change_logs(self):
         return OrderChangeLog.query(OrderChangeLog.order_id == self.order_id) \
-                             .order(OrderChangeLog.created).fetch()
+                             .order(-OrderChangeLog.created).fetch()
 
     def _handle_changes(self, changes):
         from methods.alfa_bank import pay_by_card, get_back_blocked_sum

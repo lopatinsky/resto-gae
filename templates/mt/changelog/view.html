@@ -1,4 +1,34 @@
 <!DOCTYPE html>
+{% set status_dict = {
+    -1: "Неизвестно",
+    1: "Ожидает подтверждения",
+    2: "Подтвержден",
+    3: "Выполнен",
+    4: "Отменен"
+} %}
+{% macro format_info(name, info) %}
+    {% if name == 'status' %}
+        {{ status_dict[info] }}
+    {% elif name == 'address' %}
+        Город: {{ info.get('city') }}<br/>
+        Улица: {{ info.get('street') }}<br/>
+        Дом: {{ info.get('home') }}<br/>
+        Корпус: {{ info.get('housing') }}<br/>
+        Подъезд: {{ info.get('entrance') }}<br/>
+        Этаж: {{ info.get('floor') }}<br/>
+        Квартира: {{ info.get('apartment') }}<br/>
+        Комментарий: {{ info.get('comment') }}
+    {% elif name == 'items' %}
+        {% for item in info %}
+            {{ item['name'] }} &ndash; {{ item['amount'] }}шт. <br/>
+            {% for mod in info['modifiers'] %}
+                <small>- {{ mod['name'] }} &ndash {{ mod['amount'] }}шт.</small><br/>
+            {% endfor %}
+        {% endfor %}
+    {% else %}
+        {{ info }}
+    {% endif %}
+{% endmacro %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,6 +37,11 @@
 <body>
     <h1>Заказ №{{ order.number }}</h1>
     <table width="100%" border="1" cellspacing="0">
+        <tr>
+            <th>Поле</th>
+            <th>Старое значение</th>
+            <th>Новое значение</th>
+        </tr>
     {% for change in changes %}
         <tr>
             <th colspan="3" align="left">Изменения от {{ change.created }}</th>
@@ -14,8 +49,8 @@
         {% for entry in change.changes %}
             <tr>
                 <th width="20%" align="left">{{ entry.what }}</th>
-                <td width="40%">{{ entry.old }}</td>
-                <td width="40%">{{ entry.new }}</td>
+                <td width="40%">{{ format_info(entry.what, entry.old) }}</td>
+                <td width="40%">{{ format_info(entry.what, entry.new) }}</td>
             </tr>
         {% endfor %}
     {% endfor %}

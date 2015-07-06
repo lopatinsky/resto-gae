@@ -41,3 +41,4 @@ indexes:
   properties:
   - name: order_id
   - name: created
+    direction: desc
