@@ -98,6 +98,7 @@ class VenueReportHandler(BaseHandler):
                 logging.info('in orders in company %s' % company.app_title)
                 logging.info(text)
                 orders = {}
+                company.app_title += u' (IIKO DEADLINE)'
             orders = orders.get('deliveryOrders', [])
 
             if company.iiko_org_id in self.VENUES_WITHOUT_IIKO_PAYMENT_TYPES:
