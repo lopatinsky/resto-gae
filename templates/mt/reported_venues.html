@@ -41,11 +41,11 @@
              <option value="2" {% if chosen_object_type == '2' %}selected{% endif %}>Товары</option>
          </select>
          <input type="submit" value="Выбрать"/>
-     </form>
 
     <br>
      <table style="border-collapse:collapse; width:100%" border="1">
          <tr>
+             <th rowspan="2">Выбрать</th>
              <th rowspan="2">Id</th>
              <th rowspan="2">Имя</th>
              <th rowspan="2">Тип оплаты</th>
@@ -71,6 +71,9 @@
          {% for company in companies %}
              <tr>
                  {% set span = company.payments|length %}
+                 <td rowspan="{{ span }}">
+                     <input type="checkbox" name="{{ company.key.id() }}">
+                 </td>
                  <td rowspan="{{ span }}">{{ company.iiko_org_id }}</td>
                  <td rowspan="{{ span }}">{{ company.app_title }}</td>
                  {% for payment in company.payments %}
@@ -95,7 +98,7 @@
              </tr>
          {% endfor %}
      </table>
+     </form>
      <a href="/mt/report">Назад</a>
-
 </body>
 </html>

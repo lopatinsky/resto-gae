@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 
 __author__ = 'dvpermyakov'
 
@@ -19,7 +20,8 @@ class VenueReportHandler(BaseHandler):
 
     VENUES_WITHOUT_IIKO_PAYMENT_TYPES = [
         iiko.CompanyNew.ORANGE_EXPRESS,  # Оранжеваый эксперсс
-        iiko.CompanyNew.COFFEE_CITY   # Coffee and the City
+        iiko.CompanyNew.COFFEE_CITY,     # Coffee and the City
+        iiko.CompanyNew.TYKANO           # Tykano
     ]
 
     def get_payment_types(self, source, company):
@@ -34,10 +36,17 @@ class VenueReportHandler(BaseHandler):
             return result
 
         elif source == "iiko":
+            try:
+                payments = iiko_api.get_payment_types(company.iiko_org_id)['paymentTypes']
+            except Exception as e:
+                text = str(e)
+                logging.info('in payments in company %s' % company.app_title)
+                logging.info(text)
+                payments = []
             return [{
                 'type': payment['code'],
                 'name': payment['name']
-            } for payment in iiko_api.get_payment_types(company.iiko_org_id)['paymentTypes']]
+            } for payment in payments]
 
     def get_app_companies_info(self, start, end, statuses):
         orders = iiko.Order.query(iiko.Order.date >= start, iiko.Order.date <= end).fetch()
@@ -79,7 +88,17 @@ class VenueReportHandler(BaseHandler):
         companies = iiko.CompanyNew.query().fetch()
 
         for company in companies:
-            orders = iiko_api.get_orders(company, start, end, status=None)
+            confirmed = bool(self.request.get(str(company.key.id())))
+            if not confirmed:
+                continue
+            try:
+                orders = iiko_api.get_orders(company, start, end, status=None)
+            except Exception as e:
+                text = str(e)
+                logging.info('in orders in company %s' % company.app_title)
+                logging.info(text)
+                orders = {}
+                company.app_title += u' (IIKO DEADLINE)'
             orders = orders.get('deliveryOrders', [])
 
             if company.iiko_org_id in self.VENUES_WITHOUT_IIKO_PAYMENT_TYPES:
