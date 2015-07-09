@@ -72,7 +72,8 @@
              <tr>
                  {% set span = company.payments|length %}
                  <td rowspan="{{ span }}">
-                     <input type="checkbox" name="{{ company.key.id() }}">
+                     <input type="checkbox" name="{{ company.key.id() }}"
+                             {% if company.key.id() in chosen_companies %} checked {% endif %}>
                  </td>
                  <td rowspan="{{ span }}">{{ company.iiko_org_id }}</td>
                  <td rowspan="{{ span }}">{{ company.app_title }}</td>

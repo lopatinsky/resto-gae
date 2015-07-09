@@ -145,6 +145,10 @@ class VenueReportHandler(BaseHandler):
         chosen_month = self.request.get_range("selected_month")
         chosen_day = self.request.get_range("selected_day")
         chosen_object_type = self.request.get("selected_object_type")
+        chosen_company_ids = []
+        for company in iiko.CompanyNew.query().fetch():
+            if bool(self.request.get(str(company.key.id()))):
+                chosen_company_ids.append(company.key.id())
 
         if not chosen_year:
             chosen_year = datetime.now().year
@@ -162,6 +166,7 @@ class VenueReportHandler(BaseHandler):
         values = {
             'companies': self.get_app_companies_info(start, end, statuses) if chosen_type == "app"
             else self.get_iiko_companies_info(start, end, statuses),
+            'chosen_companies': chosen_company_ids,
             'statuses': statuses,
             'statuses_mapping': self.IIKO_STATUS_MAPPING,
             'start_year': PROJECT_STARTING_YEAR,
