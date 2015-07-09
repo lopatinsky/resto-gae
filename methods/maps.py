@@ -89,13 +89,12 @@ def complete_address_input(address):
     return results
 
 
-def get_cities_by_kladr(number, address):
+def get_cities_by_kladr(address):
     url = 'http://kladr-api.ru/api.php'
     payload = urllib.urlencode({
         'token': '548cc93f7c523934798b456f',
         'query': address.encode('utf-8'),
-        'contentType': 'city',
-        'limit': number
+        'contentType': 'city'
     })
     result = urlfetch.fetch(url='%s?%s' % (url, payload), method=urlfetch.GET, deadline=30)
 
@@ -111,9 +110,10 @@ def get_cities_by_kladr(number, address):
     predictions = obj.get('result')
     cities = []
     for prediction in predictions:
-        cities.append({
-            'city_id': prediction.get('id')
-        })
+        if prediction['name'] == address:
+            cities.append({
+                'city_id': prediction.get('id')
+            })
     return cities
 
 
@@ -154,7 +154,7 @@ def get_streets_by_kladr(number, city_id, address):
 
 
 def complete_address_input_by_kladr(city, street):
-    cities = get_cities_by_kladr(3, city)
+    cities = get_cities_by_kladr(city)
     results = []
     for city in cities:
         results.extend(get_streets_by_kladr(3, city['city_id'], street))
