@@ -96,6 +96,10 @@ class PlaceOrderHandler(base.BaseHandler):
                     order.date += datetime.timedelta(hours=12)
                     logging.info("ios v2.0 fuckup, adding 12h: %s", order.date)
 
+        if order.date < datetime.datetime.now():
+            return self.send_error(u"Вы выбрали некорректное время доставки. "
+                                   u"Пожалуйста, выберите время, большее текущего времени.")
+
         pt = company.get_payment_type(payment_type)
         if not pt or not pt.available:
             return self.send_error(u"Выбранный способ оплаты недоступен.")
