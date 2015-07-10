@@ -9,7 +9,7 @@ import json
 from methods import iiko_api, working_hours, filter_phone
 from models import iiko
 import datetime
-from models.iiko import CompanyNew, ClientInfo, DeliveryTerminal
+from models.iiko import CompanyNew, ClientInfo, DeliveryTerminal, BonusCardHack
 from config import config
 import logging
 
@@ -91,6 +91,8 @@ class GetOrderPromosHandler(BaseHandler):
         order_sum = self.request.get('sum')
         date = self.request.get_range('date')
         logging.info(date)
+
+        phone, bonus_card_customer_id = BonusCardHack.check(phone)
 
         customer = iiko.Customer.customer_by_customer_id(customer_id) if customer_id else None
         if not customer:
@@ -189,7 +191,9 @@ class GetOrderPromosHandler(BaseHandler):
             gifts = []
             accumulated_gifts = discount_gifts = 0
 
-        balance = iiko_api.get_customer_by_phone(company, phone).get('balance', 0.0)
+        customer = iiko_api.get_customer_by_id(company, bonus_card_customer_id) if bonus_card_customer_id \
+            else iiko_api.get_customer_by_phone(company, phone)
+        balance = customer.get('balance', 0.0)
 
         result = {
             "order_discounts": discount_sum,
@@ -222,3 +226,15 @@ class SaveClientInfoHandler(BaseHandler):
         user_agent = self.request.headers['User-Agent']
         key = ClientInfo(company_id=int(company_id), email=email, phone=phone, user_agent=user_agent).put()
         self.render_json({'id': key.id()})
+
+
+class GetClientByBonusCardHandler(BaseHandler):
+    def get(self, company_id):
+        card = self.request.get("card")
+        iiko_customer = iiko_api.get_customer_by_card(CompanyNew.get_by_id(int(company_id)), card)
+        if 'httpStatusCode' in iiko_customer:
+            self.response.set_status(400)
+            return self.render_json({'description': u'Не удалось найти бонусную карту'})
+
+        BonusCardHack(id=iiko_customer['phone'], customer_id=iiko_customer['id']).put()
+        self.render_json({'phone': '+' + iiko_customer['phone']})

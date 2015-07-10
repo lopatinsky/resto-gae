@@ -78,6 +78,8 @@ app = webapp2.WSGIApplication([
     ('/api/company/all_companies', GetCompaniesHandler),
     ('/api/company/get_icons', DownloadIconsHandler),
 
+    ('/api/company/(\d+)/enter_card', GetClientByBonusCardHandler),
+
     # admin
     ('/api/admin/orders/current', admin.CurrentOrdersHandler),
     ('/api/admin/orders/updates', admin.OrderUpdatesHandler),

@@ -72,6 +72,21 @@ class Customer(ndb.Model):
             return IOS_DEVICE
 
 
+class BonusCardHack(ndb.Model):
+    def phone(self):
+        return self.key.id()
+
+    customer_id = ndb.StringProperty(indexed=False)
+
+    @classmethod
+    def check(cls, phone):
+        phone_without_plus = phone.lstrip('+')
+        entity = cls.get_by_id(phone_without_plus)
+        if entity:
+            return phone_without_plus, entity.customer_id
+        return phone, None
+
+
 class OrderChangeLogEntry(ndb.Model):
     what = ndb.StringProperty(indexed=False)
     old = ndb.PickleProperty()

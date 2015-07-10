@@ -9,7 +9,7 @@ import base
 from methods import email, iiko_api, filter_phone
 from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum, check_extended_status, get_bindings
 from models import iiko
-from models.iiko import CompanyNew, ClientInfo, Order, DeliveryTerminal
+from models.iiko import CompanyNew, ClientInfo, Order, DeliveryTerminal, BonusCardHack
 from specials import fix_syrop, fix_modifiers_by_own
 from methods.orders.validation import check_stop_list, check_company_schedule, check_config_restrictions
 
@@ -53,6 +53,8 @@ class PlaceOrderHandler(base.BaseHandler):
         comment = self.request.get('comment')
         binding_id = self.request.get('binding_id')
         alpha_client_id = self.request.get('alpha_client_id')
+
+        phone, bonus_card_customer_id = BonusCardHack.check(phone)
 
         customer = iiko.Customer.customer_by_customer_id(customer_id)
         if not customer:
