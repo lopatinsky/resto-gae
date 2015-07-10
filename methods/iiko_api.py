@@ -657,14 +657,12 @@ def get_order_promos(order, order_dict, set_info=False):
             continue
         item['code'] = product['code']
         item['sum'] = product['price'] * item['amount']
-        if item['sum'] == 0:
-            if 'modifiers' in item:
-                for m in item['modifiers']:
-                    mod_item = get_group_modifier_item(order.venue_id, product_code=item['code'], order_mod_id=m.get('id'))
-                    m['code'] = mod_item.get('code')
-                    m['sum'] = mod_item.get('price', 0) * m.get('amount', 0)
-                item['sum'] = m['sum'] if item.get('modifiers') else 0
-                item['code'] = m['code'] if item.get('modifiers') else item['code']
+
+        for m in item.get('modifiers', []):
+            mod_item = get_group_modifier_item(order.venue_id, product_code=item['code'], order_mod_id=m.get('id'))
+            m['code'] = mod_item.get('code')
+            m['sum'] = mod_item.get('price', 0) * m.get('amount', 0)
+            item['sum'] += m['sum']
 
 
     url = '/orders/calculate_loyalty_discounts'
