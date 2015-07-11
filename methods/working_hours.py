@@ -1,3 +1,4 @@
+# coding=utf-8
 __author__ = 'dvpermyakov'
 
 import logging
@@ -36,6 +37,6 @@ def parse_company_schedule(schedule_list, week_day):
             end_hour = int(schedule['hours'].split('-')[1])
             break
 
-    # adding one additional hour at close time
-    # e.g. if schedule is 11-23, allow to order for 11-24
-    return start_hour, end_hour + 1
+    # adding one additional hour at open and close time
+    # e.g. if schedule is 11-23, allow to order for 12-24
+    return start_hour + 1, end_hour + 1
