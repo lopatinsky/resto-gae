@@ -79,6 +79,9 @@ class GetOrderPromosHandler(BaseHandler):
         })
 
     def post(self):
+        for k, v in self.request.POST.items():
+            logging.debug("%s: %s", k, v)
+
         delivery_terminal_id = self.request.get('venue_id')
         delivery_terminal = DeliveryTerminal.get_by_id(delivery_terminal_id)
         if delivery_terminal:
