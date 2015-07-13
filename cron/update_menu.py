@@ -57,6 +57,8 @@ class UpdateMenuImagesHandler(webapp2.RequestHandler):
     def get(self):
         companies = CompanyNew.query().fetch()
         for company in companies:
+            if not company.menu:
+                continue
             try:
                 deferred.defer(_defer_load_images, company.iiko_org_id, 0)
             except Exception as e:
