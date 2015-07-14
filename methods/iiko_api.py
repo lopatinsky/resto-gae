@@ -611,18 +611,16 @@ def get_product_by_modifier_item(org_id, id_modifier):
                     return product
 
 
-def get_group_modifier_item(org_id, product_code=None, product_id=None, order_mod_code=None, order_mod_id=None):
+def get_modifier_item(org_id, product_code=None, product_id=None, order_mod_code=None, order_mod_id=None):
     product = get_product_from_menu(org_id, product_code=product_code, product_id=product_id)
-    if not product:
-        modifiers = []
-        for item in list_menu(org_id):
-            modifiers.extend(item.get('modifiers'))
-    else:
-        modifiers = product.get('modifiers', [])
-    for mod in modifiers:
+    for mod in product.get('modifiers', []):
         for m_item in mod.get('items', []):
             if m_item.get('code') == order_mod_code or m_item.get('id') == order_mod_id:
                 return m_item
+    for mod in product.get('single_modifiers', []):
+        if mod.get('code') == order_mod_code or mod.get('id') == order_mod_id:
+            return mod
+    return None
 
 
 def get_group_modifier(org_id, group_id, modifier_id):
@@ -651,15 +649,13 @@ def get_order_promos(order, order_dict, set_info=False):
     for item in order_request['order']['items']:
         product = get_product_from_menu(order.venue_id, product_id=item['id'])
         if not product:
-            product = get_group_modifier_item(order.venue_id, order_mod_id=item['id'])
-        if not product:
             logging.error('product is not found in menu!')
             continue
         item['code'] = product['code']
         item['sum'] = product['price'] * item['amount']
 
         for m in item.get('modifiers', []):
-            mod_item = get_group_modifier_item(order.venue_id, product_code=item['code'], order_mod_id=m.get('id'))
+            mod_item = get_modifier_item(order.venue_id, product_code=item['code'], order_mod_id=m.get('id'))
             m['code'] = mod_item.get('code')
             m['sum'] = mod_item.get('price', 0) * m.get('amount', 0)
             item['sum'] += m['sum']
@@ -674,18 +670,6 @@ def get_order_promos(order, order_dict, set_info=False):
     if result.get('availableFreeProducts'):
         for free_product in result.get('availableFreeProducts'):
             product = get_product_from_menu(order.venue_id, product_code=free_product.get('productCode'))
-            if not product:
-                modifier = get_group_modifier_item(order.venue_id, order_mod_code=free_product.get('productCode'))
-                if modifier:
-                    product = get_product_by_modifier_item(order.venue_id, modifier['id'])
-                    logging.info(product)
-                    free_product['modifiers'] = [{
-                        'amount': 1,
-                        'price': modifier['price'],
-                        'id': modifier['id'],
-                        'groupId': modifier['groupId'],
-                        'name': modifier['name']
-                    }]
             if product:
                 free_product['id'] = product['productId']
                 free_product['name'] = product['name']
@@ -706,8 +690,6 @@ def get_order_promos(order, order_dict, set_info=False):
                 for detail in dis_info.get('details'):
                     if detail.get('productCode'):
                         product = get_product_from_menu(order.venue_id, product_code=detail.get('productCode'))
-                        if not product:
-                            product = get_group_modifier_item(order.venue_id, order_mod_code=detail.get('productCode'))
                         if product:
                             detail['id'] = product['productId'] if product.get('productId') else product.get('id')
                             detail['name'] = product['name']
