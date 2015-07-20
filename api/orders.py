@@ -131,6 +131,11 @@ class PlaceOrderHandler(base.BaseHandler):
         if company.min_order_sum and order.sum < company.min_order_sum:
             return self.send_error(u"Минимальная сумма заказа %s рублей!" % company.min_order_sum)
 
+        if company.iiko_org_id == CompanyNew.DIMASH:
+            if 'Android' in self.request.user_agent:
+                comment = u"Заказ с Android. " + comment
+            else:
+                comment = u"Заказ с iOS. " + comment
         order.comment = comment
         order.is_delivery = int(delivery_type) == 0
         order.payment_type = payment_type
