@@ -46,6 +46,7 @@
          <tr>
              <th>Number</th>
              <th>Company Name</th>
+             <th>Terminal Name</th>
              <th>Date</th>
              <th>Status</th>
              <th>Payment Type</th>
@@ -61,6 +62,7 @@
              <tr>
                  <td rowspan="{{ icount }}">{{ order.number }}</td>
                  <td rowspan="{{ icount }}">{{ order.venue_name }}</td>
+                 <td rowspan="{{ icount }}">{{ order.terminal_name }}</td>
                  <td rowspan="{{ icount }}">{{ order.date }}</td>
                  <td rowspan="{{ icount }}">{{ order.status_str }}</td>
                  <td rowspan="{{ icount }}">{{ order.payment_name }}</td>

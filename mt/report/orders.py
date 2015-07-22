@@ -1,4 +1,5 @@
 # coding=utf-8
+from models.iiko import DeliveryTerminal
 
 __author__ = 'dvpermyakov'
 
@@ -25,6 +26,11 @@ class OrdersReportHandler(BaseHandler):
         if org_id == '0':
             org_id = None
 
+        terminals = {}
+        for terminal in (DeliveryTerminal.query(DeliveryTerminal.iiko_organization_id == org_id).fetch()
+                         if org_id else DeliveryTerminal.query().fetch()):
+            terminals[terminal.key.id()] = terminal.name
+
         start = suitable_date(chosen_day, chosen_month, chosen_year, True)
         end = suitable_date(chosen_day, chosen_month, chosen_year, False)
         query = iiko.Order.query(iiko.Order.date > start, iiko.Order.date < end)
@@ -34,6 +40,7 @@ class OrdersReportHandler(BaseHandler):
         for order in orders:
             order.status_str = iiko.Order.STATUS_MAPPING[order.status][0]
             order.venue_name = iiko.CompanyNew.get_by_iiko_id(order.venue_id).app_title
+            order.terminal_name = terminals.get(order.delivery_terminal_id, u'Не найдено')
             customer = order.customer.get() if order.customer else None
             order.customer_id = customer.customer_id if customer else '-'
             order.customer_name = customer.name if customer else '-'
