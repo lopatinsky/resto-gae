@@ -408,6 +408,7 @@ class CompanyNew(ndb.Model):
     BON_APPETIT = "610ebd80-ada9-11e3-bae4-001b21b8a590"
     TYKANO = "a637b109-218f-11e5-80c1-d8d385655247"
     BURGER_CLUB = "e7985b2c-a21b-11e4-80d2-0025907e32e9"
+    PANDA = "09ac1efb-2578-11e5-80d2-d8d38565926f"
 
     iiko_login = ndb.StringProperty()
     iiko_org_id = ndb.StringProperty()
