@@ -163,9 +163,22 @@ class VenueReportHandler(BaseHandler):
         end = suitable_date(chosen_day, chosen_month, chosen_year, False)
 
         statuses = [iiko.Order.CLOSED, iiko.Order.CANCELED, iiko.Order.NOT_APPROVED]
+        total = {
+            'orders_number': 0,
+            'orders_sum': 0,
+            'average_orders_sum': 0
+        }
+        companies = self.get_app_companies_info(start, end, statuses) if chosen_type == "app" \
+            else self.get_iiko_companies_info(start, end, statuses)
+        if chosen_type == "app":
+            for company in companies:
+                for payment_key in company.info.keys():
+                    total['orders_number'] += company.info[payment_key][iiko.Order.CLOSED]['orders_number']
+                    total['orders_sum'] += company.info[payment_key][iiko.Order.CLOSED]['orders_sum']
+            total['average_orders_sum'] = round(total['orders_sum'] / total['orders_number'], 2) \
+                if total['orders_number'] else 0.0
         values = {
-            'companies': self.get_app_companies_info(start, end, statuses) if chosen_type == "app"
-            else self.get_iiko_companies_info(start, end, statuses),
+            'companies': companies,
             'chosen_companies': chosen_company_ids,
             'statuses': statuses,
             'statuses_mapping': self.IIKO_STATUS_MAPPING,
@@ -175,6 +188,7 @@ class VenueReportHandler(BaseHandler):
             'chosen_year': chosen_year,
             'chosen_month': chosen_month,
             'chosen_day': chosen_day,
-            'chosen_object_type': chosen_object_type
+            'chosen_object_type': chosen_object_type,
+            'total': total
         }
         self.render('reported_venues.html', **values)

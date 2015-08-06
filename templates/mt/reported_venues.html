@@ -98,6 +98,18 @@
                  {% endfor %}
              </tr>
          {% endfor %}
+         <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>Итого:</td>
+            <td>{{ total['orders_number'] }}</td>
+            <td>{{ total['orders_sum'] }}</td>
+            <td>{{ total['average_orders_sum'] }}</td>
+            {% for x in range(6) %}
+                <td></td>
+            {% endfor %}
+         </tr>
      </table>
      </form>
      <a href="/mt/report">Назад</a>
