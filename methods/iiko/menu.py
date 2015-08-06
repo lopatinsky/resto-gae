@@ -3,7 +3,7 @@ import json
 import operator
 from google.appengine.api import memcache
 import webapp2
-from methods.iiko.base import __get_request, CAT_GIFTS_GROUP_ID
+from methods.iiko.base import get_request, CAT_GIFTS_GROUP_ID
 from methods.image_cache import convert_url
 from models.iiko import CompanyNew
 from collections import deque
@@ -13,7 +13,7 @@ __author__ = 'dvpermyakov'
 
 def get_stop_list(org_id):
     company = CompanyNew.get_by_iiko_id(org_id)
-    result = __get_request(company, '/stopLists/getDeliveryStopList', {
+    result = get_request(company, '/stopLists/getDeliveryStopList', {
         'organization': org_id,
     })
     return json.loads(result)
@@ -69,7 +69,7 @@ def _clone(d):
 
 
 def _load_menu(company):
-    result = __get_request(company, '/nomenclature/%s' % company.iiko_org_id, {})
+    result = get_request(company, '/nomenclature/%s' % company.iiko_org_id, {})
     iiko_menu = json.loads(result)
     group_modifiers, modifiers = _get_menu_modifiers(iiko_menu)
     category_products = defaultdict(list)

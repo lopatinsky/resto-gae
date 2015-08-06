@@ -16,7 +16,7 @@ def __get_iiko_base_url(iiko_biz):
     return IIKO_BIZ_BASE_URL if iiko_biz else PLATIUS_BASE_URL
 
 
-def __get_request(company, api_path, params, force_platius=False):
+def get_request(company, api_path, params, force_platius=False):
     def do():
         url = '%s%s' % (iiko_base_url, api_path)
         if params:
@@ -35,7 +35,7 @@ def __get_request(company, api_path, params, force_platius=False):
     return result.content
 
 
-def __post_request(company, api_path, params, payload, force_platius=False):
+def post_request(company, api_path, params, payload, force_platius=False):
     def do():
         url = '%s%s' % (iiko_base_url, api_path)
         if params:

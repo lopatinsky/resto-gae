@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+import logging
 from methods.iiko.menu import get_menu
-from methods.iiko.organization import get_payment_types
+from methods.iiko.organization import get_payment_types, get_delivery_cities
 
 __author__ = 'dvpermyakov'
 
@@ -221,7 +222,7 @@ class GetCompanyHandler(BaseHandler):
                 'company_id': company.key.id(),
                 'description': company.description,
                 'min_order_sum': company.min_order_sum,
-                'cities': company.cities,
+                'cities': [city_dict['name'] for city_dict in get_delivery_cities(company)],
                 'phone': company.phone,
                 'schedule': company.schedule,
                 'email': company.email,

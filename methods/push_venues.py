@@ -2,9 +2,9 @@
 
 __author__ = 'dvpermyakov'
 
-from models.iiko import ClientInfo, ANDROID_DEVICE, IOS_DEVICE, CompanyNew
+from models.iiko import ClientInfo, CompanyNew
 from models.specials import MassPushHistory
-from methods.parse_com import send_push, make_mass_push_data
+from methods.parse_com import send_push, make_mass_push_data, ANDROID_DEVICE, IOS_DEVICE
 from methods.mandrill import send_email
 import json
 

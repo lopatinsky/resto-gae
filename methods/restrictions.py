@@ -1,6 +1,4 @@
 #coding=utf-8
-from methods.iiko.menu import get_menu, get_product_from_menu
-
 __author__ = 'dvpermyakov'
 
 from collections import deque
@@ -10,6 +8,7 @@ from datetime import datetime
 
 
 def restrict_product_by_time(order_dict, restriction_array):
+    from methods.iiko.menu import get_menu, get_product_from_menu
 
     def get_products_by_category(menu, category_id):
 

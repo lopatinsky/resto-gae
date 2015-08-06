@@ -1,8 +1,11 @@
 # coding=utf-8
+from datetime import time
 import urllib
 
 from google.appengine.ext import ndb
-from models.iiko import Customer, PaymentType, Order, CompanyNew
+from models.iiko.customer import Customer
+from models.iiko.order import Order
+from models.iiko.organization import PaymentType, CompanyNew
 
 
 class MivakoGift(ndb.Model):
@@ -158,3 +161,24 @@ class AnalyticsLink(ndb.Model):
         link = cls(id=cls.make_code(name), name=name, **kwargs)
         link.put()
         return link
+
+
+class ImageCache(ndb.Model):
+    # key name is urlsafe_b64encoded image URL
+    updated = ndb.DateTimeProperty(auto_now=True)
+    last_modified = ndb.StringProperty(indexed=False)
+    serving_url = ndb.StringProperty(indexed=False)
+
+
+class News(ndb.Model):
+    company_id = ndb.IntegerProperty(required=True)
+    text = ndb.StringProperty(required=True, indexed=False)
+    active = ndb.BooleanProperty(required=True, default=True)
+    created_at = ndb.DateTimeProperty(auto_now_add=True, indexed=False)
+
+    def dict(self):
+        return {
+            "id": self.key.id(),
+            "text": self.text,
+            "created_at": int(time.mktime(self.created_at.timetuple()))
+        }

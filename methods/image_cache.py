@@ -5,8 +5,8 @@ import StringIO
 import logging
 from PIL import Image
 from google.appengine.api import app_identity, blobstore, images, urlfetch
-from models.iiko import ImageCache
 from lib import cloudstorage
+from models.specials import ImageCache
 
 MAX_SIZE = 750.
 _BUCKET = app_identity.get_default_gcs_bucket_name()

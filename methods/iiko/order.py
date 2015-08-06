@@ -2,7 +2,7 @@
 from datetime import timedelta
 import json
 import logging
-from methods.iiko.base import __post_request, __get_request
+from methods.iiko.base import post_request, get_request
 from methods.iiko.promo import get_iikonet_payment_type
 from models.iiko import CompanyNew, DeliveryTerminal
 
@@ -100,7 +100,7 @@ def prepare_order(order, customer, payment_type):
 
 
 def pre_check_order(company, order_dict):
-    pre_check = __post_request(company, '/orders/checkCreate', {
+    pre_check = post_request(company, '/orders/checkCreate', {
         'requestTimeout': 30
     }, order_dict)
     logging.info(pre_check)
@@ -108,7 +108,7 @@ def pre_check_order(company, order_dict):
 
 
 def place_order(company, order_dict):
-    result = __post_request(company, '/orders/add', {
+    result = post_request(company, '/orders/add', {
         'requestTimeout': 30
     }, order_dict)
     logging.info(result)
@@ -117,7 +117,7 @@ def place_order(company, order_dict):
 
 def order_info(order):
     company = CompanyNew.get_by_iiko_id(order.venue_id)
-    result = __get_request(company, '/orders/info', {
+    result = get_request(company, '/orders/info', {
         'requestTimeout': 30,
         'organization': order.venue_id,
         'order': order.order_id
@@ -127,7 +127,7 @@ def order_info(order):
 
 def order_info1(order_id, org_id):
     company = CompanyNew.get_by_iiko_id(org_id)
-    result = __get_request(company, '/orders/info', {
+    result = get_request(company, '/orders/info', {
         'requestTimeout': 30,
         'organization': org_id,
         'order': order_id

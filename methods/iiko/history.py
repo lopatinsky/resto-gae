@@ -1,6 +1,6 @@
 import json
 from datetime import timedelta
-from methods.iiko.base import __get_request
+from methods.iiko.base import get_request
 from models.iiko import CompanyNew
 
 __author__ = 'dvpermyakov'
@@ -8,7 +8,7 @@ __author__ = 'dvpermyakov'
 
 def get_history(client_id, org_id):
     company = CompanyNew.get_by_iiko_id(org_id)
-    result = __get_request(company, '/orders/deliveryHistory', {
+    result = get_request(company, '/orders/deliveryHistory', {
         'organization': org_id,
         'customer': client_id,
         'requestTimeout': 20
@@ -19,7 +19,7 @@ def get_history(client_id, org_id):
 
 def get_history_by_phone(phone, org_id):
     company = CompanyNew.get_by_iiko_id(org_id)
-    result = __get_request(company, '/orders/deliveryHistoryByPhone', {
+    result = get_request(company, '/orders/deliveryHistoryByPhone', {
         'organization': org_id,
         'phone': phone
     })
@@ -38,4 +38,4 @@ def get_orders(company, start, end, status=None):
     }
     if status:
         payload['deliveryStatus'] = status
-    return json.loads(__get_request(company, '/orders/deliveryOrders', payload))
+    return json.loads(get_request(company, '/orders/deliveryOrders', payload))

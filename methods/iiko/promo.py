@@ -2,7 +2,7 @@
 import json
 import logging
 from datetime import datetime
-from methods.iiko.base import __get_request, __post_request
+from methods.iiko.base import get_request, post_request
 from methods.iiko.menu import get_product_from_menu, list_menu, get_modifier_item
 from models.iiko import CompanyNew
 
@@ -127,7 +127,7 @@ def get_venue_promos(org_id):
 
     url = '/organization/%s/marketing_campaigns' % org_id
     company = CompanyNew.get_by_iiko_id(org_id)
-    promos = json.loads(__get_request(company, url, {}))
+    promos = json.loads(get_request(company, url, {}))
     return [{
         'id': promo['id'],
         'name': promo['name'] if promo['name'] else '',
@@ -173,7 +173,7 @@ def get_order_promos(order, order_dict, set_info=False):
     url = '/orders/calculate_loyalty_discounts'
     payload = order_request
     company = CompanyNew.get_by_iiko_id(order.venue_id)
-    result = json.loads(__post_request(company, url, {}, payload, force_platius=True))
+    result = json.loads(post_request(company, url, {}, payload, force_platius=True))
     logging.info(result)
 
     if result.get('availableFreeProducts'):
