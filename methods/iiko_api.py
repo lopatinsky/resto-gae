@@ -438,7 +438,7 @@ def prepare_order(order, customer, payment_type):
             }),
             "isProcessedExternally": False,
             "isPreliminary": True,
-            "isExternal": True,
+            "isExternal": True
         })
 
     if customer.customer_id:
@@ -792,17 +792,17 @@ def get_iikonet_payment_type(order):
     if order.venue_id == CompanyNew.SUSHILAR:
         logging.info(order.delivery_terminal_id)
         if order.delivery_terminal_id == '088bab87-eb17-6deb-0147-a9d8fd1184b5':  # ПАРИНА
-            return '0127'
+            return 'PA'
         elif order.delivery_terminal_id == '088bab87-eb17-6deb-0147-a9f3a0380c68':  # ХАДИ-ТАКТАШ
-            return '3006'
+            return 'HA'
         elif order.delivery_terminal_id == '088bab87-eb17-6deb-0147-a9f3a038cf7e':  # ВОССТАНИЯ
-            return '1704'
+            return 'VO'
         elif order.delivery_terminal_id == '0d81e7d2-daf2-f7a8-0147-aa2667ef2e82':  # ЯМАШЕВА
-            return '0649'
+            return 'YAYA'
         elif order.delivery_terminal_id == '0e7bd2d0-c748-b906-0147-ee6188bfbb7d':  # БЕГИЧЕВА
-            return '6366'
+            return 'BI'
         elif order.delivery_terminal_id == '2e613146-b7bb-94e1-0149-3cf1753e76e2':  # АДОРАТСКОГО
-            return '5831'
+            return 'AO'
         else:
-            return '0127'  # default
+            return 'PA'  # default
     return _default
