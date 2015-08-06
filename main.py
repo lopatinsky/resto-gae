@@ -118,6 +118,7 @@ app = webapp2.WSGIApplication([
     ('/mt/report/clients', report.ClientsReportHandler),
     ('/mt/report/repeated_orders', report.RepeatedOrdersReportHandler),
     ('/mt/report/square_table', report.SquareTableHandler),
+    ('/mt/report/sum_changes', report.OrderSumChangesReport),
 
     ('/mt/migrate', migration.CreateNewCompaniesHandler),
 
