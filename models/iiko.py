@@ -278,7 +278,7 @@ class Order(ndb.Model):
             customer = self.customer.get()
             device = customer.get_device()
             data = make_order_push_data(self.order_id, self.number, self.status, self.PUSH_STATUSES[self.status], device)
-            send_push(channels=["order_%s" % self.order_id], data=data, device_type=device)
+            send_push(channels=["order_%s" % self.order_id], data=data, device_type=device, order=self)
 
     @classmethod
     def _do_load_from_object(cls, order, order_id, org_id, iiko_order):
@@ -409,6 +409,7 @@ class CompanyNew(ndb.Model):
     TYKANO = "a637b109-218f-11e5-80c1-d8d385655247"
     BURGER_CLUB = "e7985b2c-a21b-11e4-80d2-0025907e32e9"
     PANDA = "09ac1efb-2578-11e5-80d2-d8d38565926f"
+    PIZZA_HUT = "107662a7-39d5-11e5-80c1-d8d385655247"
 
     iiko_login = ndb.StringProperty()
     iiko_org_id = ndb.StringProperty()

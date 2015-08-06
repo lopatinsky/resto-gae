@@ -11,6 +11,11 @@ parse_acc = {
     'application_id': '8EdzRDGVxjOqnHzv7WU7S6XbhIUBsgzqPk6ax77m'
 }
 
+parce_acc_another = {
+    'rest_api_key': 'uDd0iYV75BZylEq4UGIpEu6252590YwBeyCHjNIN',
+    'application_id': 'uXhll3SYelAB6GEBwV81YFk3EuqUAB0fvTuh0Qm4'
+}
+
 IOS_DEVICE = 0
 ANDROID_DEVICE = 1
 
@@ -20,7 +25,8 @@ DEVICE_TYPE_MAP = {
 }
 
 
-def send_push(channels, data, device_type):
+def send_push(channels, data, device_type, order=None):
+    another_companies = ['107662a7-39d5-11e5-80c1-d8d385655247']
 
     if device_type not in DEVICE_TYPE_MAP:
         logging.error('Has not device type')
@@ -31,10 +37,15 @@ def send_push(channels, data, device_type):
         'type': DEVICE_TYPE_MAP[device_type],
         'data': data
     }
+    app_id = parse_acc['application_id']
+    api_key = parse_acc['rest_api_key']
+    if order and order.venue_id in another_companies:
+        app_id = parce_acc_another['application_id']
+        api_key = parce_acc_another['rest_api_key']
     headers = {
         'Content-Type': 'application/json',
-        'X-Parse-Application-Id':  parse_acc['application_id'],
-        'X-Parse-REST-API-Key': parse_acc['rest_api_key']
+        'X-Parse-Application-Id': app_id,
+        'X-Parse-REST-API-Key': api_key
     }
     result = urlfetch.fetch('https://api.parse.com/1/push', payload=json.dumps(payload), method='POST',
                             headers=headers, validate_certificate=False, deadline=10).content
