@@ -1,7 +1,7 @@
 # coding=utf-8
 
 from api.base import BaseHandler
-from methods import iiko_api
+from methods.iiko.menu import get_menu
 from models.iiko import CompanyNew, DeliveryTerminal
 from specials import fix_syrop, fix_modifiers_by_own
 
@@ -16,7 +16,7 @@ class MenuHandler(BaseHandler):
             iiko_org_id = delivery_terminal_id
         force_reload = "reload" in self.request.params
         filtered = "all" not in self.request.params
-        menu = iiko_api.get_menu(iiko_org_id, force_reload=force_reload, filtered=filtered)
+        menu = get_menu(iiko_org_id, force_reload=force_reload, filtered=filtered)
         if iiko_org_id == CompanyNew.COFFEE_CITY:
             menu = fix_syrop.set_syrop_modifiers(menu)
             menu = fix_modifiers_by_own.remove_modifiers(menu)
@@ -28,7 +28,7 @@ class CompanyMenuHandler(BaseHandler):
         iiko_org_id = CompanyNew.get_by_id(int(company_id)).iiko_org_id
         force_reload = "reload" in self.request.params
         filtered = "all" not in self.request.params
-        menu = iiko_api.get_menu(iiko_org_id, force_reload=force_reload, filtered=filtered)
+        menu = get_menu(iiko_org_id, force_reload=force_reload, filtered=filtered)
         if iiko_org_id == CompanyNew.COFFEE_CITY:
             menu = fix_syrop.set_syrop_modifiers(menu)
             menu = fix_modifiers_by_own.remove_modifiers(menu)

@@ -4,8 +4,8 @@ import logging
 from google.appengine.ext import deferred
 from google.appengine.runtime import DeadlineExceededError
 import webapp2
+from methods.iiko.menu import get_menu
 from models.iiko import CompanyNew
-from methods import iiko_api
 from methods.image_cache import get_image
 
 
@@ -48,7 +48,7 @@ class UpdateMenuHandler(webapp2.RequestHandler):
         companies = CompanyNew.query().fetch()
         for company in companies:
             try:
-                iiko_api.get_menu(company.iiko_org_id, force_reload=True)
+                get_menu(company.iiko_org_id, force_reload=True)
             except Exception as e:
                 logging.exception(e)
 

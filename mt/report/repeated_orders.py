@@ -1,10 +1,11 @@
+from methods.iiko.history import get_orders, get_history
+
 __author__ = 'dvpermyakov'
 
 from ..base import BaseHandler
 from datetime import datetime, timedelta
 from report_methods import suitable_date, PROJECT_STARTING_YEAR
 from models import iiko
-from methods import iiko_api
 from random import randint
 import calendar
 
@@ -70,7 +71,7 @@ class RepeatedOrdersReportHandler(BaseHandler):
                     continue
             start = suitable_date(day, chosen_month, chosen_year, True)
             end = suitable_date(day, chosen_month, chosen_year, False)
-            orders = iiko_api.get_orders(company, start, end, status='CLOSED')
+            orders = get_orders(company, start, end, status='CLOSED')
             orders = orders.get('deliveryOrders', [])
             day_orders.append(orders)
             for order in orders:
@@ -87,7 +88,7 @@ class RepeatedOrdersReportHandler(BaseHandler):
 
         first_orders = {}
         for client_id in clients_id:
-            orders = iiko_api.get_history(client_id, org_id)
+            orders = get_history(client_id, org_id)
             orders = orders['historyOrders']
             for order in orders:
                 if not first_orders.get(client_id):

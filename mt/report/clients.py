@@ -1,10 +1,11 @@
+from methods.iiko.history import get_history
+
 __author__ = 'dvpermyakov'
 
 from ..base import BaseHandler
 from datetime import datetime
 from models import iiko
 from report_methods import suitable_date, PROJECT_STARTING_YEAR
-from methods import iiko_api
 import logging
 
 
@@ -13,7 +14,7 @@ class ClientsReportHandler(BaseHandler):
     def get_iiko_clients_info(self, clients, start, end):
 
         for client in clients.values():
-            orders = iiko_api.get_history(client.customer_id, client.venue_id)
+            orders = get_history(client.customer_id, client.venue_id)
             orders = orders['historyOrders']
             for order in orders:
                 logging.info(order)

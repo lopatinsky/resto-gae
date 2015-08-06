@@ -5,7 +5,7 @@ from google.appengine.api import taskqueue
 
 from webapp2 import RequestHandler
 from config import config
-from methods import iiko_api
+from methods.iiko.history import get_orders
 from models.iiko import Order, CompanyNew
 
 
@@ -19,7 +19,7 @@ class CoffeeCityUpdatesHandler(RequestHandler):
             org_ids = [CompanyNew.COFFEE_CITY]
         for org_id in org_ids:
             try:
-                iiko_orders = iiko_api.get_orders(CompanyNew.get_by_iiko_id(org_id), today, tomorrow)['deliveryOrders']
+                iiko_orders = get_orders(CompanyNew.get_by_iiko_id(org_id), today, tomorrow)['deliveryOrders']
                 for order in iiko_orders:
                     Order.load_from_object(order)
             except Exception as e:

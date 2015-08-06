@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import logging
+from methods.iiko.history import get_orders
+from methods.iiko.organization import get_payment_types
 
 __author__ = 'dvpermyakov'
 
 from ..base import BaseHandler
 from models import iiko
-from methods import iiko_api
 from datetime import datetime
 from report_methods import suitable_date, PROJECT_STARTING_YEAR
 
@@ -37,7 +38,7 @@ class VenueReportHandler(BaseHandler):
 
         elif source == "iiko":
             try:
-                payments = iiko_api.get_payment_types(company.iiko_org_id)['paymentTypes']
+                payments = get_payment_types(company.iiko_org_id)['paymentTypes']
             except Exception as e:
                 text = str(e)
                 logging.info('in payments in company %s' % company.app_title)
@@ -92,7 +93,7 @@ class VenueReportHandler(BaseHandler):
             if not confirmed:
                 continue
             try:
-                orders = iiko_api.get_orders(company, start, end, status=None)
+                orders = get_orders(company, start, end, status=None)
             except Exception as e:
                 text = str(e)
                 logging.info('in orders in company %s' % company.app_title)

@@ -2,7 +2,7 @@
 import datetime
 import time
 from ..base import BaseHandler
-from methods import iiko_api
+from methods.iiko.menu import get_menu
 from models.admin import Admin
 from models.iiko import Order, Customer
 from auth import LoginHandler, LogoutHandler
@@ -11,7 +11,7 @@ from stop_list import ItemStopListHandler
 
 
 def _build_images_map(org_id):
-    menu = iiko_api.get_menu(org_id)
+    menu = get_menu(org_id)
     images_map = {}
 
     def process_category(category):

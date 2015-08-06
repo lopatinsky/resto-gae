@@ -1,5 +1,5 @@
-application: empatika-resto-test
-version: 1
+application: empatika-resto
+version: test
 runtime: python27
 api_version: 1
 threadsafe: yes

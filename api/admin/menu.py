@@ -1,6 +1,6 @@
 # coding=utf-8
+from methods.iiko.menu import get_menu
 
-from methods import iiko_api
 from models.admin import Admin
 from models.iiko import DeliveryTerminal
 
@@ -33,7 +33,7 @@ class MenuHandler(BaseHandler):
         admin = Admin.query(Admin.token == token).get()
         if not admin:
             self.abort(401)
-        menu = iiko_api.get_menu(admin.company_id)
+        menu = get_menu(admin.company_id)
         processed_menu = [_process_category(c) for c in menu]
         self.render_json({
             "menu": processed_menu

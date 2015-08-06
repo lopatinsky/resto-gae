@@ -6,6 +6,7 @@ import time
 from methods import maps
 from methods.maps import get_address_coordinates
 from methods.parse_com import send_push, IOS_DEVICE, ANDROID_DEVICE, make_order_push_data
+from methods.rendering import parse_iiko_time
 
 
 class PaymentType(ndb.Model):
@@ -317,10 +318,10 @@ class Order(ndb.Model):
             delivery_terminal_id = iiko_order['deliveryTerminal']['deliveryTerminalId']
         _attr('delivery_terminal_id', delivery_terminal_id)
 
-        date = iiko_api.parse_iiko_time(iiko_order['deliveryDate'], company)
+        date = parse_iiko_time(iiko_order['deliveryDate'], company)
         _attr('date', date)
 
-        created_time = iiko_api.parse_iiko_time(iiko_order['createdTime'], company)
+        created_time = parse_iiko_time(iiko_order['createdTime'], company)
         _attr('created_in_iiko', created_time)
 
         _attr('status', Order.parse_status(iiko_order['status']))
@@ -341,7 +342,7 @@ class Order(ndb.Model):
 
     @classmethod
     def _do_load(cls, order, order_id, org_id):
-        iiko_order = iiko_api.order_info1(order_id, org_id)
+        iiko_order = order_info1(order_id, org_id)
         return cls._do_load_from_object(order, order_id, org_id, iiko_order)
 
     @classmethod
@@ -498,10 +499,10 @@ class CompanyNew(ndb.Model):
         c.iiko_login = login
 
         if org_id:
-            org = iiko_api.get_org(login, org_id, new_endpoints)
+            org = get_org(login, org_id, new_endpoints)
             c.iiko_org_id = org_id
         else:
-            org = iiko_api.get_orgs(login, new_endpoints)[0]
+            org = get_orgs(login, new_endpoints)[0]
             c.iiko_org_id = org['id']
         c.app_title = org['name']
         c.address = org['address'] or org['contact']['location']
@@ -527,7 +528,7 @@ class CompanyNew(ndb.Model):
         return c
 
     def load_delivery_terminals(self):
-        iiko_dts = iiko_api.get_delivery_terminals(self)
+        iiko_dts = get_delivery_terminals(self)
         dts = map(lambda iiko_dt: DeliveryTerminal(
             id=iiko_dt['deliveryTerminalId'],
             company_id=self.key.id(),
@@ -580,4 +581,6 @@ class ClientInfo(ndb.Model):
             return IOS_DEVICE
 
 
-from methods import iiko_api  # needed in some functions
+from methods.iiko.delivery_terminal import get_delivery_terminals
+from methods.iiko.order import order_info1
+from methods.iiko.organization import get_org, get_orgs

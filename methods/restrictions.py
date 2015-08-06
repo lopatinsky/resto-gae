@@ -1,8 +1,9 @@
 #coding=utf-8
+from methods.iiko.menu import get_menu, get_product_from_menu
+
 __author__ = 'dvpermyakov'
 
 from collections import deque
-from methods.iiko_api import get_menu, get_product_from_menu
 from methods.working_hours import parse_company_schedule
 from working_hours import is_datetime_valid
 from datetime import datetime

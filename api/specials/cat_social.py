@@ -1,7 +1,8 @@
 # coding=utf-8
 import logging
 from ..base import BaseHandler
-from methods import filter_phone, iiko_api
+from methods import filter_phone
+from methods.iiko.customer import get_customer_by_phone, get_customer_by_id, create_or_update_customer
 from models.iiko import CompanyNew, DeliveryTerminal
 from models.specials import CATSocialId
 
@@ -37,12 +38,12 @@ class CATAddSocialHandler(BaseHandler):
 
         # 2: get customer info from iiko (this attempts to get customer_id if we only have phone)
         if not customer_id:
-            iiko_customer = iiko_api.get_customer_by_phone(company, phone)
+            iiko_customer = get_customer_by_phone(company, phone)
             if 'httpStatusCode' in iiko_customer:
                 iiko_customer = {'phone': phone, 'balance': 0}
             customer_id = iiko_customer.get('id')
         else:
-            iiko_customer = iiko_api.get_customer_by_id(company, customer_id)
+            iiko_customer = get_customer_by_id(company, customer_id)
 
         # 3: if we got customer_id, check if this customer already has an account of this provider
         if customer_id:
@@ -55,7 +56,7 @@ class CATAddSocialHandler(BaseHandler):
 
         # 4: add points
         iiko_customer['balance'] += 20
-        customer_id = iiko_api.create_or_update_customer(company, iiko_customer)
+        customer_id = create_or_update_customer(company, iiko_customer)
 
         CATSocialId(venue_id=company.iiko_org_id, customer_id=customer_id, provider=provider, social_id=social_id).put()
         self.render_json({'customer_id': customer_id, 'balance': iiko_customer['balance']})

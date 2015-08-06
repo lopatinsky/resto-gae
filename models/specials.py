@@ -73,10 +73,10 @@ class SharedBonus(ndb.Model):
     status = ndb.IntegerProperty(choices=[READY, DONE], default=READY)
 
     def deactivate(self, company):
-        from methods import iiko_api
-        iiko_customer = iiko_api.get_customer_by_id(company, self.recipient.get().customer_id)
+        from methods.iiko.customer import get_customer_by_id, create_or_update_customer
+        iiko_customer = get_customer_by_id(company, self.recipient.get().customer_id)
         iiko_customer['balance'] += 20
-        iiko_api.create_or_update_customer(company, iiko_customer)
+        create_or_update_customer(company, iiko_customer)
         self.status = self.DONE
         self.put()
 

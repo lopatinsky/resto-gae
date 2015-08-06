@@ -2,7 +2,8 @@
 from datetime import timedelta
 import logging
 from config import config
-from methods import iiko_api, working_hours
+from methods import working_hours
+from methods.iiko.menu import get_product_from_menu
 
 __author__ = 'dvpermyakov'
 
@@ -10,7 +11,7 @@ __author__ = 'dvpermyakov'
 def check_stop_list(items, delivery):
     for item in items:
         item_id = item.get('id')
-        item = iiko_api.get_product_from_menu(delivery.iiko_organization_id, product_id=item_id)
+        item = get_product_from_menu(delivery.iiko_organization_id, product_id=item_id)
         if not item:
             logging.warning("Item is not found")
         if item_id in delivery.item_stop_list:

@@ -4,9 +4,13 @@ import copy
 from api.base import BaseHandler
 from api.specials import fix_modifiers_by_own
 from api.specials import fix_syrop
+from methods.iiko.customer import get_customer_by_phone, get_customer_by_id, get_customer_by_card
+from methods.iiko.menu import get_product_from_menu
+from methods.iiko.order import prepare_order
+from methods.iiko.promo import get_venue_promos, get_order_promos, set_discounts
 from methods.maps import get_address_by_key
 import json
-from methods import iiko_api, working_hours, filter_phone
+from methods import working_hours, filter_phone
 from models import iiko
 import datetime
 from models.iiko import CompanyNew, ClientInfo, DeliveryTerminal, BonusCardHack
@@ -43,8 +47,8 @@ def _do_get_promos(company, phone):
         })
     return {
         "branch": branch,
-        "promos": iiko_api.get_venue_promos(company.iiko_org_id),
-        "balance": iiko_api.get_customer_by_phone(company, phone).get('balance', 0.0)
+        "promos": get_venue_promos(company.iiko_org_id),
+        "balance": get_customer_by_phone(company, phone).get('balance', 0.0)
     }
 
 
@@ -116,7 +120,7 @@ class GetOrderPromosHandler(BaseHandler):
         order.sum = float(order_sum)
         order.items = items
 
-        order_dict = iiko_api.prepare_order(order, customer, None)
+        order_dict = prepare_order(order, customer, None)
 
         local_time = order.date + datetime.timedelta(seconds=company.get_timezone_offset())
         is_open = working_hours.is_datetime_valid(company.schedule, local_time) if company.schedule else True
@@ -143,9 +147,9 @@ class GetOrderPromosHandler(BaseHandler):
             return self.send_error(error)
 
         if company.is_iiko_system and order.items:
-            promos = iiko_api.get_order_promos(order, order_dict)
-            iiko_api.set_discounts(order, order_dict['order'], promos)
-            promos = iiko_api.get_order_promos(order, order_dict)
+            promos = get_order_promos(order, order_dict)
+            set_discounts(order, order_dict['order'], promos)
+            promos = get_order_promos(order, order_dict)
 
             discount_sum = order.discount_sum
 
@@ -164,7 +168,7 @@ class GetOrderPromosHandler(BaseHandler):
             accumulated_gifts = 0
             if company.iiko_org_id in (CompanyNew.EMPATIKA, CompanyNew.COFFEE_CITY):
                 free_codes = CAT_FREE_CUP_CODES[company.iiko_org_id]
-                free_cup = iiko_api.get_product_from_menu(company.iiko_org_id, product_code=free_codes[0])
+                free_cup = get_product_from_menu(company.iiko_org_id, product_code=free_codes[0])
                 FREE_CUP_IN_ORDER = 10
                 CUPS_IN_ORDER = FREE_CUP_IN_ORDER * CUPS_BEFORE_FREE_CUP
                 mock_order = copy.deepcopy(order)
@@ -174,9 +178,9 @@ class GetOrderPromosHandler(BaseHandler):
                     'name': free_cup['name'],
                     'amount': CUPS_IN_ORDER
                 }]
-                mock_order_dict = iiko_api.prepare_order(mock_order, customer, None)
-                mock_promos = iiko_api.get_order_promos(mock_order, mock_order_dict)
-                iiko_api.set_discounts(mock_order, mock_order_dict['order'], mock_promos)
+                mock_order_dict = prepare_order(mock_order, customer, None)
+                mock_promos = get_order_promos(mock_order, mock_order_dict)
+                set_discounts(mock_order, mock_order_dict['order'], mock_promos)
                 accumulated_gifts = int(mock_order.discount_sum / free_cup['price']) - FREE_CUP_IN_ORDER
 
             discount_gifts = 0
@@ -194,8 +198,8 @@ class GetOrderPromosHandler(BaseHandler):
             gifts = []
             accumulated_gifts = discount_gifts = 0
 
-        customer = iiko_api.get_customer_by_id(company, bonus_card_customer_id) if bonus_card_customer_id \
-            else iiko_api.get_customer_by_phone(company, phone)
+        customer = get_customer_by_id(company, bonus_card_customer_id) if bonus_card_customer_id \
+            else get_customer_by_phone(company, phone)
         balance = customer.get('balance', 0.0)
 
         result = {
@@ -234,7 +238,7 @@ class SaveClientInfoHandler(BaseHandler):
 class GetClientByBonusCardHandler(BaseHandler):
     def get(self, company_id):
         card = self.request.get("card")
-        iiko_customer = iiko_api.get_customer_by_card(CompanyNew.get_by_id(int(company_id)), card)
+        iiko_customer = get_customer_by_card(CompanyNew.get_by_id(int(company_id)), card)
         if 'httpStatusCode' in iiko_customer:
             self.response.set_status(400)
             return self.render_json({'description': u'Не удалось найти бонусную карту'})

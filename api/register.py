@@ -1,6 +1,7 @@
 import json
 import logging
-from methods import filter_phone, iiko_api
+from methods import filter_phone
+from methods.iiko.customer import get_customer_by_phone, create_or_update_customer
 from models.iiko import CompanyNew, Customer
 from models.specials import Share, SharedBonus
 from base import BaseHandler
@@ -15,11 +16,11 @@ class RegisterHandler(BaseHandler):
         requested_customer_id = customer_id = self.request.get('customer_id')
         phone = filter_phone(self.request.get('phone'))
         if not customer_id:
-            iiko_customer = iiko_api.get_customer_by_phone(company, phone)
+            iiko_customer = get_customer_by_phone(company, phone)
             customer_id = iiko_customer.get('id')
             if not customer_id:
                 iiko_customer = {'phone': phone, 'balance': 0}
-                customer_id = iiko_api.create_or_update_customer(company, iiko_customer)
+                customer_id = create_or_update_customer(company, iiko_customer)
                 customer = Customer(phone=phone, customer_id=customer_id)
                 customer.put()
             else:

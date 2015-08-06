@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from methods.iiko.menu import get_menu
+from methods.iiko.organization import get_payment_types
 
 __author__ = 'dvpermyakov'
 
@@ -10,7 +12,6 @@ from lxml import etree
 import zipfile
 from StringIO import StringIO
 from google.appengine.ext import db
-from methods import iiko_api
 
 
 class GetCompaniesHandler(BaseHandler):
@@ -106,11 +107,11 @@ class CreateOrUpdateCompanyHandler(BaseHandler):
 
         company.put()
 
-        for iiko_venue in iiko_api.get_venues(str(company.key.id())):
-            iiko_api.get_menu(iiko_venue['id'], force_reload=True, filtered=False)
+        for iiko_venue in []:
+            get_menu(iiko_venue['id'], force_reload=True, filtered=False)
             venue = iiko.Venue.venue_by_id(iiko_venue['id'])
             venue.payment_types = []
-            for iiko_payment in iiko_api.get_payment_types(venue.venue_id)['PaymentTypes']:
+            for iiko_payment in get_payment_types(venue.venue_id)['PaymentTypes']:
                 payment = iiko.PaymentType()
                 payment.name = iiko_payment['name']
                 payment.iiko_uuid = iiko_payment['code']

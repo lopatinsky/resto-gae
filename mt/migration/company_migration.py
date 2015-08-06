@@ -1,7 +1,7 @@
 # coding=utf-8
 from google.appengine.api.datastore_types import GeoPt
+from methods.iiko.delivery_terminal import get_delivery_terminals
 
-from methods import iiko_api
 from models.iiko import CompanyNew, IikoApiLogin, DeliveryTerminal
 try:
     from models.iiko import Company
@@ -16,7 +16,7 @@ class CreateNewCompaniesHandler(BaseHandler):
         for c in companies:
             IikoApiLogin(id=c.name, password=c.password).put()
 
-            venue, = iiko_api.get_venues(c.key.id())
+            venue = None
 
             dct = {
                 k: getattr(c, k)
@@ -35,7 +35,7 @@ class CreateNewCompaniesHandler(BaseHandler):
                 **dct
             ).put()
 
-            dts = iiko_api.get_delivery_terminals(venue.venue_id)
+            dts = get_delivery_terminals(venue.venue_id)
             for dt in dts:
                 DeliveryTerminal(
                     id=dt['deliveryTerminalId'],

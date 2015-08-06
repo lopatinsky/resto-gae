@@ -2,8 +2,8 @@
 
 import logging
 from api.base import BaseHandler
+from methods.iiko.order import order_info1
 from models.iiko import Order, DeliveryTerminal
-from methods import iiko_api
 import json
 
 
@@ -29,7 +29,7 @@ class OrdersStatusHandler(BaseHandler):
                 delivery_terminal_id = delivery_terminal.key.id()
             order_id = item['order_id']
 
-            order_info = iiko_api.order_info1(order_id, delivery_terminal.iiko_organization_id)
+            order_info = order_info1(order_id, delivery_terminal.iiko_organization_id)
             if 'httpStatusCode' not in order_info:
                 address = delivery_terminal.address
                 name = delivery_terminal.name

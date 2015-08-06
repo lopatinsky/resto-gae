@@ -6,8 +6,12 @@ import time
 import re
 from google.appengine.api.urlfetch_errors import DownloadError
 import base
-from methods import email, iiko_api, filter_phone
+from methods import email, filter_phone
 from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum, check_extended_status, get_bindings
+from methods.iiko.order import prepare_order, place_order
+from methods.iiko.order import pre_check_order
+from methods.iiko.promo import calc_sum, get_order_promos, set_gifts, add_bonus_to_payment, set_discounts
+from methods.rendering import parse_iiko_time
 from models import iiko
 from models.iiko import CompanyNew, ClientInfo, Order, DeliveryTerminal, BonusCardHack
 from specials import fix_syrop, fix_modifiers_by_own
@@ -126,7 +130,7 @@ class PlaceOrderHandler(base.BaseHandler):
             items = fix_syrop.set_syrop_items(items)
             items = fix_modifiers_by_own.set_modifier_by_own(company.iiko_org_id, items)
         order.items = items
-        order.sum = iiko_api.calc_sum(items, company.iiko_org_id)
+        order.sum = calc_sum(items, company.iiko_org_id)
         logging.info("calculated sum: %s, app sum: %s", order.sum, self.request.get('sum'))
         if company.min_order_sum and order.sum < company.min_order_sum:
             return self.send_error(u"Минимальная сумма заказа %s рублей!" % company.min_order_sum)
@@ -151,8 +155,8 @@ class PlaceOrderHandler(base.BaseHandler):
                 self.abort(400)
 
         # this resets order.delivery_terminal_id if it is delivery (not takeout)
-        order_dict = iiko_api.prepare_order(order, customer, payment_type)
-        pre_check_result = iiko_api.pre_check_order(company, order_dict)
+        order_dict = prepare_order(order, customer, payment_type)
+        pre_check_result = pre_check_order(company, order_dict)
         if 'code' in pre_check_result:
             logging.warning('iiko pre check failed')
             email.send_error("iiko", "iiko pre check failed", pre_check_result["description"])
@@ -165,21 +169,21 @@ class PlaceOrderHandler(base.BaseHandler):
         order.discount_sum = 0.0
         order.bonus_sum = 0.0
         if company.is_iiko_system:
-            promos = iiko_api.get_order_promos(order, order_dict)
+            promos = get_order_promos(order, order_dict)
             logging.info('discount %s' % discount_sum)
             logging.info('bonus %s' % bonus_sum)
             logging.info('gifts %s' % gifts)
             if discount_sum != 0:
-                iiko_api.set_discounts(order, order_dict['order'], promos)
+                set_discounts(order, order_dict['order'], promos)
                 if order.discount_sum != discount_sum:
                     logging.info('conflict_discount: app(%s), iiko(%s)' % (discount_sum, order.discount_sum))
                     self.abort(409)
-                promos = iiko_api.get_order_promos(order, order_dict)
+                promos = get_order_promos(order, order_dict)
             if bonus_sum != 0:
                 if bonus_sum != promos['maxPaymentSum']:
                     logging.info('conflict_max_bonus: app(%s), iiko(%s)' % (bonus_sum, promos['maxPaymentSum']))
                     self.abort(409)
-                iiko_api.add_bonus_to_payment(order_dict['order'], bonus_sum, True)
+                add_bonus_to_payment(order_dict['order'], bonus_sum, True)
                 order.bonus_sum = bonus_sum
 
             if gifts:
@@ -203,7 +207,7 @@ class PlaceOrderHandler(base.BaseHandler):
                         iiko_gift['amount'] = gift.get('amount', 1)
                         iiko_gifts.append(iiko_gift)
 
-                iiko_api.set_gifts(order, order_dict['order'], iiko_gifts)
+                set_gifts(order, order_dict['order'], iiko_gifts)
         order.sum -= order.bonus_sum + order.discount_sum
 
         # todo: set here validation stop-list
@@ -254,7 +258,7 @@ class PlaceOrderHandler(base.BaseHandler):
                 self.abort(400)
         order.alfa_order_id = order_id
 
-        result = iiko_api.place_order(company, order_dict)
+        result = place_order(company, order_dict)
 
         if 'code' in result.keys():
             logging.error('iiko failure')
@@ -281,7 +285,7 @@ class PlaceOrderHandler(base.BaseHandler):
         order.order_id = result['orderId']
         order.number = result['number']
         order.set_status(result['status'])
-        order.created_in_iiko = iiko_api.parse_iiko_time(result['createdTime'], company)
+        order.created_in_iiko = parse_iiko_time(result['createdTime'], company)
 
         order.put()
 
