@@ -113,6 +113,7 @@ app = WSGIApplication([
             Route('/clients', report.ClientsReportHandler),
             Route('/repeated_orders', report.RepeatedOrdersReportHandler),
             Route('/square_table', report.SquareTableHandler),
+            Route('/sum_changes', report.OrderSumChangesReport),
         ]),
         PathPrefixRoute('/company', [
             Route('/links', mt_company.CreateCompaniesLinks),

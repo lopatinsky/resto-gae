@@ -33,6 +33,12 @@ class Order(ndb.Model):
     CARD = '2'
     COURIER_CARD = '3'
 
+    PAYMENT_MAP = {
+        CASH: u'Наличные',
+        CARD: u'Карта',
+        COURIER_CARD: u'Карта курьеру'
+    }
+
     STATUS_MAPPING = {
         NOT_APPROVED: [
             u'не подтверждена',
