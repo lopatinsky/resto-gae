@@ -13,11 +13,11 @@ handlers:
   static_dir: static
 
 - url: /cron/.*
-  script: cron.app
+  script: handlers.cron.app
   login: admin
 
 - url: /task/.*
-  script: cron.app
+  script: handlers.cron.app
   login: admin
 
 - url: /mt/.*
