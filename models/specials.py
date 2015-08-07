@@ -1,8 +1,8 @@
 # coding=utf-8
-from datetime import time
 import urllib
 
 from google.appengine.ext import ndb
+import time
 from models.iiko.customer import Customer
 from models.iiko.order import Order
 from models.iiko.company import PaymentType, CompanyNew
