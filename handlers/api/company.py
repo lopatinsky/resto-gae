@@ -1,10 +1,32 @@
 # coding=utf-8
 from handlers.api.base import BaseHandler
+from methods.iiko.address import get_delivery_cities
 from methods.iiko.menu import get_menu
 from methods.specials.cat import fix_syrop, fix_modifiers_by_own
 from models.iiko import CompanyNew, DeliveryTerminal
 
 __author__ = 'dvpermyakov'
+
+
+class CompanyInfoHandler(BaseHandler):
+    def get(self):
+        company_id = self.request.get_range('company_id')
+        company = CompanyNew.get_by_id(company_id)
+        self.render_json({
+            'app_name': company.app_title,
+            'company_id': company.key.id(),
+            'description': company.description,
+            'min_order_sum': company.min_order_sum,
+            'cities': [city_dict['name'] for city_dict in get_delivery_cities(company)],
+            'phone': company.phone,
+            'schedule': company.schedule,
+            'email': company.email,
+            'support_emails': company.support_emails,
+            'site': company.site,
+            'color': company.color,
+            'analytics_key': company.analytics_key,
+            'delivery_types': CompanyNew.get_delivery_types(company_id)
+        })
 
 
 class CompanyDeliveryTypesHandler(BaseHandler):

@@ -44,11 +44,7 @@ app = WSGIApplication([
                 Route('/user_data', customer.SaveClientInfoHandler),
                 Route('/enter_card', customer.SaveBonusCardHandler),
             ]),
-            Route('/get_company', trash.GetCompanyHandler),
-            #Route('/create_or_update', trash.CreateOrUpdateCompanyHandler),
-            #Route('/set_icons', trash.UploadIconsHandler),
-            #Route('/all_companies', trash.GetCompaniesHandler),
-            #Route('/get_icons', trash.DownloadIconsHandler),
+            Route('/get_company', company.CompanyInfoHandler),
         ]),
         Route('/delivery_types', company.CompanyDeliveryTypesHandler),                          # it relates to company
         Route('/venues/<company_id:\d+>', company.CompanyVenuesHandler),                        # it relates to company
