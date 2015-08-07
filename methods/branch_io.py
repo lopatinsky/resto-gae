@@ -1,28 +1,11 @@
-#coding:utf-8
+# coding=utf-8
 from google.appengine.api import urlfetch
 import json
 from config import config
 import logging
-from models.iiko import CompanyNew
 
-APP_KEY = {
-    CompanyNew.EMPATIKA: '112172995912421866',
-    CompanyNew.COFFEE_CITY: '112172995912421866'
-}
 BASE_URL = 'https://api.branch.io'
-
-ANDROID_URL = {
-    CompanyNew.EMPATIKA: "http://coffeeandthecity.ru/",
-    CompanyNew.COFFEE_CITY: "http://coffeeandthecity.ru/"
-}
-IOS_URL = {
-    CompanyNew.EMPATIKA: "http://coffeeandthecity.ru/",
-    CompanyNew.COFFEE_CITY: "http://coffeeandthecity.ru/"
-}
-DESKTOP_URL = {
-    CompanyNew.EMPATIKA: "http://coffeeandthecity.ru/",
-    CompanyNew.COFFEE_CITY: "http://coffeeandthecity.ru/"
-}
+APP_KEY = '112172995912421866'
 
 VK = 0
 FACEBOOK = 1
@@ -59,22 +42,20 @@ FEATURE_MAP = {
 }
 
 
-def create_url(venue_id, share_id, feature, channel, user_agent, custom_tags=None, recipient=None, alias=None):
+def create_url(company, share_id, feature, channel, user_agent, custom_tags=None, recipient=None, alias=None):
     params = {
-        'app_id': APP_KEY[venue_id],
+        'app_id': APP_KEY,
         'data': {
             'phone': recipient.get('phone') if recipient else None,
             'name': recipient.get('name') if recipient else None,
             'share_id': share_id,
-            '$desktop_url': DESKTOP_URL[venue_id],
-            '$android_url': ANDROID_URL[venue_id],
-            '$ios_url': IOS_URL[venue_id],
-            '$deeplink_path': '',
-            '$always_deeplink': False
+            '$desktop_url': company.rbcn_mobi,
+            '$android_url': company.rbcn_mobi,
+            '$ios_url': company.rbcn_mobi,
         },
         'alias': alias if alias else None,
         'identity': share_id,
-        'tags': [config.BRANCH_IO_TAG, user_agent],
+        'tags': [user_agent],
         'campaign': u'(запуск 02.04.2015)',
         'feature': FEATURE_MAP[feature],
         'channel': CHANNEL_MAP[channel]

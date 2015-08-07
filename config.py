@@ -14,20 +14,12 @@ class ProductionConfig(RestoConfig):
     ALFA_BASE_URL = "https://engine.paymentgate.ru/payment"
     CHECK_SCHEDULE = True
     RESTRICTIONS = []
-    BRANCH_IO_TAG = 'production'
     DEBUG = False
 
     ERROR_EMAILS = {
         "server": "admins",
         "iiko": "admins",
     }
-
-    GIFT_BRANCH_VENUES = [
-        CompanyNew.COFFEE_CITY,
-    ]
-    INVITATION_BRANCH_VENUES = [
-        CompanyNew.COFFEE_CITY,
-    ]
 
 
 class TestingConfig(RestoConfig):
@@ -50,15 +42,6 @@ class TestingConfig(RestoConfig):
                 ]
             }
         }
-    ]
-    BRANCH_IO_TAG = 'test'
-    GIFT_BRANCH_VENUES = [
-        CompanyNew.EMPATIKA,
-        CompanyNew.COFFEE_CITY
-    ]
-    INVITATION_BRANCH_VENUES = [
-        CompanyNew.EMPATIKA,
-        CompanyNew.COFFEE_CITY
     ]
     DEBUG = True
 

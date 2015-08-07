@@ -20,7 +20,9 @@ class CompanyInfoHandler(BaseHandler):
             'schedule': company.schedule,
             'email': company.email,
             'support_emails': company.support_emails,
-            'site': company.site
+            'site': company.site,
+            'branch_invitation': company.branch_invitation_enable,
+            'branch_gift': company.branch_gift_enable
         })
 
 

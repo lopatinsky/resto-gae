@@ -4,7 +4,6 @@ from methods.iiko.customer import get_customer_by_phone
 from methods.iiko.promo import get_venue_promos
 from methods import filter_phone
 from models.iiko import CompanyNew, DeliveryTerminal
-from config import config
 
 CAT_FREE_CUP_CODES = {
     CompanyNew.EMPATIKA: ['3308081521040829', '3308081521040830'],
@@ -14,17 +13,7 @@ CUPS_BEFORE_FREE_CUP = 5
 
 
 def _do_get_promos(company, phone):
-    branch = []
-    if company.iiko_org_id in config.INVITATION_BRANCH_VENUES:
-        branch.append({
-            'info': 'Пригласи друга'
-        })
-    if company.iiko_org_id in config.GIFT_BRANCH_VENUES:
-        branch.append({
-            'info': 'Подари другу'
-        })
     return {
-        "branch": branch,
         "promos": get_venue_promos(company.iiko_org_id),
         "balance": get_customer_by_phone(company, phone).get('balance', 0.0)
     }

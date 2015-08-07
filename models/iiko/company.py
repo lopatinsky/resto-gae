@@ -79,6 +79,10 @@ class CompanyNew(ndb.Model):
     is_iiko_system = ndb.BooleanProperty(default=False)
     new_endpoints = ndb.BooleanProperty(default=False)
 
+    branch_invitation_enable = ndb.BooleanProperty(default=False)
+    branch_gift_enable = ndb.BooleanProperty(default=False)
+    rbcn_mobi = ndb.StringProperty(indexed=False)
+
     description = ndb.StringProperty()
     min_order_sum = ndb.IntegerProperty()
     email = ndb.StringProperty()

@@ -100,6 +100,14 @@ app = WSGIApplication([
             Route('/cat_company_id', specials.CATGetCompanyIdHandler),
             Route('/cat_company_id_2', specials.CATGetCompanyIdHandler2),
         ]),
+        PathPrefixRoute('/shared', [
+            PathPrefixRoute('/invitation', [
+                Route('/get_url', specials.InvitationUrlsHandler),
+            ]),
+            PathPrefixRoute('/gift', [
+                Route('/get_url', specials.GiftUrlHandler),
+            ]),
+        ]),
         Route('/address', address.AddressByStreetHandler),
         Route('/get_info', trash.GetAddressByKeyHandler),
     ]),
@@ -140,15 +148,6 @@ app = WSGIApplication([
             Route('/<order_id:.*>', changes.ViewChangeLogsHandler, "view_changelog"),
         ]),
         Route('/migrate', migration.CreateNewCompaniesHandler),
-    ]),
-
-    PathPrefixRoute('/shared', [
-        PathPrefixRoute('/invitation', [
-            Route('/get_url', specials.GetInvitationUrlsHandler),
-        ]),
-        PathPrefixRoute('/gift', [
-            Route('/get_url', specials.GetGiftUrlsHandler),
-        ]),
     ]),
 
     Route('/get/<app:[a-z]{,3}>', share.GATrackDownloadHandler),

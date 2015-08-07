@@ -7,19 +7,11 @@ from methods import branch_io
 from config import config
 
 
-class GetInvitationUrlsHandler(BaseHandler):
-
-    @staticmethod
-    def get_general_shared_dict():
-        TEXT_ID = 1
-        return TEXT_ID, {
-            'text': '1231',
-        }
-
+class InvitationUrlsHandler(BaseHandler):
     def get(self):
         company_id = self.request.get_range('company_id')
-        org_id = CompanyNew.get_by_id(company_id).iiko_org_id
-        if not org_id in config.INVITATION_BRANCH_VENUES:
+        company = CompanyNew.get_by_id(company_id)
+        if not company.branch_invitation_enable:
             self.abort(403)
         customer_id = self.request.get('customer_id')
         customer = Customer.customer_by_customer_id(customer_id)
@@ -28,8 +20,6 @@ class GetInvitationUrlsHandler(BaseHandler):
         share = Share(share_type=branch_io.INVITATION, sender=customer.key)
         share.put()
 
-        text_id, values = GetInvitationUrlsHandler.get_general_shared_dict()
-
         if 'iOS' in self.request.headers["User-Agent"]:
             user_agent = 'ios'
         elif 'Android' in self.request.headers["User-Agent"]:
@@ -37,19 +27,18 @@ class GetInvitationUrlsHandler(BaseHandler):
         else:
             user_agent = 'unknown'
         urls = [{
-            'url': branch_io.create_url(org_id, share.key.id(), branch_io.INVITATION, channel, user_agent,
-                                        custom_tags={"text_id": text_id}),
+            'url': branch_io.create_url(company, share.key.id(), branch_io.INVITATION, channel, user_agent),
             'channel': channel
         } for channel in branch_io.CHANNELS]
         share.urls = [url['url'] for url in urls]
         share.put()
 
-        values['urls'] = urls
+        self.render_json({
+            'text': urls
+        })
 
-        self.render_json(values)
 
-
-class GetGiftUrlsHandler(BaseHandler):
+class GiftUrlHandler(BaseHandler):
     BONUS_SUM = 350
 
     def send_error(self, error):
