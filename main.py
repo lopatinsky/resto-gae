@@ -1,44 +1,15 @@
 # coding=utf-8
-from google.appengine.api import app_identity
-import sys
-from google.appengine.api.urlfetch import DeadlineExceededError
+from webapp2_extras.routes import PathPrefixRoute
+from webapp2 import Route, WSGIApplication
 
-import webapp2
-from api import *
-from api import admin, specials
-from api import push_admin as api_push_admin
+from handlers import handle_500, iikobiz, share
+from handlers import api
+from handlers.api import admin, specials, alfa_bank, image_proxy, push_admin as api_push_admin, address, order, company, \
+    venue, customer, promos
+from handlers.mt import report, push_admins, migration, qr, changes, company as mt_company
+from handlers.mt import push
 from config import config
-from methods import email
-from mt import CreateCompaniesLinks, CompanySettingsHandler, report, push_admins, push, migration, qr, changes
-from webapp2 import Route
-from webapp2_extras import jinja2
-import share
-from api import promo_phone
-from iikobiz import IikoBizAppHandler, IikoBizSubmitHandler
-import tasks
-
-
-_APP_ID = app_identity.get_application_id()
-
-
-def handle_500(request, response, exception):
-    body = """URL: %s
-User-Agent: %s
-Exception: %s
-Logs: https://appengine.google.com/logs?app_id=s~%s&severity_level_override=0&severity_level=3""" \
-           % (request.url, request.headers['User-Agent'], exception, _APP_ID)
-    if isinstance(exception, DeadlineExceededError) and ":9900/" in exception.message:
-        email.send_error("iiko", "iiko deadline", body)
-    else:
-        email.send_error("server", "Error 500", body)
-
-    exc_info = sys.exc_info()
-    raise exc_info[0], exc_info[1], exc_info[2]
-
-
-class MainHandler(webapp2.RequestHandler):
-    def get(self):
-        self.response.write(jinja2.get_jinja2(app=self.app).render_template("landing.html"))
+import trash
 
 webapp2_config = {
     "webapp2_extras.sessions": {
@@ -50,122 +21,143 @@ webapp2_config = {
     }
 }
 
-app = webapp2.WSGIApplication([
-    # customer
-    ('/api/customer/register', RegisterHandler),
+app = WSGIApplication([
+    Route('/', api.MainHandler),
 
-    # payment
-    ('/api/alfa/registration', PreCheckHandler),
-    ('/api/alfa/check', CheckStatusHandler),
-    ('/api/alfa/create', CreateByCardHandler),
-    ('/api/alfa/reset', ResetBlockedSumHandler),
-    ('/api/alfa/pay', PayByCardHandler),
-    ('/api/alfa/unbind', UnbindCardHandler),
+    PathPrefixRoute('/api', [
 
-    # company creating
-    ('/api/company/create_or_update', CreateOrUpdateCompanyHandler),
-    ('/api/company/set_icons', UploadIconsHandler),
+        PathPrefixRoute('/alfa', [
+            Route('/registration', alfa_bank.PreCheckHandler),
+            Route('/check', alfa_bank.CheckStatusHandler),
+            Route('/create', alfa_bank.CreateByCardHandler),
+            Route('/reset', alfa_bank.ResetBlockedSumHandler),
+            Route('/pay', alfa_bank.PayByCardHandler),
+            Route('/unbind', alfa_bank.UnbindCardHandler),
+        ]),
 
-    # company info
-    ('/api/company/(\d+)/info', GetCompanyInfoHandler),
-    ('/api/company/(\d+)/menu', CompanyMenuHandler),
-    ('/api/company/(\d+)/payment_types', CompanyPaymentTypesHandler),
-    ('/api/company/(\d+)/promos', CompanyPromosHandler),
-    ('/api/venues/(.*)', VenuesHandler),
-    ('/api/delivery_types', GetAvailableDeliveryTypesHandler),
-    ('/api/company/(\d+)/user_data', SaveClientInfoHandler),
-    ('/api/company/get_company', GetCompanyHandler),
-    ('/api/company/all_companies', GetCompaniesHandler),
-    ('/api/company/get_icons', DownloadIconsHandler),
+        PathPrefixRoute('/company', [
+            PathPrefixRoute('/<company_id:\d+>', [
+                Route('/info', api.NewsHandler),
+                Route('/menu', company.CompanyMenuHandler),
+                Route('/payment_types', company.CompanyPaymentTypesHandler),
+                Route('/promos', promos.CompanyPromosHandler),
+                Route('/user_data', customer.SaveClientInfoHandler),
+                Route('/enter_card', customer.SaveBonusCardHandler),
+            ]),
+            Route('/get_company', trash.GetCompanyHandler),
+            #Route('/create_or_update', trash.CreateOrUpdateCompanyHandler),
+            #Route('/set_icons', trash.UploadIconsHandler),
+            #Route('/all_companies', trash.GetCompaniesHandler),
+            #Route('/get_icons', trash.DownloadIconsHandler),
+        ]),
+        Route('/delivery_types', company.CompanyDeliveryTypesHandler),                          # it relates to company
+        Route('/venues/<company_id:\d+>', company.CompanyVenuesHandler),                        # it relates to company
 
-    ('/api/company/(\d+)/enter_card', GetClientByBonusCardHandler),
+        PathPrefixRoute('/venue/<delivery_terminal_id:.*>', [
+            Route('/menu', venue.VenueMenuHandler),
+            Route('/order/new', order.PlaceOrderHandler),
+        ]),
+        Route('/payment_types/<delivery_terminal_id:.*>', venue.VenuePaymentTypesHandler),       # it relates to venue
+        Route('/iiko_promos', promos.VenuePromosHandler),                                        # it relates to venue
 
-    # admin
-    ('/api/admin/orders/current', admin.CurrentOrdersHandler),
-    ('/api/admin/orders/updates', admin.OrderUpdatesHandler),
-    ('/api/admin/orders/cancels', admin.CancelsHandler),
-    ('/api/admin/orders/closed', admin.ClosedOrdersHandler),
-    ('/api/admin/menu', admin.MenuHandler),
-    ('/api/admin/dynamic_info', admin.DynamicInfoHandler),
-    ('/api/admin/stop_list/items', admin.ItemStopListHandler),
-    ('/api/admin/customer_history', admin.ClientHistoryHandler),
-    ('/api/admin/login', admin.LoginHandler),
-    ('/api/admin/logout', admin.LogoutHandler),
+        PathPrefixRoute('/order/<order_id:.*>', [
+            Route('request_cancel', order.CancelOrderHandler),
+            Route('', order.OrderInfoHandler),
+        ]),
+        Route('/status', order.OrdersStatusHandler),                                             # it relates to order
+        Route('/history', order.HistoryHandler),                                                 # it relates to order
+        Route('/get_order_promo', order.CheckOrderHandler),                                      # it relates to order
 
-    # push_admin
-    Route('/api/push_admin/login', api_push_admin.LoginHandler, 'push_admin_login'),
-    Route('/api/push_admin/logout', api_push_admin.LogoutHandler),
-    Route('/api/push_admin/pushes', api_push_admin.PushSendingHandler, 'pushes'),
-    Route('/api/push_admin/history', api_push_admin.PushHistoryHandler, 'admin_push_history'),
-    Route('/api/push_admin/sms', api_push_admin.SmsAdminHandler),
-    Route('/api/push_admin/menu_reload', api_push_admin.ReloadMenuHandler),
+        PathPrefixRoute('/customer', [
+            Route('/register', api.RegisterHandler),
+        ]),
 
-    # maintenance
-    ('/mt/company/links', CreateCompaniesLinks),
-    ('/mt/company/settings/(.*)', CompanySettingsHandler),
-    ('/mt/push/send', push.PushSendingHandler),
-    Route('/mt/push/history', push.PushHistoryHandler, 'mt_push_history'),
-    # push_admin
-    ('/mt/push_admin/create_admins', push_admins.AutoCreatePushAdmins),
-    Route('/mt/push_admin/list', push_admins.ListPushAdmins, 'push_admin_main'),
-    Route('/mt/push_admin/<admin_id:\d+>/change_login', push_admins.ChangeLoginPushAdmin),
-    Route('/mt/push_admin/<admin_id:\d+>/change_password', push_admins.ChangePasswordPushAdmin),
-    # reports
-    ('/mt/report', report.ReportHandler),
-    ('/mt/report/venues', report.VenueReportHandler),
-    ('/mt/report/orders', report.OrdersReportHandler),
-    ('/mt/report/orders_lite', report.OrdersLiteReportHandler),
-    ('/mt/report/clients', report.ClientsReportHandler),
-    ('/mt/report/repeated_orders', report.RepeatedOrdersReportHandler),
-    ('/mt/report/square_table', report.SquareTableHandler),
+        PathPrefixRoute('/admin', [
+            Route('/login', admin.LoginHandler),
+            Route('/logout', admin.LogoutHandler),
+            PathPrefixRoute('/orders', [
+                Route('/current', admin.CurrentOrdersHandler),
+                Route('/updates', admin.OrderUpdatesHandler),
+                Route('/cancels', admin.CancelsHandler),
+                Route('/closed', admin.ClosedOrdersHandler),
+            ]),
+            Route('/menu', admin.MenuHandler),
+            Route('/dynamic_info', admin.DynamicInfoHandler),
+            Route('/stop_list/items', admin.ItemStopListHandler),
+            Route('/customer_history', admin.ClientHistoryHandler),
+        ]),
+        PathPrefixRoute('/push_admin', [
+            Route('/login', api_push_admin.LoginHandler, 'push_admin_login'),
+            Route('/logout', api_push_admin.LogoutHandler),
+            Route('/pushes', api_push_admin.PushSendingHandler, 'pushes'),
+            Route('/history', api_push_admin.PushHistoryHandler, 'admin_push_history'),
+            Route('/sms', api_push_admin.SmsAdminHandler),
+            Route('/menu_reload', api_push_admin.ReloadMenuHandler),
+        ]),
+        PathPrefixRoute('/specials', [
+            PathPrefixRoute('/mivako_gift', [
+                Route('/info', specials.MivakoPromoInfoHandler),
+                Route('/send', specials.MivakoPromoSendGiftHandler),
+            ]),
+            Route('/cat_add_social', specials.CATAddSocialHandler),
+            Route('/cat_places', specials.CATFetchCoffeeShopsHandler),
+            Route('/cat_company_id', specials.CATGetCompanyIdHandler),
+            Route('/cat_company_id_2', specials.CATGetCompanyIdHandler2),
+        ]),
+        Route('/address', address.AddressByStreetHandler),
+        Route('/get_info', trash.GetAddressByKeyHandler),
+    ]),
 
-    ('/mt/migrate', migration.CreateNewCompaniesHandler),
+    PathPrefixRoute('/mt', [
+        PathPrefixRoute('/report', [
+            Route('', report.ReportHandler),
+            Route('/venues', report.VenueReportHandler),
+            Route('/orders', report.OrdersReportHandler),
+            Route('/orders_lite', report.OrdersLiteReportHandler),
+            Route('/clients', report.ClientsReportHandler),
+            Route('/repeated_orders', report.RepeatedOrdersReportHandler),
+            Route('/square_table', report.SquareTableHandler),
+        ]),
+        PathPrefixRoute('/company', [
+            Route('/links', mt_company.CreateCompaniesLinks),
+            Route('/settings/<:.*>', mt_company.CompanySettingsHandler),
+        ]),
+        PathPrefixRoute('/push', [
+            Route('/send', push.PushSendingHandler),
+            Route('/history', push.PushHistoryHandler, 'mt_push_history'),
+        ]),
+        PathPrefixRoute('/push_admin', [
+            Route('/create_admins', push_admins.AutoCreatePushAdmins),
+            Route('/list', push_admins.ListPushAdmins, 'push_admin_main'),
+            PathPrefixRoute('/<admin_id:\d+>', [
+                Route('', push_admins.ChangeLoginPushAdmin),
+                Route('/change_password', push_admins.ChangePasswordPushAdmin),
+            ]),
+        ]),
+        PathPrefixRoute('/qr', [
+            Route('', qr.AnalyticsLinkListHandler),
+            Route('/([a-z]{,3})', qr.AnalyticsLinkEditHandler),
+        ]),
+        PathPrefixRoute('/changelogs', [
+            Route('', changes.ChangeLogFindOrderHandler),
+            Route('/<order_id:.*>', changes.ViewChangeLogsHandler, "view_changelog"),
+        ]),
+        Route('/migrate', migration.CreateNewCompaniesHandler),
+    ]),
 
-    ('/mt/qr', qr.AnalyticsLinkListHandler),
-    ('/mt/qr/([a-z]{,3})', qr.AnalyticsLinkEditHandler),
+    PathPrefixRoute('/shared', [
+        PathPrefixRoute('/invitation', [
+            Route('/get_url', specials.GetInvitationUrlsHandler),
+        ]),
+        PathPrefixRoute('/gift', [
+            Route('/get_url', specials.GetGiftUrlsHandler),
+        ]),
+    ]),
 
-    ('/mt/changelogs', changes.ChangeLogFindOrderHandler),
-    Route('/mt/changelogs/<order_id:.*>', changes.ViewChangeLogsHandler, "view_changelog"),
-
-    # venue
-    ('/api/venue/(.*)/menu', MenuHandler),
-    ('/api/payment_types/(.*)', GetPaymentTypesHandler),
-    ('/api/venue/(.*)/order/new', PlaceOrderHandler),
-    ('/api/iiko_promos', GetVenuePromosHandler),
-    ('/api/promo_phone/request_code', promo_phone.RequestCodeHandler),
-    ('/api/promo_phone/confirm', promo_phone.ConfirmHandler),
-
-    # order info
-    ('/api/history', HistoryHandler),
-    ('/api/order/(.*)/request_cancel', OrderRequestCancelHandler),
-    ('/api/order/(.*)', OrderInfoRequestHandler),
-    ('/api/status', OrdersStatusHandler),
-    ('/api/get_order_promo', GetOrderPromosHandler),
-
-    # utility
-    ('/api/address', AddressInputHandler),
-    ('/api/get_info', GetAddressByKeyHandler),
-
-    # specials
-    ('/api/specials/mivako_gift/info', specials.MivakoPromoInfoHandler),
-    ('/api/specials/mivako_gift/send', specials.MivakoPromoSendGiftHandler),
-    ('/api/specials/cat_add_social', specials.CATAddSocialHandler),
-    ('/api/specials/cat_places', specials.CATFetchCoffeeShopsHandler),
-    ('/api/specials/cat_company_id', specials.CATGetCompanyIdHandler),
-    ('/api/specials/cat_company_id_2', specials.CATGetCompanyIdHandler2),
-
-    webapp2.Route('/get/<app:[a-z]{,3}>', share.GATrackDownloadHandler),
-
-    # branch_features
-    ('/shared/invitation/get_url', specials.GetInvitationUrlsHandler),
-    ('/shared/gift/get_url', specials.GetGiftUrlsHandler),
-
-    ('/img/(.*)', ImageProxyHandler),
-
-    ('/', MainHandler),
-    ('/iiko_biz_app', IikoBizAppHandler),
-    ('/iiko_biz_submit', IikoBizSubmitHandler),
-    ('/promo_phone/close_confirmation', tasks.CloseConfirmationHandler),
+    Route('/get/<app:[a-z]{,3}>', share.GATrackDownloadHandler),
+    Route('/img/<:.*>', image_proxy.ImageProxyHandler),
+    Route('/iiko_biz_app', iikobiz.IikoBizAppHandler),
+    Route('/iiko_biz_submit', iikobiz.IikoBizSubmitHandler),
 ], debug=config.DEBUG, config=webapp2_config)
 
 app.error_handlers[500] = handle_500

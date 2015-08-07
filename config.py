@@ -1,7 +1,8 @@
 # coding=utf-8
 
 from google.appengine.api import app_identity
-from methods import restrictions
+
+from methods.orders import restrictions
 from models.iiko import CompanyNew
 
 

@@ -2,6 +2,7 @@
 import json
 import logging
 from datetime import datetime
+
 from methods.iiko.base import get_request, post_request
 from methods.iiko.menu import get_product_from_menu, list_menu, get_modifier_item
 from models.iiko import CompanyNew
@@ -122,7 +123,7 @@ def calc_sum(items, iiko_org_id):
 
 def get_venue_promos(org_id):
     if org_id == CompanyNew.MIVAKO:
-        from api.specials.mivako_promo import get_mivako_iiko_promos
+        from handlers.api.specials import get_mivako_iiko_promos
         return get_mivako_iiko_promos()
 
     url = '/organization/%s/marketing_campaigns' % org_id

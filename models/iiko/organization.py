@@ -113,10 +113,10 @@ class CompanyNew(ndb.Model):
         return None
 
     @classmethod
-    def get_delivery_types(cls, org_id):
-        org = cls.get_by_id(int(org_id))
+    def get_delivery_types(cls, company_id):
+        company = cls.get_by_id(int(company_id))
         output = []
-        for item in ndb.get_multi(org.delivery_types):
+        for item in ndb.get_multi(company.delivery_types):
             output.append(item.to_dict())
         return output
 

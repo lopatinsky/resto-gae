@@ -2,11 +2,12 @@
 
 __author__ = 'dvpermyakov'
 
+import json
+
 from models.iiko import ClientInfo, CompanyNew
 from models.specials import MassPushHistory
 from methods.parse_com import send_push, make_mass_push_data, ANDROID_DEVICE, IOS_DEVICE
-from methods.mandrill import send_email
-import json
+from methods.email.mandrill import send_email
 
 
 def push_venues(chosen_companies, text, full_text, head, android_avail, ios_avail, user_login, jinja):

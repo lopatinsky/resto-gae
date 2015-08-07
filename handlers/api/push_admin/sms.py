@@ -2,7 +2,8 @@
 import time
 
 from .base import BaseHandler
-from methods import sms_pilot, filter_phone
+from methods import filter_phone
+from methods.sms import sms_pilot
 from methods.auth import push_admin_user_required
 from models.iiko import Order
 from models.specials import OrderSmsHistory

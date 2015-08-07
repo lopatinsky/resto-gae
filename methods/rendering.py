@@ -1,6 +1,10 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 
 __author__ = 'dvpermyakov'
+
+
+def timestamp(datetime_object):
+    return int(time.mktime(datetime_object.timetuple()))
 
 
 def parse_iiko_time(time_str, company):

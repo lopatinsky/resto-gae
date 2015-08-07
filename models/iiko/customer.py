@@ -3,20 +3,12 @@ from google.appengine.ext import ndb
 __author__ = 'dvpermyakov'
 
 
-class AvailableConfirmation(ndb.Model):
-    requested_phone = ndb.StringProperty(required=True)
-    code = ndb.IntegerProperty(required=True)
-
-
 class Customer(ndb.Model):
     phone = ndb.StringProperty()
     name = ndb.StringProperty(indexed=False)
     user_agent = ndb.StringProperty()
     customer_id = ndb.StringProperty()
     custom_data = ndb.JsonProperty()
-
-    confirmations = ndb.StructuredProperty(AvailableConfirmation, repeated=True)
-    confirmed_phones = ndb.StringProperty(repeated=True)
 
     @classmethod
     def customer_by_phone(cls, phone):

@@ -4,10 +4,7 @@ from methods.maps import complete_address_input_by_kladr
 __author__ = 'mihailnikolaev'
 
 
-class AddressInputHandler(BaseHandler):
-
-    """ /api/address """
-
+class AddressByStreetHandler(BaseHandler):
     def get(self):
         address = self.request.get('address')
         city = self.request.get('city')

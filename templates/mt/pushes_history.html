@@ -6,14 +6,14 @@
 <body>
     {% if user %}
         {% include '/mt/push_admins/header.html' %}
-        <a href="/api/push_admin/pushes">Послать пуши</a><br>
-        <a href="/api/push_admin/menu_reload">Обновить меню</a><br/>
-        <a href="/api/push_admin/sms">Послать СМС-подтверждение заказа</a>
+        <a href="/handlers/api/push_admin/pushes">Послать пуши</a><br>
+        <a href="/handlers/api/push_admin/menu_reload">Обновить меню</a><br/>
+        <a href="/handlers/api/push_admin/sms">Послать СМС-подтверждение заказа</a>
         {% if menu_reload %}
             Меню обновлено
         {% endif %}
     {% else %}
-        <a href="/mt/push/send">Послать пуши</a>
+        <a href="/handlers/mt/push/send">Послать пуши</a>
     {% endif %}
 
     <table style="border-collapse:collapse; width:100%" border="1">
@@ -41,7 +41,7 @@
         {% endfor %}
     </table>
     {% if not user %}
-        <a href="/mt/report">Назад</a>
+        <a href="/handlers/mt/report">Назад</a>
     {% endif %}
 </body>
 </html>

@@ -37,8 +37,7 @@ class CompanyPromosHandler(BaseHandler):
         self.render_json(_do_get_promos(company, phone))
 
 
-class GetVenuePromosHandler(BaseHandler):
-
+class VenuePromosHandler(BaseHandler):
     def get(self):
         delivery_terminal_id = self.request.get('venue_id')
         delivery_terminal = DeliveryTerminal.get_by_id(delivery_terminal_id)

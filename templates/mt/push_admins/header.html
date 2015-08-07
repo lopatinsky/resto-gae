@@ -8,10 +8,10 @@
         {% if user %}
             <p>
                 {{ user.login }}
-                <a href="/api/push_admin/logout">Выйти</a>
+                <a href="/handlers/api/push_admin/logout">Выйти</a>
             </p>
         {% else %}
-            <a href="/api/push_admin/login">Зайти</a>
+            <a href="/handlers/api/push_admin/login">Зайти</a>
         {% endif %}
     </nav>
 </body>

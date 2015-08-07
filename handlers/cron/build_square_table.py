@@ -2,7 +2,7 @@
 
 from datetime import timedelta, datetime
 from webapp2 import RequestHandler
-from methods.times import timestamp
+from methods.rendering import timestamp
 from models.iiko import Order, CompanyNew
 from models.square_table import JsonStorage
 
