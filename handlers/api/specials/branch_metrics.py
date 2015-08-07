@@ -34,7 +34,7 @@ class InvitationUrlsHandler(BaseHandler):
         share.put()
 
         self.render_json({
-            'text': urls
+            'urls': urls
         })
 
 
