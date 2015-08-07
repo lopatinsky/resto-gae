@@ -1,8 +1,8 @@
 # coding=utf-8
 import logging
 from ..base import BaseHandler
-from methods import filter_phone
 from methods.iiko.customer import get_customer_by_phone, get_customer_by_id, create_or_update_customer
+from methods.rendering import filter_phone
 from models.iiko import CompanyNew, DeliveryTerminal
 from models.specials import CATSocialId
 

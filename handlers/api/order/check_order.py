@@ -7,12 +7,12 @@ from config import config
 from handlers.api.base import BaseHandler
 from handlers.api.promos import CAT_FREE_CUP_CODES
 from handlers.api.promos import CUPS_BEFORE_FREE_CUP
-from methods import filter_phone
 from methods.iiko.customer import get_customer_by_id
 from methods.iiko.customer import get_customer_by_phone
 from methods.iiko.menu import get_product_from_menu
 from methods.iiko.order import prepare_order
 from methods.iiko.promo import get_order_promos, set_discounts
+from methods.rendering import filter_phone
 from methods.specials.cat import fix_syrop
 from methods.specials.cat import fix_modifiers_by_own
 from models import iiko

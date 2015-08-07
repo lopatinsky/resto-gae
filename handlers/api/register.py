@@ -1,7 +1,7 @@
 import json
 import logging
-from methods import filter_phone
 from methods.iiko.customer import get_customer_by_phone, create_or_update_customer
+from methods.rendering import filter_phone
 from models.iiko import CompanyNew, Customer
 from models.specials import Share, SharedBonus
 from base import BaseHandler

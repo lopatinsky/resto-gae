@@ -8,13 +8,12 @@ import re
 from google.appengine.api.urlfetch_errors import DownloadError
 from handlers.api.base import BaseHandler
 
-from methods import filter_phone
 from methods.email.admin import send_error, send_order_email
 from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum, check_extended_status, get_bindings
 from methods.iiko.order import prepare_order, place_order
 from methods.iiko.order import pre_check_order
 from methods.iiko.promo import calc_sum, get_order_promos, set_gifts, add_bonus_to_payment, set_discounts
-from methods.rendering import parse_iiko_time
+from methods.rendering import parse_iiko_time, filter_phone
 from models import iiko
 from models.iiko import CompanyNew, ClientInfo, DeliveryTerminal, BonusCardHack
 from methods.specials.cat import fix_syrop, fix_modifiers_by_own

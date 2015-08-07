@@ -2,7 +2,7 @@
 
 from google.appengine.api import mail
 from webapp2 import RequestHandler
-from methods import filter_phone
+from methods.rendering import filter_phone
 
 
 class IikoBizAppHandler(RequestHandler):

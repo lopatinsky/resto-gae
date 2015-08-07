@@ -2,7 +2,7 @@
 from .base import BaseHandler
 from methods.iiko.customer import get_customer_by_phone
 from methods.iiko.promo import get_venue_promos
-from methods import filter_phone
+from methods.rendering import filter_phone
 from models.iiko import CompanyNew, DeliveryTerminal
 
 CAT_FREE_CUP_CODES = {
