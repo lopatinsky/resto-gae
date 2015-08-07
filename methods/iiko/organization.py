@@ -1,6 +1,6 @@
 import json
 from methods.iiko.base import get_request
-from models.iiko.organization import CompanyNew
+from models.iiko.company import CompanyNew
 
 __author__ = 'dvpermyakov'
 

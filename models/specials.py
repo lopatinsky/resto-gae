@@ -5,7 +5,7 @@ import urllib
 from google.appengine.ext import ndb
 from models.iiko.customer import Customer
 from models.iiko.order import Order
-from models.iiko.organization import PaymentType, CompanyNew
+from models.iiko.company import PaymentType, CompanyNew
 
 
 class MivakoGift(ndb.Model):

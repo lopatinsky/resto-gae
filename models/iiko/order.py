@@ -3,7 +3,7 @@ from datetime import time
 import logging
 from google.appengine.ext import ndb
 from models.iiko.customer import Customer
-from models.iiko.organization import CompanyNew
+from models.iiko.company import CompanyNew
 
 __author__ = 'dvpermyakov'
 
