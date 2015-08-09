@@ -20,3 +20,14 @@ def filter_phone(phone, check=False):
     if check and (len(phone) != 11 or phone[0] not in '78'):
         return None
     return '+' + phone
+
+
+def parse_str_date(str_date):
+    try:
+        try:
+            date = datetime.datetime.strptime(str_date, '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            date = datetime.datetime.strptime(str_date, '%Y-%m-%d %H:%M:%S %p')
+    except ValueError:
+        date = None
+    return date

@@ -3,7 +3,6 @@ import copy
 import json
 import logging
 import datetime
-from config import config
 from handlers.api.base import BaseHandler
 from handlers.api.promos import CAT_FREE_CUP_CODES
 from handlers.api.promos import CUPS_BEFORE_FREE_CUP
@@ -12,12 +11,12 @@ from methods.iiko.customer import get_customer_by_id
 from methods.iiko.menu import get_product_from_menu
 from methods.iiko.order import prepare_order
 from methods.iiko.promo import get_order_promos, set_discounts
+from methods.orders.validation import validate_order
 from methods.rendering import filter_phone
 from methods.specials.cat import fix_cat_items
 from models import iiko
 from models.iiko import DeliveryTerminal
 from models.iiko import CompanyNew
-from methods import working_hours
 
 __author__ = 'dvpermyakov'
 
@@ -41,15 +40,11 @@ class CheckOrderHandler(BaseHandler):
         else:
             company = CompanyNew.get_by_iiko_id(delivery_terminal_id)
 
-        name = self.request.get('name').strip()
-        phone = filter_phone(self.request.get('phone'))
-        customer_id = self.request.get('customer_id')
-        order_sum = self.request.get('sum')
-        date = self.request.get_range('date')
-        logging.info(date)
-
-        customer = get_resto_customer(company, customer_id)
-        save_customer_info(company, customer, name, self.request.headers, phone)
+        customer = get_resto_customer(company, self.request.get('customer_id'))
+        save_customer_info(company, customer,
+                           self.request.get('name').strip(),
+                           self.request.headers,
+                           filter_phone(self.request.get('phone')))
         update_customer_id(company, customer)
 
         items = json.loads(self.request.get('items'))
@@ -57,24 +52,12 @@ class CheckOrderHandler(BaseHandler):
             fix_cat_items(items)
 
         order = iiko.Order()
-        order.date = datetime.datetime.fromtimestamp(date)
+        order.date = datetime.datetime.fromtimestamp(self.request.get_range('date'))
         order.venue_id = company.iiko_org_id
-        order.sum = float(order_sum)
+        order.sum = float(self.request.get('sum'))
         order.items = items
 
         order_dict = prepare_order(order, customer, None)
-
-        local_time = order.date + datetime.timedelta(seconds=company.get_timezone_offset())
-        is_open = working_hours.is_datetime_valid(company.schedule, local_time) if company.schedule else True
-
-        if not is_open:
-            logging.info(company.schedule)
-            start, end = working_hours.parse_company_schedule(company.schedule, local_time.isoweekday())
-            if start < 10:
-                start = '0%s' % start
-            if end < 10:
-                end = '0%s' % end
-            return self.send_error(u'Заказы будут доступны c %s:00 до %s:00. Попробуйте в следующий раз.' % (start, end))
 
         if company.is_iiko_system and order.items:
             promos = get_order_promos(order, order_dict)
@@ -127,6 +110,10 @@ class CheckOrderHandler(BaseHandler):
             max_bonus_payment = 0.0
             gifts = []
             accumulated_gifts = discount_gifts = 0
+
+        validation_result = validate_order(company, delivery_terminal, order, customer)
+        if not validation_result['valid']:
+            return self.send_error(validation_result['errors'][0])
 
         iiko_customer = get_customer_by_id(company, customer.customer_id)
 
