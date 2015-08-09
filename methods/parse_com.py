@@ -3,6 +3,7 @@
 import json
 import logging
 from google.appengine.api import urlfetch
+from models.iiko.customer import IOS_DEVICE, ANDROID_DEVICE
 
 parse_acc = {
     'master_key': 'YaEHCHCURT6qQFYwvWeTsIwho6cJPSDBhDAz4CS1',
@@ -15,9 +16,6 @@ parce_acc_another = {
     'rest_api_key': 'uDd0iYV75BZylEq4UGIpEu6252590YwBeyCHjNIN',
     'application_id': 'uXhll3SYelAB6GEBwV81YFk3EuqUAB0fvTuh0Qm4'
 }
-
-IOS_DEVICE = 0
-ANDROID_DEVICE = 1
 
 DEVICE_TYPE_MAP = {
     IOS_DEVICE: 'ios',
