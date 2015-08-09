@@ -7,16 +7,15 @@ from config import config
 from handlers.api.base import BaseHandler
 from handlers.api.promos import CAT_FREE_CUP_CODES
 from handlers.api.promos import CUPS_BEFORE_FREE_CUP
+from methods.customer import get_resto_customer, update_customer_id, save_customer_info
 from methods.iiko.customer import get_customer_by_id
-from methods.iiko.customer import get_customer_by_phone
 from methods.iiko.menu import get_product_from_menu
 from methods.iiko.order import prepare_order
 from methods.iiko.promo import get_order_promos, set_discounts
 from methods.rendering import filter_phone
-from methods.specials.cat import fix_syrop
-from methods.specials.cat import fix_modifiers_by_own
+from methods.specials.cat import fix_cat_items
 from models import iiko
-from models.iiko import DeliveryTerminal, BonusCardHack
+from models.iiko import DeliveryTerminal
 from models.iiko import CompanyNew
 from methods import working_hours
 
@@ -41,6 +40,7 @@ class CheckOrderHandler(BaseHandler):
             company = CompanyNew.get_by_id(delivery_terminal.company_id)
         else:
             company = CompanyNew.get_by_iiko_id(delivery_terminal_id)
+
         name = self.request.get('name').strip()
         phone = filter_phone(self.request.get('phone'))
         customer_id = self.request.get('customer_id')
@@ -48,20 +48,13 @@ class CheckOrderHandler(BaseHandler):
         date = self.request.get_range('date')
         logging.info(date)
 
-        phone, bonus_card_customer_id = BonusCardHack.check(phone)
-
-        customer = iiko.Customer.customer_by_customer_id(customer_id) if customer_id else None
-        if not customer:
-            customer = iiko.Customer()
-            if customer_id:
-                customer.customer_id = customer_id
-        customer.phone = phone
-        customer.name = name
+        customer = get_resto_customer(company, customer_id)
+        save_customer_info(company, customer, name, self.request.headers, phone)
+        update_customer_id(company, customer)
 
         items = json.loads(self.request.get('items'))
         if company.iiko_org_id == CompanyNew.COFFEE_CITY:
-            items = fix_syrop.set_syrop_items(items)
-            items = fix_modifiers_by_own.set_modifier_by_own(company.iiko_org_id, items)
+            fix_cat_items(items)
 
         order = iiko.Order()
         order.date = datetime.datetime.fromtimestamp(date)
@@ -75,7 +68,6 @@ class CheckOrderHandler(BaseHandler):
         is_open = working_hours.is_datetime_valid(company.schedule, local_time) if company.schedule else True
 
         if not is_open:
-            #if config.CHECK_SCHEDULE:  TODO: it is for get_promo endpoint, order should has check
             logging.info(company.schedule)
             start, end = working_hours.parse_company_schedule(company.schedule, local_time.isoweekday())
             if start < 10:
@@ -83,17 +75,6 @@ class CheckOrderHandler(BaseHandler):
             if end < 10:
                 end = '0%s' % end
             return self.send_error(u'Заказы будут доступны c %s:00 до %s:00. Попробуйте в следующий раз.' % (start, end))
-
-        error = None
-        for restriction in config.RESTRICTIONS:
-            if company.iiko_org_id in restriction['venues']:
-                error = restriction['method'](order_dict, restriction['venues'][company.iiko_org_id])
-                logging.info(error)
-                if error:
-                    break
-
-        if error:
-            return self.send_error(error)
 
         if company.is_iiko_system and order.items:
             promos = get_order_promos(order, order_dict)
@@ -147,9 +128,7 @@ class CheckOrderHandler(BaseHandler):
             gifts = []
             accumulated_gifts = discount_gifts = 0
 
-        customer = get_customer_by_id(company, bonus_card_customer_id) if bonus_card_customer_id \
-            else get_customer_by_phone(company, phone)
-        balance = customer.get('balance', 0.0)
+        iiko_customer = get_customer_by_id(company, customer.customer_id)
 
         result = {
             "order_discounts": discount_sum,
@@ -158,6 +137,6 @@ class CheckOrderHandler(BaseHandler):
             "error": False,
             "accumulated_gifts": max(0, int(accumulated_gifts - discount_gifts)),
             "items": order.items,
-            "balance": balance
+            "balance": iiko_customer.get('balance', 0.0)
         }
         return self.render_json(result)

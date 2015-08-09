@@ -7,6 +7,7 @@ import re
 
 from google.appengine.api.urlfetch_errors import DownloadError
 from handlers.api.base import BaseHandler
+from methods.customer import get_resto_customer, save_customer_info, update_customer_id
 
 from methods.email.admin import send_error, send_order_email
 from methods.alfa_bank import tie_card, create_pay, get_back_blocked_sum, check_extended_status, get_bindings
@@ -62,18 +63,7 @@ class PlaceOrderHandler(BaseHandler):
         binding_id = self.request.get('binding_id')
         alpha_client_id = self.request.get('alpha_client_id')
 
-        phone, bonus_card_customer_id = BonusCardHack.check(phone)
-
-        customer = iiko.Customer.customer_by_customer_id(customer_id)
-        if not customer:
-            customer = iiko.Customer()
-            if customer_id:
-                customer.customer_id = customer_id
-        if not customer.user_agent:
-            customer.user_agent = self.request.headers['User-Agent']
-        customer.phone = phone
-        customer.name = name
-        customer.custom_data = custom_data
+        phone, bonus_card_customer_id = BonusCardHack.get(phone)
 
         delivery_terminal = DeliveryTerminal.get_by_id(delivery_terminal_id)
         if delivery_terminal:
@@ -85,6 +75,10 @@ class PlaceOrderHandler(BaseHandler):
             delivery_terminal = DeliveryTerminal.get_any(company.iiko_org_id)
             delivery_terminal_id = delivery_terminal.key.id()
         response_delivery_terminal_id = delivery_terminal_id
+
+        customer = get_resto_customer(company, customer_id)
+        save_customer_info(company, customer, name, self.request.headers, phone, custom_data)
+        update_customer_id(company, customer)
 
         order = iiko.Order()
         order.date = datetime.datetime.utcfromtimestamp(int(self.request.get('date')))
@@ -132,7 +126,7 @@ class PlaceOrderHandler(BaseHandler):
                 item["modifiers"] = [mod for mod in item["modifiers"] if mod["amount"]]
         if company.iiko_org_id == CompanyNew.COFFEE_CITY:
             items = fix_syrop.set_syrop_items(items)
-            items = fix_modifiers_by_own.set_modifier_by_own(company.iiko_org_id, items)
+            items = fix_modifiers_by_own.set_modifier_by_own(items)
         order.items = items
         order.sum = calc_sum(items, company.iiko_org_id)
         logging.info("calculated sum: %s, app sum: %s", order.sum, self.request.get('sum'))
@@ -165,10 +159,6 @@ class PlaceOrderHandler(BaseHandler):
             logging.warning('iiko pre check failed')
             send_error("iiko", "iiko pre check failed", pre_check_result["description"])
             self.abort(400)
-
-        success, description = check_config_restrictions(company, order_dict)
-        if not success:
-            return self.send_error(description)
 
         order.discount_sum = 0.0
         order.bonus_sum = 0.0
@@ -306,15 +296,11 @@ class PlaceOrderHandler(BaseHandler):
 
         resp = {
             'customer_id': customer.customer_id,
-            #'success': True,
-            #'promos': promos,  # it was added
-            #'menu': iiko_api.list_menu(venue_id),  # it was added
             'order': {
                 'order_id': order.order_id,
                 'status': order.status,
                 'items': response_items,
                 'sum': order.sum,
-                #'discounts': order.discount_sum,  # it was added
                 'payments': order_dict['order']['paymentItems'],  # it was added
                 'number': order.number,
                 'venue_id': response_delivery_terminal_id,
