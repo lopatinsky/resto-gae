@@ -2,9 +2,6 @@
 
 from google.appengine.api import app_identity
 
-from methods.orders import restrictions
-from models.iiko import CompanyNew
-
 
 class RestoConfig(object):
     pass
@@ -13,7 +10,6 @@ class RestoConfig(object):
 class ProductionConfig(RestoConfig):
     ALFA_BASE_URL = "https://engine.paymentgate.ru/payment"
     CHECK_SCHEDULE = True
-    RESTRICTIONS = []
     DEBUG = False
 
     ERROR_EMAILS = {
@@ -25,24 +21,6 @@ class ProductionConfig(RestoConfig):
 class TestingConfig(RestoConfig):
     ALFA_BASE_URL = "https://test.paymentgate.ru/testpayment"
     CHECK_SCHEDULE = True
-    RESTRICTIONS = [
-        {
-            'method': restrictions.restrict_product_by_time,
-            'venues': {
-                CompanyNew.EMPATIKA: [
-                    {
-                        'category_id': '2f38c84f-c70b-4d4d-8fc9-0d8ad087c056',
-                        'schedule': [
-                            {
-                                'hours': '0-0',
-                                'days': []
-                            }
-                        ]
-                    }
-                ]
-            }
-        }
-    ]
     DEBUG = True
 
     ERROR_EMAILS = {
