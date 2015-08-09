@@ -7,6 +7,13 @@ from methods import branch_io
 from config import config
 
 
+class InvitationInfoHandler(BaseHandler):
+    def get(self):
+        return self.render_json({
+            'text': u'Советую попробовать это интересное приложение для доставки суши и пиццы на дом'
+        })
+
+
 class InvitationUrlsHandler(BaseHandler):
     def get(self):
         company_id = self.request.get_range('company_id')
