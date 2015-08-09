@@ -1,4 +1,6 @@
 # coding=utf-8
+from models.iiko.customer import ANDROID_DEVICE
+from models.iiko.customer import IOS_DEVICE
 
 __author__ = 'dvpermyakov'
 
@@ -6,7 +8,7 @@ import json
 
 from models.iiko import ClientInfo, CompanyNew
 from models.specials import MassPushHistory
-from methods.parse_com import send_push, make_mass_push_data, ANDROID_DEVICE, IOS_DEVICE
+from methods.parse_com import send_push, make_mass_push_data
 from methods.email.mandrill import send_email
 
 
