@@ -49,13 +49,13 @@ class CATSocialId(ndb.Model):
 
 
 class Share(ndb.Model):
-    from methods.branch_io import SHARE, INVITATION, GIFT
+    from methods.branch_io import FEATURE_CHOICES
 
     ACTIVE = 0
     INACTIVE = 1
 
     sender = ndb.KeyProperty(required=True, kind=Customer)
-    share_type = ndb.IntegerProperty(required=True, choices=[SHARE, INVITATION, GIFT])
+    share_type = ndb.IntegerProperty(required=True, choices=FEATURE_CHOICES)
     created = ndb.DateTimeProperty(auto_now_add=True)
     status = ndb.IntegerProperty(default=ACTIVE)
     urls = ndb.StringProperty(repeated=True)
