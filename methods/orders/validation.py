@@ -39,14 +39,14 @@ def _check_delivery_time(order):
 
 
 def _check_address(order):
-    if not order.address.get("home", '').strip():
+    if order.address and not order.address.get("home", '').strip():
         return False, u"Не введен номер дома. Пожалуйста, введите его и попробуйте еще раз."
     return True, None
 
 
 def _check_payment_type(company, order):
     payment_type = company.get_payment_type(order.payment_type)
-    if not payment_type or not payment_type.available:
+    if payment_type and not payment_type.available:
         return False, u"Выбранный способ оплаты недоступен."
     return True, None
 

@@ -75,7 +75,7 @@ class PlaceOrderHandler(BaseHandler):
         save_customer_info(company, customer,
                            self.request.get('name').strip(),
                            self.request.headers,
-                           filter_phone(self.request.get('phone'), check=True),
+                           filter_phone(self.request.get('phone')),
                            custom_data)
         update_customer_id(company, customer)
 

@@ -118,9 +118,10 @@ class CompanyNew(ndb.Model):
         return output
 
     def get_payment_type(self, type_id):
-        for item in ndb.get_multi(self.payment_types):
-            if item.type_id == int(type_id):
-                return item
+        if type_id:
+            for item in ndb.get_multi(self.payment_types):
+                if item.type_id == int(type_id):
+                    return item
         return None
 
     @classmethod

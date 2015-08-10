@@ -55,10 +55,11 @@ class BonusCardHack(ndb.Model):
 
     @classmethod
     def get(cls, phone):
-        phone_without_plus = phone.lstrip('+')
-        entity = cls.get_by_id(phone_without_plus) if phone_without_plus else None
-        if entity:
-            return phone_without_plus, entity.customer_id
+        if phone:
+            phone_without_plus = phone.lstrip('+')
+            entity = cls.get_by_id(phone_without_plus) if phone_without_plus else None
+            if entity:
+                return phone_without_plus, entity.customer_id
         return phone, None
 
 
