@@ -18,16 +18,17 @@ def update_customer_id(company, customer):
         _update_customer_id(customer, get_customer_by_phone(company, phone))
 
 
-def get_resto_customer(company, customer_id):
+def get_resto_customer(company, customer_id, generate_customer=False):
     customer = None
     if customer_id:
         customer = Customer.customer_by_customer_id(customer_id)
         if not customer:
             customer = Customer.get_by_id(customer_id)
-    if not customer:
+    if not customer and generate_customer:
         customer = Customer(id=Customer.generate_customer_id())
-    customer.company = company.key
-    customer.put()
+    if customer:
+        customer.company = company.key
+        customer.put()
     return customer
 
 

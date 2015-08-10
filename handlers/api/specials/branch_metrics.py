@@ -4,6 +4,7 @@ import logging
 from models.iiko import Customer, PaymentType, CompanyNew
 from models.specials import Share, SharedGift
 from methods import branch_io
+from methods.customer import get_resto_customer
 from config import config
 
 
@@ -21,7 +22,7 @@ class InvitationUrlsHandler(BaseHandler):
         if not company.branch_invitation_enable:
             self.abort(403)
         customer_id = self.request.get('customer_id')
-        customer = Customer.customer_by_customer_id(customer_id)
+        customer = get_resto_customer(company, customer_id)
         if not customer:
             self.abort(400)
         share = Share(share_type=branch_io.INVITATION, sender=customer.key)
