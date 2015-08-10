@@ -15,13 +15,25 @@ class RegisterHandler(BaseHandler):
         customer_id = self.request.get('customer_id')
         customer = get_resto_customer(company, customer_id)
         share_data = self.request.get('share_data')
+        invitation_response = {}
         if share_data:
             share_data = json.loads(share_data)
-            share_id = share_data.get('share_id', 0)
-            share = Share.get_by_id(share_id)
-            if share:
-                if share.share_type == INVITATION and not customer_id:
-                    SharedBonus(sender=share.sender, recipient=customer.key, share_id=share.key.id()).put()
+            share_id = share_data.get('share_id')
+            if share_id:
+                share = Share.get_by_id(share_id)
+                if share.share_type == INVITATION:
+                    if not customer_id:
+                        SharedBonus(sender=share.sender, recipient=customer.key, share_id=share.key.id()).put()
+                        invitation_response = {
+                            'success': True,
+                            'description': 'Invitation success'
+                        }
+                    else:
+                        invitation_response = {
+                            'success': False,
+                            'description': 'Invitation not success'
+                        }
         self.render_json({
-            'customer_id': customer_id
+            'customer_id': customer.customer_id if customer.customer_id else customer.key.id(),
+            'invitation': invitation_response
         })

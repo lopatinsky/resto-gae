@@ -10,7 +10,7 @@ from config import config
 class InvitationInfoHandler(BaseHandler):
     def get(self):
         return self.render_json({
-            'text': u'Советую попробовать это интересное приложение для доставки суши и пиццы на дом'
+            'text': u'Расскажите друзьям о нашем приложении и получите бонусные баллы.\n\n За каждого друга, который перейдет по ссылке и сделает заказ, вы получите 100 баллов на бонусный счет. Баллы можно потратить для оплаты следующих заказов.'
         })
 
 
@@ -41,7 +41,8 @@ class InvitationUrlsHandler(BaseHandler):
         share.put()
 
         self.render_json({
-            'urls': urls
+            'urls': urls,
+            'text': u'Советую попробовать это интересное приложение для доставки суши и пиццы на дом'
         })
 
 
