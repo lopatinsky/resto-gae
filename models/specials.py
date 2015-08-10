@@ -20,7 +20,6 @@ class MivakoGift(ndb.Model):
 class Notification(ndb.Model):  # old class for storage pushes
     PUSH_NOTIFICATION = 0
 
-    #order_id = ndb.StringProperty(required=True)  old type of notification
     client_id = ndb.StringProperty(required=True)
     created = ndb.DateTimeProperty(auto_now_add=True)
     type = ndb.IntegerProperty(required=True)
@@ -175,6 +174,10 @@ class News(ndb.Model):
     text = ndb.StringProperty(required=True, indexed=False)
     active = ndb.BooleanProperty(required=True, default=True)
     created_at = ndb.DateTimeProperty(auto_now_add=True, indexed=False)
+
+    @classmethod
+    def get(cls, company):
+        return cls.query(cls.company_id == company.key.id(), cls.active == True).get()
 
     def dict(self):
         return {
