@@ -152,7 +152,7 @@ app = WSGIApplication([
         Route('/migrate', migration.CreateNewCompaniesHandler),
     ]),
 
-    PathPrefixRoute('/task', [
+    PathPrefixRoute('/single_task', [
         PathPrefixRoute('/push', [
             Route('/review', task.PushReviewHandler),
         ]),
