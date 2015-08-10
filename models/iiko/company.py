@@ -1,3 +1,4 @@
+# coding=utf-8
 from google.appengine.api import memcache
 from google.appengine.ext import ndb
 
@@ -5,9 +6,15 @@ __author__ = 'dvpermyakov'
 
 
 class PaymentType(ndb.Model):
-    # payment types id
     CASH = '1'
     CARD = '2'
+    COURIER_CARD = '3'
+
+    PAYMENT_MAP = {
+        CASH: u'Наличные',
+        CARD: u'Карта',
+        COURIER_CARD: u'Карта курьеру'
+    }
 
     name = ndb.StringProperty()
     type_id = ndb.IntegerProperty()
@@ -124,10 +131,6 @@ class CompanyNew(ndb.Model):
             output.append(item.to_dict())
         return output
 
-    def get_news(self):
-        from models.specials import News
-        return News.query(News.company_id == self.key.id(), News.active == True).get()
-
     @classmethod
     def get_by_iiko_id(cls, iiko_org_id):
         return cls.query(cls.iiko_org_id == iiko_org_id).get()
@@ -139,61 +142,3 @@ class CompanyNew(ndb.Model):
             result = maps.get_timezone_by_coords(self.latitude, self.longitude)
             memcache.set('venue_%s_timezone' % self.iiko_org_id, result, time=24*3600)
         return result
-
-    @classmethod
-    def create(cls, login, password, company_id=None, org_id=None, new_endpoints=True):
-        from methods.maps import get_address_coordinates
-        from config import config
-        from methods.iiko.organization import get_org, get_orgs
-
-        IikoApiLogin.get_or_insert(login, password=password)
-
-        c = cls(id=company_id)
-        c.new_endpoints = new_endpoints
-        c.iiko_login = login
-
-        if org_id:
-            org = get_org(login, org_id, new_endpoints)
-            c.iiko_org_id = org_id
-        else:
-            org = get_orgs(login, new_endpoints)[0]
-            c.iiko_org_id = org['id']
-        c.app_title = org['name']
-        c.address = org['address'] or org['contact']['location']
-        c.latitude, c.longitude = get_address_coordinates(c.address)
-
-        delivery_types = [
-            DeliveryType(available=True, delivery_id=1, name="delivery"),
-            DeliveryType(available=False, delivery_id=2, name="self"),
-        ]
-        c.delivery_types = ndb.put_multi(delivery_types)
-
-        payment_types = [
-            PaymentType(available=True, type_id=1, name="cash", iiko_uuid="CASH"),
-            PaymentType(available=config.DEBUG, type_id=2, name="card", iiko_uuid="ECARD")
-        ]
-        c.payment_types = ndb.put_multi(payment_types)
-
-        if config.DEBUG:
-            c.alpha_login = "empatika_autopay-api"
-            c.alpha_pass = "empatika-autopay"
-        c.put()
-
-        return c
-
-    def load_delivery_terminals(self):
-        from models.iiko.delivery_terminal import DeliveryTerminal
-        from methods.iiko.delivery_terminal import get_delivery_terminals
-        iiko_dts = get_delivery_terminals(self)
-        dts = map(lambda iiko_dt: DeliveryTerminal(
-            id=iiko_dt['deliveryTerminalId'],
-            company_id=self.key.id(),
-            iiko_organization_id=self.iiko_org_id,
-            active=True,
-            name=iiko_dt['deliveryRestaurantName'],
-            phone=self.phone,
-            address=iiko_dt['address'],
-            location=ndb.GeoPt(self.latitude, self.longitude)
-        ), iiko_dts)
-        ndb.put_multi(dts)
-        return dts

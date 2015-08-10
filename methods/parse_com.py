@@ -6,8 +6,6 @@ from google.appengine.api import urlfetch
 from models.iiko.customer import IOS_DEVICE, ANDROID_DEVICE
 
 parse_acc = {
-    'master_key': 'YaEHCHCURT6qQFYwvWeTsIwho6cJPSDBhDAz4CS1',
-    'client_key': 'CSxzgKDGJwUv7GVySEpkti7nOiHYFJMHR3RYxnU0',
     'rest_api_key': 'vN10st4XD2AD5gF8ziKCgWbo6tyLNE2scmRaXglU',
     'application_id': '8EdzRDGVxjOqnHzv7WU7S6XbhIUBsgzqPk6ax77m'
 }
@@ -52,26 +50,6 @@ def send_push(channels, data, device_type, order=None):
     return json.loads(result)
 
 
-def make_order_push_data(order_id, order_number, order_status, order_status_description, device):
-    format_string = u'Статус заказа №{0} был изменен на {1}'
-    message = format_string.format(order_number, order_status_description)
-    head = u'Заказ №%s' % order_number
-    data = {
-        'order_id': order_id,
-        'order_status': order_status
-    }
-    data.update(make_general_push_data(message, device, head))
-    return data
-
-
-def make_mass_push_data(text, full_text, device, head=None):
-    data = {
-        'popup_text': full_text
-    }
-    data.update(make_general_push_data(text, device, head))
-    return data
-
-
 def make_general_push_data(text, device, head=None):
     data = None
     if device == ANDROID_DEVICE:
@@ -85,3 +63,44 @@ def make_general_push_data(text, device, head=None):
             'alert': text
         }
     return data
+
+
+def _make_order_push_data(order, customer):
+    text = u'Статус заказа №%s был изменен на %s' % (order.number, order.PUSH_STATUSES[order.status])
+    head = u'Заказ №%s' % order.number
+    data = {
+        'order_id': order.order_id,
+        'order_status': order.status
+    }
+    data.update(make_general_push_data(text, customer.get_device(), head))
+    return data
+
+
+def _make_order_review_data(order, customer):
+    text = u'Оцените заказ'
+    data = {
+        'order_id': order.order_id,
+        'review': True
+    }
+    data.update(make_general_push_data(text, customer.get_device()))
+    return data
+
+
+def make_mass_push_data(text, full_text, device, head=None):
+    data = {
+        'popup_text': full_text
+    }
+    data.update(make_general_push_data(text, device, head))
+    return data
+
+
+def send_order_status_push(order):
+    customer = order.customer.get()
+    data = _make_order_push_data(order, customer)
+    send_push(channels=["order_%s" % order.order_id], data=data, device_type=customer.get_device(), order=order)
+
+
+def send_order_review_push(order):
+    customer = order.customer.get()
+    data = _make_order_review_data(order, customer)
+    send_push(["order_%s" % order.order_id], data=data, device_type=customer.get_device(), order=order)

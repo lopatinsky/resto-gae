@@ -7,3 +7,4 @@ from history import HistoryHandler
 from info import OrderInfoHandler
 from place import PlaceOrderHandler
 from status import OrdersStatusHandler
+from review import OrderReviewHandler

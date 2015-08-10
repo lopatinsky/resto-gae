@@ -1,7 +1,7 @@
 # coding=utf-8
 from webapp2_extras.routes import PathPrefixRoute
 from webapp2 import Route, WSGIApplication
-
+from handlers import task
 from handlers import handle_500, iikobiz, share
 from handlers import api
 from handlers.api import admin, specials, alfa_bank, image_proxy, push_admin as api_push_admin, address, order, company, \
@@ -57,7 +57,8 @@ app = WSGIApplication([
         Route('/iiko_promos', promos.VenuePromosHandler),                                        # it relates to venue
 
         PathPrefixRoute('/order/<order_id:.*>', [
-            Route('request_cancel', order.CancelOrderHandler),
+            Route('/request_cancel', order.CancelOrderHandler),
+            Route('/review', order.OrderReviewHandler),
             Route('', order.OrderInfoHandler),
         ]),
         Route('/status', order.OrdersStatusHandler),                                             # it relates to order
@@ -149,6 +150,12 @@ app = WSGIApplication([
             Route('/<order_id:.*>', changes.ViewChangeLogsHandler, "view_changelog"),
         ]),
         Route('/migrate', migration.CreateNewCompaniesHandler),
+    ]),
+
+    PathPrefixRoute('/task', [
+        PathPrefixRoute('/push', [
+            Route('/review', task.PushReviewHandler),
+        ]),
     ]),
 
     Route('/get/<app:[a-z]{,3}>', share.GATrackDownloadHandler),
