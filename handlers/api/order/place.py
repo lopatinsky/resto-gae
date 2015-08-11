@@ -87,7 +87,6 @@ class PlaceOrderHandler(BaseHandler):
         if str_date:
             order.date = parse_str_date(str_date)
         else:
-            order.date -= datetime.timedelta(seconds=company.get_timezone_offset())
             logging.info('new date(str): %s' % order.date)
             if order.date < datetime.datetime.now() and \
                     ('/2.0 ' in self.request.user_agent or '/2.0.1' in self.request.user_agent):
