@@ -55,7 +55,7 @@ def create(login, password, company_id=None, organization_id=None, new_endpoints
 
     if config.DEBUG:
         company.alpha_login = "empatika_autopay-api"
-        company.alpha_pass = "empatika-autopay"
+        company.alpha_pass = "empatika_autopay"
     company.put()
 
     _load_delivery_terminals(company)
