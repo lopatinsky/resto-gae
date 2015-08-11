@@ -21,6 +21,13 @@ DEVICE_TYPE_MAP = {
 }
 
 
+GENERAL_TYPE = 0
+ORDER_INFO_TYPE = 1
+ORDER_SCREEN_TYPE = 2
+REVIEW_TYPE = 3
+PUSH_TYPES = (GENERAL_TYPE, ORDER_INFO_TYPE, ORDER_SCREEN_TYPE, REVIEW_TYPE)
+
+
 def send_push(channels, data, device_type, order=None):
     another_companies = ['107662a7-39d5-11e5-80c1-d8d385655247']
 
@@ -69,6 +76,7 @@ def _make_order_push_data(order, customer):
     text = u'Статус заказа №%s был изменен на %s' % (order.number, order.PUSH_STATUSES[order.status])
     head = u'Заказ №%s' % order.number
     data = {
+        'type': ORDER_INFO_TYPE,
         'order_id': order.order_id,
         'order_status': order.status
     }
@@ -79,8 +87,18 @@ def _make_order_push_data(order, customer):
 def _make_order_review_data(order, customer):
     text = u'Оцените заказ'
     data = {
-        'order_id': order.order_id,
-        'review': True
+        'type': REVIEW_TYPE,
+        'review': {
+            'order_id': order.order_id
+        }
+    }
+    data.update(make_general_push_data(text, customer.get_device()))
+    return data
+
+
+def _make_order_screen_data(customer, text):
+    data = {
+        'type': ORDER_SCREEN_TYPE,
     }
     data.update(make_general_push_data(text, customer.get_device()))
     return data
@@ -88,6 +106,7 @@ def _make_order_review_data(order, customer):
 
 def make_mass_push_data(text, full_text, device, head=None):
     data = {
+        'type': GENERAL_TYPE,
         'popup_text': full_text
     }
     data.update(make_general_push_data(text, device, head))
@@ -103,4 +122,10 @@ def send_order_status_push(order):
 def send_order_review_push(order):
     customer = order.customer.get()
     data = _make_order_review_data(order, customer)
+    send_push(["order_%s" % order.order_id], data=data, device_type=customer.get_device(), order=order)
+
+
+def send_order_screen_push(order, text):
+    customer = order.customer.get()
+    data = _make_order_screen_data(customer, text)
     send_push(["order_%s" % order.order_id], data=data, device_type=customer.get_device(), order=order)
