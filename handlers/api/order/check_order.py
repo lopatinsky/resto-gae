@@ -6,7 +6,7 @@ import datetime
 from handlers.api.base import BaseHandler
 from handlers.api.promos import CAT_FREE_CUP_CODES
 from handlers.api.promos import CUPS_BEFORE_FREE_CUP
-from methods.customer import get_resto_customer, update_customer_id, save_customer_info
+from methods.customer import get_resto_customer, update_customer_id, set_customer_info
 from methods.iiko.customer import get_customer_by_id
 from methods.iiko.menu import get_product_from_menu
 from methods.iiko.order import prepare_order
@@ -41,10 +41,10 @@ class CheckOrderHandler(BaseHandler):
             company = CompanyNew.get_by_iiko_id(delivery_terminal_id)
 
         customer = get_resto_customer(company, self.request.get('customer_id'))
-        save_customer_info(company, customer,
-                           self.request.get('name').strip(),
-                           self.request.headers,
-                           filter_phone(self.request.get('phone')))
+        set_customer_info(company, customer,
+                          self.request.get('name').strip(),
+                          self.request.headers,
+                          filter_phone(self.request.get('phone')))
         update_customer_id(company, customer)
 
         items = json.loads(self.request.get('items'))

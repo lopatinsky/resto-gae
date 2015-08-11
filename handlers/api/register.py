@@ -13,7 +13,8 @@ class RegisterHandler(BaseHandler):
         company_id = self.request.get_range('company_id')
         company = CompanyNew.get_by_id(company_id)
         customer_id = self.request.get('customer_id')
-        customer = get_resto_customer(company, customer_id, generate_customer=True)
+        customer = get_resto_customer(company, customer_id)
+        customer.put()
         share_data = self.request.get('share_data')
         invitation_response = {}
         if share_data:

@@ -5,7 +5,7 @@ import datetime
 
 from google.appengine.api.urlfetch_errors import DownloadError
 from handlers.api.base import BaseHandler
-from methods.customer import get_resto_customer, save_customer_info, update_customer_id
+from methods.customer import get_resto_customer, set_customer_info, update_customer_id
 
 from methods.email.admin import send_error, send_order_email
 from methods.alfa_bank import get_back_blocked_sum
@@ -72,11 +72,11 @@ class PlaceOrderHandler(BaseHandler):
         response_delivery_terminal_id = delivery_terminal_id
 
         customer = get_resto_customer(company, customer_id)
-        save_customer_info(company, customer,
-                           self.request.get('name').strip(),
-                           self.request.headers,
-                           filter_phone(self.request.get('phone')),
-                           custom_data)
+        set_customer_info(company, customer,
+                          self.request.get('name').strip(),
+                          self.request.headers,
+                          filter_phone(self.request.get('phone')),
+                          custom_data)
         update_customer_id(company, customer)
 
         order = iiko.Order()

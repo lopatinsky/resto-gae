@@ -18,24 +18,21 @@ def update_customer_id(company, customer):
         _update_customer_id(customer, get_customer_by_phone(company, phone))
 
 
-def get_resto_customer(company, customer_id, generate_customer=False):
+def get_resto_customer(company, customer_id):
     customer = None
     if customer_id:
         customer = Customer.customer_by_customer_id(customer_id)
         if not customer:
             customer = Customer.get_by_id(customer_id)
-    if not customer and generate_customer:
+    if not customer:
         customer = Customer(id=Customer.generate_customer_id())
-    if customer:
-        customer.company = company.key
-        customer.put()
+    customer.company = company.key
     return customer
 
 
-def save_customer_info(company, customer, name, headers, phone, custom_data=None):
+def set_customer_info(company, customer, name, headers, phone, custom_data=None):
     customer.company = company.key
     customer.phone = phone
     customer.name = name
     customer.user_agent = headers['User-Agent']
     customer.custom_data = custom_data
-    customer.put()
