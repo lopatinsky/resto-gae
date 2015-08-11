@@ -2,8 +2,7 @@ import logging
 from methods.iiko.order import order_info1
 from methods.orders.approve import approve
 from methods.rendering import parse_iiko_time
-from models.iiko import CompanyNew, Order, Customer, PaymentType, OrderChangeLog, OrderChangeLogEntry
-from methods.parse_com import make_order_push_data, send_push
+from models.iiko import CompanyNew, Order, Customer, OrderChangeLog, OrderChangeLogEntry
 from methods.orders.close import close
 from methods.orders.cancel import cancel
 from models.iiko.order import IIKO_SOURCE, APP_SOURCE

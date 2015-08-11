@@ -10,8 +10,11 @@ __author__ = 'dvpermyakov'
 
 def cancel(order):
     company = CompanyNew.get_by_iiko_id(order.venue_id)
-    delivery_terminal = DeliveryTerminal.get_by_id(order.delivery_terminal_id)
-    auto_venue = AutoVenue.query(AutoVenue.delivery_terminal == delivery_terminal.key).get()
+    if order.delivery_terminal_id:
+        delivery_terminal = DeliveryTerminal.get_by_id(order.delivery_terminal_id)
+        auto_venue = AutoVenue.query(AutoVenue.delivery_terminal == delivery_terminal.key).get()
+    else:
+        auto_venue = None
     if auto_venue:
         cancel_oder(order, auto_venue)
     else:
