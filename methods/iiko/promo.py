@@ -139,7 +139,7 @@ def calc_sum(items, iiko_org_id):
 
 def get_venue_promos(org_id):
     if org_id == CompanyNew.MIVAKO:
-        from handlers.api.specials import get_mivako_iiko_promos
+        from handlers.api.specials.mivako_promo import get_mivako_iiko_promos
         return get_mivako_iiko_promos()
 
     url = '/organization/%s/marketing_campaigns' % org_id
