@@ -53,7 +53,8 @@ class IikoApiLogin(ndb.Model):
 
 class CompanyNew(ndb.Model):
     COFFEE_CITY = "02b1b1f7-4ec8-11e4-80cc-0025907e32e9"
-    EMPATIKA = "95e4a970-b4ea-11e3-8bac-50465d4d1d14"
+    EMPATIKA_OLD = "95e4a970-b4ea-11e3-8bac-50465d4d1d14"
+    EMPATIKA = "5cae16f4-4039-11e5-80d2-d8d38565926f"
     MIVAKO = "6a05d004-e03d-11e3-bae4-001b21b8a590"
     ORANGE_EXPRESS = "768c213e-5bc1-4135-baa3-45f719dbad7e"
     SUSHILAR = "a9d16dff-7680-43f1-b1a1-74784bc75f60"
