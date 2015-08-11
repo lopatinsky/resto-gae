@@ -143,7 +143,7 @@ app = WSGIApplication([
         ]),
         PathPrefixRoute('/qr', [
             Route('', qr.AnalyticsLinkListHandler),
-            Route('/([a-z]{,3})', qr.AnalyticsLinkEditHandler),
+            Route('/<code:[a-z]{,3}>', qr.AnalyticsLinkEditHandler),
         ]),
         PathPrefixRoute('/changelogs', [
             Route('', changes.ChangeLogFindOrderHandler),
