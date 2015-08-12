@@ -169,8 +169,7 @@ class PlaceOrderHandler(BaseHandler):
             self.response.set_status(400)
             return self.render_json(result)
 
-        if not customer_id:
-            customer.customer_id = result['customerId']
+        customer.customer_id = result['customerId']
         customer.put()
         order.customer = customer.key
 
