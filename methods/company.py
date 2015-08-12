@@ -42,8 +42,8 @@ def create(login, password, company_id=None, organization_id=None, new_endpoints
     company.latitude, company.longitude = get_address_coordinates(company.address)
 
     delivery_types = [
-        DeliveryType(available=True, delivery_id=1, name="delivery"),
-        DeliveryType(available=False, delivery_id=2, name="self"),
+        DeliveryType(available=True, delivery_id=0, name="delivery"),
+        DeliveryType(available=False, delivery_id=1, name="self"),
     ]
     company.delivery_types = ndb.put_multi(delivery_types)
 
