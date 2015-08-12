@@ -26,7 +26,7 @@ cron:
   schedule: every day 00:00
   timezone: Europe/Moscow
 
-- description: inactive_clients
-  url: /cron/inactive_clients
-  schedule: every day 12:00
-  timezone: Europe/Moscow
+#- description: inactive_clients
+#  url: /cron/inactive_clients
+#  schedule: every day 12:00
+#  timezone: Europe/Moscow
