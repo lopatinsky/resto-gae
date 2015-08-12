@@ -1,7 +1,7 @@
 # coding=utf-8
+import time
 import logging
 import re
-from time import time
 from methods.alfa_bank import get_bindings, tie_card, create_pay, check_extended_status
 
 __author__ = 'dvpermyakov'
@@ -22,7 +22,7 @@ def pay_by_card(company, order, order_dict, binding_id, alpha_client_id):
         else:
             logging.warning('binding not found')
 
-    tie_result = tie_card(company, int(order.sum * 100), int(time()), 'returnUrl', alpha_client_id,
+    tie_result = tie_card(company, int(order.sum * 100), int(time.time()), 'returnUrl', alpha_client_id,
                           'MOBILE')
     logging.info("registration")
     logging.info(str(tie_result))
@@ -40,11 +40,5 @@ def pay_by_card(company, order, order_dict, binding_id, alpha_client_id):
                 # payment succeeded
                 order.comment += u"\nЗаказ оплачен картой через приложение"
                 order_dict["order"]["comment"] = order.comment
-            else:
-                return False
-        else:
-            return False
-    else:
-        return False
-
-    return True
+                return True, order_id
+    return False, None

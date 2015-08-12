@@ -151,7 +151,7 @@ class PlaceOrderHandler(BaseHandler):
         # pay after pre check
         order_id = None
         if order.payment_type == PaymentType.CARD:
-            success = pay_by_card(company, order, order_dict, binding_id, alpha_client_id)
+            success, order_id = pay_by_card(company, order, order_dict, binding_id, alpha_client_id)
             if not success:
                 self.abort(400)
         order.alfa_order_id = order_id
