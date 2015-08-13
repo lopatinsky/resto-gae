@@ -86,12 +86,12 @@ class PlaceOrderHandler(BaseHandler):
         str_date = self.request.get('str_date')
         if str_date:
             order.date = parse_str_date(str_date) - datetime.timedelta(seconds=company.get_timezone_offset())
-        else:
+
+        if order.date < datetime.datetime.utcnow() and \
+                ('/2.0 ' in self.request.user_agent or '/2.0.1' in self.request.user_agent):
             logging.info('new date(str): %s' % order.date)
-            if order.date < datetime.datetime.now() and \
-                    ('/2.0 ' in self.request.user_agent or '/2.0.1' in self.request.user_agent):
-                order.date += datetime.timedelta(hours=12)
-                logging.info("ios v2.0 fuckup, adding 12h: %s", order.date)
+            order.date += datetime.timedelta(hours=12)
+            logging.info("ios v2.0 fuckup, adding 12h: %s", order.date)
 
         order.delivery_terminal_id = delivery_terminal_id
         order.venue_id = company.iiko_org_id
