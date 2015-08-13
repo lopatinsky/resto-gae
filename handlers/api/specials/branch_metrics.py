@@ -43,7 +43,8 @@ class InvitationUrlsHandler(BaseHandler):
 
         self.render_json({
             'urls': urls,
-            'text': u'Советую попробовать это интересное приложение для доставки суши и пиццы на дом'
+            'text': u'Советую попробовать это интересное приложение для доставки суши и пиццы на дом',
+            'image_url': 'https://pp.vk.me/c617522/v617522876/8d57/ccxxaXKRYxI.jpg'
         })
 
 
