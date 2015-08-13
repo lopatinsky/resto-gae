@@ -24,6 +24,7 @@ __author__ = 'dvpermyakov'
 class CheckOrderHandler(BaseHandler):
 
     def send_error(self, description):
+        logging.warning(description)
         self.render_json({
             'error': True,
             'description': description
