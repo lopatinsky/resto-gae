@@ -52,13 +52,14 @@ def _check_payment_type(company, order):
 
 
 def _check_stop_list(delivery_terminal, order):
-    for item in order.items:
-        item_id = item.get('id')
-        item = get_product_from_menu(delivery_terminal.iiko_organization_id, product_id=item_id)
-        if not item:
-            logging.warning("Item is not found")
-        if item_id in delivery_terminal.item_stop_list:
-            return False, u'Продукт %s был помещен в стоп-лист' % item.get('name')
+    if delivery_terminal:
+        for item in order.items:
+            item_id = item.get('id')
+            item = get_product_from_menu(delivery_terminal.iiko_organization_id, product_id=item_id)
+            if not item:
+                logging.warning("Item is not found")
+            if item_id in delivery_terminal.item_stop_list:
+                return False, u'Продукт %s был помещен в стоп-лист' % item.get('name')
     return True, None
 
 
