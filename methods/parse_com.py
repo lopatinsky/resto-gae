@@ -86,14 +86,15 @@ def _make_order_push_data(order, customer):
 
 
 def _make_order_review_data(order, customer):
-    text = u'Оцените заказ'
+    head = u'Оцените заказ'
+    text = u'Оставьте отзыв о Вашем заказе!'
     data = {
         'type': REVIEW_TYPE,
         'review': {
             'order_id': order.order_id
         }
     }
-    data.update(make_general_push_data(text, customer.get_device()))
+    data.update(make_general_push_data(text, customer.get_device(), head=head))
     return data
 
 
