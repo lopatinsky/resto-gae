@@ -183,7 +183,7 @@ def get_order_promos(order, order_dict, set_info=False):
         for m in item.get('modifiers', []):
             mod_item = get_modifier_item(order.venue_id, product_code=item['code'], order_mod_id=m.get('id'))
             m['code'] = mod_item.get('code')
-            m['sum'] = mod_item.get('price', 0) * m.get('amount', 0)
+            m['sum'] = mod_item.get('price', 0) * m.get('amount', 0) * item['amount']
             item['sum'] += m['sum']
 
 
