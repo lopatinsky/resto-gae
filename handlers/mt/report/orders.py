@@ -1,5 +1,5 @@
 # coding=utf-8
-from models.iiko import DeliveryTerminal
+from models.iiko import DeliveryTerminal, PaymentType
 
 __author__ = 'dvpermyakov'
 
@@ -51,9 +51,9 @@ class OrdersReportHandler(BaseHandler):
                     'name': item['name'],
                     'amount': item['amount']
                 })
-            if order.payment_type == iiko.Order.CASH:
+            if order.payment_type == PaymentType.CASH:
                 order.payment_name = 'CASH'
-            elif order.payment_type == iiko.Order.CARD:
+            elif order.payment_type == PaymentType.CARD:
                 order.payment_name = 'CARD'
             else:
                 order.payment_name = 'UNKNOWN'
