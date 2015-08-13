@@ -1,7 +1,7 @@
 from datetime import datetime
 from handlers.mt.base import BaseHandler
 from handlers.mt.report.report_methods import suitable_date, PROJECT_STARTING_YEAR
-from models.iiko import CompanyNew, Order, OrderChangeLog
+from models.iiko import CompanyNew, Order, OrderChangeLog, PaymentType
 
 __author__ = 'dvpermyakov'
 
@@ -36,7 +36,7 @@ class OrderSumChangesReport(BaseHandler):
                                 'day': order.date,
                                 'number': order.number,
                                 'status': Order.STATUS_MAPPING[order.status][0],
-                                'type': Order.PAYMENT_MAP[order.payment_type],
+                                'type': PaymentType.PAYMENT_MAP[order.payment_type],
                                 'old': change.old,
                                 'new': change.new
                             })

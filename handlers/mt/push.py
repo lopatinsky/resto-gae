@@ -35,7 +35,13 @@ class PushHistoryHandler(BaseHandler):
     def get(self):
         mass_pushes = MassPushHistory.query().order(-MassPushHistory.created).fetch()
         for push in mass_pushes:
-            push.companies = ', '.join([CompanyNew.get_by_id(company_id).app_title for company_id in push.company_ids])
+            if push.company_ids:
+                push.companies = ', '.join(
+                    [(CompanyNew.get_by_id(company_id).app_title if company_id and CompanyNew.get_by_id(company_id)
+                      else u'Не найдено')
+                     for company_id in push.company_ids])
+            else:
+                push.companies = ''
             push.android_number = len(push.android_channels)
             push.ios_number = len(push.ios_channels)
 

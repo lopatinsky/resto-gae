@@ -53,9 +53,9 @@ class OrdersLiteReportHandler(BaseHandler):
             order.venue_name = get_company(order.venue_id).app_title
             if order.payment_type == iiko.Order.CASH:
                 order.payment_name = 'CASH'
-            elif order.payment_type == iiko.Order.CARD:
+            elif order.payment_type == iiko.PaymentType.CARD:
                 order.payment_name = 'CARD'
-            elif order.payment_type == iiko.Order.COURIER_CARD:
+            elif order.payment_type == iiko.PaymentType.COURIER_CARD:
                 order.payment_name = 'COURIER_CARD'
             else:
                 order.payment_name = 'UNKNOWN'

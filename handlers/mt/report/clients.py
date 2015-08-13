@@ -43,7 +43,7 @@ class ClientsReportHandler(BaseHandler):
             if order.status == iiko.Order.CLOSED:
                 client.order_number += 1
                 client.total_sum += order.sum
-                if order.payment_type == iiko.Order.CARD:
+                if order.payment_type == iiko.PaymentType.CARD:
                     client.card += 1
             elif order.status == iiko.Order.CANCELED:
                 client.cancelled += 1
