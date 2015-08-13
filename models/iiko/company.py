@@ -91,6 +91,8 @@ class CompanyNew(ndb.Model):
     branch_gift_enable = ndb.BooleanProperty(default=False)
     rbcn_mobi = ndb.StringProperty(indexed=False)
 
+    review_enable = ndb.BooleanProperty(default=False)
+
     description = ndb.StringProperty()
     min_order_sum = ndb.IntegerProperty()
     email = ndb.StringProperty()

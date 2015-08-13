@@ -81,4 +81,5 @@ def do_load(order, order_id, org_id, iiko_order=None):
     logging.debug("changes in %s: %s", order_id, changes.keys())
     if changes and order.source == APP_SOURCE:
         __handle_changes(order, changes)
+    order.put()
     return order

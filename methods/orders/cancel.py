@@ -3,7 +3,7 @@ from methods.alfa_bank import get_back_blocked_sum
 from methods.auto.request import cancel_oder
 from methods.parse_com import send_order_status_push
 from models.auto import AutoVenue
-from models.iiko import CompanyNew, DeliveryTerminal
+from models.iiko import CompanyNew, DeliveryTerminal, PaymentType
 
 __author__ = 'dvpermyakov'
 
@@ -18,10 +18,11 @@ def cancel(order):
     if auto_venue:
         cancel_oder(order, auto_venue)
     else:
-        cancel_result = get_back_blocked_sum(company, order.alfa_order_id)
-        logging.info("cancel %s" % str(cancel_result))
-        success = 'errorCode' not in cancel_result or str(cancel_result['errorCode']) == '0'
-        if not success:
-            logging.warning("cancel failed")
-            return
+        if order.payment_type == PaymentType.CARD:
+            cancel_result = get_back_blocked_sum(company, order.alfa_order_id)
+            logging.info("cancel %s" % str(cancel_result))
+            success = 'errorCode' not in cancel_result or str(cancel_result['errorCode']) == '0'
+            if not success:
+                logging.warning("cancel failed")
+                return
         send_order_status_push(order)
