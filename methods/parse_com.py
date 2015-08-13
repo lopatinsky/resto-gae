@@ -30,7 +30,11 @@ PUSH_TYPES = (GENERAL_TYPE, ORDER_INFO_TYPE, ORDER_SCREEN_TYPE, REVIEW_TYPE)
 
 def send_push(channels, data, device_type, order=None):
     another_companies = ['107662a7-39d5-11e5-80c1-d8d385655247',
-                         '5cae16f4-4039-11e5-80d2-d8d38565926f']
+                         '5cae16f4-4039-11e5-80d2-d8d38565926f',
+                         'f3417644-308b-11e5-80c1-d8d385655247',
+                         '09ac1efb-2578-11e5-80d2-d8d38565926f',
+                         'e7985b2c-a21b-11e4-80d2-0025907e32e9',
+                         '8b939502-9ec3-11e3-bae4-001b21b8a590']
 
     if device_type not in DEVICE_TYPE_MAP:
         logging.error('Has not device type')
