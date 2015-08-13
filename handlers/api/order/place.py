@@ -202,6 +202,7 @@ class PlaceOrderHandler(BaseHandler):
             'customer_id': customer.customer_id,
             'order': {
                 'order_id': order.order_id,
+                'resto_id': order.key.id(),
                 'status': order.status,
                 'items': response_items,
                 'sum': order.sum,

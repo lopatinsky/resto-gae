@@ -9,7 +9,7 @@ BASE_URL = 'doubleb-automation-production.appspot.com/api/admin'
 
 
 def cancel_oder(order, auto_venue):
-    path = '/orders/%s/cancel' % order.number
+    path = '/orders/%s/cancel' % order.key.id()
     params = {
         'token': auto_venue.token
     }
@@ -20,7 +20,7 @@ def cancel_oder(order, auto_venue):
 
 
 def close_order(order, auto_venue):
-    path = '/orders/%s/cancel' % order.number
+    path = '/orders/%s/cancel' % order.key.id()
     params = {
         'token': auto_venue.token
     }
@@ -31,7 +31,7 @@ def close_order(order, auto_venue):
 
 
 def confirm_order(order, auto_venue):
-    path = '/orders/%s/confirm' % order.number
+    path = '/orders/%s/confirm' % order.key.id()
     params = {
         'token': auto_venue.token
     }
