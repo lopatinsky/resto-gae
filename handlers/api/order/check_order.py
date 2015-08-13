@@ -59,6 +59,10 @@ class CheckOrderHandler(BaseHandler):
 
         order_dict = prepare_order(order, customer, None)
 
+        validation_result = validate_order(company, delivery_terminal, order, customer)
+        if not validation_result['valid']:
+            return self.send_error(validation_result['errors'][0])
+
         if company.is_iiko_system and order.items:
             promos = get_order_promos(order, order_dict)
             set_discounts(order, order_dict['order'], promos)
@@ -110,10 +114,6 @@ class CheckOrderHandler(BaseHandler):
             max_bonus_payment = 0.0
             gifts = []
             accumulated_gifts = discount_gifts = 0
-
-        validation_result = validate_order(company, delivery_terminal, order, customer)
-        if not validation_result['valid']:
-            return self.send_error(validation_result['errors'][0])
 
         iiko_customer = get_customer_by_id(company, customer.customer_id)
 
