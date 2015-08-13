@@ -85,7 +85,7 @@ class PlaceOrderHandler(BaseHandler):
 
         str_date = self.request.get('str_date')
         if str_date:
-            order.date = parse_str_date(str_date)
+            order.date = parse_str_date(str_date) - datetime.timedelta(seconds=company.get_timezone_offset())
         else:
             logging.info('new date(str): %s' % order.date)
             if order.date < datetime.datetime.now() and \
