@@ -43,6 +43,8 @@ def get_order_email_address(order):
         return _EXPRESS_CITY_MAPPING.get(order.address['city'])
     elif order.venue_id == CompanyNew.MIVAKO:
         return "delivery@mivako.ru"
+    elif order.venue_id == CompanyNew.SUSHI_TIME:
+        return "stdostavka@mail.ru"
     return None
 
 
