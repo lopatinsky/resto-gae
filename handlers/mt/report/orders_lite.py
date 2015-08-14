@@ -51,7 +51,7 @@ class OrdersLiteReportHandler(BaseHandler):
         for order in orders:
             order.status_str = iiko.Order.STATUS_MAPPING[order.status][0]
             order.venue_name = get_company(order.venue_id).app_title
-            if order.payment_type == iiko.Order.CASH:
+            if order.payment_type == iiko.PaymentType.CASH:
                 order.payment_name = 'CASH'
             elif order.payment_type == iiko.PaymentType.CARD:
                 order.payment_name = 'CARD'
