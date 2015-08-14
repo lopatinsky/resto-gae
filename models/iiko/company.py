@@ -66,6 +66,7 @@ class CompanyNew(ndb.Model):
     PANDA = "09ac1efb-2578-11e5-80d2-d8d38565926f"
     PIZZA_HUT = "107662a7-39d5-11e5-80c1-d8d385655247"
     SUSHI_TIME = "8b939502-9ec3-11e3-bae4-001b21b8a590"
+    OMNOMNOM = "f3417644-308b-11e5-80c1-d8d385655247"
 
     iiko_login = ndb.StringProperty()
     iiko_org_id = ndb.StringProperty()
