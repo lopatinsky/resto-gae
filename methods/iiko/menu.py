@@ -83,6 +83,8 @@ def _load_menu(company):
             modifier['minAmount'] = m['minAmount']
             modifier['maxAmount'] = m['maxAmount']
             modifier['defaultAmount'] = m['defaultAmount']
+            if company.iiko_org_id == CompanyNew.TYKANO and modifier['code'] in ('11111', '99999'):
+                continue  # skip 'delivery' and 'takeout' modifiers for Tukano
             single_modifiers.append(modifier)
 
         grp_modifiers = []
