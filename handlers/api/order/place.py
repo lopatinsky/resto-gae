@@ -117,6 +117,18 @@ class PlaceOrderHandler(BaseHandler):
                 comment = u"Заказ с Android. " + comment
             else:
                 comment = u"Заказ с iOS. " + comment
+        if company.iiko_org_id == CompanyNew.OMNOMNOM:
+            customers = iiko.Customer.query(iiko.Customer.phone == customer.phone).fetch(keys_only=True)
+            orders = [o
+                      for lst in [iiko.Order.query(iiko.Order.customer == c,
+                                                   iiko.Order.status.IN((iiko.Order.NOT_APPROVED,
+                                                                         iiko.Order.APPROVED,
+                                                                         iiko.Order.CLOSED))
+                                                   ) for c in customers]
+                      for o in lst]
+            if not orders:
+                comment = u'Первый заказ, Саке маки в подарок. ' + comment
+
         order.comment = comment
         order.is_delivery = self.request.get_range('deliveryType') == 0
         if order.is_delivery:
