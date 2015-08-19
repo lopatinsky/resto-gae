@@ -45,6 +45,8 @@ def get_order_email_address(order):
         return "delivery@mivako.ru"
     elif order.venue_id == CompanyNew.SUSHI_TIME:
         return "stdostavka@mail.ru"
+    elif order.venue_id == CompanyNew.OMNOMNOM:
+        return "univerfoods@mail.ru"
     return None
 
 
