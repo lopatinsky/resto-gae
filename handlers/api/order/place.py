@@ -9,6 +9,7 @@ from methods.customer import get_resto_customer, set_customer_info, update_custo
 
 from methods.email.admin import send_error, send_order_email
 from methods.alfa_bank import get_back_blocked_sum
+from methods.iiko.menu import fix_modifier_amount
 from methods.iiko.order import prepare_order, place_order
 from methods.iiko.order import pre_check_order
 from methods.iiko.promo import calc_sum
@@ -98,13 +99,8 @@ class PlaceOrderHandler(BaseHandler):
         gifts = json.loads(self.request.get('gifts')) if self.request.get('gifts') else []
         order.customer = customer.key
 
-        items = json.loads(self.request.get('items'))
-        for item in items:
-            if "modifiers" in item:
-                for mod in item["modifiers"]:
-                    if mod["amount"] == 0 and mod.get("groupId"):
-                        mod["amount"] = 1
-                item["modifiers"] = [mod for mod in item["modifiers"] if mod["amount"]]
+        items = fix_modifier_amount(json.loads(self.request.get('items')))
+
         if company.iiko_org_id == CompanyNew.COFFEE_CITY:
             items = fix_syrop.set_syrop_items(items)
             items = fix_modifiers_by_own.set_modifier_by_own(items)

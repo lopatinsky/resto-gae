@@ -284,3 +284,13 @@ def get_group_modifier(org_id, group_id, modifier_id):
     for item in items:
         if item['id'] == modifier_id:
             return item
+
+
+def fix_modifier_amount(items):
+    for item in items:
+        if "modifiers" in item:
+            for mod in item["modifiers"]:
+                if mod["amount"] == 0 and mod.get("groupId"):
+                    mod["amount"] = 1
+            item["modifiers"] = [mod for mod in item["modifiers"] if mod["amount"]]
+    return items
