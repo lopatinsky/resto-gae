@@ -331,23 +331,42 @@ h3 {
 
 #scheme ul {
     margin-top: 40px;
+    max-width: 700px;
 }
 
 #scheme ul li {
     margin-bottom: 40px;
     font-size: 20px;
     list-style: none;
+    position: relative;
+    padding-left: 30px;
 }
 
-#scheme ul li img {
-    margin-right: 25px;
-    vertical-align: top;
-    display: inline-block;
+#scheme ul li:before {
+    content: "";
+    position: absolute;
+    display: block;
+    left: 0;
+    top: 0;
+    bottom: 0;
     width: 20px;
+    background: left top no-repeat;
+    background-size: 20px auto;
 }
 
-#scheme ul li p {
-    display: inline-block;
+#scheme ul li#img_mini1:before {
+    background-image: url(/static/img/landing/mini1.png);
+}
+#scheme ul li#img_mini2:before {
+    background-image: url(/static/img/landing/mini2.png);
+    background-position: left 4px;
+}
+#scheme ul li#img_mini4:before {
+    background-image: url(/static/img/landing/mini4.png);
+    background-position: left -2px;
+}
+#scheme ul li#img_mini5:before {
+    background-image: url(/static/img/landing/mini5.png);
 }
 
 .footer {

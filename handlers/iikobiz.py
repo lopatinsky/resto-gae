@@ -18,10 +18,11 @@ class IikoBizSubmitHandler(RequestHandler):
     def post(self):
         self.response.content_type = "text/plain;charset=utf-8"
         email = self.request.get('email')
-        phone = filter_phone(self.request.get('phone'))[1:]
-        if len(phone) != 11:
+        phone = filter_phone(self.request.get('phone'))
+        if not phone:
             self.response.write(u"Неверный номер телефона, попробуйте еще раз")
             return
+        phone = phone[1:]
         phone = "+%s (%s) %s-%s-%s" % (phone[0], phone[1:4], phone[4:7], phone[7:9], phone[9:])
         mail_body = u"Телефон: %s, email: %s" % (phone, email)
         mail.send_mail_to_admins("landing@empatika-resto.appspotmail.com", "Новая заявка с landing", mail_body)
