@@ -20,7 +20,7 @@ class AlfaBaseHandler(BaseHandler):
             self.company = CompanyNew.query(CompanyNew.app_name == name).get()
         if not self.company:
             self.abort(400)
-        return super(BaseHandler, self).dispatch()
+        return super(AlfaBaseHandler, self).dispatch()
 
 
 class PreCheckHandler(AlfaBaseHandler):
