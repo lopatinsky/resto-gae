@@ -16,6 +16,19 @@ def __get_iiko_base_url(iiko_biz):
     return IIKO_BIZ_BASE_URL if iiko_biz else PLATIUS_BASE_URL
 
 
+def _should_use_iiko_biz(company, force_platius):
+    """Determines if the API request should use iiko.biz or platius.
+    If the company is not using iiko.biz (company.new_endpoints is False), always use platius.
+    If the company does not have platius login, always use iiko.biz.
+    Otherwise (if we can use both), check the force_platius parameter.
+    """
+    if not company.new_endpoints:
+        return False  # can not use iiko_biz if company uses platius
+    if not company.platius_login:
+        return True  # can not use platius if no platius login
+    return not force_platius
+
+
 def get_request(company, api_path, params, force_platius=False):
     def do():
         url = '%s%s' % (iiko_base_url, api_path)
@@ -24,7 +37,7 @@ def get_request(company, api_path, params, force_platius=False):
         logging.info(url)
         return urlfetch.fetch(url, deadline=30, validate_certificate=False)
 
-    iiko_biz = company.new_endpoints and not force_platius
+    iiko_biz = _should_use_iiko_biz(company, force_platius)
     iiko_base_url = __get_iiko_base_url(iiko_biz)
     params['access_token'] = get_access_token(company, iiko_biz=iiko_biz)
     result = do()
@@ -47,7 +60,7 @@ def post_request(company, api_path, params, payload, force_platius=False):
         return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=json_payload,
                               deadline=30, validate_certificate=False)
 
-    iiko_biz = company.new_endpoints and not force_platius
+    iiko_biz = _should_use_iiko_biz(company, force_platius)
     iiko_base_url = __get_iiko_base_url(iiko_biz)
     params['access_token'] = get_access_token(company, iiko_biz=iiko_biz)
     result = do()
