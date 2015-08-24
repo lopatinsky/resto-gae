@@ -2,7 +2,7 @@ import json
 import logging
 import urllib
 from google.appengine.api import urlfetch, memcache
-from models.iiko import IikoApiLogin
+from models.iiko import IikoApiLogin, PlatiusLogin
 
 __author__ = 'dvpermyakov'
 
@@ -69,10 +69,11 @@ def get_access_token(company, iiko_biz, refresh=False):
 
 
 def _fetch_access_token(company, iiko_biz):
-    iiko_api_login = IikoApiLogin.get_by_id(company.iiko_login)
+    login_entity = IikoApiLogin.get_by_id(company.iiko_login) if iiko_biz \
+        else PlatiusLogin.get_by_id(company.platius_login)
     data = urllib.urlencode({
-        "user_id": iiko_api_login.login,
-        "user_secret": iiko_api_login.password
+        "user_id": login_entity.login,
+        "user_secret": login_entity.password
     })
     result = urlfetch.fetch(
         __get_iiko_base_url(iiko_biz) + '/auth/access_token?%s' % data, deadline=10, validate_certificate=False)

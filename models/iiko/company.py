@@ -51,6 +51,10 @@ class IikoApiLogin(ndb.Model):
     password = ndb.StringProperty(indexed=False)
 
 
+class PlatiusLogin(IikoApiLogin):  # only to separate logins
+    pass
+
+
 class CompanyNew(ndb.Model):
     COFFEE_CITY = "02b1b1f7-4ec8-11e4-80cc-0025907e32e9"
     EMPATIKA_OLD = "95e4a970-b4ea-11e3-8bac-50465d4d1d14"
@@ -69,6 +73,7 @@ class CompanyNew(ndb.Model):
     OMNOMNOM = "f3417644-308b-11e5-80c1-d8d385655247"
 
     iiko_login = ndb.StringProperty()
+    platius_login = ndb.StringProperty()
     iiko_org_id = ndb.StringProperty()
 
     address = ndb.StringProperty(indexed=False)
