@@ -24,6 +24,7 @@ class BaseHandler(webapp2.RequestHandler):
             self.response.write(result.content)
             return
         # fuckup end
+        super(BaseHandler, self).dispatch()
 
     def render_json(self, d):
         self.response.headers['Content-Type'] = 'application/json'
