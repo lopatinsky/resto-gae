@@ -12,6 +12,10 @@ cron:
   url: /cron/update_menu_images
   schedule: every day 01:00
 
+- description: update streets
+  url: /cron/update_streets
+  schedule: every day 01:00
+
 - description: send mivako gift emails
   url: /cron/mivako_gifts
   schedule: every 15 minutes from 10:00 to 22:30
