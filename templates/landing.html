@@ -11,15 +11,15 @@
 
     <div class="menu">
         <ul>
-            <li><a href="#examples" data-scroll>Клиенты</a></li>
-            <li><a href="#price" data-scroll>Стоимость</a></li>
-            <li><a href="#scheme" data-scroll>Схема работы</a></li>
+            <li><a href="#examples" data-scroll>{{ t.MENU_CLIENTS }}</a></li>
+            <li><a href="#price" data-scroll>{{ t.MENU_PRICING }}</a></li>
+            <li><a href="#scheme" data-scroll>{{ t.MENU_SCHEME }}</a></li>
         </ul>
-        <a href="#form" id="menu-button" data-scroll>Создать приложение</a>
+        <a href="#form" id="menu-button" data-scroll>{{ t.MENU_CREATE }}</a>
     </div>
-    <h1><span>Создай приложение</span> и получишь<br>
-        <span>на 10% больше заказов</span> уже через месяц</h1>
-    <h4>Доставка еды | Самовывоз | Предварительный заказ | Акции | Бонусы</h4>
+    <h1><span>{{ t.MAIN_LINE1_HL }}</span> {{ t.MAIN_LINE1_NO_HL }}<br>
+        <span>{{ t.MAIN_LINE2_HL }}</span> {{ t.MAIN_LINE2_NO_HL }}</h1>
+    <h4>{{ t.MAIN_SUBHEAD }}</h4>
 
     <div class="bullets">
         <ul>
@@ -27,24 +27,24 @@
                 <img src="/static/img/landing/icon1.png">
 
                 <p>
-                    Готовое приложение<br>
-                    меньше чем за 3 дня
+                    {{ t.MAIN_BULLET_1_LINE_1 }}<br>
+                    {{ t.MAIN_BULLET_1_LINE_2 }}
                 </p>
             </li>
             <li>
                 <img src="/static/img/landing/icon2.png">
 
                 <p>
-                    Интеграция с кассовыми<br>
-                    системами iiko и R-Keeper
+                    {{ t.MAIN_BULLET_2_LINE_1 }}<br>
+                    {{ t.MAIN_BULLET_2_LINE_2 }}
                 </p>
             </li>
             <li>
                 <img src="/static/img/landing/icon3.png">
 
                 <p>
-                    Продвижение и обновления<br>
-                    бесплатно
+                    {{ t.MAIN_BULLET_3_LINE_1 }}<br>
+                    {{ t.MAIN_BULLET_3_LINE_2 }}
                 </p>
             </li>
         </ul>
@@ -53,11 +53,11 @@
 </div>
 <div id="examples">
     <div class="info">
-        <h2>Даблби <span class="n-venues">21 кофейня</span></h2>
+        <h2>{{ t.DOUBLE_B }} <span class="n-venues">21 {{ t.N_VENUES }}</span></h2>
         <ul>
-            <li><span>7000+</span> скачиваний</li>
-            <li><span>450+</span> постоянных пользователей</li>
-            <li><span>3000+</span> заказов в неделю через приложение</li>
+            <li><span>7000+</span> {{ t.N_DOWNLOADS }}</li>
+            <li><span>450+</span> {{ t.N_USERS }}</li>
+            <li><span>3000+</span> {{ t.N_ORDERS }}</li>
         </ul>
         <a href="http://dblb.mobi/get/splash/i" target="_blank">
             <img class="apple" src="/static/img/landing/apple.png" alt="">
@@ -69,145 +69,115 @@
     <img class="screen" src="/static/img/landing/phones.png" alt="">
 </div>
 <div class="advantages">
-    <h2>Неоспоримое преимущество</h2>
+    <h2>{{ t.ADVANGAGES_HEADING }}</h2>
 
     <div class="first">
-        <h3><dfn>Повторные заказы</dfn></h3>
+        <h3><dfn>{{ t.REPEATED_ORDERS }}</dfn></h3>
         <img src="/static/img/landing/26.png" alt="">
         <img src="/static/img/landing/10.png" alt="">
 
-        <p>На 26% больше повторных заказов по сравнению с телефоннным звонками, и на 10% по сравнению с сайтом</p>
+        <p>{{ t.REPEATED_ORDERS_INFO }}</p>
     </div>
     <div class="second">
-        <h3><dfn>Средний чек</dfn></h3>
+        <h3><dfn>{{ t.AVERAGE_SUM }}</dfn></h3>
         <img src="/static/img/landing/12.png" alt="">
         <img src="/static/img/landing/7.png" alt="">
 
-        <p>Увеличение среднего чека на 12% по сравнению с заказами по телефону, и на 7% по сравнению с заказами через
-            сайт</p>
+        <p>{{ t.AVERAGE_SUM_INFO }}</p>
     </div>
     <div class="third">
-        <h3><dfn>Удобство использования</dfn></h3>
+        <h3><dfn>{{ t.CONVENIENCE }}</dfn></h3>
         <img src="/static/img/landing/cards.png" alt="" height="28">
 
-        <p>Оплата картами. Заказ в один клик. Заказ по пути на работу или дома лежа на диване. Самовывоз из ресторана.
-            Отправление подарка другу.</p>
+        <p>{{ t.CONVENIENCE_INFO }}</p>
     </div>
 </div>
 <div class="loyalty">
-    <h2>Система лояльности и таргетинг</h2>
+    <h2>{{ t.LOYALTY_HEADING }}</h2>
 
-    <h3><dfn>Увеличение повторных заказов и привлечение новых клиентов</dfn></h3>
+    <h3><dfn>{{ t.LOYALTY_SUBHEAD }}</dfn></h3>
 
     <ul>
-        <li>Персонализированные предложения в зависимости от предпочтений клиента, его истории заказов и
-            местоположения.
-        </li>
-        <li>Поздравления с днем рождения и другими праздниками.</li>
-        <li>Накопление баллов. Счастливые часы. Скидки за повторные заказы.</li>
-        <li>Акции «Приведи друга» и «Подари подарок другу».</li>
-        <li>Подарки при заказе на определенную сумму.</li>
-        <li>Рассылки. Сообщение клиенту, проходящему рядом с заведением.</li>
+        {% for bullet in t.LOYALTY_BULLETS %}
+            <li>{{ bullet }}</li>
+        {% endfor %}
     </ul>
 </div>
 <div id="price">
-    <h2>Стоимость</h2>
+    <h2>{{ t.PRICING_HEADING }}</h2>
 
     <table width="100%" cellspacing="0">
         <tr>
-            <th width="1%">Стандарт</th>
-            <th width="1%">Профи</th>
-            <th width="1%">Премиум</th>
+            <th width="1%">{{ t.PRICING_PLAN1 }}</th>
+            <th width="1%">{{ t.PRICING_PLAN2 }}</th>
+            <th width="1%">{{ t.PRICING_PLAN3 }}</th>
         </tr>
         <tr>
             <td>
-                <h4>До 100 заказов/мес.</h4>
-                3.75% комиссия<br>
-                2 платформы
+                <h4>{{ t.PRICING_ORDERS % 100 }}</h4>
+                {{ t.PRICING_PERCENT % "3.75%" }}<br>
+                {{ t.PRICING_PLATFORMS }}
             </td>
             <td>
-                <h4>До 1000 заказов/мес.</h4>
-                3.5% комиссия<br>
-                2 платформы<br>
-                Мобильная версия сайта
+                <h4>{{ t.PRICING_ORDERS % 1000 }}</h4>
+                {{ t.PRICING_PERCENT % "3.5%" }}<br>
+                {{ t.PRICING_PLATFORMS }}<br>
+                {{ t.PRICING_MOBILE_WEB }}
             </td>
             <td>
-                <h4>До 10000 заказов/мес.</h4>
-                3% комиссия<br>
-                2 платформы<br>
-                Мобильная версия сайта
+                <h4>{{ t.PRICING_ORDERS % 10000 }}</h4>
+                {{ t.PRICING_PERCENT % "3.5%" }}<br>
+                {{ t.PRICING_PLATFORMS }}<br>
+                {{ t.PRICING_MOBILE_WEB }}
             </td>
         </tr>
         <tr>
-            <th>3000 руб/мес.</th>
-            <th>30000 руб/мес.</th>
-            <th>60000 руб/мес.</th>
+            <th>3000  {{ t.PRICING_RUBLES_PER_MONTH }}</th>
+            <th>30000 {{ t.PRICING_RUBLES_PER_MONTH }}</th>
+            <th>60000 {{ t.PRICING_RUBLES_PER_MONTH }}</th>
         </tr>
         <tr>
             <td>
-                Стилизация:<br>
-                Логотип и фирменный стиль<br>
-                Push-уведомления<br>
-                Информация о компании
+                {% for line in t.PRICING_PLAN1_INFO %}
+                    {{ line }}<br>
+                {% endfor %}
             </td>
             <td>
-                Дополнительно:<br>
-                SMS уведомления о заказах<br>
-                Ежемесячный отчет о активности пользователей<br>
-                <br>
-                Лояльность:<br>
-                Бонусы<br>
-                Абонемент<br>
-                Счастливые часы<br>
-                Раздельное меню для заведений
+                {% for line in t.PRICING_PLAN2_INFO %}
+                    {{ line }}<br>
+                {% endfor %}
             </td>
             <td>
-                Дополнительно:<br>
-                Персональный менеджер<br>
-                Индивидуальные персональные акции<br>
-                iBeacon — готовится<br>
-                <br>
-                Лояльность:<br>
-                Интеграция с соц. сетями<br>
-                Приведи друга
+                {% for line in t.PRICING_PLAN3_INFO %}
+                    {{ line }}<br>
+                {% endfor %}
             </td>
         </tr>
     </table>
 </div>
 <div id="scheme">
-    <h2>Схема работы</h2>
+    <h2>{{ t.SCHEME_HEADING }}</h2>
     <ul>
-        <li id="img_mini1">
-            Отправьте заявку и получите тестовое приложение.
-        </li>
-        <li id="img_mini2">
-            Пришлите элементы фирменного стиля (логотип, цвет), ваше меню, адреса и время работы.
-        </li>
-        <li id="img_mini4">
-            Утвердите финальную версию приложения. Система сконфигурирует приложение, чтобы вы смогли протестировать
-            его.
-        </li>
-        <li id="img_mini5">
-            Мы выпустим приложение на Google Play в течение 2-х дней и в AppStore в течение 14 дней.
-        </li>
+        <li id="img_mini1">{{ t.SCHEME_SEND_REQUEST }}</li>
+        <li id="img_mini2">{{ t.SCHEME_SEND_CHECKLIST }}</li>
+        <li id="img_mini4">{{ t.SCHEME_APPROVE }}</li>
+        <li id="img_mini5">{{ t.SCHEME_RELEASE }}</li>
     </ul>
 
-    <h4 id="form"><span>Оставьте свои данные, чтобы </span>скачать тестовое приложение.</h4>
+    <h4 id="form">{{ t.SEND_REQUEST }}</h4>
 
     <form id="form-element">
-        <input type="email" name="email" placeholder="example@mail.ru">
+        <input type="email" name="email" placeholder="name@example.com">
         <input type="text" name="phone" placeholder="+7 (999) 999-99-99">
-        <input type="submit" value="Получить тестовое &#010;приложение">
+        <input type="submit">
     </form>
     <div class="form-message">
-        <div class="hidden" id="form-message-text">
-            Спасибо! Мы свяжемся с Вами в течение дня.
-        </div>
+        <div class="hidden" id="form-message-text">&nbsp;</div>
     </div>
 </div>
 <div class="footer">
     <div class="gradient">
-        <h2>Напишите или позвоните нам</h2>
+        <h2>{{ t.FOOTER_CONTACT_US }}</h2>
 
         <h3>+7 (495) 789 41 79&nbsp;&nbsp;&nbsp;team@ru-beacon.ru</h3>
     </div>

@@ -1,7 +1,7 @@
 # coding=utf-8
 from webapp2_extras.routes import PathPrefixRoute
 from webapp2 import Route, WSGIApplication
-from handlers import task
+from handlers import task, web
 from handlers import handle_500, iikobiz, share
 from handlers import api
 from handlers.api import admin, specials, alfa_bank, image_proxy, push_admin as api_push_admin, address, order, company, \
@@ -22,7 +22,7 @@ webapp2_config = {
 }
 
 app = WSGIApplication([
-    Route('/', api.MainHandler),
+    Route('/', web.LandingHandler),
 
     PathPrefixRoute('/api', [
 
