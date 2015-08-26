@@ -3,6 +3,7 @@ import logging
 import urllib
 from google.appengine.api import urlfetch, memcache
 from models.iiko import IikoApiLogin, PlatiusLogin
+from models.iiko.company import CompanyNew
 
 __author__ = 'dvpermyakov'
 
@@ -37,6 +38,9 @@ def get_request(company, api_path, params, force_platius=False):
         logging.info(url)
         return urlfetch.fetch(url, deadline=30, validate_certificate=False)
 
+    if params.get('organization') == CompanyNew.EMPATIKA and force_platius:
+        params['organization'] = CompanyNew.EMPATIKA_OLD
+
     iiko_biz = _should_use_iiko_biz(company, force_platius)
     iiko_base_url = __get_iiko_base_url(iiko_biz)
     params['access_token'] = get_access_token(company, iiko_biz=iiko_biz)
@@ -59,6 +63,9 @@ def post_request(company, api_path, params, payload, force_platius=False):
 
         return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=json_payload,
                               deadline=30, validate_certificate=False)
+
+    if params.get('organization') == CompanyNew.EMPATIKA and force_platius:
+        params['organization'] = CompanyNew.EMPATIKA_OLD
 
     iiko_biz = _should_use_iiko_biz(company, force_platius)
     iiko_base_url = __get_iiko_base_url(iiko_biz)
