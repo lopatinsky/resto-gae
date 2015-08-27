@@ -66,6 +66,10 @@ def post_request(company, api_path, params, payload, force_platius=False):
 
     if params.get('organization') == CompanyNew.EMPATIKA and force_platius:
         params['organization'] = CompanyNew.EMPATIKA_OLD
+    if payload.get('organization') == CompanyNew.EMPATIKA and force_platius:
+        payload['organization'] = CompanyNew.EMPATIKA_OLD
+    if payload.get('restaurantId') == CompanyNew.EMPATIKA and force_platius:
+        payload['restaurantId'] = CompanyNew.EMPATIKA_OLD
 
     iiko_biz = _should_use_iiko_biz(company, force_platius)
     iiko_base_url = __get_iiko_base_url(iiko_biz)
