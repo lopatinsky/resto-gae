@@ -24,10 +24,8 @@ def add_modifier_to_items(items):
     menu = list_menu(CompanyNew.SUSHI_TIME)
     ids_with_modifier = set()
     for item in menu:
-        print item['productId'], list((m['id'] for m in item['single_modifiers']))
         if SUSHI_TIME_MODIFIER_ID in (m['id'] for m in item['single_modifiers']):
             ids_with_modifier.add(item['productId'])
-    print ids_with_modifier
     for item in items:
         if item['id'] in ids_with_modifier:
             item.setdefault("modifiers", []).append({
