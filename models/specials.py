@@ -79,6 +79,9 @@ class SharedBonus(ndb.Model):
         iiko_customer = get_customer_by_id(company, self.recipient.get().customer_id)
         iiko_customer['balance'] += 20
         create_or_update_customer(company, iiko_customer)
+        iiko_customer = get_customer_by_id(company, self.sender.get().customer_id)
+        iiko_customer['balance'] += 20
+        create_or_update_customer(company, iiko_customer)
         self.status = self.DONE
         self.put()
 

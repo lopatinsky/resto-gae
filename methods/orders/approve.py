@@ -11,5 +11,4 @@ def approve(order):
     auto_venue = AutoVenue.query(AutoVenue.delivery_terminal == delivery_terminal.key).get()
     if auto_venue:
         confirm_order(order, auto_venue)
-    else:
-        send_order_status_push(order)
+    send_order_status_push(order)
