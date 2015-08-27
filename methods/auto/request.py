@@ -5,7 +5,7 @@ from google.appengine.api import urlfetch
 __author__ = 'dvpermyakov'
 
 
-BASE_URL = 'doubleb-automation-production.appspot.com/api/admin'
+BASE_URL = 'http://doubleb-automation-production.appspot.com/api/admin'
 
 
 def cancel_oder(order, auto_venue):
