@@ -14,6 +14,7 @@ from methods.iiko.promo import get_order_promos, set_discounts
 from methods.orders.validation import validate_order
 from methods.rendering import filter_phone
 from methods.specials.cat import fix_cat_items
+from methods.specials.sushi_time import add_modifier_to_items
 from models import iiko
 from models.iiko import DeliveryTerminal
 from models.iiko import CompanyNew
@@ -51,6 +52,8 @@ class CheckOrderHandler(BaseHandler):
         items = fix_modifier_amount(json.loads(self.request.get('items')))
         if company.iiko_org_id == CompanyNew.COFFEE_CITY:
             fix_cat_items(items)
+        if company.iiko_org_id == CompanyNew.SUSHI_TIME:
+            add_modifier_to_items(items)
 
         order = iiko.Order()
         order.date = datetime.datetime.fromtimestamp(self.request.get_range('date'))

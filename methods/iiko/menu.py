@@ -5,6 +5,7 @@ from google.appengine.api import memcache
 import webapp2
 from methods.iiko.base import get_request, CAT_GIFTS_GROUP_ID
 from methods.image_cache import convert_url
+from methods.specials.sushi_time import remove_modifier_from_menu
 from models.iiko import CompanyNew
 from collections import deque
 
@@ -219,6 +220,8 @@ def get_menu(org_id, force_reload=False, filtered=True):
         memcache.set('iiko_menu_%s' % org_id, menu, time=1*3600)
     if filtered:
         _filter_menu(menu)
+        if org_id == CompanyNew.SUSHI_TIME:
+            remove_modifier_from_menu(menu)
     return menu
 
 
