@@ -10,8 +10,12 @@ from config import config
 
 class InvitationInfoHandler(BaseHandler):
     def get(self):
+        company_id = self.request.get_range('company_id')
+        if not company_id:
+            company_id = 5765997218758656  # DemoStandResto in empatika-resto-test
+        company = CompanyNew.get_by_id(company_id)
         return self.render_json({
-            'text': u'Расскажите друзьям о нашем приложении и получите бонусные баллы.\n\n За каждого друга, который перейдет по ссылке и сделает заказ, вы получите 100 баллов на бонусный счет. Баллы можно потратить для оплаты следующих заказов.'
+            'text': company.invitation_settings.about_text
         })
 
 
@@ -19,7 +23,7 @@ class InvitationUrlsHandler(BaseHandler):
     def get(self):
         company_id = self.request.get_range('company_id')
         company = CompanyNew.get_by_id(company_id)
-        if not company.branch_invitation_enable:
+        if not company.invitation_settings.enable:
             self.abort(403)
         customer_id = self.request.get('customer_id')
         customer = get_resto_customer(company, customer_id)
@@ -43,8 +47,8 @@ class InvitationUrlsHandler(BaseHandler):
 
         self.render_json({
             'urls': urls,
-            'text': u'Советую попробовать это интересное приложение для доставки суши и пиццы на дом',
-            'image_url': 'https://pp.vk.me/c617522/v617522876/8d57/ccxxaXKRYxI.jpg'
+            'text': company.invitation_settings.share_text,
+            'image_url': company.invitation_settings.share_image
         })
 
 

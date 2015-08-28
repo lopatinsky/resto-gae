@@ -55,6 +55,15 @@ class PlatiusLogin(IikoApiLogin):  # only to separate logins
     pass
 
 
+class InvitationSettings(ndb.Model):
+    enable = ndb.BooleanProperty(default=False)
+    recipient_value = ndb.IntegerProperty(default=0)
+    sender_value = ndb.IntegerProperty(default=0)
+    about_text = ndb.StringProperty()
+    share_text = ndb.StringProperty()
+    share_image = ndb.StringProperty()
+
+
 class CompanyNew(ndb.Model):
     COFFEE_CITY = "02b1b1f7-4ec8-11e4-80cc-0025907e32e9"
     EMPATIKA_OLD = "95e4a970-b4ea-11e3-8bac-50465d4d1d14"
@@ -94,7 +103,7 @@ class CompanyNew(ndb.Model):
     is_iiko_system = ndb.BooleanProperty(default=False)
     new_endpoints = ndb.BooleanProperty(default=False)
 
-    branch_invitation_enable = ndb.BooleanProperty(default=False)
+    invitation_settings = ndb.LocalStructuredProperty(InvitationSettings)
     branch_gift_enable = ndb.BooleanProperty(default=False)
     rbcn_mobi = ndb.StringProperty(indexed=False)
 
