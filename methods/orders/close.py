@@ -4,7 +4,7 @@ from methods.alfa_bank import pay_by_card
 from methods.auto.request import close_order
 from methods.parse_com import send_order_status_push
 from models.auto import AutoVenue
-from models.iiko import CompanyNew, DeliveryTerminal, PaymentType
+from models.iiko import CompanyNew, DeliveryTerminal, PaymentType, Customer
 from models.specials import SharedBonus
 
 __author__ = 'dvpermyakov'
@@ -26,7 +26,11 @@ def close(order):
     if company.is_iiko_system:
         bonus = SharedBonus.query(SharedBonus.recipient == order.customer, SharedBonus.status == SharedBonus.READY).get()
         if bonus:
-            bonus.deactivate(company)
+            customer = order.customer.get()
+            if Customer.query(Customer.phone == customer.phone).count() > 1:
+                bonus.canel()
+            else:
+                bonus.deactivate(company)
     if company.review_enable:
         taskqueue.add(url='/single_task/push/review', params={
             'order_id': order.order_id

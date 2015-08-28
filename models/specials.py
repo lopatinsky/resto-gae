@@ -67,12 +67,17 @@ class Share(ndb.Model):
 class SharedBonus(ndb.Model):
     READY = 0
     DONE = 1
+    CANCEL = 2
 
     sender = ndb.KeyProperty(required=True, kind=Customer)
     recipient = ndb.KeyProperty(required=True, kind=Customer)
     share_id = ndb.IntegerProperty(required=True)
     created = ndb.DateTimeProperty(auto_now_add=True)
-    status = ndb.IntegerProperty(choices=[READY, DONE], default=READY)
+    status = ndb.IntegerProperty(choices=[READY, DONE, CANCEL], default=READY)
+
+    def cancel(self):
+        self.status = self.CANCEL
+        self.put()
 
     def deactivate(self, company):
         from methods.iiko.customer import get_customer_by_phone, create_or_update_customer
