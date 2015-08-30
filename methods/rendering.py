@@ -27,7 +27,7 @@ def parse_str_date(str_date):
         try:
             date = datetime.strptime(str_date, '%Y-%m-%d %H:%M:%S')
         except ValueError:
-            date = datetime.strptime(str_date, '%Y-%m-%d %H:%M:%S %p')
+            date = datetime.strptime(str_date, '%Y-%m-%d %I:%M:%S %p')
     except ValueError:
         date = None
     return date
