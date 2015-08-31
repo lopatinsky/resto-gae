@@ -14,8 +14,10 @@ class InvitationInfoHandler(BaseHandler):
         if not company_id:
             company_id = 5765997218758656  # DemoStandResto in empatika-resto-test
         company = CompanyNew.get_by_id(company_id)
+        if not company:
+            company = CompanyNew.get_by_id(5764144745676800)  # oe in empatika-resto
         return self.render_json({
-            'text': company.invitation_settings.about_text
+            'text': company.invitation_settings.about_text if company.invitation_settings else ''
         })
 
 
@@ -23,7 +25,7 @@ class InvitationUrlsHandler(BaseHandler):
     def get(self):
         company_id = self.request.get_range('company_id')
         company = CompanyNew.get_by_id(company_id)
-        if not company.invitation_settings.enable:
+        if not company.invitation_settings or not company.invitation_settings.enable:
             self.abort(403)
         customer_id = self.request.get('customer_id')
         customer = get_resto_customer(company, customer_id)
