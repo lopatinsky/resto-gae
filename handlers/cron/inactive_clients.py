@@ -20,4 +20,7 @@ class InactiveClientsWithPromo(RequestHandler):
         orders = Order.query(Order.date >= start, Order.date <= end).fetch()
         for order in orders:
             if order.venue_id in COMPANIES:
+                last_order = Order.query(Order.customer == order.customer).order(-Order.date).get()
+                if last_order.date > end:
+                    continue
                 deferred.defer(send_order_screen_push, order, text)
