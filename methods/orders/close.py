@@ -31,7 +31,8 @@ def close(order):
                 bonus.canel()
             else:
                 bonus.deactivate(company)
-    if company.review_enable:
+    order_user_agent = order.customer.get().user_agent
+    if company.review_enable and ('OrangeExpress/2.0.3' in order_user_agent or 'orangexpress/1.2.2' in order_user_agent):
         taskqueue.add(url='/single_task/push/review', params={
             'order_id': order.order_id
         }, countdown=60*45)
