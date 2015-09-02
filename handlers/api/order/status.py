@@ -38,6 +38,7 @@ class OrdersStatusHandler(BaseHandler):
                 # make dict
                 status_list.append({
                     'order_id': order_id,
+                    'number': order_info['number'],
                     'venue_id': delivery_terminal_id,
                     'status': Order.parse_status(order_info['status']),
                     'address': address,
