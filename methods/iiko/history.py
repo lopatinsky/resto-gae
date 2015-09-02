@@ -28,12 +28,10 @@ def get_history_by_phone(phone, org_id):
 
 
 def get_orders(company, start, end, status=None):
-    start += timedelta(seconds=company.get_timezone_offset())
-    end += timedelta(seconds=company.get_timezone_offset())
     payload = {
         'organization': company.iiko_org_id,
-        'dateFrom': start.strftime("%Y-%m-%d %H:%M:%S"),
-        'dateTo': end.strftime("%Y-%m-%d %H:%M:%S"),
+        'dateFrom': start.strftime("%Y-%m-%d"),
+        'dateTo': end.strftime("%Y-%m-%d"),
         'requestTimeout': 20
     }
     if status:
