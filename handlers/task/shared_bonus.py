@@ -1,5 +1,5 @@
 from webapp2 import RequestHandler
-from methods.iiko.customer import get_customer_by_phone
+from methods.iiko.history import get_history_by_phone
 from models.iiko import Order, CompanyNew
 from models.specials import SharedBonus
 
@@ -13,15 +13,13 @@ class SharedBonusActivateHandler(RequestHandler):
         company = CompanyNew.get_by_iiko_id(order.venue_id)
         customer = order.customer.get()
         bonus = SharedBonus.query(SharedBonus.recipient == order.customer, SharedBonus.status == SharedBonus.READY).get()
-        iiko_history = get_customer_by_phone(company, customer.phone)
-        order_found = False
+        iiko_history = get_history_by_phone(customer.phone, company.iiko_org_id)
+        order_count = 0
         if iiko_history.get('customersDeliveryHistory'):
             for customer_info in iiko_history["customersDeliveryHistory"]:
                 if customer_info.get("deliveryHistory"):
-                    bonus.cancel()
-                    order_found = True
-        if iiko_history.get('historyOrders'):
-            bonus.cancel()
-            order_found = True
-        if not order_found:
+                    order_count += len(customer_info['deliveryHistory'])
+        if order_count == 1:
             bonus.deactivate(company)
+        else:
+            bonus.cancel()

@@ -76,10 +76,13 @@ class SharedBonus(ndb.Model):
     status = ndb.IntegerProperty(choices=[READY, DONE, CANCEL], default=READY)
 
     def cancel(self):
+        from methods.parse_com import send_order_screen_push
         self.status = self.CANCEL
         self.put()
+        send_order_screen_push(Order.query(Order.customer == self.recipient).get(), u'Вам начислены бонусы!')
 
     def deactivate(self, company):
+        from methods.parse_com import send_order_screen_push
         from methods.iiko.customer import get_customer_by_phone, create_or_update_customer
         iiko_customer = get_customer_by_phone(company, self.recipient.get().phone)
         iiko_customer['balance'] += company.invitation_settings.recipient_value
@@ -89,6 +92,10 @@ class SharedBonus(ndb.Model):
         create_or_update_customer(company, iiko_customer)
         self.status = self.DONE
         self.put()
+        send_order_screen_push(Order.query(Order.customer == self.recipient).get(),
+                               u'Вам начислены бонусы: %s! Спасибо, что заказываете у нас!' % company.invitation_settings.recipient_value)
+        send_order_screen_push(Order.query(Order.customer == self.sender).get(),
+                               u'Вам начислены бонусы за приглашеного друга: %s!' % company.invitation_settings.sender_value)
 
 
 class SharedGift(ndb.Model):
