@@ -37,7 +37,10 @@ def _defer_load_images(org_id, image_number):
     try:
         while image_number < count:
             image_url = str(images[image_number])
-            get_image(image_url, force_fetch=True)
+            try:
+                get_image(image_url, force_fetch=True)
+            except Exception as e:
+                logging.exception(e)
             image_number += 1
     except DeadlineExceededError:
         deferred.defer(_defer_load_images, org_id, image_number)
