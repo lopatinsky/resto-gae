@@ -1,3 +1,4 @@
+# coding=utf-8
 import json
 from methods.branch_io import INVITATION
 from methods.customer import get_resto_customer
@@ -27,12 +28,12 @@ class RegisterHandler(BaseHandler):
                         SharedBonus(sender=share.sender, recipient=customer.key, share_id=share.key.id()).put()
                         invitation_response = {
                             'success': True,
-                            'description': 'Invitation success'
+                            'description': company.invitation_settings.success_message if company.invitation_settings else u'Успешно!',
                         }
                     else:
                         invitation_response = {
                             'success': False,
-                            'description': 'Invitation not success'
+                            'description': company.invitation_settings.failure_message if company.invitation_settings else u'Неуспешно',
                         }
         self.render_json({
             'customer_id': customer.customer_id if customer.customer_id else customer.key.id(),

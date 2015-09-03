@@ -62,6 +62,8 @@ class InvitationSettings(ndb.Model):
     about_text = ndb.StringProperty()
     share_text = ndb.StringProperty()
     share_image = ndb.StringProperty()
+    success_message = ndb.StringProperty()
+    failure_message = ndb.StringProperty()
 
 
 class CompanyNew(ndb.Model):
