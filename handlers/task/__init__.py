@@ -4,6 +4,8 @@ from models.iiko import Order
 
 __author__ = 'dvpermyakov'
 
+from shared_bonus import SharedBonusActivateHandler
+
 
 class PushReviewHandler(RequestHandler):
     def post(self):

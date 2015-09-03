@@ -156,6 +156,9 @@ app = WSGIApplication([
         PathPrefixRoute('/push', [
             Route('/review', task.PushReviewHandler),
         ]),
+        PathPrefixRoute('/bonus', [
+            Route('/activate', task.SharedBonusActivateHandler),
+        ]),
     ]),
 
     Route('/get/<app:[a-z]{,3}>', share.GATrackDownloadHandler),

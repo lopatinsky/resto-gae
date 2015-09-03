@@ -26,15 +26,13 @@ def close(order):
     if company.is_iiko_system:
         bonus = SharedBonus.query(SharedBonus.recipient == order.customer, SharedBonus.status == SharedBonus.READY).get()
         if bonus:
-            customer = order.customer.get()
-            if Customer.query(Customer.phone == customer.phone).count() > 1:
-                bonus.canel()
-            else:
-                bonus.deactivate(company)
+            taskqueue.add(url='/single_task/bonus/activate', params={
+                'order_id': order.order_id
+            })
     order_user_agent = order.customer.get().user_agent
     if company.review_enable and ('OrangeExpress/2.0.3' in order_user_agent or 'orangexpress/1.2.2' in order_user_agent):
         taskqueue.add(url='/single_task/push/review', params={
             'order_id': order.order_id
         }, countdown=60*45)
 
-        send_order_status_push(order)
+    send_order_status_push(order)
