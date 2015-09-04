@@ -1,5 +1,6 @@
 # coding=utf-8
 import json
+import logging
 from methods.branch_io import INVITATION
 from methods.customer import get_resto_customer
 from models.iiko import CompanyNew
@@ -17,6 +18,7 @@ class RegisterHandler(BaseHandler):
         customer = get_resto_customer(company, customer_id)
         customer.put()
         share_data = self.request.get('share_data')
+        logging.info('shared_data: %s' % share_data)
         invitation_response = {}
         if share_data:
             share_data = json.loads(share_data)
@@ -28,12 +30,12 @@ class RegisterHandler(BaseHandler):
                         SharedBonus(sender=share.sender, recipient=customer.key, share_id=share.key.id()).put()
                         invitation_response = {
                             'success': True,
-                            'description': company.invitation_settings.success_message if company.invitation_settings else u'Успешно!',
+                            'description': company.invitation_settings.success_message if company.invitation_settings else 'Success',
                         }
                     else:
                         invitation_response = {
                             'success': False,
-                            'description': company.invitation_settings.failure_message if company.invitation_settings else u'Неуспешно',
+                            'description': company.invitation_settings.failure_message if company.invitation_settings else 'Fail',
                         }
         self.render_json({
             'customer_id': customer.customer_id if customer.customer_id else customer.key.id(),

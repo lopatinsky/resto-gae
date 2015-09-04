@@ -1,5 +1,7 @@
 # coding=utf-8
 from handlers.api.base import BaseHandler
+from methods.customer import get_resto_customer
+from methods.iiko.history import get_history_by_phone
 from methods.iiko.menu import get_menu
 from methods.specials.cat import fix_syrop, fix_modifiers_by_own
 from models.iiko import CompanyNew, DeliveryTerminal
@@ -11,6 +13,18 @@ class CompanyInfoHandler(BaseHandler):
     def get(self):
         company_id = self.request.get_range('company_id')
         company = CompanyNew.get_by_id(company_id)
+        client_id = self.request.get('client_id')
+        customer = get_resto_customer(company, client_id)
+        order_count = 0
+        iiko_history = get_history_by_phone(customer.phone, company.iiko_org_id)
+        if iiko_history.get('customersDeliveryHistory'):
+            for customer_info in iiko_history["customersDeliveryHistory"]:
+                if customer_info.get("deliveryHistory"):
+                    order_count += len(customer_info['deliveryHistory'])
+        if order_count == 0:
+            branch_invitation = False
+        else:
+            branch_invitation = True
         self.render_json({
             'app_name': company.app_title,
             'description': company.description,
@@ -21,7 +35,7 @@ class CompanyInfoHandler(BaseHandler):
             'email': company.email,
             'support_emails': company.support_emails,
             'site': company.site,
-            'branch_invitation': company.invitation_settings.enable if company.invitation_settings else False,
+            'branch_invitation': company.invitation_settings.enable if company.invitation_settings and branch_invitation else False,
             'branch_gift': company.branch_gift_enable
         })
 
