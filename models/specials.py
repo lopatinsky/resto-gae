@@ -84,18 +84,32 @@ class SharedBonus(ndb.Model):
     def deactivate(self, company):
         from methods.parse_com import send_order_screen_push
         from methods.iiko.customer import get_customer_by_phone, create_or_update_customer
-        iiko_customer = get_customer_by_phone(company, self.recipient.get().phone)
+        recipient = self.recipient.get()
+        iiko_customer = get_customer_by_phone(company, recipient.phone)
+        if 'httpStatusCode' in iiko_customer:
+            iiko_customer = {
+                'phone': recipient.phone,
+                'balance': 0
+            }
         iiko_customer['balance'] += company.invitation_settings.recipient_value
         create_or_update_customer(company, iiko_customer)
-        iiko_customer = get_customer_by_phone(company, self.sender.get().phone)
+        sender = self.sender.get()
+        iiko_customer = get_customer_by_phone(company, sender.phone)
+        if 'httpStatusCode' in iiko_customer:
+            iiko_customer = {
+                'phone': sender.phone,
+                'balance': 0
+            }
         iiko_customer['balance'] += company.invitation_settings.sender_value
         create_or_update_customer(company, iiko_customer)
         self.status = self.DONE
         self.put()
         send_order_screen_push(Order.query(Order.customer == self.recipient).order(-Order.date).get(),
-                               u'Вам начислены бонусы: %s! Спасибо, что заказываете у нас!' % company.invitation_settings.recipient_value)
+                               u'Вам начислены бонусы: %s! Спасибо, что заказываете у нас!' % company.invitation_settings.recipient_value,
+                               head=company.app_title)
         send_order_screen_push(Order.query(Order.customer == self.sender).order(-Order.date).get(),
-                               u'Вам начислены бонусы за приглашенного друга: %s!' % company.invitation_settings.sender_value)
+                               u'Вам начислены бонусы за приглашенного друга: %s!' % company.invitation_settings.sender_value,
+                               head=company.app_title)
 
 
 class SharedGift(ndb.Model):
