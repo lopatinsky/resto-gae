@@ -92,10 +92,10 @@ class SharedBonus(ndb.Model):
         create_or_update_customer(company, iiko_customer)
         self.status = self.DONE
         self.put()
-        send_order_screen_push(Order.query(Order.customer == self.recipient).get(),
+        send_order_screen_push(Order.query(Order.customer == self.recipient).order(-Order.date).get(),
                                u'Вам начислены бонусы: %s! Спасибо, что заказываете у нас!' % company.invitation_settings.recipient_value)
-        send_order_screen_push(Order.query(Order.customer == self.sender).get(),
-                               u'Вам начислены бонусы за приглашеного друга: %s!' % company.invitation_settings.sender_value)
+        send_order_screen_push(Order.query(Order.customer == self.sender).order(-Order.date).get(),
+                               u'Вам начислены бонусы за приглашенного друга: %s!' % company.invitation_settings.sender_value)
 
 
 class SharedGift(ndb.Model):

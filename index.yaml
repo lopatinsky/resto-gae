@@ -31,6 +31,12 @@ indexes:
   - name: status
   - name: date
 
+- kind: Order
+  properties:
+  - name: customer
+  - name: date
+    direction: desc
+
 - kind: OrderSmsHistory
   properties:
   - name: company
