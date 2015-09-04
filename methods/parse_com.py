@@ -102,11 +102,11 @@ def _make_order_review_data(order, customer):
     return data
 
 
-def _make_order_screen_data(customer, text):
+def _make_order_screen_data(customer, text, head):
     data = {
         'type': ORDER_SCREEN_TYPE,
     }
-    data.update(make_general_push_data(text, customer.get_device()))
+    data.update(make_general_push_data(text, customer.get_device(), head=head))
     return data
 
 
@@ -131,7 +131,7 @@ def send_order_review_push(order):
     send_push(["order_%s" % order.order_id], data=data, device_type=customer.get_device(), order=order)
 
 
-def send_order_screen_push(order, text):
+def send_order_screen_push(order, text, head=None):
     customer = order.customer.get()
-    data = _make_order_screen_data(customer, text)
+    data = _make_order_screen_data(customer, text, head)
     send_push(["order_%s" % order.order_id], data=data, device_type=customer.get_device(), order=order)
