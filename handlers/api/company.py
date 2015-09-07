@@ -27,7 +27,7 @@ class CompanyInfoHandler(BaseHandler):
             'email': company.email,
             'support_emails': company.support_emails,
             'site': company.site,
-            'branch_invitation': company.invitation_settings.enable if company.invitation_settings and branch_invitation else False,
+            'branch_invitation': branch_invitation,
             'branch_gift': company.branch_gift_enable
         })
 
