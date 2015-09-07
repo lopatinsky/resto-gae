@@ -16,11 +16,12 @@ class CompanyInfoHandler(BaseHandler):
         client_id = self.request.get('client_id')
         customer = get_resto_customer(company, client_id)
         order_count = 0
-        iiko_history = get_history_by_phone(customer.phone, company.iiko_org_id)
-        if iiko_history.get('customersDeliveryHistory'):
-            for customer_info in iiko_history["customersDeliveryHistory"]:
-                if customer_info.get("deliveryHistory"):
-                    order_count += len(customer_info['deliveryHistory'])
+        if customer.phone:
+            iiko_history = get_history_by_phone(customer.phone, company.iiko_org_id)
+            if iiko_history.get('customersDeliveryHistory'):
+                for customer_info in iiko_history["customersDeliveryHistory"]:
+                    if customer_info.get("deliveryHistory"):
+                        order_count += len(customer_info['deliveryHistory'])
         if order_count == 0:
             branch_invitation = False
         else:
