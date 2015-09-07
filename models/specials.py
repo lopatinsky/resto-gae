@@ -3,6 +3,7 @@ import urllib
 
 from google.appengine.ext import ndb
 import time
+from methods.email.admin import send_error
 from models.iiko.customer import Customer
 from models.iiko.order import Order
 from models.iiko.company import PaymentType, CompanyNew
@@ -79,7 +80,8 @@ class SharedBonus(ndb.Model):
         from methods.parse_com import send_order_screen_push
         self.status = self.CANCEL
         self.put()
-        send_order_screen_push(Order.query(Order.customer == self.recipient).get(), u'Вам начислены бонусы!')
+        send_order_screen_push(Order.query(Order.customer == self.recipient).get(),
+                               u'Акция "Пригласи друга" доступна только для новых клиентов.')
 
     def deactivate(self, company):
         from methods.parse_com import send_order_screen_push
@@ -110,6 +112,7 @@ class SharedBonus(ndb.Model):
         send_order_screen_push(Order.query(Order.customer == self.sender).order(-Order.date).get(),
                                u'Вам начислены бонусы за приглашенного друга: %s!' % company.invitation_settings.sender_value,
                                head=company.app_title)
+        send_error('share', 'Invitation success', "Sender: %s, recipient: %s" % (sender.phone, recipient.phone))
 
 
 class SharedGift(ndb.Model):
