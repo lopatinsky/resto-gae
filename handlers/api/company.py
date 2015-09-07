@@ -1,10 +1,9 @@
 # coding=utf-8
 from handlers.api.base import BaseHandler
 from methods.customer import get_resto_customer
-from methods.iiko.history import get_history_by_phone
 from methods.iiko.menu import get_menu
 from methods.specials.cat import fix_syrop, fix_modifiers_by_own
-from models.iiko import CompanyNew, DeliveryTerminal
+from models.iiko import CompanyNew, DeliveryTerminal, Order
 
 __author__ = 'dvpermyakov'
 
@@ -15,16 +14,7 @@ class CompanyInfoHandler(BaseHandler):
         company = CompanyNew.get_by_id(company_id)
         client_id = self.request.get('client_id')
         customer = get_resto_customer(company, client_id)
-        order_count = 0
-        iiko_history = get_history_by_phone(customer.phone, company.iiko_org_id)
-        if iiko_history.get('customersDeliveryHistory'):
-            for customer_info in iiko_history["customersDeliveryHistory"]:
-                if customer_info.get("deliveryHistory"):
-                    order_count += len(customer_info['deliveryHistory'])
-        if order_count == 0:
-            branch_invitation = False
-        else:
-            branch_invitation = True
+        branch_invitation = Order.query(Order.customer == customer).get() is not None
         self.render_json({
             'app_name': company.app_title,
             'description': company.description,
