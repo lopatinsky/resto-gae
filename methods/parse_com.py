@@ -3,17 +3,44 @@
 import json
 import logging
 from google.appengine.api import urlfetch
+from models.iiko.company import CompanyNew
 from models.iiko.customer import IOS_DEVICE, ANDROID_DEVICE
 
-parse_acc = {
-    'rest_api_key': 'vN10st4XD2AD5gF8ziKCgWbo6tyLNE2scmRaXglU',
-    'application_id': '8EdzRDGVxjOqnHzv7WU7S6XbhIUBsgzqPk6ax77m'
-}
-
-parce_acc_another = {
-    'rest_api_key': 'uDd0iYV75BZylEq4UGIpEu6252590YwBeyCHjNIN',
-    'application_id': 'uXhll3SYelAB6GEBwV81YFk3EuqUAB0fvTuh0Qm4'
-}
+parse_accs = [
+    {
+        'rest_api_key': 'vN10st4XD2AD5gF8ziKCgWbo6tyLNE2scmRaXglU',
+        'application_id': '8EdzRDGVxjOqnHzv7WU7S6XbhIUBsgzqPk6ax77m',
+        'companies': {
+            CompanyNew.MIVAKO,
+            CompanyNew.ORANGE_EXPRESS,
+            CompanyNew.SUSHILAR,
+            CompanyNew.VENEZIA,
+            CompanyNew.DIMASH,
+            CompanyNew.COFFEE_CITY,
+        }
+    },
+    {
+        'rest_api_key': 'uDd0iYV75BZylEq4UGIpEu6252590YwBeyCHjNIN',
+        'application_id': 'uXhll3SYelAB6GEBwV81YFk3EuqUAB0fvTuh0Qm4',
+        'companies': {
+            CompanyNew.EMPATIKA,
+            CompanyNew.OMNOMNOM,
+            CompanyNew.EMPATIKA_OLD,
+            CompanyNew.SUSHI_TIME,
+            CompanyNew.BURGER_CLUB,
+            CompanyNew.PANDA,
+            CompanyNew.PIZZA_HUT,
+            CompanyNew.ORANGE_EXPRESS,  # thx Nikita
+        }
+    },
+    {
+        'rest_api_key': 'BACtu4aWZHpmRZPVhU4Cc8xMEELp0Ox666miYadJ',
+        'application_id': 'K7A5luYunGPr1YG6LHL1pgeyf37KHNF3ciu3BZ2X',
+        'companies': {
+            CompanyNew.TYKANO,
+        }
+    }
+]
 
 DEVICE_TYPE_MAP = {
     IOS_DEVICE: 'ios',
@@ -29,12 +56,6 @@ PUSH_TYPES = (GENERAL_TYPE, ORDER_INFO_TYPE, ORDER_SCREEN_TYPE, REVIEW_TYPE)
 
 
 def send_push(channels, data, device_type, order=None):
-    another_companies = ['107662a7-39d5-11e5-80c1-d8d385655247',
-                         '5cae16f4-4039-11e5-80d2-d8d38565926f',
-                         'f3417644-308b-11e5-80c1-d8d385655247',
-                         '09ac1efb-2578-11e5-80d2-d8d38565926f',
-                         'e7985b2c-a21b-11e4-80d2-0025907e32e9',
-                         '8b939502-9ec3-11e3-bae4-001b21b8a590']
 
     if device_type not in DEVICE_TYPE_MAP:
         logging.error('Has not device type')
@@ -45,21 +66,24 @@ def send_push(channels, data, device_type, order=None):
         'type': DEVICE_TYPE_MAP[device_type],
         'data': data
     }
-    app_id = parse_acc['application_id']
-    api_key = parse_acc['rest_api_key']
-    if order and order.venue_id in another_companies:
-        app_id = parce_acc_another['application_id']
-        api_key = parce_acc_another['rest_api_key']
-    headers = {
-        'Content-Type': 'application/json',
-        'X-Parse-Application-Id': app_id,
-        'X-Parse-REST-API-Key': api_key
-    }
-    result = urlfetch.fetch('https://api.parse.com/1/push', payload=json.dumps(payload), method='POST',
-                            headers=headers, validate_certificate=False, deadline=10).content
-    logging.info(payload)
-    logging.info(result)
-    return json.loads(result)
+    chosen_parse_accs = []
+    for parse_acc in parse_accs:
+        if order and order.venue_id in parse_acc['companies']:
+            chosen_parse_accs.append(parse_acc)
+    if not chosen_parse_accs:
+        chosen_parse_accs = [parse_accs[0]]
+    for parse_acc in chosen_parse_accs:
+        app_id = parse_acc['application_id']
+        api_key = parse_acc['rest_api_key']
+        headers = {
+            'Content-Type': 'application/json',
+            'X-Parse-Application-Id': app_id,
+            'X-Parse-REST-API-Key': api_key
+        }
+        result = urlfetch.fetch('https://api.parse.com/1/push', payload=json.dumps(payload), method='POST',
+                                headers=headers, validate_certificate=False, deadline=10).content
+        logging.info(payload)
+        logging.info(result)
 
 
 def make_general_push_data(text, device, head=None):
