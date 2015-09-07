@@ -14,7 +14,7 @@ class CompanyInfoHandler(BaseHandler):
         company = CompanyNew.get_by_id(company_id)
         client_id = self.request.get('client_id')
         customer = get_resto_customer(company, client_id)
-        branch_invitation = Order.query(Order.customer == customer).get() is not None
+        branch_invitation = Order.query(Order.customer == customer.key).get() is not None
         self.render_json({
             'app_name': company.app_title,
             'description': company.description,
