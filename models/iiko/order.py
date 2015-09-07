@@ -76,6 +76,7 @@ class Order(ndb.Model):
 
     date = ndb.DateTimeProperty()
     sum = ndb.FloatProperty(indexed=False)
+    initial_sum = ndb.FloatProperty(indexed=False)
     discount_sum = ndb.FloatProperty(default=0)
     bonus_sum = ndb.FloatProperty(default=0)
     items = ndb.JsonProperty()

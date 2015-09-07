@@ -109,7 +109,7 @@ class PlaceOrderHandler(BaseHandler):
             add_modifier_to_items(items)
 
         order.items = items
-        order.sum = calc_sum(items, company.iiko_org_id)
+        order.initial_sum = order.sum = calc_sum(items, company.iiko_org_id)
         logging.info("calculated sum: %s, app sum: %s", order.sum, self.request.get('sum'))
 
         if company.iiko_org_id == CompanyNew.DIMASH:
