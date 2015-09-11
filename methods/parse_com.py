@@ -72,6 +72,7 @@ def send_push(channels, data, device_type, order=None):
             chosen_parse_accs.append(parse_acc)
     if not chosen_parse_accs:
         chosen_parse_accs = [parse_accs[0]]
+    result = {'result': False}
     for parse_acc in chosen_parse_accs:
         app_id = parse_acc['application_id']
         api_key = parse_acc['rest_api_key']
@@ -84,6 +85,8 @@ def send_push(channels, data, device_type, order=None):
                                 headers=headers, validate_certificate=False, deadline=10).content
         logging.info(payload)
         logging.info(result)
+        result = json.loads(result)
+    return result
 
 
 def make_general_push_data(text, device, head=None):
