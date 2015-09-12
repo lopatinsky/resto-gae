@@ -30,6 +30,19 @@ def _should_use_iiko_biz(company, force_platius):
     return not force_platius
 
 
+def _replace_org_id(company, params, payload, iiko_biz):
+    if not iiko_biz:
+        if params.get('organization'):
+            params['organization'] = company.platius_org_id
+        if payload and payload.get('organization'):
+            payload['organization'] = payload['restaurantId'] = company.platius_org_id
+
+
+def _restore_org_id(company, payload):
+    if payload.get('organization'):
+        payload['organization'] = payload['restaurantId'] = company.iiko_org_id
+
+
 def get_request(company, api_path, params, force_platius=False):
     def do():
         url = '%s%s' % (iiko_base_url, api_path)
@@ -38,11 +51,10 @@ def get_request(company, api_path, params, force_platius=False):
         logging.info(url)
         return urlfetch.fetch(url, deadline=30, validate_certificate=False)
 
-    if params.get('organization') == CompanyNew.EMPATIKA and force_platius:
-        params['organization'] = CompanyNew.EMPATIKA_OLD
-
     iiko_biz = _should_use_iiko_biz(company, force_platius)
     iiko_base_url = __get_iiko_base_url(iiko_biz)
+    _replace_org_id(company, params, None, iiko_biz)
+
     params['access_token'] = get_access_token(company, iiko_biz=iiko_biz)
     result = do()
     if result.status_code == 401:
@@ -64,26 +76,26 @@ def post_request(company, api_path, params, payload, force_platius=False):
         return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=json_payload,
                               deadline=30, validate_certificate=False)
 
-    if params.get('organization') == CompanyNew.EMPATIKA and force_platius:
-        params['organization'] = CompanyNew.EMPATIKA_OLD
-    if payload.get('organization') == CompanyNew.EMPATIKA and force_platius:
-        payload = json.loads(json.dumps(payload))
-        payload['organization'] = payload['restaurantId'] = CompanyNew.EMPATIKA_OLD
-
     iiko_biz = _should_use_iiko_biz(company, force_platius)
     iiko_base_url = __get_iiko_base_url(iiko_biz)
+    _replace_org_id(company, params, payload, iiko_biz)
+
     params['access_token'] = get_access_token(company, iiko_biz=iiko_biz)
     result = do()
     if result.status_code == 401:
         logging.warning("bad token")
         params['access_token'] = get_access_token(company, iiko_biz=iiko_biz, refresh=True)
         result = do()
+
+    _restore_org_id(company, payload)
     return result.content
 
 
 def get_access_token(company, iiko_biz, refresh=False):
-    memcache_key_format = 'iiko_biz_token_%s' if iiko_biz else 'platius_token_%s'
-    memcache_key = memcache_key_format % company.iiko_login
+    if iiko_biz:
+        memcache_key = 'iiko_biz_token_%s' % company.iiko_login
+    else:
+        memcache_key = 'platius_token_%s' % company.platius_login
     token = memcache.get(memcache_key)
     if not token or refresh:
         token = _fetch_access_token(company, iiko_biz)
