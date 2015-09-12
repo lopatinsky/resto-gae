@@ -171,4 +171,4 @@ class RepeatedOrdersReportHandler(BaseHandler):
             'chosen_month': chosen_month,
             'chosen_day': chosen_day
         }
-        self.render('reported_repeated_orders.html', **values)
+        self.render('reports/repeated_orders.html', **values)

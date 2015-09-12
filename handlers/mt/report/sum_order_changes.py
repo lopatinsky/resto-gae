@@ -1,29 +1,17 @@
-from datetime import datetime
-from handlers.mt.base import BaseHandler
-from handlers.mt.report.report_methods import suitable_date, PROJECT_STARTING_YEAR
+from .base import BaseReportHandler
 from models.iiko import CompanyNew, Order, OrderChangeLog, PaymentType
 
 __author__ = 'dvpermyakov'
 
 
-class OrderSumChangesReport(BaseHandler):
+class OrderSumChangesReport(BaseReportHandler):
     def get(self):
         org_id = self.request.get("selected_company")
-        chosen_year = self.request.get_range("selected_year")
-        chosen_month = self.request.get_range("selected_month")
-        chosen_day = self.request.get_range("selected_day")
-        if not chosen_year:
-            chosen_month = 0
-        if not chosen_month:
-            chosen_day = 0
-        if not org_id:
-            chosen_year = datetime.now().year
-            chosen_month = datetime.now().month
-            chosen_day = 0
-        start = suitable_date(chosen_day, chosen_month, chosen_year, True)
-        end = suitable_date(chosen_day, chosen_month, chosen_year, False)
+        if org_id == "0":
+            org_id = None
+        start, end = self.get_date_range()
         change_dicts = []
-        for company in (CompanyNew.query().fetch() if not org_id else [CompanyNew.query(CompanyNew.iiko_org_id == org_id).get()]):
+        for company in (CompanyNew.query().fetch() if not org_id else [CompanyNew.get_by_iiko_id(org_id)]):
             for order in Order.query(Order.venue_id == company.iiko_org_id,
                                      Order.date > start, Order.date < end).fetch():
                 if order.status != Order.CLOSED:
@@ -40,13 +28,10 @@ class OrderSumChangesReport(BaseHandler):
                                 'old': change.old,
                                 'new': change.new
                             })
-        return self.render('/changelog/changes.html', **{
+        return self.render('reports/changes.html', **{
             'companies': CompanyNew.query().fetch(),
-            'start_year': PROJECT_STARTING_YEAR,
-            'end_year': datetime.now().year,
             'chosen_company': CompanyNew.get_by_iiko_id(org_id),
-            'chosen_year': chosen_year,
-            'chosen_month': chosen_month,
-            'chosen_day': chosen_day,
+            'start': start,
+            'end': end,
             'changes': change_dicts
         })

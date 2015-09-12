@@ -17,7 +17,7 @@ class SquareTableHandler(BaseHandler):
             company_id = self.request.get_range('selected_company')
             if not company_id:
                 company_id = CompanyNew.get_by_iiko_id(CompanyNew.ORANGE_EXPRESS).key.id()
-            self.render('reported_square_table.html', square=square_list,
+            self.render('reports/square_table.html', square=square_list,
                         chosen_company=CompanyNew.get_by_id(company_id), companies=companies)
         else:
             self.response.write("Report not ready")

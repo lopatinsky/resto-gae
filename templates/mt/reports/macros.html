@@ -1,0 +1,12 @@
+{% macro report_controls(date_start, date_end) %}
+    <label>
+        Начало:
+        <input type="date" name="start" id="start" value="{{ date_start.strftime("%Y-%m-%d") }}"/>
+    </label>
+    <label>
+        Конец:
+        <input type="date" name="end" id="end" value="{{ date_end.strftime("%Y-%m-%d") }}"/>
+    </label>
+    <input type="submit" value="Выбрать"/>
+    <button name="button" value="xls">Скачать xls</button>
+{% endmacro %}

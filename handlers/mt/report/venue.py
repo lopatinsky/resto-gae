@@ -2,17 +2,14 @@
 import logging
 from methods.iiko.history import get_orders
 from methods.iiko.organization import get_payment_types
+from .base import BaseReportHandler
+from models import iiko
+from datetime import datetime
 
 __author__ = 'dvpermyakov'
 
-from ..base import BaseHandler
-from models import iiko
-from datetime import datetime
-from report_methods import suitable_date, PROJECT_STARTING_YEAR
 
-
-class VenueReportHandler(BaseHandler):
-
+class VenueReportHandler(BaseReportHandler):
     IIKO_STATUS_MAPPING = {
         iiko.Order.CLOSED: "CLOSED",
         iiko.Order.CANCELED: "CANCELLED",
@@ -142,26 +139,16 @@ class VenueReportHandler(BaseHandler):
 
     def get(self):
         chosen_type = self.request.get("selected_type")
-        chosen_year = self.request.get("selected_year")
-        chosen_month = self.request.get_range("selected_month")
-        chosen_day = self.request.get_range("selected_day")
         chosen_object_type = self.request.get("selected_object_type")
         chosen_company_ids = []
         for company in iiko.CompanyNew.query().fetch():
             if bool(self.request.get(str(company.key.id()))):
                 chosen_company_ids.append(company.key.id())
 
-        if not chosen_year:
-            chosen_year = datetime.now().year
-            chosen_month = datetime.now().month
-            chosen_day = datetime.now().day
+        if not chosen_type:
             chosen_type = 'app'
             chosen_object_type = '0'
-        else:
-            chosen_year = int(chosen_year)
-
-        start = suitable_date(chosen_day, chosen_month, chosen_year, True)
-        end = suitable_date(chosen_day, chosen_month, chosen_year, False)
+        start, end = self.get_date_range()
 
         statuses = [iiko.Order.CLOSED, iiko.Order.CANCELED, iiko.Order.NOT_APPROVED]
         total = {
@@ -183,13 +170,10 @@ class VenueReportHandler(BaseHandler):
             'chosen_companies': chosen_company_ids,
             'statuses': statuses,
             'statuses_mapping': self.IIKO_STATUS_MAPPING,
-            'start_year': PROJECT_STARTING_YEAR,
-            'end_year': datetime.now().year,
             'chosen_type': chosen_type,
-            'chosen_year': chosen_year,
-            'chosen_month': chosen_month,
-            'chosen_day': chosen_day,
+            'start': start,
+            'end': end,
             'chosen_object_type': chosen_object_type,
             'total': total
         }
-        self.render('reported_venues.html', **values)
+        self.render_report('venues', values)

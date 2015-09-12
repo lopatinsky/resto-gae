@@ -1,18 +1,16 @@
+# coding=utf-8
+
+from .base import BaseReportHandler
+from models import iiko
+import logging
 from methods.iiko.history import get_history
 
 __author__ = 'dvpermyakov'
 
-from ..base import BaseHandler
-from datetime import datetime
-from models import iiko
-from report_methods import suitable_date, PROJECT_STARTING_YEAR
-import logging
 
 
-class ClientsReportHandler(BaseHandler):
-
+class ClientsReportHandler(BaseReportHandler):
     def get_iiko_clients_info(self, clients, start, end):
-
         for client in clients.values():
             orders = get_history(client.customer_id, client.venue_id)
             orders = orders['historyOrders']
@@ -37,7 +35,6 @@ class ClientsReportHandler(BaseHandler):
         return clients, total
 
     def get_app_clients_info(self, orders, clients):
-
         for order in orders:
             client = clients[order.client_id]
             if order.status == iiko.Order.CLOSED:
@@ -58,9 +55,7 @@ class ClientsReportHandler(BaseHandler):
         }
         return clients, total
 
-    def get_clients_info(self, chosen_year=0, chosen_month=0, chosen_day=0, org_id=None, chosen_type='app'):
-        start = suitable_date(chosen_day, chosen_month, chosen_year, True)
-        end = suitable_date(chosen_day, chosen_month, chosen_year, False)
+    def get_clients_info(self, start, end, org_id=None, chosen_type='app'):
         query = iiko.Order.query(iiko.Order.date >= start, iiko.Order.date <= end)
         if org_id:
             query = query.filter(iiko.Order.venue_id == org_id)
@@ -90,32 +85,18 @@ class ClientsReportHandler(BaseHandler):
     def get(self):
         chosen_type = self.request.get("selected_type")
         org_id = self.request.get("selected_company")
-        chosen_year = self.request.get_range("selected_year")
-        chosen_month = self.request.get_range("selected_month")
-        chosen_day = self.request.get_range("selected_day")
-        if not chosen_year:
-            chosen_month = 0
-        if not chosen_month:
-            chosen_day = 0
-        if not org_id:
-            org_id = '0'
+        if not chosen_type:
             chosen_type = 'app'
-            chosen_year = datetime.now().year
-            chosen_month = datetime.now().month
-            chosen_day = datetime.now().day
-        if org_id == '0':
             org_id = None
-        clients, total = self.get_clients_info(chosen_year, chosen_month, chosen_day, org_id, chosen_type)
+        start, end = self.get_date_range()
+        clients, total = self.get_clients_info(start, end, org_id, chosen_type)
         values = {
             'companies': iiko.CompanyNew.query().fetch(),
             'clients': clients,
             'total': total,
             'chosen_company': iiko.CompanyNew.get_by_iiko_id(org_id),
-            'start_year': PROJECT_STARTING_YEAR,
-            'end_year': datetime.now().year,
-            'chosen_year': chosen_year,
-            'chosen_month': chosen_month,
-            'chosen_day': chosen_day,
+            'start': start,
+            'end': end,
             'chosen_type': chosen_type
         }
-        self.render('reported_clients.html', **values)
+        self.render_report('clients', values)
