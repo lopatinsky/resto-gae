@@ -28,7 +28,7 @@ class OrderSumChangesReport(BaseReportHandler):
                                 'old': change.old,
                                 'new': change.new
                             })
-        return self.render('reports/changes.html', **{
+        return self.render_report('changes', {
             'companies': CompanyNew.query().fetch(),
             'chosen_company': CompanyNew.get_by_iiko_id(org_id),
             'start': start,
