@@ -149,7 +149,8 @@ class PlaceOrderHandler(BaseHandler):
         pre_check_result = pre_check_order(company, order_dict)
         if 'code' in pre_check_result:
             logging.warning('iiko pre check failed')
-            send_error("iiko", "iiko pre check failed", pre_check_result["description"])
+            msg = pre_check_result["description"] or pre_check_result["message"]
+            send_error("iiko", "iiko pre check failed", msg)
             self.abort(400)
 
         order.discount_sum = 0.0
@@ -177,7 +178,8 @@ class PlaceOrderHandler(BaseHandler):
                 return_result = get_back_blocked_sum(company, order_id)
                 logging.info('return')
                 logging.info(return_result)
-            send_error("iiko", "iiko place order failed", result["description"])
+            msg = result["description"] or result["message"]
+            send_error("iiko", "iiko place order failed", msg)
             self.response.set_status(400)
             return self.render_json(result)
 
