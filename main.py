@@ -143,7 +143,7 @@ app = WSGIApplication([
         ]),
         PathPrefixRoute('/qr', [
             Route('', qr.AnalyticsLinkListHandler),
-            Route('/<code:[a-z]{,3}>', qr.AnalyticsLinkEditHandler),
+            Route('/<code:\w{,3}>', qr.AnalyticsLinkEditHandler),
         ]),
         PathPrefixRoute('/changelogs', [
             Route('', changes.ChangeLogFindOrderHandler),
@@ -161,7 +161,7 @@ app = WSGIApplication([
         ]),
     ]),
 
-    Route('/get/<app:[a-z]{,3}>', share.GATrackDownloadHandler),
+    Route('/get/<app:\w{,3}>', share.GATrackDownloadHandler),
     Route('/img/<:.*>', image_proxy.ImageProxyHandler),
     Route('/iiko_biz_app', iikobiz.IikoBizAppHandler),
     Route('/iiko_biz_submit', iikobiz.IikoBizSubmitHandler),
