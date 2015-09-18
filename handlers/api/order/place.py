@@ -136,7 +136,9 @@ class PlaceOrderHandler(BaseHandler):
                 self.abort(400)
             try:
                 order.address = json.loads(address)
-                prepare_address(order)
+                success = prepare_address(order)
+                if not success:
+                    send_error("address", "Address is not valid", order.address['comment'])
             except Exception as e:
                 logging.exception(e)
                 self.abort(400)
