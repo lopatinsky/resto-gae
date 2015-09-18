@@ -16,7 +16,7 @@ from methods.iiko.promo import calc_sum
 from methods.orders.create import pay_by_card
 from methods.orders.precheck import set_discounts_bonuses_gifts
 from methods.orders.validation import validate_order
-from methods.rendering import parse_iiko_time, filter_phone, parse_str_date
+from methods.rendering import parse_iiko_time, filter_phone, parse_str_date, prepare_address
 from methods.specials.sushi_time import add_modifier_to_items
 from models import iiko
 from models.iiko import CompanyNew, ClientInfo, DeliveryTerminal, PaymentType
@@ -136,6 +136,9 @@ class PlaceOrderHandler(BaseHandler):
                 self.abort(400)
             try:
                 order.address = json.loads(address)
+                success = prepare_address(order)
+                if not success:
+                    send_error("address", "Address is not valid", order.address['comment'])
             except Exception as e:
                 logging.exception(e)
                 self.abort(400)
