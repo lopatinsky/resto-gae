@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    {% if orgs %}
+        <h1>Выберите компанию для импорта</h1>
+
+        <form method="post">
+            {% for org in orgs %}
+                <div>
+                    <label>
+                        {{ org.name }}
+                        <input type="radio" name="org_id" value="{{ org.id }}">
+                    </label>
+                </div>
+            {% endfor %}
+            <input type="submit"/>
+        </form>
+    {% else %}
+        <h1>Ошибка</h1>
+        Нет доступных организаций, или все уже импортированы.
+    {% endif %}
+</body>
+</html>

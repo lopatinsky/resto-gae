@@ -24,8 +24,11 @@ def _load_delivery_terminals(company):
     return dts
 
 
-def create(login, password, company_id=None, organization_id=None, new_endpoints=True):
-    IikoApiLogin.get_or_insert(login, password=password)
+def create(login, password=None, company_id=None, organization_id=None, new_endpoints=True):
+    if not IikoApiLogin.get_by_id(login):
+        if not password:
+            raise Exception("Login does not exist, so password is required")
+        IikoApiLogin(id=login, password=password).put()
 
     company = CompanyNew(id=company_id)
     company.new_endpoints = new_endpoints

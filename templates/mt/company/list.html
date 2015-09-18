@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <h1>Список компаний</h1>
+    <ul>
+        {% for company in companies %}
+            <li>
+                <a href="/mt/company/{{ company.key.id() }}">{{ company.app_title }}</a>
+                id {{ company.key.id() }}
+            </li>
+        {% endfor %}
+    </ul>
+    <form method="get" action="/mt/company/create">
+        <fieldset>
+            <legend>Создать компанию</legend>
+            <label>
+                Выберите логин:
+                <select name="login">
+                    {% for login in logins %}
+                        <option value="{{ login }}">{{ login }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <input type="submit">
+        </fieldset>
+    </form>
+    <form method="post">
+        <fieldset>
+            <legend>Создать логин iiko/platius</legend>
+            {% if error %}
+                <b>Не удалось создать логин. {{ error }}</b>
+            {% endif %}
+            <div>
+                <label>
+                    Логин:
+                    <input type="text" name="login">
+                </label>
+            </div>
+            <div>
+                <label>
+                    Пароль:
+                    <input type="password" name="password">
+                </label>
+            </div>
+            <div>
+                <label>
+                    Сервер:
+                    <select name="action">
+                        <option value="iiko_login">iiko</option>
+                        <option value="platius_login">platius</option>
+                    </select>
+                </label>
+            </div>
+            <input type="submit">
+        </fieldset>
+    </form>
+</body>
+</html>

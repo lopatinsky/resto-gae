@@ -6,13 +6,13 @@ __author__ = 'dvpermyakov'
 
 
 def get_orgs(iiko_api_login, new_endpoints):
-    dummy = CompanyNew(iiko_login=iiko_api_login, new_endpoints=new_endpoints)
+    dummy = CompanyNew(iiko_login=iiko_api_login, platius_login=iiko_api_login, new_endpoints=new_endpoints)
     result = get_request(dummy, '/organization/list', {})
     return json.loads(result)
 
 
 def get_org(iiko_api_login, org_id, new_endpoints):
-    dummy = CompanyNew(iiko_login=iiko_api_login, new_endpoints=new_endpoints)
+    dummy = CompanyNew(iiko_login=iiko_api_login, platius_login=iiko_api_login, new_endpoints=new_endpoints)
     result = get_request(dummy, '/organization/%s' % org_id, {})
     return json.loads(result)
 

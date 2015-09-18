@@ -126,8 +126,9 @@ app = WSGIApplication([
             Route('/sum_changes', report.OrderSumChangesReport),
         ]),
         PathPrefixRoute('/company', [
-            Route('/links', mt_company.CreateCompaniesLinks),
-            Route('/settings/<:.*>', mt_company.CompanySettingsHandler),
+            Route('/list', mt_company.CompanyListHandler),
+            Route('/create', mt_company.CompanyCreateHandler),
+            Route('/<company_id:\d+>', mt_company.CompanyEditHandler),
         ]),
         PathPrefixRoute('/push', [
             Route('/send', push.PushSendingHandler),

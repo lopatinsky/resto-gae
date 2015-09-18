@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style type="text/css">
+        .no-label {
+            padding-left: 300px;
+        }
+        label[for] {
+            display: inline-block;
+            margin-left: 0;
+            width: 300px;
+            text-align: right;
+        }
+        input[type=text], textarea, select {
+            width: 400px;
+        }
+        textarea {
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <h1>Компания {{ company.app_title }}</h1>
+
+    <form method="post">
+        <fieldset>
+            <legend>Общая информация</legend>
+            <div>
+                <label for="app_title">Название:</label>
+                <input type="text" name="app_title" id="app_title" value="{{ company.app_title }}">
+            </div>
+            <div>
+                <label for="description">Описание:</label>
+                <textarea name="description" id="description" rows="6">{{ company.description or '' }}</textarea>
+            </div>
+            <div>
+                <label for="address">Адрес:</label>
+                <input type="text" name="address" id="address" value="{{ company.address or '' }}">
+            </div>
+            <div>
+                <label for="phone">Телефон для клиентов:</label>
+                <input type="text" name="phone" id="phone" value="{{ company.phone or '' }}">
+            </div>
+            <div>
+                <label for="site">Сайт:</label>
+                <input type="text" name="site" id="site" value="{{ company.site or '' }}">
+            </div>
+            <div>
+                <label for="email">Email для клиентов:</label>
+                <input type="text" name="email" id="email" value="{{ company.email or '' }}">
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Настройки доставки</legend>
+            <div>
+                <label for="cities">Города доставки, через запятую:</label>
+                <input type="text" name="cities" id="cities" value="{{ ','.join(company.cities) }}">
+            </div>
+            <div>
+                <label for="min_order_sum">Минимальная сумма заказа:</label>
+                <input type="text" name="min_order_sum" id="min_order_sum" value="{{ company.min_order_sum or 0 }}">
+            </div>
+            <div>
+                <label for="schedule">Расписание работы:</label>
+                <input type="text" name="schedule" id="schedule" value="{{ company.schedule or [] }}">
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Настройки iiko/platius</legend>
+            <div class="no-label">
+                <label>
+                    <input type="checkbox" name="new_endpoints" {% if company.new_endpoints %}checked{% endif %}>
+                    iiko.biz (версия 4.1 и выше)
+                </label>
+            </div>
+            <div class="no-label">
+                <label>
+                    <input type="checkbox" name="platius" {% if company.is_iiko_system %}checked{% endif %}>
+                    Использовать бонусы и акции platius
+                </label>
+            </div>
+            <div>
+                <label for="platius_login">Логин platius:</label>
+                <select name="platius_login" id="platius_login">
+                    {% for login in platius_logins %}
+                        <option value="{{ login }}" {% if company.platius_login == login %}selected{% endif %}>{{ login }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="platius_id">ID организации platius:</label>
+                <input type="text" name="platius_id" id="platius_id" value="{{ company.platius_org_id or '' }}">
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Настройки оплаты</legend>
+            <div>
+                <label for="alpha_login">Логин альфы:</label>
+                <input type="text" name="alpha_login" id="alpha_login" value="{{ company.alpha_login or '' }}">
+            </div>
+            <div>
+                <label for="alpha_pass">Пароль альфы:</label>
+                <input type="text" name="alpha_pass" id="alpha_pass" value="{{ company.alpha_pass or '' }}">
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Прочие настройки</legend>
+            <div>
+                <label for="support_emails">Email для поддержки, через запятую:</label>
+                <input type="text" name="support_emails" id="support_emails" value="{{ ','.join(company.support_emails) }}">
+            </div>
+            <div>
+                <label for="user_agent">User-Agent:</label>
+                <input type="text" name="user_agent" id="user_agent" value="{{ ','.join(company.app_name) }}">
+            </div>
+        </fieldset>
+
+        <input type="submit">
+        <a href="/mt/company/list">Назад к списку</a>
+    </form>
+</body>
+</html>

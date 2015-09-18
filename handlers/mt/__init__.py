@@ -1,4 +1,2 @@
+# coding=utf-8
 __author__ = 'dvpermyakov'
-
-from company import CreateCompaniesLinks, CompanySettingsHandler
-from push import PushSendingHandler
