@@ -70,7 +70,8 @@ def prepare_order(order, customer, payment_type):
                 u"Егорьевск": "7658baf0-cc65-28b5-014b-7cde6614cfbe",
                 u"Подольск": "e0a67a59-c018-2c9c-0149-893d7b97148e",
                 u"Климовск": "e0a67a59-c018-2c9c-0149-893d7b97148e",
-                u"Домодедово": "2d163ab4-ce5d-e5cf-014b-84e547cfdf79"
+                u"Домодедово": "2d163ab4-ce5d-e5cf-014b-84e547cfdf79",
+                u"Авиагородок": "1bb4d840-045f-e28c-014f-b6a61cea9a39",
             }
             obj['deliveryTerminalId'] = dt_mapping[order.address['city']]
         elif order.venue_id == CompanyNew.DIMASH:

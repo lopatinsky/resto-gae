@@ -35,6 +35,7 @@ _EXPRESS_CITY_MAPPING = {
     u"Домодедово": "orange.exspress@mail.ru",
     u"Подольск": "orengeexpress-podolsk@mail.ru",
     u"Климовск": "orengeexpress-podolsk@mail.ru",
+    u"Авиагородок": "aviogorodok777@mail.ru",
 }
 
 

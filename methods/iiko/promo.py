@@ -20,6 +20,7 @@ def get_iikonet_payment_type(order):
             u"Домодедово": "INET3",
             u"Подольск": "INET4",
             u"Климовск": "INET4",
+            u"Авиагородок": "INET5",
         }.get(city, _default)
     elif order.venue_id == CompanyNew.SUSHILAR:
         logging.info(order.delivery_terminal_id)
