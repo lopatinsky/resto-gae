@@ -10,8 +10,8 @@ __author__ = 'dvpermyakov'
 
 def _load_delivery_terminals(company):
     iiko_delivery_terminals = get_delivery_terminals(company)
-    dts = map(lambda iiko_delivery_terminal: DeliveryTerminal(
-        id=iiko_delivery_terminal['deliveryTerminalId'],
+    dts = map(lambda iiko_delivery_terminal: DeliveryTerminal.get_or_insert(
+        iiko_delivery_terminal['deliveryTerminalId'],
         company_id=company.key.id(),
         iiko_organization_id=company.iiko_org_id,
         active=True,
