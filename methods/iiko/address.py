@@ -10,7 +10,7 @@ __author__ = 'dvpermyakov'
 def _process_streets(iiko_street_data):
     result = defaultdict(list)
     for city in iiko_street_data:
-        city_name = city['city']['name']
+        city_name = city['city']['name'].lower()
         streets = [street['name'] for street in city['streets']]
         result[city_name].extend(streets)
     result = {city_name: sorted(streets, key=unicode.lower) for city_name, streets in result.iteritems()}
@@ -30,6 +30,7 @@ def get_cities_and_streets(company, force_update=False):
 
 
 def complete_address_input_by_iiko(company, city, street):
+    city = city.lower()
     street_dict = get_cities_and_streets(company)
     if city not in street_dict:
         return []
