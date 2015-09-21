@@ -5,7 +5,6 @@ from google.appengine.api import memcache
 import webapp2
 from methods.iiko.base import get_request, CAT_GIFTS_GROUP_ID
 from methods.image_cache import convert_url
-from methods.specials.sushi_time import remove_modifier_from_menu
 from models.iiko import CompanyNew
 from collections import deque
 
@@ -192,9 +191,14 @@ def _load_menu(company):
 
 def _filter_menu(menu):
     def process_category(category):
+        for p in category['products']:
+            p['single_modifiers'] = [m
+                                     for m in p['single_modifiers']
+                                     if m['price'] == 0 and m['minAmount'] == 0]
         category['products'] = [p
                                 for p in category['products']
                                 if p['price'] > 0 or p['single_modifiers'] or p['modifiers']]
+
         for sub in category['children']:
             process_category(sub)
         category['children'] = [c
@@ -220,8 +224,6 @@ def get_menu(org_id, force_reload=False, filtered=True):
         memcache.set('iiko_menu_%s' % org_id, menu, time=1*3600)
     if filtered:
         _filter_menu(menu)
-        if org_id == CompanyNew.SUSHI_TIME:
-            remove_modifier_from_menu(menu)
     return menu
 
 
@@ -289,11 +291,24 @@ def get_group_modifier(org_id, group_id, modifier_id):
             return item
 
 
-def fix_modifier_amount(items):
+def fix_modifier_amount(org_id, items):
+    menu = list_menu(org_id)
+    modifiers = {item['productId']: item['single_modifiers'] for item in menu}
+
     for item in items:
-        if "modifiers" in item:
+            item.setdefault("modifiers", [])
+            # 1: fix zero amount for group modifiers
             for mod in item["modifiers"]:
                 if mod["amount"] == 0 and mod.get("groupId"):
                     mod["amount"] = 1
+            # 2: remove modifiers with zero amount
             item["modifiers"] = [mod for mod in item["modifiers"] if mod["amount"]]
+            # 3: add required single modifiers
+            item_modifiers = modifiers[item["id"]]
+            for mod in item_modifiers:
+                if mod["minAmount"] > 0:
+                    item["modifiers"].append({
+                        "id": mod["id"],
+                        "amount": mod["minAmount"]
+                    })
     return items

@@ -17,7 +17,6 @@ from methods.orders.create import pay_by_card
 from methods.orders.precheck import set_discounts_bonuses_gifts
 from methods.orders.validation import validate_order
 from methods.rendering import parse_iiko_time, filter_phone, parse_str_date, prepare_address
-from methods.specials.sushi_time import add_modifier_to_items
 from models import iiko
 from models.iiko import CompanyNew, ClientInfo, DeliveryTerminal, PaymentType
 from methods.specials.cat import fix_syrop, fix_modifiers_by_own
@@ -100,13 +99,11 @@ class PlaceOrderHandler(BaseHandler):
         gifts = json.loads(self.request.get('gifts')) if self.request.get('gifts') else []
         order.customer = customer.key
 
-        items = fix_modifier_amount(json.loads(self.request.get('items')))
+        items = fix_modifier_amount(company.iiko_org_id, json.loads(self.request.get('items')))
 
         if company.iiko_org_id == CompanyNew.COFFEE_CITY:
             items = fix_syrop.set_syrop_items(items)
             items = fix_modifiers_by_own.set_modifier_by_own(items)
-        if company.iiko_org_id == CompanyNew.SUSHI_TIME:
-            add_modifier_to_items(items)
 
         order.items = items
         order.initial_sum = order.sum = calc_sum(items, company.iiko_org_id)
