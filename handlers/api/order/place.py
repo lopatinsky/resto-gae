@@ -29,6 +29,11 @@ GENERAL_ERROR = -1
 MIN_SUM_ERROR = 0
 NOT_VALID_TIME_ERROR = 1
 
+_FIRST_ORDER_GIFTS = {
+    CompanyNew.OMNOMNOM: u'Саке маки',
+    CompanyNew.TYKANO: u'ролл Калифорния'
+}
+
 
 class PlaceOrderHandler(BaseHandler):
     def send_error(self, description, error_code=GENERAL_ERROR):
@@ -114,7 +119,7 @@ class PlaceOrderHandler(BaseHandler):
                 comment = u"Заказ с Android. " + comment
             else:
                 comment = u"Заказ с iOS. " + comment
-        if company.iiko_org_id == CompanyNew.OMNOMNOM:
+        if company.iiko_org_id in _FIRST_ORDER_GIFTS:
             customers = iiko.Customer.query(iiko.Customer.phone == customer.phone).fetch(keys_only=True)
             orders = [o
                       for lst in [iiko.Order.query(iiko.Order.customer == c,
@@ -124,7 +129,7 @@ class PlaceOrderHandler(BaseHandler):
                                                    ) for c in customers]
                       for o in lst]
             if not orders:
-                comment = u'Первый заказ, Саке маки в подарок. ' + comment
+                comment = u'Первый заказ, %s в подарок. ' % _FIRST_ORDER_GIFTS[company.iiko_org_id] + comment
 
         order.comment = comment
         order.is_delivery = self.request.get_range('deliveryType') == 0
