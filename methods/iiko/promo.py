@@ -142,6 +142,9 @@ def get_venue_promos(org_id):
     if org_id == CompanyNew.MIVAKO:
         from handlers.api.specials.mivako_promo import get_mivako_iiko_promos
         return get_mivako_iiko_promos()
+    if org_id == CompanyNew.TYKANO:
+        from handlers.api.specials.tykano_promos import get_tykano_iiko_promos
+        return get_tykano_iiko_promos()
 
     url = '/organization/%s/marketing_campaigns' % org_id
     company = CompanyNew.get_by_iiko_id(org_id)
