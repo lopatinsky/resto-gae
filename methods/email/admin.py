@@ -48,6 +48,8 @@ def get_order_email_address(order):
         return "stdostavka@mail.ru"
     elif order.venue_id == CompanyNew.OMNOMNOM:
         return "univerfoods@mail.ru"
+    elif order.venue_id == CompanyNew.BURGER_CLUB:
+        return "astra-burgerclub@mail.ru"
     return None
 
 
