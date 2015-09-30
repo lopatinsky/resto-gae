@@ -1,7 +1,7 @@
 # coding=utf-8
 from webapp2_extras.routes import PathPrefixRoute
 from webapp2 import Route, WSGIApplication
-from handlers import task, web
+from handlers import task, web, ext_api
 from handlers import handle_500, iikobiz, share
 from handlers import api
 from handlers.api import admin, specials, alfa_bank, image_proxy, push_admin as api_push_admin, address, order, company, \
@@ -160,6 +160,10 @@ app = WSGIApplication([
         PathPrefixRoute('/bonus', [
             Route('/activate', task.SharedBonusActivateHandler),
         ]),
+    ]),
+
+    PathPrefixRoute('/ext', [
+        Route('/export_legals', ext_api.ExportLegalsHandler),
     ]),
 
     Route('/get/<app:\w{,3}>', share.GATrackDownloadHandler),
