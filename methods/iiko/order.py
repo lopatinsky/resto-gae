@@ -75,7 +75,7 @@ def prepare_order(order, customer, payment_type):
             }
             obj['deliveryTerminalId'] = dt_mapping[order.address['city']]
         elif order.venue_id == CompanyNew.DIMASH:
-            obj['deliveryTerminalId'] = DeliveryTerminal.get_any(order.venue_id).key.id()
+            obj['deliveryTerminalId'] = "19f93854-08b3-9a01-014f-ff67378c3c95"
         elif order.venue_id == CompanyNew.PANDA:
             #obj['deliveryTerminalId'] = "9d55b8d9-7b71-aa53-0144-4da56c249760"  # DOSTAVKA48
             obj['deliveryTerminalId'] = "12c99191-4e48-67cc-014d-0ef17725d974"  # PANDA
