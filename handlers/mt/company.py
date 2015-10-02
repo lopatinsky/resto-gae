@@ -1,8 +1,10 @@
 # coding=utf-8
 import ast
+import logging
 import time
 from methods.company import create
 from methods.iiko.organization import get_orgs
+from methods.maps import get_address_coordinates
 from models.iiko.company import CompanyNew, IikoApiLogin, PlatiusLogin
 from base import BaseHandler
 
@@ -71,6 +73,10 @@ class CompanyEditHandler(BaseHandler):
         c.app_title = self.request.get("app_title")
         c.description = self.request.get("description")
         c.address = self.request.get("address")
+        try:
+            c.latitude, c.longitude = get_address_coordinates(c.address)
+        except Exception as e:
+            logging.exception(e)
         c.phone = self.request.get("phone")
         c.site = self.request.get("site")
         c.email = self.request.get("email")
