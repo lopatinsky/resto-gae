@@ -183,6 +183,8 @@ def _load_menu(company):
         children = cat.get('children')
         if children:
             cat['children'] = sorted(children, key=operator.itemgetter('order'))
+            if company.iiko_org_id == CompanyNew.PIR2015:
+                cat['children'] = cat['children'][:5]
 
     menu = sorted(categories.values(), key=operator.itemgetter('order'))
     _fix_categories_images(menu)
