@@ -91,7 +91,12 @@ class PlaceOrderHandler(BaseHandler):
 
         str_date = self.request.get('str_date')
         if str_date:
-            order.date = parse_str_date(str_date) - datetime.timedelta(seconds=company.get_timezone_offset())
+            parsed_str_date = parse_str_date(str_date)
+            if parsed_str_date:
+                order.date = parsed_str_date - datetime.timedelta(seconds=company.get_timezone_offset())
+            else:
+                logging.warning("Failed to parse str_date: %s", str_date)
+                order.date = datetime.datetime.now() + datetime.timedelta(hours=1)
 
         if order.date < datetime.datetime.utcnow() and \
                 ('/2.0 ' in self.request.user_agent or '/2.0.1' in self.request.user_agent):
