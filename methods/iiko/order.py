@@ -80,7 +80,7 @@ def prepare_order(order, customer, payment_type):
             #obj['deliveryTerminalId'] = "9d55b8d9-7b71-aa53-0144-4da56c249760"  # DOSTAVKA48
             obj['deliveryTerminalId'] = "12c99191-4e48-67cc-014d-0ef17725d974"  # PANDA
         elif order.venue_id == CompanyNew.PIR2015:
-            obj['deliveryTerminalId'] = "df206d6c-7e82-ff5f-0150-1eb6f39e042c"
+            obj['deliveryTerminalId'] = "3251edfa-3b6e-eef1-0150-297bdd8d5cb0"
 
     customer_id = customer.customer_id
     if customer_id:
