@@ -29,9 +29,11 @@ GENERAL_ERROR = -1
 MIN_SUM_ERROR = 0
 NOT_VALID_TIME_ERROR = 1
 
-_FIRST_ORDER_GIFTS = {
-    CompanyNew.OMNOMNOM: u'Саке маки',
-    CompanyNew.TYKANO: u'ролл Калифорния'
+_GIFT_COMMENT_TEMPLATE = u'Первый заказ, %s в подарок. '
+_FIRST_ORDER_COMMENTS = {
+    CompanyNew.OMNOMNOM: (_GIFT_COMMENT_TEMPLATE % u'Саке маки', ''),
+    CompanyNew.TYKANO: (_GIFT_COMMENT_TEMPLATE % u'ролл Калифорния', ''),
+    CompanyNew.ORANGE_EXPRESS: (u'Первый заказ из приложения. ', u'Повторный заказ из приложения. '),
 }
 
 
@@ -124,7 +126,8 @@ class PlaceOrderHandler(BaseHandler):
                 comment = u"Заказ с Android. " + comment
             else:
                 comment = u"Заказ с iOS. " + comment
-        if company.iiko_org_id in _FIRST_ORDER_GIFTS:
+        if company.iiko_org_id in _FIRST_ORDER_COMMENTS:
+            comment_first, comment_repeated = _FIRST_ORDER_COMMENTS[company.iiko_org_id]
             customers = iiko.Customer.query(iiko.Customer.phone == customer.phone).fetch(keys_only=True)
             orders = [o
                       for lst in [iiko.Order.query(iiko.Order.customer == c,
@@ -133,8 +136,9 @@ class PlaceOrderHandler(BaseHandler):
                                                                          iiko.Order.CLOSED))
                                                    ) for c in customers]
                       for o in lst]
-            if not orders:
-                comment = u'Первый заказ, %s в подарок. ' % _FIRST_ORDER_GIFTS[company.iiko_org_id] + comment
+            comment = (comment_repeated if orders else comment_first) + comment
+            if company.iiko_org_id == CompanyNew.ORANGE_EXPRESS:
+                return self.send_error(comment)
 
         order.comment = comment
         order.is_delivery = self.request.get_range('deliveryType') == 0
