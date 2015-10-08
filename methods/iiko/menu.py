@@ -245,6 +245,8 @@ def list_menu(org_id):
     def get_products(cat_dict):
         result_p = []
         for product in cat_dict['products']:
+            product['categoryName'] = cat_dict['name']
+            product['categoryId'] = cat_dict['id']
             result_p.append(product)
         return result_p
 
