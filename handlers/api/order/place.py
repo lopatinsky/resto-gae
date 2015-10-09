@@ -137,8 +137,6 @@ class PlaceOrderHandler(BaseHandler):
                                                    ) for c in customers]
                       for o in lst]
             comment = (comment_repeated if orders else comment_first) + comment
-            if company.iiko_org_id == CompanyNew.ORANGE_EXPRESS:
-                return self.send_error(comment)
 
         order.comment = comment
         order.is_delivery = self.request.get_range('deliveryType') == 0
