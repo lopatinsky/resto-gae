@@ -2,8 +2,10 @@
 import json
 import logging
 import datetime
+import random
 
 from google.appengine.api.urlfetch_errors import DownloadError
+from google.appengine.ext import deferred
 from handlers.api.base import BaseHandler
 from methods.customer import get_resto_customer, set_customer_info, update_customer_id
 
@@ -17,6 +19,7 @@ from methods.orders.create import pay_by_card
 from methods.orders.precheck import set_discounts_bonuses_gifts
 from methods.orders.validation import validate_order
 from methods.rendering import parse_iiko_time, filter_phone, parse_str_date, prepare_address
+from methods.sms import send_confirmation
 from models import iiko
 from models.iiko import CompanyNew, ClientInfo, DeliveryTerminal, PaymentType
 from methods.specials.cat import fix_syrop, fix_modifiers_by_own
@@ -105,6 +108,17 @@ class PlaceOrderHandler(BaseHandler):
             logging.info('new date(str): %s' % order.date)
             order.date += datetime.timedelta(hours=12)
             logging.info("ios v2.0 fuckup, adding 12h: %s", order.date)
+
+        send_confirmation_sms = False
+        if company.iiko_org_id in (CompanyNew.EMPATIKA, CompanyNew.ORANGE_EXPRESS):
+            confirm_by_phone = self.request.get("confirm_by_phone")
+            if confirm_by_phone == "1":
+                comment = u"Клиент просит перезвонить. " + comment
+            elif confirm_by_phone == "0":
+                comment = u"Клиенту будет отправлено СМС-подтверждение. "
+                send_confirmation_sms = True
+            else:
+                pass  # old version
 
         order.delivery_terminal_id = delivery_terminal_id
         order.venue_id = company.iiko_org_id
@@ -217,6 +231,10 @@ class PlaceOrderHandler(BaseHandler):
             send_order_email(order, customer, company)
         except DownloadError:
             logging.warning('mandrill is not responsed')
+
+        if send_confirmation_sms:
+            countdown = random.randint(120, 420)  # make it realistic
+            deferred.defer(send_confirmation, order.key, _countdown=countdown)
 
         response_items = order.items
         if company.iiko_org_id == CompanyNew.COFFEE_CITY:
