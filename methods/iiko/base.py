@@ -20,13 +20,13 @@ def __get_iiko_base_url(iiko_biz):
 def _should_use_iiko_biz(company, force_platius):
     """Determines if the API request should use iiko.biz or platius.
     If the company is not using iiko.biz (company.new_endpoints is False), always use platius.
-    If the company does not have platius login, always use iiko.biz.
+    If the company does not have platius org id, always use iiko.biz.
     Otherwise (if we can use both), check the force_platius parameter.
     """
     if not company.new_endpoints:
         return False  # can not use iiko_biz if company uses platius
-    if not company.platius_login:
-        return True  # can not use platius if no platius login
+    if not company.platius_org_id:
+        return True  # can not use platius if no platius org id
     return not force_platius
 
 
