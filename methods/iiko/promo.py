@@ -148,13 +148,13 @@ def get_venue_promos(org_id):
 
     url = '/organization/%s/marketing_campaigns' % org_id
     company = CompanyNew.get_by_iiko_id(org_id)
-    promos = json.loads(get_request(company, url, {}))
+    promos = json.loads(get_request(company, url, {}, force_platius=True))
     return [{
         'id': promo['id'],
         'name': promo['name'] if promo['name'] else '',
         'description': promo['description'] if promo['description'] else '',
         'image_url': promo['imageUrl'],
-        'display_type': i % 4,
+        'display_type': 3,
         'start': (datetime.strptime(promo['start'], '%Y-%m-%d') - datetime(1970, 1, 1)).total_seconds()
         if promo['start'] else None,
         'end': (datetime.strptime(promo['end'], '%Y-%m-%d') - datetime(1970, 1, 1)).total_seconds()
