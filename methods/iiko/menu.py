@@ -113,9 +113,13 @@ def _load_menu(company):
             product['price'] = 1
             product['name'] += ' '
 
+        name = product['name'].capitalize()
+        if company.iiko_org_id == CompanyNew.TYKANO:
+            name = product['name']
+
         category_products[product['parentGroup']].append({
             'price': product['price'],
-            'name': product['name'].capitalize(),
+            'name': name,
             'productId': product['id'],
             'order': product['order'],
             'weight': product['weight'],
