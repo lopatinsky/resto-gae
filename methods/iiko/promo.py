@@ -20,7 +20,7 @@ def get_iikonet_payment_type(order):
             u"Домодедово": "INET3",
             u"Подольск": "INET4",
             u"Климовск": "INET4",
-            u"Авиагородок": "INET5",
+            u"Авиагородок": "INET6",
         }.get(city, _default)
     elif order.venue_id == CompanyNew.SUSHILAR:
         logging.info(order.delivery_terminal_id)
@@ -142,16 +142,19 @@ def get_venue_promos(org_id):
     if org_id == CompanyNew.MIVAKO:
         from handlers.api.specials.mivako_promo import get_mivako_iiko_promos
         return get_mivako_iiko_promos()
+    if org_id == CompanyNew.TYKANO:
+        from handlers.api.specials.tykano_promos import get_tykano_iiko_promos
+        return get_tykano_iiko_promos()
 
     url = '/organization/%s/marketing_campaigns' % org_id
     company = CompanyNew.get_by_iiko_id(org_id)
-    promos = json.loads(get_request(company, url, {}))
+    promos = json.loads(get_request(company, url, {}, force_platius=True))
     return [{
         'id': promo['id'],
         'name': promo['name'] if promo['name'] else '',
         'description': promo['description'] if promo['description'] else '',
         'image_url': promo['imageUrl'],
-        'display_type': i % 4,
+        'display_type': 3,
         'start': (datetime.strptime(promo['start'], '%Y-%m-%d') - datetime(1970, 1, 1)).total_seconds()
         if promo['start'] else None,
         'end': (datetime.strptime(promo['end'], '%Y-%m-%d') - datetime(1970, 1, 1)).total_seconds()
@@ -180,6 +183,7 @@ def get_order_promos(order, order_dict, set_info=False):
             continue
         item['code'] = product['code']
         item['sum'] = product['price'] * item['amount']
+        item['category'] = product['categoryName']
 
         for m in item.get('modifiers', []):
             mod_item = get_modifier_item(order.venue_id, product_code=item['code'], order_mod_id=m.get('id'))

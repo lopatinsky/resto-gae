@@ -14,5 +14,5 @@ class NewsHandler(BaseHandler):
             "news": news.dict() if news else None,
             "card_button_text": company.card_button_text or u"Добавить карту",
             "card_button_subtext": company.card_button_subtext or "",
-            'is_iiko': company.is_iiko_system
+            'is_iiko': company.is_iiko_system or company.iiko_org_id == CompanyNew.TYKANO
         })

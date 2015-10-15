@@ -20,22 +20,24 @@ def __get_iiko_base_url(iiko_biz):
 def _should_use_iiko_biz(company, force_platius):
     """Determines if the API request should use iiko.biz or platius.
     If the company is not using iiko.biz (company.new_endpoints is False), always use platius.
-    If the company does not have platius login, always use iiko.biz.
+    If the company does not have platius org id, always use iiko.biz.
     Otherwise (if we can use both), check the force_platius parameter.
     """
     if not company.new_endpoints:
         return False  # can not use iiko_biz if company uses platius
-    if not company.platius_login:
-        return True  # can not use platius if no platius login
+    if not company.platius_org_id:
+        return True  # can not use platius if no platius org id
     return not force_platius
 
 
-def _replace_org_id(company, params, payload, iiko_biz):
+def _replace_org_id(api_path, company, params, payload, iiko_biz):
     if not iiko_biz:
         if params.get('organization'):
             params['organization'] = company.platius_org_id
         if payload and payload.get('organization'):
             payload['organization'] = payload['restaurantId'] = company.platius_org_id
+        api_path = api_path.replace(company.iiko_org_id, company.platius_org_id)
+    return api_path
 
 
 def _restore_org_id(company, payload):
@@ -53,7 +55,7 @@ def get_request(company, api_path, params, force_platius=False):
 
     iiko_biz = _should_use_iiko_biz(company, force_platius)
     iiko_base_url = __get_iiko_base_url(iiko_biz)
-    _replace_org_id(company, params, None, iiko_biz)
+    api_path = _replace_org_id(api_path, company, params, None, iiko_biz)
 
     params['access_token'] = get_access_token(company, iiko_biz=iiko_biz)
     result = do()
@@ -78,7 +80,7 @@ def post_request(company, api_path, params, payload, force_platius=False):
 
     iiko_biz = _should_use_iiko_biz(company, force_platius)
     iiko_base_url = __get_iiko_base_url(iiko_biz)
-    _replace_org_id(company, params, payload, iiko_biz)
+    api_path = _replace_org_id(api_path, company, params, payload, iiko_biz)
 
     params['access_token'] = get_access_token(company, iiko_biz=iiko_biz)
     result = do()

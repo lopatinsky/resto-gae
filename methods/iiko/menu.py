@@ -113,9 +113,13 @@ def _load_menu(company):
             product['price'] = 1
             product['name'] += ' '
 
+        name = product['name'].capitalize()
+        if company.iiko_org_id == CompanyNew.TYKANO:
+            name = product['name']
+
         category_products[product['parentGroup']].append({
             'price': product['price'],
-            'name': product['name'].capitalize(),
+            'name': name,
             'productId': product['id'],
             'order': product['order'],
             'weight': product['weight'],
@@ -185,6 +189,13 @@ def _load_menu(company):
             cat['children'] = sorted(children, key=operator.itemgetter('order'))
 
     menu = sorted(categories.values(), key=operator.itemgetter('order'))
+    if company.iiko_org_id == CompanyNew.PIR2015:
+        root = None
+        for c in menu:
+            if c['id'] == "b32de26e-0fc7-4bf1-b871-b20199dd7bc6":
+                root = c
+        if root:
+            menu = root['children']
     _fix_categories_images(menu)
     return menu
 
@@ -238,6 +249,8 @@ def list_menu(org_id):
     def get_products(cat_dict):
         result_p = []
         for product in cat_dict['products']:
+            product['categoryName'] = cat_dict['name']
+            product['categoryId'] = cat_dict['id']
             result_p.append(product)
         return result_p
 
