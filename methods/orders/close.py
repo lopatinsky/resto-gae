@@ -5,6 +5,7 @@ from methods.auto.request import close_order
 from methods.parse_com import send_order_status_push
 from models.auto import AutoVenue
 from models.iiko import CompanyNew, DeliveryTerminal, PaymentType, Customer
+from models.iiko.order import AUTO_APP_SOURCE
 from models.specials import SharedBonus
 
 __author__ = 'dvpermyakov'
@@ -14,7 +15,7 @@ def close(order):
     company = CompanyNew.get_by_iiko_id(order.venue_id)
     delivery_terminal = DeliveryTerminal.get_by_id(order.delivery_terminal_id)
     auto_venue = AutoVenue.query(AutoVenue.delivery_terminal == delivery_terminal.key).get()
-    if auto_venue:
+    if auto_venue and order.source == AUTO_APP_SOURCE:
         close_order(order, auto_venue)
     if order.payment_type == PaymentType.CARD:
         pay_result = pay_by_card(company, order.alfa_order_id, 0)

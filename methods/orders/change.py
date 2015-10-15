@@ -5,7 +5,7 @@ from methods.rendering import parse_iiko_time
 from models.iiko import CompanyNew, Order, Customer, OrderChangeLog, OrderChangeLogEntry
 from methods.orders.close import close
 from methods.orders.cancel import cancel
-from models.iiko.order import IIKO_SOURCE, APP_SOURCE
+from models.iiko.order import IIKO_SOURCE, APP_SOURCE, AUTO_APP_SOURCE
 
 __author__ = 'dvpermyakov'
 
@@ -79,7 +79,7 @@ def do_load(order, order_id, org_id, iiko_order=None):
     _attr('status', Order.parse_status(iiko_order['status']))
 
     logging.debug("changes in %s: %s", order_id, changes.keys())
-    if changes and order.source == APP_SOURCE:
+    if changes and order.source in [APP_SOURCE, AUTO_APP_SOURCE]:
         __handle_changes(order, changes)
     order.put()
     return order

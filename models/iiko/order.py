@@ -7,8 +7,9 @@ __author__ = 'dvpermyakov'
 
 
 APP_SOURCE = 'app'
+AUTO_APP_SOURCE = 'auto_app'
 IIKO_SOURCE = 'iiko'
-SOURCE_CHOICES = (APP_SOURCE, IIKO_SOURCE)
+SOURCE_CHOICES = (APP_SOURCE, AUTO_APP_SOURCE, IIKO_SOURCE)
 
 
 class OrderRate(ndb.Model):

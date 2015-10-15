@@ -7,6 +7,7 @@ from methods.email import mandrill
 from methods.parse_com import send_order_status_push
 from models.auto import AutoVenue
 from models.iiko import CompanyNew, DeliveryTerminal, PaymentType
+from models.iiko.order import AUTO_APP_SOURCE
 
 __author__ = 'dvpermyakov'
 
@@ -18,7 +19,7 @@ def cancel(order):
         auto_venue = AutoVenue.query(AutoVenue.delivery_terminal == delivery_terminal.key).get()
     else:
         auto_venue = None
-    if auto_venue:
+    if auto_venue and order.source == AUTO_APP_SOURCE:
         cancel_oder(order, auto_venue)
     if order.payment_type == PaymentType.CARD:
         if order.venue_id == CompanyNew.ORANGE_EXPRESS:

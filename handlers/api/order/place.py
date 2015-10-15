@@ -20,7 +20,7 @@ from methods.rendering import parse_iiko_time, filter_phone, parse_str_date, pre
 from models import iiko
 from models.iiko import CompanyNew, ClientInfo, DeliveryTerminal, PaymentType
 from methods.specials.cat import fix_syrop, fix_modifiers_by_own
-
+from models.iiko.order import AUTO_APP_SOURCE
 
 __author__ = 'dvpermyakov'
 
@@ -59,6 +59,7 @@ class PlaceOrderHandler(BaseHandler):
         comment = self.request.get('comment')
         binding_id = self.request.get('binding_id')
         alpha_client_id = self.request.get('alpha_client_id')
+        source = self.request.get('source')
 
         delivery_terminal = DeliveryTerminal.get_by_id(delivery_terminal_id)
         if delivery_terminal:
@@ -81,6 +82,8 @@ class PlaceOrderHandler(BaseHandler):
         update_customer_id(company, customer)
 
         order = iiko.Order()
+        if source == AUTO_APP_SOURCE:
+            order.source = source
         order.date = datetime.datetime.utcfromtimestamp(int(self.request.get('date')))
         order.payment_type = self.request.get('paymentType')
 
