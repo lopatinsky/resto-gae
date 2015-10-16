@@ -110,6 +110,9 @@ app = WSGIApplication([
                 Route('/get_url', specials.GiftUrlHandler),
             ]),
         ]),
+        PathPrefixRoute('/recommendation', [
+            Route('/by_item', specials.ItemRecommendationHandler),
+        ]),
         Route('/address', address.AddressByStreetHandler),
         Route('/get_info', trash.GetAddressByKeyHandler),
     ]),
