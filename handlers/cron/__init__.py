@@ -1,6 +1,7 @@
 # coding=utf-8
 
 import webapp2
+from .oe_recommendations import BuildRecommendationsHandler
 from .update_streets import UpdateStreetsHandler
 from .update_menu import UpdateMenuHandler, UpdateMenuImagesHandler
 from .update_orders import UpdateOrdersHandler
@@ -18,5 +19,6 @@ app = webapp2.WSGIApplication([
     ('/cron/check_coffee_city', CheckCoffeeCityUpdatesHandler),
     ('/cron/inactive_clients', InactiveClientsWithPromo),
     ('/cron/update_streets', UpdateStreetsHandler),
+    ('/cron/build_recommendations', BuildRecommendationsHandler),
     ('/task/update_coffee_city', CoffeeCityUpdatesHandler),
 ], debug=True)

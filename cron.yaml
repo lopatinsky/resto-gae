@@ -34,3 +34,8 @@ cron:
 #  url: /cron/inactive_clients
 #  schedule: every day 12:00
 #  timezone: Europe/Moscow
+
+- description: build OE recommendations
+  url: /cron/build_recommendations
+  schedule: every day 04:00
+  timezone: Europe/Moscow

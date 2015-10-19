@@ -7,7 +7,7 @@ __author__ = 'dvpermyakov'
 class Recommendation(ndb.Model):
     company = ndb.KeyProperty(kind=CompanyNew)
     item_id = ndb.StringProperty(required=True)
-    recommendations = ndb.StringProperty(repeated=True)  # item_ids
+    recommendations = ndb.StringProperty(repeated=True, indexed=False)  # item_ids
 
     def dict(self):
         from methods.iiko.menu import get_product_from_menu
