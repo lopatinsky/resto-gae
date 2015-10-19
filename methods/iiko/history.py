@@ -32,8 +32,8 @@ def get_orders(company, start, end, status=None):
         'organization': company.iiko_org_id,
         'dateFrom': start.strftime("%Y-%m-%d"),
         'dateTo': end.strftime("%Y-%m-%d"),
-        'requestTimeout': 20
+        'request_timeout': '00:01:00'
     }
     if status:
         payload['deliveryStatus'] = status
-    return json.loads(get_request(company, '/orders/deliveryOrders', payload))
+    return json.loads(get_request(company, '/orders/deliveryOrders', payload, deadline=45))
