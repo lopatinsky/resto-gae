@@ -205,7 +205,7 @@ def _filter_menu(menu):
         for p in category['products']:
             p['single_modifiers'] = [m
                                      for m in p['single_modifiers']
-                                     if m['price'] == 0 and m['minAmount'] == 0]
+                                     if m['minAmount'] == 0]
         category['products'] = [p
                                 for p in category['products']
                                 if p['price'] > 0 or p['single_modifiers'] or p['modifiers']]
