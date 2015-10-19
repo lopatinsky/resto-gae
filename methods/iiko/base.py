@@ -45,13 +45,13 @@ def _restore_org_id(company, payload):
         payload['organization'] = payload['restaurantId'] = company.iiko_org_id
 
 
-def get_request(company, api_path, params, force_platius=False):
+def get_request(company, api_path, params, force_platius=False, deadline=30):
     def do():
         url = '%s%s' % (iiko_base_url, api_path)
         if params:
             url = '%s?%s' % (url, urllib.urlencode(params))
         logging.info(url)
-        return urlfetch.fetch(url, deadline=30, validate_certificate=False)
+        return urlfetch.fetch(url, deadline=deadline, validate_certificate=False)
 
     iiko_biz = _should_use_iiko_biz(company, force_platius)
     iiko_base_url = __get_iiko_base_url(iiko_biz)
@@ -66,7 +66,7 @@ def get_request(company, api_path, params, force_platius=False):
     return result.content
 
 
-def post_request(company, api_path, params, payload, force_platius=False):
+def post_request(company, api_path, params, payload, force_platius=False, deadline=30):
     def do():
         url = '%s%s' % (iiko_base_url, api_path)
         if params:
@@ -76,7 +76,7 @@ def post_request(company, api_path, params, payload, force_platius=False):
         logging.info(url)
 
         return urlfetch.fetch(url, method='POST', headers={'Content-Type': 'application/json'}, payload=json_payload,
-                              deadline=30, validate_certificate=False)
+                              deadline=deadline, validate_certificate=False)
 
     iiko_biz = _should_use_iiko_biz(company, force_platius)
     iiko_base_url = __get_iiko_base_url(iiko_biz)
