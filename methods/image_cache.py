@@ -44,7 +44,7 @@ def _fetch_image(url_base64, cache_info):
 
         # get serving url
         blob_key = blobstore.create_gs_key("/gs" + filename)
-        serving_url = images.get_serving_url(blob_key, size=max(image.size))
+        serving_url = images.get_serving_url(blob_key, size=max(image.size), secure_url=False)
 
         # save cache info
         cache_info = ImageCache(
