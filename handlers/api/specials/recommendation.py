@@ -16,5 +16,5 @@ class ItemRecommendationHandler(BaseHandler):
         item = get_product_from_menu(company.iiko_org_id, product_id=item_id)
         if not item:
             self.abort(400)
-        recommendation = Recommendation.query(Recommendation.item_id == item_id).get()
-        self.render_json(recommendation.dict())
+        recommendations = Recommendation.get_for_item_id(item_id)
+        self.render_json({'items': recommendations})

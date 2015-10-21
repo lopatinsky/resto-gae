@@ -9,10 +9,15 @@ class Recommendation(ndb.Model):
     item_id = ndb.StringProperty(required=True)
     recommendations = ndb.StringProperty(repeated=True, indexed=False)  # item_ids
 
-    def dict(self):
+    @classmethod
+    def get_for_item_id(cls, item_id):
+        rec = Recommendation.query(Recommendation.item_id == item_id).get()
+        if not rec:
+            return []
+        return rec.get_items()
+
+    def get_items(self):
         from methods.iiko.menu import get_product_from_menu
         org_id = self.company.get().iiko_org_id
-        return {
-            'items': [get_product_from_menu(org_id, product_id=recommendation)
-                      for recommendation in self.recommendations]
-        }
+        items = [get_product_from_menu(org_id, product_id=recommendation) for recommendation in self.recommendations]
+        return [item for item in items if item]
