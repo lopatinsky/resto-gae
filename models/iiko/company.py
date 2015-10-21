@@ -88,7 +88,7 @@ class CompanyNew(ndb.Model):
     PIZZA_HUT = "107662a7-39d5-11e5-80c1-d8d385655247"
     SUSHI_TIME = "8b939502-9ec3-11e3-bae4-001b21b8a590"
     OMNOMNOM = "f3417644-308b-11e5-80c1-d8d385655247"
-    PIR2015 = "42b17467-bccc-11e4-80d3-0025907e32e9"
+    HLEB = "72ea832b-7631-11e5-80c1-d8d385655247"
 
     iiko_login = ndb.StringProperty()
     platius_login = ndb.StringProperty()

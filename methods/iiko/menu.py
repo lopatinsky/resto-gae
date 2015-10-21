@@ -114,8 +114,13 @@ def _load_menu(company):
             product['name'] += ' '
 
         name = product['name'].capitalize()
+        description = product['description']
         if company.iiko_org_id == CompanyNew.TYKANO:
             name = product['name']
+        elif company.iiko_org_id == CompanyNew.HLEB:
+            if product['tags']:
+                name = product['tags'][0]
+            description = product['additionalInfo']
 
         category_products[product['parentGroup']].append({
             'price': product['price'],
@@ -131,7 +136,7 @@ def _load_menu(company):
             'images': [convert_url(webapp2.get_request(), img['imageUrl'])
                        for img in product.get('images', [])
                        if img['imageUrl']][::-1],
-            'description': product['description'] or '',
+            'description': description or '',
             'additionalInfo': add_info,
             'additionalInfo1': add_info_str,
             'single_modifiers': single_modifiers,
@@ -189,13 +194,6 @@ def _load_menu(company):
             cat['children'] = sorted(children, key=operator.itemgetter('order'))
 
     menu = sorted(categories.values(), key=operator.itemgetter('order'))
-    if company.iiko_org_id == CompanyNew.PIR2015:
-        root = None
-        for c in menu:
-            if c['id'] == "b32de26e-0fc7-4bf1-b871-b20199dd7bc6":
-                root = c
-        if root:
-            menu = root['children']
     _fix_categories_images(menu)
     return menu
 
