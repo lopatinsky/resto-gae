@@ -5,6 +5,7 @@ import logging
 from google.appengine.ext import ndb
 from webapp2 import RequestHandler
 from methods.iiko.history import get_orders
+from methods.iiko.menu import list_menu
 from models.iiko.company import CompanyNew
 from models.recommendation import Recommendation
 
@@ -19,17 +20,26 @@ class BuildRecommendationsHandler(RequestHandler):
         for org_id in RECOMMENDATION_COMPANIES:
             company = CompanyNew.get_by_iiko_id(org_id)
 
+            logging.debug("building category dict")
+            menu = list_menu(org_id)
+            item_categories = {}
+            for product in menu:
+                item_categories[product['productId']] = product['categoryId']
+
             logging.debug("history fetch start")
             history = get_orders(company, start_date, today, 'CLOSED')['deliveryOrders']
 
             logging.debug("counting start")
             pair_order_count = defaultdict(Counter)  # item1_id -> (item2_id -> num of orders)
             for order in history:
-                item_ids = set(item['id'] for item in order['items'])
+                item_ids = set(item['id'] for item in order['items'] if item['id'] in item_categories)
                 for item_id in item_ids:
                     for other_item_id in item_ids:
                         if other_item_id != item_id:
-                            pair_order_count[item_id][other_item_id] += 1
+                            k = 1
+                            if item_categories[item_id] == item_categories[other_item_id]:
+                                k = 0.2
+                            pair_order_count[item_id][other_item_id] += k
 
             logging.debug("building objects")
             recs = []
