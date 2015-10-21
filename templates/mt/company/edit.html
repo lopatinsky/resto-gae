@@ -110,6 +110,18 @@
         </fieldset>
 
         <fieldset>
+            <legend>Специальные категории</legend>
+            <textarea name="additional_categories" cols="30" rows="10">
+                {%- for c in company.additional_categories -%}
+                    {{- c.title }}{{ '\n' -}}
+                    {%- for item_id in c.item_ids -%}
+                        {{- item_id }}{{ '\n' -}}
+                    {%- endfor -%}
+                {%- endfor -%}
+            </textarea>
+        </fieldset>
+
+        <fieldset>
             <legend>Прочие настройки</legend>
             <div>
                 <label for="support_emails">Email для поддержки, через запятую:</label>

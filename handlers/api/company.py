@@ -1,7 +1,7 @@
 # coding=utf-8
 from handlers.api.base import BaseHandler
 from methods.customer import get_resto_customer
-from methods.iiko.menu import get_menu
+from methods.iiko.menu import get_menu, add_additional_categories
 from methods.specials.cat import fix_syrop, fix_modifiers_by_own
 from models.iiko import CompanyNew, DeliveryTerminal, Order
 
@@ -50,13 +50,14 @@ class CompanyPaymentTypesHandler(BaseHandler):
 
 class CompanyMenuHandler(BaseHandler):
     def get(self, company_id):
-        iiko_org_id = CompanyNew.get_by_id(int(company_id)).iiko_org_id
+        company = CompanyNew.get_by_id(int(company_id))
         force_reload = "reload" in self.request.params
         filtered = "all" not in self.request.params
-        menu = get_menu(iiko_org_id, force_reload=force_reload, filtered=filtered)
-        if iiko_org_id == CompanyNew.COFFEE_CITY:
+        menu = get_menu(company.iiko_org_id, force_reload=force_reload, filtered=filtered)
+        if company.iiko_org_id == CompanyNew.COFFEE_CITY:
             menu = fix_syrop.set_syrop_modifiers(menu)
             menu = fix_modifiers_by_own.remove_modifiers(menu)
+        add_additional_categories(company, menu)
         self.render_json({'menu': menu})
 
 

@@ -1,5 +1,5 @@
 from handlers.api.base import BaseHandler
-from methods.iiko.menu import get_menu
+from methods.iiko.menu import get_menu, add_additional_categories
 from methods.specials.cat import fix_syrop, fix_modifiers_by_own
 from models.iiko import CompanyNew, DeliveryTerminal
 
@@ -29,4 +29,5 @@ class VenueMenuHandler(BaseHandler):
         if iiko_org_id == CompanyNew.COFFEE_CITY:
             menu = fix_syrop.set_syrop_modifiers(menu)
             menu = fix_modifiers_by_own.remove_modifiers(menu)
+        add_additional_categories(CompanyNew.get_by_iiko_id(iiko_org_id), menu)
         self.render_json({'menu': menu})

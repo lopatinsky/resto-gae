@@ -2,7 +2,7 @@
 import ast
 import logging
 import time
-from methods.company import create
+from methods.company import create, parse_additional_categories
 from methods.iiko.organization import get_orgs
 from methods.maps import get_address_coordinates
 from models.iiko.company import CompanyNew, IikoApiLogin, PlatiusLogin
@@ -91,6 +91,7 @@ class CompanyEditHandler(BaseHandler):
         c.alpha_pass = self.request.get("alpha_pass")
         c.support_emails = self.request.get("support_emails").split(",")
         c.app_name = self.request.get("user_agent").split(",")
+        c.additional_categories = parse_additional_categories(self.request.get("additional_categories"))
         c.put()
         platius_logins = [key.id() for key in PlatiusLogin.query().fetch(keys_only=True)]
         self.render('company/edit.html', company=c, platius_logins=platius_logins, success=True)

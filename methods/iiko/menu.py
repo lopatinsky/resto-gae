@@ -325,3 +325,25 @@ def fix_modifier_amount(org_id, items):
                         "amount": mod["minAmount"]
                     })
     return items
+
+
+def add_additional_categories(company, menu):
+    min_order = menu[0]['order']
+    starting_order = min_order - len(company.additional_categories)
+    additional_dicts = []
+    for i, c in enumerate(company.additional_categories):
+        products = [get_product_from_menu(company.iiko_org_id, product_id=item_id) for item_id in c.item_ids]
+        products = filter(None, products)
+        if products:
+            additional_dicts.append({
+                "name": c.title,
+                "id": "additional$%s" % i,
+                "parent": None,
+                "hasChildren": False,
+                "children": [],
+                "image": [],
+                "order": starting_order + i,
+                "products": products
+            })
+    _fix_categories_images(additional_dicts)
+    menu[0:0] = additional_dicts

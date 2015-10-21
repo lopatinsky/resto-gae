@@ -1,11 +1,18 @@
+# coding=utf-8
+import logging
+import re
 from google.appengine.ext import ndb
 from methods.iiko.delivery_terminal import get_delivery_terminals
 from methods.maps import get_address_coordinates
 from config import config
 from methods.iiko.organization import get_org, get_orgs
 from models.iiko import IikoApiLogin, CompanyNew, DeliveryType, PaymentType, DeliveryTerminal
+from models.iiko.company import AdditionalCategory
 
 __author__ = 'dvpermyakov'
+
+_guid_pattern = "^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$"
+_guid_regex = re.compile(_guid_pattern, re.IGNORECASE)
 
 
 def _load_delivery_terminals(company):
@@ -66,3 +73,22 @@ def create(login, password=None, company_id=None, organization_id=None, new_endp
 
     _load_delivery_terminals(company)
     return company
+
+
+def parse_additional_categories(str_categories):
+    logging.info(repr(str_categories))
+    lines = [l.strip() for l in str_categories.split("\n")]
+    result = []
+    for line in lines:
+        logging.info(repr(line))
+        if not line:
+            continue
+        if _guid_regex.match(line):
+            logging.info('%s is a GUID, appending', line)
+            if len(result) == 0:
+                result.append(AdditionalCategory(title=u'Популярное'))
+            result[-1].item_ids.append(line)
+        else:
+            logging.info('New category with title %s', line)
+            result.append(AdditionalCategory(title=line))
+    return [c for c in result if c.item_ids]

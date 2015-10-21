@@ -66,6 +66,11 @@ class InvitationSettings(ndb.Model):
     failure_message = ndb.StringProperty(default='Fail')
 
 
+class AdditionalCategory(ndb.Model):
+    title = ndb.StringProperty(indexed=False)
+    item_ids = ndb.StringProperty(indexed=False, repeated=True)
+
+
 class CompanyNew(ndb.Model):
     COFFEE_CITY = "02b1b1f7-4ec8-11e4-80cc-0025907e32e9"
     COFFEE_CITY_DEMO = "3507a5da-5314-11e5-80c1-d8d385655247"
@@ -132,6 +137,8 @@ class CompanyNew(ndb.Model):
 
     ios_push_channel = ndb.StringProperty()
     android_push_channel = ndb.StringProperty()
+
+    additional_categories = ndb.LocalStructuredProperty(AdditionalCategory, repeated=True)
 
     @classmethod
     def get_payment_types(cls, venue_id):
