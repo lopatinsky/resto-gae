@@ -2,11 +2,10 @@
 
 import logging
 from methods.alfa_bank import get_back_blocked_sum
-from methods.auto.request import cancel_oder
+from methods.auto.request import cancel_order
 from methods.email import mandrill
 from methods.parse_com import send_order_status_push
-from models.auto import AutoVenue
-from models.iiko import CompanyNew, DeliveryTerminal, PaymentType
+from models.iiko import CompanyNew, PaymentType
 from models.iiko.order import AUTO_APP_SOURCE
 
 __author__ = 'dvpermyakov'
@@ -14,13 +13,8 @@ __author__ = 'dvpermyakov'
 
 def cancel(order):
     company = CompanyNew.get_by_iiko_id(order.venue_id)
-    if order.delivery_terminal_id:
-        delivery_terminal = DeliveryTerminal.get_by_id(order.delivery_terminal_id)
-        auto_venue = AutoVenue.query(AutoVenue.delivery_terminal == delivery_terminal.key).get()
-    else:
-        auto_venue = None
-    if auto_venue and order.source == AUTO_APP_SOURCE:
-        cancel_oder(order, auto_venue)
+    if company.auto_token and order.source == AUTO_APP_SOURCE:
+        cancel_order(order, company.auto_token)
     if order.payment_type == PaymentType.CARD:
         if order.venue_id == CompanyNew.ORANGE_EXPRESS:
             customer = order.customer.get()

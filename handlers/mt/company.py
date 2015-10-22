@@ -91,6 +91,7 @@ class CompanyEditHandler(BaseHandler):
         c.alpha_pass = self.request.get("alpha_pass")
         c.support_emails = self.request.get("support_emails").split(",")
         c.app_name = self.request.get("user_agent").split(",")
+        c.auto_token = self.request.get("auto_token")
         c.additional_categories = parse_additional_categories(self.request.get("additional_categories"))
         c.put()
         platius_logins = [key.id() for key in PlatiusLogin.query().fetch(keys_only=True)]

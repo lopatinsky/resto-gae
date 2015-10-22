@@ -116,6 +116,7 @@ class CompanyNew(ndb.Model):
     invitation_settings = ndb.LocalStructuredProperty(InvitationSettings)
     branch_gift_enable = ndb.BooleanProperty(default=False)
     rbcn_mobi = ndb.StringProperty(indexed=False)
+    auto_token = ndb.StringProperty(default='')
 
     review_enable = ndb.BooleanProperty(default=False)
 

@@ -131,6 +131,10 @@
                 <label for="user_agent">User-Agent:</label>
                 <input type="text" name="user_agent" id="user_agent" value="{{ ','.join(company.app_name) }}">
             </div>
+            <div>
+                <label for="auto_token">Токен для автоматизации</label>
+                <input type="text" name="auto_token" id="auto_token" value="{{ company.auto_token }}">
+            </div>
         </fieldset>
 
         <input type="submit">

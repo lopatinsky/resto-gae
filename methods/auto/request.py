@@ -8,10 +8,10 @@ __author__ = 'dvpermyakov'
 BASE_URL = 'http://doubleb-automation-production.appspot.com/api/admin'
 
 
-def cancel_oder(order, auto_venue):
+def cancel_order(order, auto_token):
     path = '/orders/%s/cancel' % order.key.id()
     params = {
-        'token': auto_venue.token
+        'token': auto_token
     }
     url = '%s%s?%s' % (BASE_URL, path, urllib.urlencode(params))
     logging.info(url)
@@ -19,10 +19,10 @@ def cancel_oder(order, auto_venue):
     logging.info(response.status_code)
 
 
-def close_order(order, auto_venue):
+def close_order(order, auto_token):
     path = '/orders/%s/close' % order.key.id()
     params = {
-        'token': auto_venue.token
+        'token': auto_token
     }
     url = '%s%s?%s' % (BASE_URL, path, urllib.urlencode(params))
     logging.info(url)
@@ -30,10 +30,10 @@ def close_order(order, auto_venue):
     logging.info(response.status_code)
 
 
-def confirm_order(order, auto_venue):
+def confirm_order(order, auto_token):
     path = '/orders/%s/confirm' % order.key.id()
     params = {
-        'token': auto_venue.token
+        'token': auto_token
     }
     url = '%s%s?%s' % (BASE_URL, path, urllib.urlencode(params))
     logging.info(url)
