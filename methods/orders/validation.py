@@ -17,7 +17,8 @@ def _check_company_schedule(company, order):
     local_time = order.date + timedelta(seconds=company.get_timezone_offset())
     if company.schedule:
         if not working_hours.is_datetime_valid(company.schedule, local_time, order.is_delivery):
-            start, end = working_hours.parse_company_schedule(company.schedule, local_time.isoweekday())
+            start, end = working_hours.parse_company_schedule(company.schedule, local_time.isoweekday(),
+                                                              order.is_delivery)
             return False, u'Вы выбрали некорректное время доставки. ' \
                           u'Пожалуйста, выберите время между %s:00 и %s:00.' % (start, end)
     return True, None

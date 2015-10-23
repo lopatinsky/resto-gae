@@ -60,6 +60,8 @@ class CheckOrderHandler(BaseHandler):
         order.is_delivery = True
         if self.request.get('deliveryType'):
             order.is_delivery = self.request.get('deliveryType') == '0'
+        if order.is_delivery:
+            order.address = {'home': '0'}
 
         order_dict = prepare_order(order, customer, None)
 
