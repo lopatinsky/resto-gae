@@ -57,6 +57,9 @@ class CheckOrderHandler(BaseHandler):
         order.venue_id = company.iiko_org_id
         order.sum = float(self.request.get('sum'))
         order.items = items
+        order.is_delivery = True
+        if self.request.get('deliveryType'):
+            order.is_delivery = self.request.get('deliveryType') == '0'
 
         order_dict = prepare_order(order, customer, None)
 
