@@ -118,7 +118,7 @@ class PlaceOrderHandler(BaseHandler):
             if confirm_by_phone == "1":
                 comment = u"Клиент просит перезвонить. " + comment
             elif confirm_by_phone == "0":
-                comment = u"Клиенту будет отправлено СМС-подтверждение. "
+                comment = u"Клиенту будет отправлено СМС-подтверждение. " + comment
                 send_confirmation_sms = True
             else:
                 pass  # old version
