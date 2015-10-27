@@ -4,6 +4,7 @@ from google.appengine.api.taskqueue import taskqueue
 from methods.alfa_bank import pay_by_card
 from methods.auto.request import close_order
 from methods.parse_com import send_order_status_push
+from methods.versions import supports_review
 from models.iiko import CompanyNew, PaymentType
 from models.iiko.order import AUTO_APP_SOURCE
 from models.specials import SharedBonus
@@ -29,9 +30,9 @@ def close(order):
                 'order_id': order.order_id
             })
     order_user_agent = order.customer.get().user_agent
-    if company.review_enable and ('OrangeExpress/2.0.3' in order_user_agent or 'orangexpress/1.2.2' in order_user_agent):
+    if company.review_enable and supports_review(order_user_agent):
         taskqueue.add(url='/single_task/push/review', params={
             'order_id': order.order_id
-        }, countdown=60*45)
+        }, countdown=30*45)
 
     send_order_status_push(order)
