@@ -30,16 +30,23 @@ class BuildRecommendationsHandler(RequestHandler):
             history = get_orders(company, start_date, today, 'CLOSED')['deliveryOrders']
 
             logging.debug("counting start")
+            item_count_by_category = defaultdict(Counter)  # cat_id -> (item_id -> num of orders) for popular section
             pair_order_count = defaultdict(Counter)  # item1_id -> (item2_id -> num of orders)
             for order in history:
                 item_ids = set(item['id'] for item in order['items'] if item['id'] in item_categories)
                 for item_id in item_ids:
+                    item_count_by_category[item_categories[item_id]][item_id] += 1
                     for other_item_id in item_ids:
                         if other_item_id != item_id:
                             k = 1
                             if item_categories[item_id] == item_categories[other_item_id]:
                                 k = 0.2
                             pair_order_count[item_id][other_item_id] += k
+
+            logging.debug("building global popular")
+            popular_pairs = [c.most_common(1)[0] for c in item_count_by_category.values()]
+            most_common = sorted(popular_pairs, key=lambda pair: pair[1], reverse=True)[:5]
+            logging.info(most_common)
 
             logging.debug("building objects")
             recs = []
