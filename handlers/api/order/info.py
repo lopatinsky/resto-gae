@@ -6,7 +6,10 @@ __author__ = 'dvpermyakov'
 
 class OrderInfoHandler(BaseHandler):
     def get(self, order_id):
-        order = iiko.Order.order_by_id(order_id)
+        try:
+            order = iiko.Order.get_by_id(int(order_id))
+        except ValueError:
+            order = iiko.Order.order_by_id(order_id)
         order.reload()
 
         self.render_json({
