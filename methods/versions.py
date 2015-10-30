@@ -23,7 +23,7 @@ def get_platform_and_version(ua):
 def supports_review(ua):
     platform, version = get_platform_and_version(ua)
     if platform == IOS_DEVICE:
-        return version >= 2030000
+        return version >= 2070000
     if platform == ANDROID_DEVICE:
         return version >= 1020200
     return False
