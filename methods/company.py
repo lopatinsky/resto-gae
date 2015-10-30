@@ -49,10 +49,12 @@ def create(login, password=None, company_id=None, organization_id=None, new_endp
         company.iiko_org_id = organization['id']
     company.app_title = organization['name']
     company.address = organization['address'] or organization['contact']['location']
+    company.latitude, company.longitude = 0, 0
     if company.address:
-        company.latitude, company.longitude = get_address_coordinates(company.address)
-    else:
-        company.latitude, company.longitude = 0, 0
+        try:
+            company.latitude, company.longitude = get_address_coordinates(company.address)
+        except Exception as e:
+            logging.exception(e)
 
     delivery_types = [
         DeliveryType(available=True, delivery_id=0, name="delivery"),
