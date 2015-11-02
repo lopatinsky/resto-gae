@@ -1,6 +1,7 @@
 # coding=utf-8
 from models.iiko.customer import ANDROID_DEVICE
 from models.iiko.customer import IOS_DEVICE
+from models.iiko.order import Order
 
 __author__ = 'dvpermyakov'
 
@@ -21,12 +22,15 @@ def push_venues(chosen_companies, text, full_text, head, android_avail, ios_avai
     android_channels = []
     ios_channels = []
 
+    dummy_order = None
+
     for chosen_company in chosen_companies:
         company = CompanyNew.get_by_id(chosen_company)
         if company.ios_push_channel:
             ios_channels.append(company.ios_push_channel)
         if company.android_push_channel:
             android_channels.append(company.android_push_channel)
+        dummy_order = Order(venue_id=company.iiko_org_id)  # for proper parse account
 
     for client in clients:
         if client.company_id not in chosen_companies:
@@ -49,7 +53,7 @@ def push_venues(chosen_companies, text, full_text, head, android_avail, ios_avai
     result = {}
     if android_avail:
         data = make_mass_push_data(text, full_text, ANDROID_DEVICE, head)
-        response = send_push(android_channels, data, ANDROID_DEVICE)
+        response = send_push(android_channels, data, ANDROID_DEVICE, dummy_order)
         result['android'] = {
             'data': data,
             'channels': android_channels,
@@ -57,7 +61,7 @@ def push_venues(chosen_companies, text, full_text, head, android_avail, ios_avai
         }
     if ios_avail:
         data = make_mass_push_data(text, full_text, IOS_DEVICE, head)
-        response = send_push(ios_channels, data, IOS_DEVICE)
+        response = send_push(ios_channels, data, IOS_DEVICE, dummy_order)
         result['ios'] = {
             'data': data,
             'channels': ios_channels,
