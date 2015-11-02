@@ -30,8 +30,11 @@ class OrderReviewHandler(BaseHandler):
             if comment:
                 body += u"Комментарий: %s" % comment
             logging.info(body)
-            mandrill.send_email('noreply-rating@ru-beacon.ru', company.support_emails,
-                                ['mdburshteyn@gmail.com', 'isparfenov@gmail.com'], u'Негативный отзыв о заказе',
+            # to = company.support_emails
+            # cc = ['mdburshteyn@gmail.com', 'isparfenov@gmail.com']
+            to = ['mdburshteyn@gmail.com']
+            cc = []
+            mandrill.send_email('noreply-rating@ru-beacon.ru', to, cc, u'Негативный отзыв о заказе',
                                 body)
 
         self.render_json({})
