@@ -122,6 +122,7 @@ app = WSGIApplication([
             Route('/venues', report.VenueReportHandler),
             Route('/orders', report.OrdersReportHandler),
             Route('/orders_lite', report.OrdersLiteReportHandler),
+            Route('/reviews', report.ReviewsReportHandler),
             Route('/clients', report.ClientsReportHandler),
             Route('/repeated_orders', report.RepeatedOrdersReportHandler),
             Route('/square_table', report.SquareTableHandler),

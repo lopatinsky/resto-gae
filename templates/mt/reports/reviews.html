@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+{% from 'mt/reports/macros.html' import report_controls %}
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <form method="get">
+         <select name="selected_company">
+             <option value=0 {% if not chosen_company %}selected{% endif %}>Все кофейни</option>
+             {% for company in companies %}
+                  <option value="{{ company.iiko_org_id }}" {% if chosen_company == company %} selected {% endif %}>
+                      {{ company.app_title }}
+                  </option>
+             {% endfor %}
+         </select>
+         {{ report_controls(start, end) }}
+    </form>
+
+    <table style="border-collapse:collapse; width:100%" border="1">
+         <tr>
+             <th>Number</th>
+             <th>Company Name</th>
+             <th>Date</th>
+             <th>Status</th>
+             <th>Payment Type</th>
+             <th>Sum</th>
+             <th>Terminal</th>
+             <th>Оценка еды</th>
+             <th>Оценка сервиса</th>
+             <th>Комментарий к оценке</th>
+         </tr>
+         {% for order in orders %}
+             <tr bgcolor="{{ order.hlcolor }}">
+                 <td>{{ order.number }}</td>
+                 <td>{{ order.venue_name }}</td>
+                 <td>{{ order.date }}</td>
+                 <td>{{ order.status_str }}</td>
+                 <td>{{ order.payment_name }}</td>
+                 <td>{{ order.sum }}</td>
+                 <td>{{ order.delivery_terminal_name }}</td>
+                 {% if order.rate %}
+                     <td>{{ order.rate.meal_rate }}</td>
+                     <td>{{ order.rate.service_rate }}</td>
+                     <td>{{ order.rate.comment }}</td>
+                 {% else %}
+                     <td colspan="3">Нет оценки</td>
+                 {% endif %}
+             </tr>
+         {% endfor %}
+     </table>
+     <a href="/mt/report">Назад</a>
+
+</body>
+</html>
