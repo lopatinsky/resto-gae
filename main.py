@@ -88,7 +88,6 @@ app = WSGIApplication([
             Route('/logout', api_push_admin.LogoutHandler),
             Route('/pushes', api_push_admin.PushSendingHandler, 'pushes'),
             Route('/history', api_push_admin.PushHistoryHandler, 'admin_push_history'),
-            Route('/sms', api_push_admin.SmsAdminHandler),
             Route('/menu_reload', api_push_admin.ReloadMenuHandler),
         ]),
         PathPrefixRoute('/specials', [
