@@ -9,8 +9,8 @@ class MivakoPromoInfoHandler(BaseHandler):
         promo_info = {
             "title": u"Подари ролл другу!",
             "text": u"Укажи номер телефона друга и мы подарим ему ролл \"Калифорния с лососем\" при первом заказе.",
-            "image": "http://lh6.ggpht.com/"
-                     "8zevGQVTtrVFeEE2CNfHX3fXjV4BiPCd_EtlIdAs0Zq_OZ0sU9wrz9w2TOsbWUkVChtviitwCdFfk5PObmLW0WXqc9A"
+            "image": "http://lh3.googleusercontent.com/"
+                     "2rfgbXcm1-viN8uYegsD-SYgW7KVBqV5v_RH8o5FGIZCINtdtfxMjoEt9Xxw5VlDIxrrmSJjpm0QjyWlO8oN9tAP8Rk=s600"
         }
         self.render_json(promo_info)
 
