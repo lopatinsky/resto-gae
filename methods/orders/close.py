@@ -33,6 +33,6 @@ def close(order):
     if company.review_enable and supports_review(order_user_agent):
         taskqueue.add(url='/single_task/push/review', params={
             'order_id': order.order_id
-        }, countdown=30*45)
+        }, countdown=60*30)
 
     send_order_status_push(order)
