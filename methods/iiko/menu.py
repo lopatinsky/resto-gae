@@ -226,11 +226,15 @@ def get_menu(org_id, force_reload=False, filtered=True):
     menu = memcache.get('iiko_menu_%s' % org_id)
     if not menu or force_reload:
         company = CompanyNew.get_by_iiko_id(org_id)
-        if not company.menu or force_reload:
-            company.menu = _load_menu(company)
-            company.put()
-        menu = company.menu
-        memcache.set('iiko_menu_%s' % org_id, menu, time=1*3600)
+        if not company.menu_categories or force_reload:
+            menu = _load_menu(company)
+            company.put_menu(menu)
+        else:
+            menu = company.load_menu()
+        try:
+            memcache.set('iiko_menu_%s' % org_id, menu, time=1*3600)
+        except ValueError:
+            pass  # value too long :(
     if filtered:
         _filter_menu(menu)
     return menu

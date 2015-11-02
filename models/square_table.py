@@ -12,6 +12,13 @@ class JsonStorage(ndb.Model):
         return None
 
     @classmethod
+    def get_multi(cls, storage_ids):
+        keys = [ndb.Key(cls, sid) for sid in storage_ids]
+        entities = ndb.get_multi(keys)
+        return [entity.data if entity else None
+                for entity in entities]
+
+    @classmethod
     def save(cls, storage_id, data):
         if data is None:
             cls.delete(storage_id)
