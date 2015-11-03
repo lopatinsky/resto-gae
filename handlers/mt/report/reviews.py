@@ -21,7 +21,7 @@ class ReviewsReportHandler(BaseReportHandler):
         company_map = {}
         def get_company(iiko_org_id):
             if iiko_org_id not in company_map:
-                company_map[iiko_org_id] = iiko.CompanyNew.get_by_iiko_id(order.venue_id)
+                company_map[iiko_org_id] = iiko.CompanyNew.get_by_iiko_id(iiko_org_id)
             return company_map[iiko_org_id]
 
         dt_map = {}
