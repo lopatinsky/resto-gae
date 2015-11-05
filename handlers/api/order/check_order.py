@@ -42,11 +42,15 @@ class CheckOrderHandler(BaseHandler):
             company = CompanyNew.get_by_iiko_id(delivery_terminal_id)
 
         customer = get_resto_customer(company, self.request.get('customer_id'))
+        phone = self.request.get('phone')
         set_customer_info(company, customer,
                           self.request.get('name').strip(),
                           self.request.headers,
-                          filter_phone(self.request.get('phone')))
+                          filter_phone(phone))
         update_customer_id(company, customer)
+
+        if not phone:
+            return self.send_error(u'Введите номер телефона')
 
         items = fix_modifier_amount(company.iiko_org_id, json.loads(self.request.get('items')))
         if company.iiko_org_id == CompanyNew.COFFEE_CITY:
