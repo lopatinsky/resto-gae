@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <table border="1" cellspacing="0" style="border-collapse: collapse;">
+        {% for cat_name, products in menu %}
+            <tr>
+                <th colspan="2" style="text-align: left;">{{ cat_name }}</th>
+            </tr>
+            {% for product in products %}
+                <tr>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.description }}</td>
+                </tr>
+            {% endfor %}
+        {% endfor %}
+    </table>
+</body>
+</html>
