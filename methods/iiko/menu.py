@@ -113,11 +113,9 @@ def _load_menu(company):
             product['price'] = 1
             product['name'] += ' '
 
-        name = product['name'].capitalize()
+        name = product['name']
         description = product['description']
-        if company.iiko_org_id == CompanyNew.TYKANO:
-            name = product['name']
-        elif company.iiko_org_id == CompanyNew.HLEB:
+        if company.iiko_org_id == CompanyNew.HLEB:
             if product['tags']:
                 name = product['tags'][0]
             description = product['additionalInfo']
