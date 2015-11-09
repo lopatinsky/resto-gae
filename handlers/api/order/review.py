@@ -31,10 +31,8 @@ class OrderReviewHandler(BaseHandler):
             if comment:
                 body += u"Комментарий: %s" % comment
             logging.info(body)
-            # to = company.support_emails
-            # cc = ['mdburshteyn@gmail.com', 'isparfenov@gmail.com']
-            to = ['mdburshteyn@gmail.com']
-            cc = []
+            to = company.support_emails
+            cc = ['mdburshteyn@gmail.com', 'isparfenov@gmail.com']
             subject = u'Негативный отзыв о заказе' if is_negative else u'Отзыв о заказе с комментарием'
             mandrill.send_email('noreply-rating@ru-beacon.ru', to, cc, subject, body)
 
