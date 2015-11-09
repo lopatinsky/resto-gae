@@ -59,41 +59,31 @@ def set_gifts(order, order_from_dict, gifts):
 
 def set_discounts(order, order_from_dict, promos):
 
-        def get_item(product_code):
-            for item in order.items:
-                if item['code'] == product_code:
-                    return item
-                if item.get('modifiers'):
-                    for modifier in item.get('modifiers'):
-                        if modifier.get('code') == product_code:
-                            return item
+    def get_item(product_code):
+        for item in order.items:
+            if item['code'] == product_code:
+                return item
 
-        discount_sum = 0.0
-        if promos.get('discountInfo'):
-            for dis_info in promos.get('discountInfo'):
-                if dis_info.get('details'):
-                    for detail in dis_info.get('details'):
-                        if detail.get('discountSum'):
-                            item = get_item(detail.get('code'))
-                            if not item:
-                                logging.error('discounts not found!')
-                                continue
-                            if not item.get('discount_sum'):
-                                item['discount_sum'] = detail['discountSum']
-                                item['sum'] -= detail['discountSum']
-                                cur_discount = detail['discountSum']
-                            else:
-                                if detail['discountSum'] > item['sum']:
-                                    item['discount_sum'] += item['sum']
-                                    cur_discount = item['sum']
-                                    item['sum'] = 0
-                                else:
-                                    item['discount_sum'] += detail['discountSum']
-                                    item['sum'] -= detail['discountSum']
-                                    cur_discount = detail['discountSum']
-                            discount_sum += cur_discount
-        order.discount_sum = float(discount_sum)
-        return add_bonus_to_payment(order_from_dict, discount_sum, True)
+    discount_sum = 0.0
+    for dis_info in promos.get('discountInfo', []):
+        for detail in dis_info.get('details', []):
+            if detail.get('discountSum'):
+                item = get_item(detail.get('code'))
+                if not item:
+                    logging.error('discounts not found!')
+                    continue
+                item.setdefault('discount_sum', 0)
+                if detail['discountSum'] > item['sum']:
+                    item['discount_sum'] += item['sum']
+                    cur_discount = item['sum']
+                    item['sum'] = 0
+                else:
+                    item['discount_sum'] += detail['discountSum']
+                    item['sum'] -= detail['discountSum']
+                    cur_discount = detail['discountSum']
+                discount_sum += cur_discount
+    order.discount_sum = float(discount_sum)
+    return add_bonus_to_payment(order_from_dict, discount_sum, True)
 
 
 def add_bonus_to_payment(order, bonus_sum, is_deducted):
