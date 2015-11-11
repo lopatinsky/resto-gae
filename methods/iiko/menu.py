@@ -8,6 +8,8 @@ from methods.image_cache import convert_url
 from models.iiko import CompanyNew
 from collections import deque
 
+from models.square_table import PickleStorage
+
 __author__ = 'dvpermyakov'
 
 
@@ -221,18 +223,11 @@ def _filter_menu(menu):
 
 
 def get_menu(org_id, force_reload=False, filtered=True):
-    menu = memcache.get('iiko_menu_%s' % org_id)
-    if not menu or force_reload:
+    menu = PickleStorage.get("iiko_menu_%s" % org_id) if not force_reload else None
+    if not menu:
         company = CompanyNew.get_by_iiko_id(org_id)
-        if not company.menu_categories or force_reload:
-            menu = _load_menu(company)
-            company.put_menu(menu)
-        else:
-            menu = company.load_menu()
-        try:
-            memcache.set('iiko_menu_%s' % org_id, menu, time=1*3600)
-        except ValueError:
-            pass  # value too long :(
+        menu = _load_menu(company)
+        PickleStorage.save("iiko_menu_%s" % org_id, menu)
     if filtered:
         _filter_menu(menu)
     return menu
