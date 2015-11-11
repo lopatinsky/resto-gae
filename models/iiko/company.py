@@ -40,7 +40,8 @@ class DeliveryType(ndb.Model):
         return {
             'type_id': self.delivery_id,
             'name': self.name,
-            'available': self.available
+            'available': self.available,
+            'min_time': self.min_time
         }
 
 
