@@ -190,6 +190,13 @@ class PlaceOrderHandler(BaseHandler):
                 self.abort(409)
             order.sum -= order.bonus_sum + order.discount_sum
 
+        if order.payment_type == PaymentType.CASH and not order.is_delivery:
+            payments_list = order_dict['order']['paymentItems']
+            for payment in payments_list:
+                if payment['paymentType']['code'] == 'CASH':
+                    payments_list.remove(payment)
+                    break
+
         # pay after pre check
         order_id = None
         if order.payment_type == PaymentType.CARD:
