@@ -34,6 +34,13 @@ def _check_delivery_time(order):
     MAX_TIME_LOSS = 3 * 60
     logging.info(order.date)
     logging.info(datetime.utcnow())
+    if not order.delivery_type:
+        return False, u'Тип доставки не найден'
+    if not order.delivery_type.available:
+        return False, u'Тип доставки недоступен'
+    if order.delivery_type.min_time:
+        if order.date < datetime.utcnow() + timedelta(seconds=order.delivery_type.min_time-MAX_TIME_LOSS):
+            return False, u'Пожалуйста, выберите время, большее текущего времени на %s минут.' % (order.delivery_type.min_time / 60)
     if order.date < datetime.utcnow() - timedelta(seconds=MAX_TIME_LOSS):
         return False, u"Пожалуйста, выберите время, большее текущего времени."
     return True, None
