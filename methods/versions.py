@@ -1,6 +1,8 @@
 # coding=utf-8
 
 import re
+
+from models.iiko.company import CompanyNew
 from models.iiko.customer import IOS_DEVICE, ANDROID_DEVICE
 
 
@@ -20,10 +22,15 @@ def get_platform_and_version(ua):
         return None, version
 
 
-def supports_review(ua):
+def supports_review(org_id, ua):
     platform, version = get_platform_and_version(ua)
-    if platform == IOS_DEVICE:
-        return version >= 2000700
-    if platform == ANDROID_DEVICE:
-        return version >= 1020200
+    min_versions = {
+        (CompanyNew.ORANGE_EXPRESS, IOS_DEVICE): 2000700,
+        (CompanyNew.ORANGE_EXPRESS, ANDROID_DEVICE): 1020200,
+
+        (CompanyNew.PANDA, IOS_DEVICE): 1000100,
+        (CompanyNew.PANDA, ANDROID_DEVICE): 1060000,
+    }
+    if (org_id, platform) in min_versions:
+        return version > min_versions[org_id, platform]
     return False

@@ -30,7 +30,7 @@ def close(order):
                 'order_id': order.order_id
             })
     order_user_agent = order.customer.get().user_agent
-    if company.review_enable and supports_review(order_user_agent):
+    if company.review_enable and supports_review(company.iiko_org_id, order_user_agent):
         taskqueue.add(url='/single_task/push/review', params={
             'order_id': order.order_id
         }, countdown=60*30)
