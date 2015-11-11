@@ -26,6 +26,9 @@
              <th>Payment Type</th>
              <th>Sum</th>
              <th>Terminal</th>
+             <th>Имя клиента</th>
+             <th>Телефон клиента</th>
+             <th>Платформа</th>
              <th>Оценка еды</th>
              <th>Оценка сервиса</th>
              <th>Комментарий к оценке</th>
@@ -39,6 +42,9 @@
                  <td>{{ order.payment_name }}</td>
                  <td>{{ order.sum }}</td>
                  <td>{{ order.delivery_terminal_name }}</td>
+                 <td>{{ order.customer_name }}</td>
+                 <td>{{ order.customer_phone }}</td>
+                 <td>{{ order.customer_device }}</td>
                  {% if order.rate %}
                      <td>{{ order.rate.meal_rate }}</td>
                      <td>{{ order.rate.service_rate }}</td>

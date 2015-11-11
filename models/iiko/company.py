@@ -1,8 +1,6 @@
 # coding=utf-8
-import logging
 from google.appengine.api import memcache
 from google.appengine.ext import ndb
-from models.square_table import JsonStorage
 
 __author__ = 'dvpermyakov'
 
@@ -104,7 +102,6 @@ class CompanyNew(ndb.Model):
 
     delivery_types = ndb.KeyProperty(kind=DeliveryType, repeated=True)
     payment_types = ndb.KeyProperty(kind=PaymentType, repeated=True)
-    menu = ndb.JsonProperty()
     menu_categories = ndb.StringProperty(repeated=True, indexed=False)
 
     app_name = ndb.StringProperty(repeated=True)  # TODO REMOVE: part of user-agent to identify app in alfa handler
@@ -179,29 +176,3 @@ class CompanyNew(ndb.Model):
             result = maps.get_timezone_by_coords(self.latitude, self.longitude)
             memcache.set('venue_%s_timezone' % self.iiko_org_id, result, time=24*3600)
         return result
-
-    def _menu_key(self, category_id):
-        return "menu_%s_%s" % (self.iiko_org_id, category_id)
-
-    def _load_categories(self, category_ids):
-        categories = JsonStorage.get_multi(self._menu_key(category_id) for category_id in category_ids)
-        for category in categories:
-            category['children'] = self._load_categories(category['children'])
-        return categories
-
-    def load_menu(self):
-        return self._load_categories(self.menu_categories)
-
-    def _put_categories(self, categories):
-        for category in categories:
-            children = category['children']
-            self.put_menu(children)
-
-            category['children'] = [child['id'] for child in children]
-            JsonStorage.save(self._menu_key(category['id']), category)
-            category['children'] = children
-
-    def put_menu(self, menu):
-        self._put_categories(menu)
-        self.menu_categories = [root_category['id'] for root_category in menu]
-        self.put()

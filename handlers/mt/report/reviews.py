@@ -1,6 +1,7 @@
 # coding=utf-8
 from models.iiko import DeliveryTerminal
 from models import iiko
+from models.iiko.customer import IOS_DEVICE, ANDROID_DEVICE
 from .base import BaseReportHandler
 
 __author__ = 'dvpermyakov'
@@ -45,6 +46,20 @@ class ReviewsReportHandler(BaseReportHandler):
                 order.payment_name = 'UNKNOWN'
             dt = get_dt(order.delivery_terminal_id)
             order.delivery_terminal_name = dt.name if dt else order.delivery_terminal_id
+
+            customer = order.customer.get() if order.customer else None
+            order.customer_id = customer.customer_id if customer else '-'
+            order.customer_name = customer.name if customer else '-'
+            order.customer_phone = customer.phone if customer else '-'
+
+            order.customer_device = '-'
+            if customer:
+                device_type = customer.get_device()
+                if device_type == IOS_DEVICE:
+                    order.customer_device = 'iOS'
+                elif device_type == ANDROID_DEVICE:
+                    order.customer_device = 'Android'
+
             if not order.rate:
                 order.hlcolor = ''
             elif 0 < order.rate.meal_rate < 3.5 or 0 < order.rate.service_rate < 3.5:

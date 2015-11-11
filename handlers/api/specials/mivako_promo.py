@@ -42,39 +42,30 @@ def get_mivako_iiko_promos():
     return [
         {
             "name": u"Первый заказ",
-            "description": u"Скидка 20% на первый заказ",
+            "description": u"Скидка 10% на первый заказ",
             "start": None,
             "end": None,
-            "image_url": None,
+            "image_url": "http://mivako.ru/local/templates/mivako/img/promo1.png",
             "id": "0",
             "display_type": 1,
         },
         {
             "name": u"Бонусная программа",
-            "description": u"При каждом заказе Вы получаете 5% от суммы заказа на свой бонусный счет",
+            "description": u"При каждом заказе Вы получаете от 3% до 10% от суммы заказа на свой бонусный счет.",
             "start": None,
             "end": None,
-            "image_url": None,
+            "image_url": "http://mivako.ru/local/templates/mivako/img/promo2.png",
             "id": "1",
             "display_type": 1,
         },
         {
-            "name": u"Подарок за повторный заказ в течение недели",
-            "description": u"Сделайте повторный заказ в течение недели и получите Калифорнию с кунжутом в подарок!",
-            "start": None,
-            "end": None,
-            "image_url": None,
-            "id": "2",
-            "display_type": 1,
-        },
-        {
             "name": u"День рождения",
-            "description": u"Если Вы именинник, то для Вас мы сделаем прекрасный подарок - бесплатный ролл. "
-                           u"Сообщите о своем дне роджения оператору и приготовьте паспорт - его необходимо показать "
-                           u"курьеру при доставке.",
+            "description": u"Если Вы именинник, то для вас мы сделаем скидку 15% на весь заказ. "
+                           u"Сообщите о своем дне рождении оператору и приготовьте паспорт — "
+                           u"его необходимо показать курьеру при доставке.",
             "start": None,
             "end": None,
-            "image_url": None,
+            "image_url": "http://mivako.ru/local/templates/mivako/img/promo6.png",
             "id": "3",
             "display_type": 1,
         }

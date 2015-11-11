@@ -169,6 +169,8 @@ app = WSGIApplication([
         Route('/export_legals', ext_api.ExportLegalsHandler),
     ]),
 
+    Route('/very_long_secret_private_url/company/<company_id:\d+>/view_menu', web.ViewMenuHandler),
+
     Route('/get/<app:\w{,3}>', share.GATrackDownloadHandler),
     Route('/img/<:.*>', image_proxy.ImageProxyHandler),
     Route('/iiko_biz_app', iikobiz.IikoBizAppHandler),
