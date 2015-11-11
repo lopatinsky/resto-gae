@@ -156,7 +156,8 @@ class PlaceOrderHandler(BaseHandler):
             comment = (comment_repeated if orders else comment_first) + comment
 
         order.comment = comment
-        order.is_delivery = self.request.get_range('deliveryType') == 0
+        delivery_type = self.request.get_range('deliveryType')
+        order.is_delivery = (delivery_type == 0)
         if order.is_delivery:
             if not address:
                 self.abort(400)
@@ -168,6 +169,11 @@ class PlaceOrderHandler(BaseHandler):
             except Exception as e:
                 logging.exception(e)
                 self.abort(400)
+        order.delivery_type = None
+        for company_delivery_type in company.delivery_types:
+            company_delivery_type = company_delivery_type.get()
+            if company_delivery_type.delivery_id == delivery_type:
+                order.delivery_type = company_delivery_type
 
         validation_result = validate_order(company, delivery_terminal, order, customer)
         if not validation_result['valid']:
