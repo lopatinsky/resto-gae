@@ -21,7 +21,7 @@ def get_stop_list(org_id):
     return json.loads(result)
 
 
-def _get_menu_modifiers(menu):
+def _get_menu_modifiers(company, menu):
     group_modifiers = defaultdict(lambda: {'items': []})
     modifiers = {}
     for p in menu['products']:
@@ -38,9 +38,15 @@ def _get_menu_modifiers(menu):
                 group_modifiers[p['groupId']]['items'].append(group_mod_info)
     for g in menu['groups']:
         if g['id'] in group_modifiers:
+            group_name = g['name']
+            if company.iiko_org_id == CompanyNew.HLEB:
+                # name has format BLABLA_name_BLABLA
+                name_split = group_name.split("_")
+                if len(name_split) >= 2:
+                    group_name = name_split[1]
             group_modifiers[g['id']].update({
                 'groupId': g['id'],
-                'name': g['name'],
+                'name': group_name,
             })
     return group_modifiers, modifiers
 
@@ -73,7 +79,7 @@ def _clone(d):
 def _load_menu(company):
     result = get_request(company, '/nomenclature/%s' % company.iiko_org_id, {})
     iiko_menu = json.loads(result)
-    group_modifiers, modifiers = _get_menu_modifiers(iiko_menu)
+    group_modifiers, modifiers = _get_menu_modifiers(company, iiko_menu)
     category_products = defaultdict(list)
     for product in iiko_menu['products']:
         if product['parentGroup'] is None:
