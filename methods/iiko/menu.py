@@ -8,17 +8,47 @@ from methods.image_cache import convert_url
 from models.iiko import CompanyNew
 from collections import deque
 
+from models.iiko.delivery_terminal import DeliveryTerminal
 from models.square_table import PickleStorage
 
 __author__ = 'dvpermyakov'
 
 
-def get_stop_list(org_id):
-    company = CompanyNew.get_by_iiko_id(org_id)
+def _load_stop_list(company):
     result = get_request(company, '/stopLists/getDeliveryStopList', {
-        'organization': org_id,
+        'organization': company.iiko_org_id,
     })
-    return json.loads(result)
+    stop_lists = json.loads(result)['stopList']
+    result = {}
+    for dt_stop_list in stop_lists:
+        dt_dict = {}
+        for item_info in dt_stop_list['items']:
+            dt_dict[item_info['productId']] = item_info['balance']
+        result[dt_stop_list['deliveryTerminalId']] = dt_dict
+    return result
+
+
+def update_company_stop_lists(company, calling_dt=None):
+    calling_dt_id = calling_dt.key.id() if calling_dt else None
+    all_dt_stop_list = _load_stop_list(company)
+
+    for dt_id in all_dt_stop_list:
+        # don't get calling_dt from Datastore -- should update existing entity instead
+        if dt_id != calling_dt_id:
+            dt = DeliveryTerminal.get_by_id(dt_id)
+            dt.iiko_stop_list = all_dt_stop_list[dt_id]
+            dt.put()
+
+    if calling_dt:
+        calling_dt.iiko_stop_list = all_dt_stop_list.get(calling_dt.key.id(), {})
+        calling_dt.put()
+
+
+def get_stop_list(delivery_terminal):
+    if delivery_terminal.iiko_stop_list is None:
+        company = CompanyNew.get_by_id(delivery_terminal.company_id)
+        update_company_stop_lists(company, delivery_terminal)
+    return delivery_terminal.iiko_stop_list
 
 
 def _get_menu_modifiers(company, menu):

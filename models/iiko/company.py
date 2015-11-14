@@ -143,6 +143,8 @@ class CompanyNew(ndb.Model):
 
     additional_categories = ndb.LocalStructuredProperty(AdditionalCategory, repeated=True)
 
+    iiko_stop_lists_enabled = ndb.BooleanProperty(default=False)
+
     @classmethod
     def get_payment_types(cls, venue_id):
         venue = cls.get_by_iiko_id(venue_id)

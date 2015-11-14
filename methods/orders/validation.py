@@ -1,8 +1,10 @@
 # coding=utf-8
+from collections import defaultdict
 from datetime import timedelta, datetime
 import logging
 from methods import working_hours
-from methods.iiko.menu import get_product_from_menu
+from methods.iiko.menu import get_product_from_menu, get_stop_list
+from models.iiko.company import CompanyNew
 
 __author__ = 'dvpermyakov'
 
@@ -59,7 +61,7 @@ def _check_payment_type(company, order):
     return True, None
 
 
-def _check_stop_list(delivery_terminal, order):
+def _check_our_stop_list(delivery_terminal, order):
     if delivery_terminal:
         for item in order.items:
             item_id = item.get('id')
@@ -68,6 +70,38 @@ def _check_stop_list(delivery_terminal, order):
                 logging.warning("Item is not found")
             if item_id in delivery_terminal.item_stop_list:
                 return False, u'Продукт %s был помещен в стоп-лист' % item.get('name')
+    return True, None
+
+
+def _check_iiko_stop_list(delivery_terminal, order):
+    stop_list = None
+    if delivery_terminal:
+        stop_list = get_stop_list(delivery_terminal)
+    if not stop_list:
+        return True, None
+
+    quantity_dict = defaultdict(lambda: 0)
+    for item in order.items:
+        quantity_dict[item['id']] += item['amount']
+
+    for item_id, amount in quantity_dict.iteritems():
+        stop_list_amount = stop_list.get(item_id)
+        if stop_list_amount is not None:
+            if stop_list_amount <= 0:
+                product = get_product_from_menu(delivery_terminal.iiko_organization_id, product_id=item_id)
+                return False, u'Продукт "%s" закончился в этом заведении' % product['name']
+            elif amount > stop_list_amount:
+                product = get_product_from_menu(delivery_terminal.iiko_organization_id, product_id=item_id)
+                return False, u'В этом заведении осталось только %sшт. %s' % (stop_list_amount, product['name'])
+    return True, None
+
+
+def _check_stop_list(company, delivery_terminal, order):
+    if company.iiko_stop_lists_enabled:
+        return _check_iiko_stop_list(delivery_terminal, order)
+    elif company.iiko_org_id == CompanyNew.COFFEE_CITY:
+        return _check_our_stop_list(delivery_terminal, order)
+
     return True, None
 
 
@@ -86,7 +120,7 @@ def validate_order(company, delivery_terminal, order, customer):
     if not valid_condition:
         valid = False
         errors.append(error)
-    valid_condition, error = _check_stop_list(delivery_terminal, order)
+    valid_condition, error = _check_stop_list(company, delivery_terminal, order)
     if not valid_condition:
         valid = False
         errors.append(error)

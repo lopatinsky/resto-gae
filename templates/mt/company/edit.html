@@ -79,6 +79,12 @@
             </div>
             <div class="no-label">
                 <label>
+                    <input type="checkbox" name="iiko_stop_lists_enabled" {% if company.iiko_stop_lists_enabled %}checked{% endif %}>
+                    Использовать остатки и стоп-листы iiko
+                </label>
+            </div>
+            <div class="no-label">
+                <label>
                     <input type="checkbox" name="platius" {% if company.is_iiko_system %}checked{% endif %}>
                     Использовать бонусы и акции platius
                 </label>

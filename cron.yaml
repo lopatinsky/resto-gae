@@ -39,3 +39,7 @@ cron:
   url: /cron/build_recommendations
   schedule: every day 04:00
   timezone: Europe/Moscow
+
+- description: update iiko stop lists
+  url: /cron/update_stop_lists
+  schedule: every 5 minutes synchronized

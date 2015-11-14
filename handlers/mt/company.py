@@ -84,6 +84,7 @@ class CompanyEditHandler(BaseHandler):
         c.min_order_sum = int(self.request.get("min_order_sum"))
         c.schedule = ast.literal_eval(self.request.get("schedule"))
         c.new_endpoints = bool(self.request.get("new_endpoints"))
+        c.iiko_stop_lists_enabled = bool(self.request.get("iiko_stop_lists_enabled"))
         c.is_iiko_system = bool(self.request.get("platius"))
         c.platius_login = self.request.get("platius_login")
         c.platius_org_id = self.request.get("platius_id")
