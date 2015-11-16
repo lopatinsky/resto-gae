@@ -99,6 +99,12 @@ def prepare_order(order, customer, payment_type):
                 'isPreliminary': True
             })
 
+    try:
+        if order.delivery_type and order.delivery_type.iiko_uuid:
+            obj['order']['orderTypeId'] = order.delivery_type.iiko_uuid
+    except AttributeError:
+        logging.warning("No order.delivery_type in prepare_order (maybe CAT mock_order)")
+
     return obj
 
 

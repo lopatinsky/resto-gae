@@ -38,6 +38,7 @@ class DeliveryType(ndb.Model):
     delivery_id = ndb.IntegerProperty()
     name = ndb.StringProperty()
     available = ndb.BooleanProperty()
+    iiko_uuid = ndb.StringProperty()
     min_time = ndb.IntegerProperty(default=0)  # consider seconds
 
     def to_dict(self):
