@@ -1,5 +1,7 @@
 # coding=utf-8
 import datetime
+import logging
+
 import webapp2
 from .lib_ga import ga_track_event, ga_track_page
 from models.specials import AnalyticsLink
@@ -95,5 +97,8 @@ class GATrackDownloadHandler(GATrackRequestHandler):
             self.track_event(self.link.ga_page, 'download_auto', 'ios')
             self.redirect(self.link.ios_url)
         else:
-            self.track_event(self.link.ga_page, 'download_auto', 'other')
+            if "Branch" in ua or "facebookexternalhit" in ua:
+                logging.info("crawler (branch/fb): do not track")
+            else:
+                self.track_event(self.link.ga_page, 'download_auto', 'other')
             self.redirect(self.link.default_url)

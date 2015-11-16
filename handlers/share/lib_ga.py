@@ -51,7 +51,6 @@ def ga_track_event(tracking_id, category, action, label=None, value=None, cid=No
         req_values['el'] = label
     if value:
         req_values['ev'] = value
-    logging.warn(req_values)
     try:
         _request(req_values, req_headers)
     except Exception as ex:
