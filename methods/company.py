@@ -57,8 +57,9 @@ def create(login, password=None, company_id=None, organization_id=None, new_endp
             logging.exception(e)
 
     delivery_types = [
-        DeliveryType(available=True, delivery_id=0, name="delivery"),
-        DeliveryType(available=False, delivery_id=1, name="self"),
+        DeliveryType(available=True, delivery_id=DeliveryType.DELIVERY, name="delivery"),
+        DeliveryType(available=False, delivery_id=DeliveryType.SELF, name="self"),
+        DeliveryType(available=False, delivery_id=DeliveryType.IN_CAFE, name="in cafe"),
     ]
     company.delivery_types = ndb.put_multi(delivery_types)
 

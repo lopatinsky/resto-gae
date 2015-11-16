@@ -23,6 +23,7 @@ from methods.sms import send_confirmation
 from models import iiko
 from models.iiko import CompanyNew, ClientInfo, DeliveryTerminal, PaymentType
 from methods.specials.cat import fix_syrop, fix_modifiers_by_own
+from models.iiko.company import DeliveryType
 from models.iiko.order import AUTO_APP_SOURCE
 
 __author__ = 'dvpermyakov'
@@ -157,7 +158,7 @@ class PlaceOrderHandler(BaseHandler):
 
         order.comment = comment
         delivery_type = self.request.get_range('deliveryType')
-        order.is_delivery = (delivery_type == 0)
+        order.is_delivery = delivery_type == DeliveryType.DELIVERY
         if order.is_delivery:
             if not address:
                 self.abort(400)

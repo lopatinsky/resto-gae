@@ -17,6 +17,7 @@ from methods.specials.cat import fix_cat_items
 from models import iiko
 from models.iiko import DeliveryTerminal
 from models.iiko import CompanyNew
+from models.iiko.company import DeliveryType
 
 __author__ = 'dvpermyakov'
 
@@ -62,7 +63,7 @@ class CheckOrderHandler(BaseHandler):
             order.sum = float(self.request.get('sum'))
             order.items = items
             delivery_type = self.request.get_range('deliveryType')
-            order.is_delivery = (delivery_type == 0)
+            order.is_delivery = delivery_type == DeliveryType.DELIVERY
             if order.is_delivery:
                 order.address = {'home': '0'}
             order.delivery_type = None

@@ -31,6 +31,10 @@ class PaymentType(ndb.Model):
 
 
 class DeliveryType(ndb.Model):
+    DELIVERY = 0
+    SELF = 1
+    IN_CAFE = 2
+
     delivery_id = ndb.IntegerProperty()
     name = ndb.StringProperty()
     available = ndb.BooleanProperty()
