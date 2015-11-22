@@ -1,7 +1,8 @@
+# coding=utf-8
+
 from collections import defaultdict
 import json
 import operator
-from google.appengine.api import memcache
 import webapp2
 from methods.iiko.base import get_request, CAT_GIFTS_GROUP_ID
 from methods.image_cache import convert_url
@@ -28,27 +29,16 @@ def _load_stop_list(company):
     return result
 
 
-def update_company_stop_lists(company, calling_dt=None):
-    calling_dt_id = calling_dt.key.id() if calling_dt else None
-    all_dt_stop_list = _load_stop_list(company)
-
-    for dt_id in all_dt_stop_list:
-        # don't get calling_dt from Datastore -- should update existing entity instead
-        if dt_id != calling_dt_id:
-            dt = DeliveryTerminal.get_by_id(dt_id)
-            dt.iiko_stop_list = all_dt_stop_list[dt_id]
-            dt.put()
-
-    if calling_dt:
-        calling_dt.iiko_stop_list = all_dt_stop_list.get(calling_dt.key.id(), {})
-        calling_dt.put()
+def get_company_stop_lists(company, force_reload=True):
+    stop_lists = PickleStorage.get("stop_lists_%s" % company.iiko_org_id) if not force_reload else None
+    if not stop_lists:
+        stop_lists = _load_stop_list(company)
+        PickleStorage.save("stop_lists_%s" % company.iiko_org_id, stop_lists)
+    return stop_lists
 
 
-def get_stop_list(delivery_terminal):
-    if delivery_terminal.iiko_stop_list is None:
-        company = CompanyNew.get_by_id(delivery_terminal.company_id)
-        update_company_stop_lists(company, delivery_terminal)
-    return delivery_terminal.iiko_stop_list
+def get_stop_list(company, delivery_terminal):
+    return get_company_stop_lists(company).get(delivery_terminal.key.id(), {})
 
 
 def _get_menu_modifiers(company, menu):

@@ -73,10 +73,10 @@ def _check_our_stop_list(delivery_terminal, order):
     return True, None
 
 
-def _check_iiko_stop_list(delivery_terminal, order):
+def _check_iiko_stop_list(company, delivery_terminal, order):
     stop_list = None
     if delivery_terminal:
-        stop_list = get_stop_list(delivery_terminal)
+        stop_list = get_stop_list(company, delivery_terminal)
     if not stop_list:
         return True, None
 
@@ -98,7 +98,7 @@ def _check_iiko_stop_list(delivery_terminal, order):
 
 def _check_stop_list(company, delivery_terminal, order):
     if company.iiko_stop_lists_enabled:
-        return _check_iiko_stop_list(delivery_terminal, order)
+        return _check_iiko_stop_list(company, delivery_terminal, order)
     elif company.iiko_org_id == CompanyNew.COFFEE_CITY:
         return _check_our_stop_list(delivery_terminal, order)
 

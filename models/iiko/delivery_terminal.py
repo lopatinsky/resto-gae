@@ -14,7 +14,6 @@ class DeliveryTerminal(ndb.Model):
     location = ndb.GeoPtProperty(indexed=False)
 
     item_stop_list = ndb.StringProperty(repeated=True)
-    iiko_stop_list = ndb.JsonProperty()
 
     def dynamic_dict(self):
         return {
