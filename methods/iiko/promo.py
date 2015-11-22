@@ -171,6 +171,7 @@ def get_order_promos(order, order_dict, set_info=False):
         if not product:
             logging.error('product is not found in menu!')
             continue
+        item['name'] = product['name']
         item['code'] = product['code']
         item['sum'] = product['price'] * item['amount']
         item['category'] = product['categoryName']

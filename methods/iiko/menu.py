@@ -29,7 +29,7 @@ def _load_stop_list(company):
     return result
 
 
-def get_company_stop_lists(company, force_reload=True):
+def get_company_stop_lists(company, force_reload=False):
     stop_lists = PickleStorage.get("stop_lists_%s" % company.iiko_org_id) if not force_reload else None
     if not stop_lists:
         stop_lists = _load_stop_list(company)
