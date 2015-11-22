@@ -30,6 +30,8 @@ def supports_review(org_id, ua):
 
         (CompanyNew.PANDA, IOS_DEVICE): 1000100,
         (CompanyNew.PANDA, ANDROID_DEVICE): 1060000,
+
+        (CompanyNew.DIMASH, ANDROID_DEVICE): 1060000,
     }
     if (org_id, platform) in min_versions:
         return version > min_versions[org_id, platform]
