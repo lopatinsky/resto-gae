@@ -11,7 +11,7 @@ from methods.customer import get_resto_customer, set_customer_info, update_custo
 
 from methods.email.admin import send_error, send_order_email
 from methods.alfa_bank import get_back_blocked_sum
-from methods.iiko.menu import fix_modifier_amount
+from methods.iiko.menu import prepare_items
 from methods.iiko.order import prepare_order, place_order
 from methods.iiko.order import pre_check_order
 from methods.iiko.promo import calc_sum
@@ -22,7 +22,7 @@ from methods.rendering import parse_iiko_time, filter_phone, parse_str_date, pre
 from methods.sms import send_confirmation
 from models import iiko
 from models.iiko import CompanyNew, ClientInfo, DeliveryTerminal, PaymentType
-from methods.specials.cat import fix_syrop, fix_modifiers_by_own
+from methods.specials.cat import fix_modifiers_by_own
 from models.iiko.company import DeliveryType
 from models.iiko.order import AUTO_APP_SOURCE
 
@@ -129,11 +129,7 @@ class PlaceOrderHandler(BaseHandler):
         gifts = json.loads(self.request.get('gifts')) if self.request.get('gifts') else []
         order.customer = customer.key
 
-        items = fix_modifier_amount(company.iiko_org_id, json.loads(self.request.get('items')))
-
-        if company.iiko_org_id == CompanyNew.COFFEE_CITY:
-            items = fix_syrop.set_syrop_items(items)
-            items = fix_modifiers_by_own.set_modifier_by_own(items)
+        items = prepare_items(company, json.loads(self.request.get('items')))
 
         order.items = items
         order.initial_sum = order.sum = calc_sum(items, company.iiko_org_id)

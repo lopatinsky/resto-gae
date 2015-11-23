@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from methods.iiko.menu import get_product_from_menu
 from models.iiko import CompanyNew
 
 __author__ = 'dvpermyakov'
@@ -23,6 +22,8 @@ def remove_modifiers(menu):
 
 
 def set_modifier_by_own(items):
+    from methods.iiko.menu import get_product_from_menu
+
     for item in items:
         product = get_product_from_menu(CompanyNew.COFFEE_CITY, product_id=item['id'])
         logging.info(product)

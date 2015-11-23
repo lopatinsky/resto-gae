@@ -73,36 +73,30 @@ def set_discounts(order, order_from_dict, promos):
                     logging.error('discounts not found!')
                     continue
                 item.setdefault('discount_sum', 0)
-                if detail['discountSum'] > item['sum']:
-                    item['discount_sum'] += item['sum']
-                    cur_discount = item['sum']
-                    item['sum'] = 0
-                else:
-                    item['discount_sum'] += detail['discountSum']
-                    item['sum'] -= detail['discountSum']
-                    cur_discount = detail['discountSum']
-                discount_sum += cur_discount
-    order.discount_sum = float(discount_sum)
+                item_discount = detail['discountSum']
+                if item_discount > item['sum']:
+                    item_discount = item['sum']
+                item['discount_sum'] += item_discount
+                item['sum'] -= item_discount
+                discount_sum += item_discount
+    order.discount_sum = discount_sum
     return add_bonus_to_payment(order_from_dict, discount_sum, True)
 
 
 def add_bonus_to_payment(order, bonus_sum, is_deducted):
-
     def get_payment(order, name):
         for p_item in order['paymentItems']:
             if p_item['paymentType']['name'] == name:
                 return p_item
         return None
 
-    if order.get('paymentItems'):
-        p_bonus = get_payment(order, 'iiko.Net')
-        if p_bonus:
-            p_bonus['sum'] += bonus_sum
-            if is_deducted:
-                get_payment(order, 'not iiko.Net')['sum'] -= bonus_sum
-            return True
-        else:
-            return False
+    p_bonus = get_payment(order, 'iiko.Net')
+    if p_bonus:
+        p_bonus['sum'] += bonus_sum
+        if is_deducted:
+            get_payment(order, 'not iiko.Net')['sum'] -= bonus_sum
+            order['fullSum'] -= bonus_sum
+        return True
     else:
         return False
 
@@ -160,28 +154,7 @@ def get_promo_by_id(org_id, promo_id):
 
 
 def get_order_promos(order, order_dict, set_info=False):
-
-    #order_request = prepare_order(order, customer, 1)
     order_request = order_dict
-    order_request['organization'] = order.venue_id
-    order_request['order']['fullSum'] = order.sum
-
-    for item in order_request['order']['items']:
-        product = get_product_from_menu(order.venue_id, product_id=item['id'])
-        if not product:
-            logging.error('product is not found in menu!')
-            continue
-        item['name'] = product['name']
-        item['code'] = product['code']
-        item['sum'] = product['price'] * item['amount']
-        item['category'] = product['categoryName']
-
-        for m in item.get('modifiers', []):
-            mod_item = get_modifier_item(order.venue_id, product_code=item['code'], order_mod_id=m.get('id'))
-            m['code'] = mod_item.get('code')
-            m['sum'] = mod_item.get('price', 0) * m.get('amount', 0) * item['amount']
-            item['sum'] += m['sum']
-
 
     url = '/orders/calculate_loyalty_discounts'
     payload = order_request

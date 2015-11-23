@@ -1,11 +1,12 @@
 # coding=utf-8
-
+import logging
 from collections import defaultdict
 import json
 import operator
 import webapp2
 from methods.iiko.base import get_request, CAT_GIFTS_GROUP_ID
 from methods.image_cache import convert_url
+from methods.specials.cat import fix_cat_items
 from models.iiko import CompanyNew
 from collections import deque
 
@@ -325,7 +326,7 @@ def get_group_modifier(org_id, group_id, modifier_id):
             return item
 
 
-def fix_modifier_amount(org_id, items):
+def _fix_modifier_amount(org_id, items):
     menu = list_menu(org_id)
     modifiers = {item['productId']: item['single_modifiers'] for item in menu}
 
@@ -345,6 +346,31 @@ def fix_modifier_amount(org_id, items):
                         "id": mod["id"],
                         "amount": mod["minAmount"]
                     })
+
+
+def _fill_item_info(org_id, items):
+    for item in items:
+        product = get_product_from_menu(org_id, product_id=item['id'])
+        if not product:
+            logging.error('product is not found in menu!')
+            continue
+        item['name'] = product['name']
+        item['code'] = product['code']
+        item['sum'] = product['price'] * item['amount']
+        item['category'] = product['categoryName']
+
+        for m in item.get('modifiers', []):
+            mod_item = get_modifier_item(org_id, product_code=item['code'], order_mod_id=m.get('id'))
+            m['code'] = mod_item.get('code')
+            m['sum'] = mod_item.get('price', 0) * m.get('amount', 0) * item['amount']
+            item['sum'] += m['sum']
+
+
+def prepare_items(company, items):
+    _fix_modifier_amount(company.iiko_org_id, items)
+    _fill_item_info(company.iiko_org_id, items)
+    if company.iiko_org_id == CompanyNew.COFFEE_CITY:
+        fix_cat_items(items)
     return items
 
 

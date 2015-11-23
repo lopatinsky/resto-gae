@@ -14,6 +14,7 @@ def prepare_order(order, customer, payment_type):
     local_date = order.date + timedelta(seconds=company.get_timezone_offset())
     obj = {
         'restaurantId': order.venue_id,
+        'organization': order.venue_id,
         'customer': {
             'name': customer.name,
             'phone': customer.phone,
@@ -21,6 +22,7 @@ def prepare_order(order, customer, payment_type):
         'order': {
             'date': local_date.strftime('%Y-%m-%d %H:%M:%S'),
             'isSelfService': 0 if order.is_delivery else 1,
+            'fullSum': order.sum,
             'paymentItems': [{
                 'paymentType': {
                     'code': '',
