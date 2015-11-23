@@ -2,6 +2,7 @@
 
 import webapp2
 
+from handlers.cron.fast_updates import FastUpdatesHandler
 from .build_square_table import BuildSquareTableHandler
 from .inactive_clients import InactiveClientsWithPromo
 from .mivako_gifts import MivakoGiftsEmailHandler
@@ -21,4 +22,5 @@ app = webapp2.WSGIApplication([
     ('/cron/update_streets', UpdateStreetsHandler),
     ('/cron/build_recommendations', BuildRecommendationsHandler),
     ('/cron/update_stop_lists', UpdateStopListsHandler),
+    ('/cron/fast_updates', FastUpdatesHandler),
 ])
