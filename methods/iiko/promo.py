@@ -5,6 +5,7 @@ from datetime import datetime
 
 from methods.iiko.base import get_request, post_request
 from methods.iiko.menu import get_product_from_menu, list_menu, get_modifier_item
+from methods.specials.lpq import apply_lpq_discounts
 from models.iiko import CompanyNew
 
 __author__ = 'dvpermyakov'
@@ -58,13 +59,16 @@ def set_gifts(order, order_from_dict, gifts):
 
 
 def set_discounts(order, order_from_dict, promos):
+    order.discount_sum = 0.0
+
+    if order.venue_id == CompanyNew.HLEB:
+        apply_lpq_discounts(order)
 
     def get_item(product_code):
         for item in order.items:
             if item['code'] == product_code:
                 return item
 
-    discount_sum = 0.0
     for dis_info in promos.get('discountInfo', []):
         for detail in dis_info.get('details', []):
             if detail.get('discountSum'):
@@ -78,9 +82,8 @@ def set_discounts(order, order_from_dict, promos):
                     item_discount = item['sum']
                 item['discount_sum'] += item_discount
                 item['sum'] -= item_discount
-                discount_sum += item_discount
-    order.discount_sum = discount_sum
-    return add_bonus_to_payment(order_from_dict, discount_sum, True)
+                order.discount_sum += item_discount
+    return add_bonus_to_payment(order_from_dict, order.discount_sum, True)
 
 
 def add_bonus_to_payment(order, bonus_sum, is_deducted):
