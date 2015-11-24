@@ -1,7 +1,7 @@
 # coding=utf-8
 from handlers.api.base import BaseHandler
 from methods.customer import get_resto_customer
-from methods.iiko.menu import get_menu, add_additional_categories
+from methods.iiko.menu import get_menu, add_additional_categories, get_company_stop_lists
 from methods.specials.cat import fix_syrop, fix_modifiers_by_own
 from models.iiko import CompanyNew, DeliveryTerminal, Order
 
@@ -68,4 +68,28 @@ class CompanyVenuesHandler(BaseHandler):
                                         DeliveryTerminal.active == True).fetch()
         self.render_json({
             'venues': [venue.to_dict() for venue in venues]
+        })
+
+
+class RemaindersHandler(BaseHandler):
+    def get(self, company_id):
+        company = CompanyNew.get_by_id(int(company_id))
+        stop_lists = get_company_stop_lists(company)
+        venues = DeliveryTerminal.query(DeliveryTerminal.company_id == company.key.id(),
+                                        DeliveryTerminal.active == True).fetch()
+        item_id = self.request.get("item_id")
+
+        result = {}
+        for venue in venues:
+            if venue.key.id() not in stop_lists or \
+                    item_id not in stop_lists[venue.key.id()]:
+                remainders = None
+            else:
+                remainders = stop_lists[venue.key.id()][item_id]
+                if remainders < 0:
+                    remainders = 0
+            result[venue.key.id()] = remainders
+        self.render_json({
+            'item_id': item_id,
+            'remainders': result
         })

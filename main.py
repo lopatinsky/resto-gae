@@ -39,6 +39,7 @@ app = WSGIApplication([
             PathPrefixRoute('/<company_id:\d+>', [
                 Route('/info', api.NewsHandler),
                 Route('/menu', company.CompanyMenuHandler),
+                Route('/get_remainders', company.RemaindersHandler),
                 Route('/payment_types', company.CompanyPaymentTypesHandler),
                 Route('/promos', promos.CompanyPromosHandler),
                 Route('/user_data', customer.SaveClientInfoHandler),
