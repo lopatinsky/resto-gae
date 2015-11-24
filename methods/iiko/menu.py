@@ -221,6 +221,10 @@ def _load_menu(company):
             cat['children'] = sorted(children, key=operator.itemgetter('order'))
 
     menu = sorted(categories.values(), key=operator.itemgetter('order'))
+    if company.iiko_org_id == CompanyNew.MIVAKO:
+        if "b918a490-e0f2-485c-bb13-3903cc5cc28d" in categories:
+            menu = categories["b918a490-e0f2-485c-bb13-3903cc5cc28d"]['children']
+
     _fix_categories_images(menu)
     return menu
 
