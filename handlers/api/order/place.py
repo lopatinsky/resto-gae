@@ -94,6 +94,8 @@ class PlaceOrderHandler(BaseHandler):
 
         order = iiko.Order()
         if source == AUTO_APP_SOURCE:
+            if not company.auto_token:
+                return self.send_error(u"Неизвестная системная ошибка, попробуйте позже")
             order.source = source
         order.date = datetime.datetime.utcfromtimestamp(int(self.request.get('date')))
         order.payment_type = self.request.get('paymentType')
