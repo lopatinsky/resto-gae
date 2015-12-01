@@ -33,9 +33,9 @@ def _add_discount(order, item, discount_fraction):
 def apply_lpq_discounts(order):
     company = CompanyNew.get_by_iiko_id(order.venue_id)
     for item in order.items:
-        if item['category_id'] in _TEN_PERCENT_ALWAYS_CATEGORIES:
+        if item['ext_category_id'] in _TEN_PERCENT_ALWAYS_CATEGORIES:
             _add_discount(order, item, 0.1)
-        elif item['category_id'] in _EVENING_CATEGORIES or item['code'] in _EVENING_PRODUCT_CODES:
+        elif item['ext_category_id'] in _EVENING_CATEGORIES or item['code'] in _EVENING_PRODUCT_CODES:
             if order.delivery_terminal_id in _EVENING_SCHEDULE:
                 schedule = [_EVENING_SCHEDULE[order.delivery_terminal_id]]
                 local_date = order.date + timedelta(company.get_timezone_offset())

@@ -24,7 +24,7 @@ class BuildRecommendationsHandler(RequestHandler):
             menu = list_menu(org_id)
             item_categories = {}
             for product in menu:
-                item_categories[product['productId']] = product['categoryId']
+                item_categories[product['productId']] = product['extCatId']
 
             logging.debug("history fetch start")
             history = get_orders(company, start_date, today, 'CLOSED')['deliveryOrders']

@@ -10,7 +10,6 @@ from methods.specials.cat import fix_cat_items
 from models.iiko import CompanyNew
 from collections import deque
 
-from models.iiko.delivery_terminal import DeliveryTerminal
 from models.square_table import PickleStorage
 
 __author__ = 'dvpermyakov'
@@ -102,6 +101,12 @@ def _load_menu(company):
     iiko_menu = json.loads(result)
     group_modifiers, modifiers = _get_menu_modifiers(company, iiko_menu)
     category_products = defaultdict(list)
+
+    if 'productCategories' in iiko_menu:
+        iiko_categories = {c['id']: c['name'] for c in iiko_menu['productCategories']}
+    else:
+        iiko_categories = {}
+
     for product in iiko_menu['products']:
         if product['parentGroup'] is None:
             continue
@@ -166,6 +171,8 @@ def _load_menu(company):
             'description': description or '',
             'additionalInfo': add_info,
             'additionalInfo1': add_info_str,
+            'iikoCatId': product['productCategoryId'],
+            'iikoCatName': iiko_categories.get(product['productCategoryId'], ''),
             'single_modifiers': single_modifiers,
             'modifiers': grp_modifiers
         })
@@ -275,8 +282,8 @@ def list_menu(org_id):
     def get_products(cat_dict):
         result_p = []
         for product in cat_dict['products']:
-            product['categoryName'] = cat_dict['name']
-            product['categoryId'] = cat_dict['id']
+            product['extCatName'] = cat_dict['name']
+            product['extCatId'] = cat_dict['id']
             result_p.append(product)
         return result_p
 
@@ -361,8 +368,8 @@ def _fill_item_info(org_id, items):
         item['name'] = product['name']
         item['code'] = product['code']
         item['sum'] = product['price'] * item['amount']
-        item['category'] = product['categoryName']
-        item['category_id'] = product['categoryId']
+        item['category'] = product['iikoCatName']
+        item['ext_category_id'] = product['extCatId']
 
         for m in item.get('modifiers', []):
             mod_item = get_modifier_item(org_id, product_code=item['code'], order_mod_id=m.get('id'))
