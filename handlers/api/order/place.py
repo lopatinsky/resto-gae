@@ -38,6 +38,7 @@ _FIRST_ORDER_COMMENTS = {
     CompanyNew.OMNOMNOM: (_GIFT_COMMENT_TEMPLATE % u'Саке маки', ''),
     CompanyNew.TYKANO: (_GIFT_COMMENT_TEMPLATE % u'ролл Калифорния', ''),
     CompanyNew.ORANGE_EXPRESS: (u'Первый заказ из приложения. ', u'Повторный заказ из приложения. '),
+    CompanyNew.CHAIHANA_LOUNGE: (u'Первый заказ, скидка 25%. ', u'Повторный заказ, скидка 5%. '),
 }
 
 
@@ -137,7 +138,7 @@ class PlaceOrderHandler(BaseHandler):
         order.initial_sum = order.sum = calc_sum(items, company.iiko_org_id)
         logging.info("calculated sum: %s, app sum: %s", order.sum, self.request.get('sum'))
 
-        if company.iiko_org_id == CompanyNew.DIMASH:
+        if company.iiko_org_id in (CompanyNew.DIMASH, CompanyNew.CHAIHANA_LOUNGE):
             if 'Android' in self.request.user_agent:
                 comment = u"Заказ с Android. " + comment
             else:

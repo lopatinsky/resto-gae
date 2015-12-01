@@ -96,6 +96,7 @@ class CompanyNew(ndb.Model):
     SUSHI_TIME = "8b939502-9ec3-11e3-bae4-001b21b8a590"
     OMNOMNOM = "f3417644-308b-11e5-80c1-d8d385655247"
     HLEB = "72ea832b-7631-11e5-80c1-d8d385655247"
+    CHAIHANA_LOUNGE = "d40c6833-6dda-11e5-80c1-d8d385655247"
 
     iiko_login = ndb.StringProperty()
     platius_login = ndb.StringProperty()
