@@ -40,13 +40,17 @@ class DeliveryType(ndb.Model):
     available = ndb.BooleanProperty()
     iiko_uuid = ndb.StringProperty()
     min_time = ndb.IntegerProperty(default=0)  # consider seconds
+    allow_slots = ndb.BooleanProperty(default=True)
+    allow_dual_mode = ndb.BooleanProperty(default=False)
 
     def to_dict(self):
         return {
             'type_id': self.delivery_id,
             'name': self.name,
             'available': self.available,
-            'min_time': self.min_time
+            'min_time': self.min_time,
+            'allow_slots': self.allow_slots,
+            'allow_dual_mode': self.allow_dual_mode,
         }
 
 
