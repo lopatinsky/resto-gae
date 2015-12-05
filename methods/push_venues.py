@@ -18,7 +18,10 @@ def push_venues(chosen_companies, text, full_text, head, android_avail, ios_avai
     def get_client_channel(client_id):
         return 'client_%s' % client_id
 
-    clients = ClientInfo.query().fetch()
+    if chosen_companies:
+        clients = ClientInfo.query(ClientInfo.company_id.IN(chosen_companies)).fetch()
+    else:
+        clients = []
     android_channels = []
     ios_channels = []
 
@@ -33,8 +36,6 @@ def push_venues(chosen_companies, text, full_text, head, android_avail, ios_avai
         dummy_order = Order(venue_id=company.iiko_org_id)  # for proper parse account
 
     for client in clients:
-        if client.company_id not in chosen_companies:
-            continue
         device = client.get_device()
         if device == ANDROID_DEVICE and android_avail:
             android_channels.append(get_client_channel(client.key.id()))
