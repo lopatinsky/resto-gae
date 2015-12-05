@@ -166,7 +166,7 @@ def get_order_promos(order, order_dict, set_info=False):
     logging.info(result)
 
     if result.get('availableFreeProducts'):
-        for free_product in result.get('availableFreeProducts'):
+        for free_product in result['availableFreeProducts'][:]:
             product = get_product_from_menu(order.venue_id, product_code=free_product.get('productCode'))
             if product:
                 free_product['id'] = product['productId']
@@ -181,6 +181,7 @@ def get_order_promos(order, order_dict, set_info=False):
                 free_product['code'] = free_product['productCode']
             else:
                 logging.error('not found product in menu')
+                result['availableFreeProducts'].remove(free_product)
 
     if result.get('discountInfo'):
         for dis_info in result.get('discountInfo'):
