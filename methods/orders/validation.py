@@ -2,6 +2,8 @@
 from collections import defaultdict
 from datetime import timedelta, datetime
 import logging
+from math import floor
+
 from methods import working_hours
 from methods.iiko.menu import get_product_from_menu, get_stop_list
 from models.iiko.company import CompanyNew
@@ -87,6 +89,7 @@ def _check_iiko_stop_list(company, delivery_terminal, order):
     for item_id, amount in quantity_dict.iteritems():
         stop_list_amount = stop_list.get(item_id)
         if stop_list_amount is not None:
+            stop_list_amount = int(floor(stop_list_amount))
             if stop_list_amount <= 0:
                 product = get_product_from_menu(delivery_terminal.iiko_organization_id, product_id=item_id)
                 return False, u'Продукт "%s" закончился в этом заведении' % product['name']
