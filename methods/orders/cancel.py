@@ -3,8 +3,8 @@
 import logging
 from methods.alfa_bank import get_back_blocked_sum
 from methods.auto.request import cancel_order
-from methods.email import mandrill
 from methods.parse_com import send_order_status_push
+from methods.specials import oe_cancel
 from models.iiko import CompanyNew, PaymentType
 from models.iiko.order import AUTO_APP_SOURCE
 
@@ -15,23 +15,14 @@ def cancel(order):
     company = CompanyNew.get_by_iiko_id(order.venue_id)
     if company.auto_token and order.source == AUTO_APP_SOURCE:
         cancel_order(order, company.auto_token)
-    if order.payment_type == PaymentType.CARD:
-        if order.venue_id == CompanyNew.ORANGE_EXPRESS:
-            customer = order.customer.get()
-            message = u"№ заказа: %s<br/>" \
-                      u"Сумма: %s<br/>" \
-                      u"Клиент: %s %s<br/>" \
-                      u"ID платежа: %s" % (order.number, order.initial_sum, customer.phone, customer.name, order.alfa_order_id)
-            mandrill.send_email("noreply-order@ru-beacon.ru",
-                                ["kapus78@mail.ru"],
-                                ["mdburshteyn@gmail.com", "isparfenov@gmail.com"],
-                                u"[ОЭ] Отмена заказа с безналичной оплатой",
-                                message)
-        else:
+    if order.venue_id == CompanyNew.ORANGE_EXPRESS:
+        oe_cancel.handle_cancel(order)
+    else:
+        if order.payment_type == PaymentType.CARD:
             cancel_result = get_back_blocked_sum(company, order.alfa_order_id)
             logging.info("cancel %s" % str(cancel_result))
             success = 'errorCode' not in cancel_result or str(cancel_result['errorCode']) == '0'
             if not success:
                 logging.warning("cancel failed")
                 return
-    send_order_status_push(order)
+        send_order_status_push(order)
