@@ -69,6 +69,8 @@ def set_discounts(order, order_from_dict, promos):
             if item['code'] == product_code:
                 return item
 
+    non_platius_discount = order.discount_sum
+
     for dis_info in promos.get('discountInfo', []):
         for detail in dis_info.get('details', []):
             if detail.get('discountSum'):
@@ -83,10 +85,14 @@ def set_discounts(order, order_from_dict, promos):
                 item['discount_sum'] += item_discount
                 item['sum'] -= item_discount
                 order.discount_sum += item_discount
-    return add_bonus_to_payment(order_from_dict, order.discount_sum, True)
+    if non_platius_discount:
+        add_bonus_to_payment(order_from_dict, non_platius_discount, True, False)
+    ret = add_bonus_to_payment(order_from_dict, order.discount_sum - non_platius_discount, True)
+    logging.info("set_discount finished: %s", order_from_dict['paymentItems'])
+    return ret
 
 
-def add_bonus_to_payment(order, bonus_sum, is_deducted):
+def add_bonus_to_payment(order, bonus_sum, is_deducted, is_platius=True):
     def get_payment(order, name):
         for p_item in order['paymentItems']:
             if p_item['paymentType']['name'] == name:
@@ -95,7 +101,8 @@ def add_bonus_to_payment(order, bonus_sum, is_deducted):
 
     p_bonus = get_payment(order, 'iiko.Net')
     if p_bonus:
-        p_bonus['sum'] += bonus_sum
+        if is_platius:
+            p_bonus['sum'] += bonus_sum
         if is_deducted:
             get_payment(order, 'not iiko.Net')['sum'] -= bonus_sum
             order['fullSum'] -= bonus_sum
