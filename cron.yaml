@@ -42,7 +42,7 @@ cron:
 
 - description: update iiko stop lists
   url: /cron/update_stop_lists
-  schedule: every 5 minutes synchronized
+  schedule: every 1 minutes synchronized
 
 - description: fast updates for some companies
   url: /cron/fast_updates
