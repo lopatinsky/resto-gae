@@ -101,11 +101,11 @@ class CheckOrderHandler(BaseHandler):
                     CUPS_IN_ORDER = FREE_CUP_IN_ORDER * CUPS_BEFORE_FREE_CUP
                     mock_order = copy.deepcopy(order)
                     mock_order.sum = free_cup['price'] * CUPS_IN_ORDER
-                    mock_order.items = [{
+                    mock_order.items = prepare_items(company, [{
                         'id': free_cup['productId'],
                         'name': free_cup['name'],
                         'amount': CUPS_IN_ORDER
-                    }]
+                    }])
                     mock_order_dict = prepare_order(mock_order, customer, None)
                     mock_promos = get_order_promos(mock_order, mock_order_dict)
                     set_discounts(mock_order, mock_order_dict['order'], mock_promos)
