@@ -83,19 +83,22 @@ def _check_iiko_stop_list(company, delivery_terminal, order):
         return True, None
 
     quantity_dict = defaultdict(lambda: 0)
+    name_dict = {}
     for item in order.items:
         quantity_dict[item['id']] += item['amount']
+        name_dict[item['id']] = item['name']
+        for modifier in item['modifiers']:
+            name_dict[modifier['id']] = modifier['name']
+            quantity_dict[modifier['id']] += modifier['amount'] * item['amount']
 
     for item_id, amount in quantity_dict.iteritems():
         stop_list_amount = stop_list.get(item_id)
         if stop_list_amount is not None:
             stop_list_amount = int(floor(stop_list_amount))
             if stop_list_amount <= 0:
-                product = get_product_from_menu(delivery_terminal.iiko_organization_id, product_id=item_id)
-                return False, u'Продукт "%s" закончился в этом заведении' % product['name']
+                return False, u'Продукт "%s" закончился или недоступен в этом заведении' % name_dict[item_id]
             elif amount > stop_list_amount:
-                product = get_product_from_menu(delivery_terminal.iiko_organization_id, product_id=item_id)
-                return False, u'В этом заведении осталось только %sшт. %s' % (stop_list_amount, product['name'])
+                return False, u'В этом заведении осталось только %sшт. "%s"' % (stop_list_amount, name_dict[item_id])
     return True, None
 
 

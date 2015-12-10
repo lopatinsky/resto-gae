@@ -373,6 +373,7 @@ def _fill_item_info(org_id, items):
 
         for m in item.get('modifiers', []):
             mod_item = get_modifier_item(org_id, product_code=item['code'], order_mod_id=m.get('id'))
+            m['name'] = mod_item.get('name')
             m['code'] = mod_item.get('code')
             m['sum'] = mod_item.get('price', 0) * m.get('amount', 0) * item['amount']
             item['sum'] += m['sum']
