@@ -11,6 +11,7 @@ from methods.customer import get_resto_customer, set_customer_info, update_custo
 
 from methods.email.admin import send_error, send_order_email
 from methods.alfa_bank import get_back_blocked_sum
+from methods.iiko.customer import create_or_update_customer
 from methods.iiko.menu import prepare_items
 from methods.iiko.order import prepare_order, place_order
 from methods.iiko.order import pre_check_order
@@ -191,6 +192,7 @@ class PlaceOrderHandler(BaseHandler):
         order.discount_sum = 0.0
         order.bonus_sum = 0.0
         if company.is_iiko_system:
+            create_or_update_customer(company, {'phone': customer.phone})
             success = set_discounts_bonuses_gifts(order, order_dict, discount_sum, bonus_sum, gifts)
             if not success:
                 self.abort(409)
