@@ -7,6 +7,7 @@ from handlers.api.base import BaseHandler
 from methods.specials.cat import fix_modifiers_by_own
 from methods.iiko.history import get_history_by_phone, get_history
 from models.iiko import DeliveryTerminal, CompanyNew, Customer
+from models.iiko.order import Order
 
 
 class HistoryHandler(BaseHandler):
@@ -47,9 +48,6 @@ class HistoryHandler(BaseHandler):
                         else:
                             gift_list.append(item)
 
-                    # current_time = iiko.order_info1(order['orderId'], venue.venue_id)
-                    # logging.info(current_time)
-
                     address = {}
                     if order['address']:
                         address = {
@@ -61,6 +59,14 @@ class HistoryHandler(BaseHandler):
                             'entrance': order['address']['entrance'],
                             'floor': order['address']['floor'],
                         }
+
+                    resto_order = Order.order_by_id(order['orderId'])
+                    if resto_order:
+                        resto_order_id = resto_order.key.id()
+                        resto_status = resto_order.status
+                        resto_payment_type = resto_order.payment_type
+                    else:
+                        resto_order_id = resto_status = resto_payment_type = None
 
                     orders_history.append({
                         'self': order['isSelfService'],
@@ -76,6 +82,10 @@ class HistoryHandler(BaseHandler):
                         'items': items_list,
                         'gifts': gift_list,
                         'venue_id': delivery_terminal.key.id(),
+
+                        'resto_id': resto_order_id,
+                        'status': resto_status,
+                        'payment_type': resto_payment_type,
                     })
             overall_history.append({
                 'venue_id': delivery_terminal.key.id(),
