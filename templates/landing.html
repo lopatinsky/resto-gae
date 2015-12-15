@@ -15,7 +15,7 @@
             <li><a href="#price" data-scroll>{{ t.MENU_PRICING }}</a></li>
             <li><a href="#scheme" data-scroll>{{ t.MENU_SCHEME }}</a></li>
         </ul>
-        <a href="#form" id="menu-button" data-scroll>{{ t.MENU_CREATE }}</a>
+        <a href="http://demo.rbcn.mobi/wizard" id="menu-button">{{ t.MENU_CREATE }}</a>
     </div>
     <h1><span>{{ t.MAIN_LINE1_HL }}</span> {{ t.MAIN_LINE1_NO_HL }}<br>
         <span>{{ t.MAIN_LINE2_HL }}</span> {{ t.MAIN_LINE2_NO_HL }}</h1>
@@ -69,7 +69,7 @@
     <img class="screen" src="/static/img/landing/phones.png" alt="">
 </div>
 <div class="advantages">
-    <h2>{{ t.ADVANGAGES_HEADING }}</h2>
+    <h2>{{ t.ADVANTAGES_HEADING }}</h2>
 
     <div class="first">
         <h3><dfn>{{ t.REPEATED_ORDERS }}</dfn></h3>
@@ -106,7 +106,14 @@
 <div id="price">
     <h2>{{ t.PRICING_HEADING }}</h2>
 
-    <table width="100%" cellspacing="0">
+    <table width="100%" cellspacing="0" style="table-layout: fixed;">
+        <tr>
+            <th colspan="3" width="3%">{{ t.PRICING_DELIVERY }}</th>
+            <th rowspan="2" width="1%">
+                {{ t.PRICING_CAFE_1 }}<br>
+                {{ t.PRICING_CAFE_2 }}
+            </th>
+        </tr>
         <tr>
             <th width="1%">{{ t.PRICING_PLAN1 }}</th>
             <th width="1%">{{ t.PRICING_PLAN2 }}</th>
@@ -119,22 +126,28 @@
                 {{ t.PRICING_PLATFORMS }}
             </td>
             <td>
-                <h4>{{ t.PRICING_ORDERS % 1000 }}</h4>
+                <h4>{{ t.PRICING_ORDERS % 200 }}</h4>
                 {{ t.PRICING_PERCENT % "3.5%" }}<br>
                 {{ t.PRICING_PLATFORMS }}<br>
                 {{ t.PRICING_MOBILE_WEB }}
             </td>
             <td>
-                <h4>{{ t.PRICING_ORDERS % 10000 }}</h4>
+                <h4>{{ t.PRICING_ORDERS_UNLIMITED }}</h4>
                 {{ t.PRICING_PERCENT % "3.5%" }}<br>
                 {{ t.PRICING_PLATFORMS }}<br>
                 {{ t.PRICING_MOBILE_WEB }}
             </td>
+            <td>
+                <h4>{{ t.PRICING_ORDERS_UNLIMITED }}</h4>
+                {{ t.PRICING_PLATFORMS }}<br>
+                {{ t.PRICING_BARISTA_APP }}
+            </td>
         </tr>
         <tr>
-            <th>3000  {{ t.PRICING_RUBLES_PER_MONTH }}</th>
-            <th>30000 {{ t.PRICING_RUBLES_PER_MONTH }}</th>
-            <th>60000 {{ t.PRICING_RUBLES_PER_MONTH }}</th>
+            <th>3000 {{ t.PRICING_RUBLES_PER_MONTH }}</th>
+            <th>6000 {{ t.PRICING_RUBLES_PER_MONTH }}</th>
+            <th>{{ t.PRICING_INDIVIDUAL }}</th>
+            <th>3000 {{ t.PRICING_RUBLES_PER_MONTH }}</th>
         </tr>
         <tr>
             <td>
@@ -149,6 +162,11 @@
             </td>
             <td>
                 {% for line in t.PRICING_PLAN3_INFO %}
+                    {{ line }}<br>
+                {% endfor %}
+            </td>
+            <td>
+                {% for line in t.PRICING_PLAN_CAFE_INFO %}
                     {{ line }}<br>
                 {% endfor %}
             </td>

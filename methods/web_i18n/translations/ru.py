@@ -53,9 +53,12 @@ TEXTS["ru"] = {
 
     "PRICING_HEADING": u"Стоимость",
 
+    "PRICING_DELIVERY": u"Доставка",
     "PRICING_PLAN1": u"Стандарт",
     "PRICING_PLAN2": u"Профи",
     "PRICING_PLAN3": u"Премиум",
+    "PRICING_CAFE_1": u"Решение для",
+    "PRICING_CAFE_2": u"кофеен",
 
     "PRICING_PLAN1_INFO": [u"Стилизация:",
                            u"Логотип и фирменный стиль",
@@ -78,12 +81,22 @@ TEXTS["ru"] = {
                            u"Лояльность:",
                            u"Интеграция с соц. сетями",
                            u"Приведи друга"],
+    "PRICING_PLAN_CAFE_INFO": [u"Дополнительно:",
+                               u"Геолокационные сообщения",
+                               u"",
+                               u"Лояльность:",
+                               u"Бонусы",
+                               u"Абонемент",
+                               u"Каждая N - в подарок"],
 
     "PRICING_ORDERS": u"До %s заказов/мес.",
-    "PRICING_PERCENT": u"%s комиссия",
+    "PRICING_ORDERS_UNLIMITED": u"Без ограничений",
+    "PRICING_PERCENT": u"%s комиссия за эквайринг",
     "PRICING_PLATFORMS": u"2 платформы",
+    "PRICING_BARISTA_APP": u"Приложение для бариста",
     "PRICING_MOBILE_WEB": u"Мобильная версия сайта",
     "PRICING_RUBLES_PER_MONTH": u"руб/мес.",
+    "PRICING_INDIVIDUAL": u"Индивидуально",
 
     "SCHEME_HEADING": u"Схема работы",
     "SCHEME_SEND_REQUEST": u"Отправьте заявку и получите тестовое приложение.",
