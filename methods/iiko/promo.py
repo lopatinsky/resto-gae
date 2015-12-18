@@ -3,6 +3,7 @@ import json
 import logging
 from datetime import datetime
 
+from handlers.api.specials.hardcoded_promos import HARDCODED_PROMOS
 from methods.iiko.base import get_request, post_request
 from methods.iiko.menu import get_product_from_menu, list_menu, get_modifier_item
 from methods.specials.lpq import apply_lpq_discounts
@@ -133,15 +134,8 @@ def calc_sum(items, iiko_org_id):
 
 
 def get_venue_promos(org_id):
-    if org_id == CompanyNew.MIVAKO:
-        from handlers.api.specials.mivako_promo import get_mivako_iiko_promos
-        return get_mivako_iiko_promos()
-    if org_id == CompanyNew.TYKANO:
-        from handlers.api.specials.tykano_promos import get_tykano_iiko_promos
-        return get_tykano_iiko_promos()
-    if org_id == CompanyNew.DIMASH:
-        from handlers.api.specials.dimash_promos import get_dimash_iiko_promos
-        return get_dimash_iiko_promos()
+    if org_id in HARDCODED_PROMOS:
+        return HARDCODED_PROMOS[org_id]
 
     url = '/organization/%s/marketing_campaigns' % org_id
     company = CompanyNew.get_by_iiko_id(org_id)
