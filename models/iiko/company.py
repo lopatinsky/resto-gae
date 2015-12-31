@@ -140,6 +140,7 @@ class CompanyNew(ndb.Model):
     cities = ndb.StringProperty(repeated=True)
     phone = ndb.StringProperty()
     schedule = ndb.JsonProperty()
+    holiday_schedule = ndb.StringProperty(indexed=False, default='')
     icon1 = ndb.BlobProperty()
     icon2 = ndb.BlobProperty()
     icon3 = ndb.BlobProperty()
