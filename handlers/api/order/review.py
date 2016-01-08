@@ -4,6 +4,7 @@ from handlers.api.base import BaseHandler
 from methods.email import mandrill
 from models.iiko import Order
 from models.iiko.company import CompanyNew
+from models.iiko.delivery_terminal import DeliveryTerminal
 from models.iiko.order import OrderRate
 
 __author__ = 'dvpermyakov'
@@ -23,11 +24,13 @@ class OrderReviewHandler(BaseHandler):
         if is_negative or rate.comment:
             company = CompanyNew.get_by_iiko_id(order.venue_id)
             customer = order.customer.get()
+            dt = DeliveryTerminal.get_by_id(order.delivery_terminal_id)
             body = u"Клиент: %s %s<br>" \
                    u"Заказ №%s<br>" \
+                   u"Точка: %s<br>" \
                    u"Оценка еды: %d из 5<br>" \
                    u"Оценка обслуживания: %d из 5<br>" % \
-                   (customer.phone, customer.name, order.number, meal_rate, service_rate)
+                   (customer.phone, customer.name, order.number, dt.name, meal_rate, service_rate)
             if comment:
                 body += u"Комментарий: %s" % comment
             logging.info(body)
