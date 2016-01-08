@@ -63,6 +63,7 @@ def parse_company_schedule(schedule_list, date, for_delivery=False, overrides=No
         hrs = overrides_dict[date]
         if not hrs:
             return 24, 0
+        start_hour, end_hour = hrs
     else:
         logging.debug('date %s not in overrides', date)
         for schedule in schedule_list:
