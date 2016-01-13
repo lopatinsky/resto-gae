@@ -38,6 +38,6 @@ def apply_lpq_discounts(order):
         elif item['ext_category_id'] in _EVENING_CATEGORIES or item['code'] in _EVENING_PRODUCT_CODES:
             if order.delivery_terminal_id in _EVENING_SCHEDULE:
                 schedule = [_EVENING_SCHEDULE[order.delivery_terminal_id]]
-                local_date = order.date + timedelta(company.get_timezone_offset())
+                local_date = order.date + timedelta(seconds=company.get_timezone_offset())
                 if working_hours.is_datetime_valid(schedule, local_date, order.is_delivery):
                     _add_discount(order, item, 0.3)

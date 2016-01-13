@@ -380,6 +380,16 @@ def _fill_item_info(org_id, items):
 
 
 def prepare_items(company, items):
+    if company.iiko_org_id == CompanyNew.EMPATIKA:
+        items.append({
+            'id': 'eaec4cb8-77d8-49c3-8de9-cfed938abe69',
+            'amount': 1.0
+        })
+    elif company.iiko_org_id == CompanyNew.HLEB:
+        items.append({
+            'id': '5b3deff4-08ae-4ce4-b4ce-24f156aab324',
+            'amount': 1.0
+        })
     _fix_modifier_amount(company.iiko_org_id, items)
     _fill_item_info(company.iiko_org_id, items)
     if company.iiko_org_id == CompanyNew.COFFEE_CITY:

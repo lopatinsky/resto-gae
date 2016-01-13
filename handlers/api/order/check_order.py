@@ -57,6 +57,7 @@ class CheckOrderHandler(BaseHandler):
             order = iiko.Order()
             order.date = datetime.datetime.fromtimestamp(self.request.get_range('date'))
             order.venue_id = company.iiko_org_id
+            order.delivery_terminal_id = delivery_terminal_id
             order.sum = float(self.request.get('sum'))
             order.items = items
             delivery_type = self.request.get_range('deliveryType')
