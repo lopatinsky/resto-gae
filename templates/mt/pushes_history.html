@@ -22,9 +22,7 @@
             <th>Текст</th>
             <th>Заголовок (для Андройд)</th>
             <th>Андроид</th>
-            <th>Кол-во пушей на Андроид</th>
             <th>IPhone</th>
-            <th>Кол-во пушей на IPhone</th>
         </tr>
         {% for h_item in history %}
             <tr>
@@ -33,9 +31,7 @@
                 <td>{{ h_item.text  }}</td>
                 <td>{{ h_item.head }}</td>
                 <td>{{ h_item.android_avail }}</td>
-                <td>{{ h_item.android_number }}</td>
                 <td>{{ h_item.ios_avail }}</td>
-                <td>{{ h_item.ios_number }}</td>
             </tr>
         {% endfor %}
     </table>
