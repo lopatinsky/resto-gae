@@ -2,6 +2,8 @@ import json
 import logging
 import urllib
 from google.appengine.api import urlfetch, memcache
+
+from methods.json_encoder import BetterFloatJsonEncoder
 from models.iiko import IikoApiLogin, PlatiusLogin
 from models.iiko.company import CompanyNew
 
@@ -71,7 +73,7 @@ def post_request(company, api_path, params, payload, force_platius=False, deadli
         url = '%s%s' % (iiko_base_url, api_path)
         if params:
             url = '%s?%s' % (url, urllib.urlencode(params))
-        json_payload = json.dumps(payload)
+        json_payload = json.dumps(payload, cls=BetterFloatJsonEncoder)
         logging.info("PAYLOAD %s" % str(json_payload))
         logging.info(url)
 
