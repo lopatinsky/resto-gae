@@ -398,6 +398,8 @@ def prepare_items(company, items):
 
 
 def add_additional_categories(company, menu):
+    if not company.additional_categories:
+        return
     min_order = menu[0]['order']
     starting_order = min_order - len(company.additional_categories)
     additional_dicts = []
