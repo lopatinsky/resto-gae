@@ -1,7 +1,23 @@
+# coding=utf-8
+
 import logging
 from methods.iiko.promo import get_order_promos, set_discounts, add_bonus_to_payment, set_gifts
+from models.iiko.customer import Customer
+from models.iiko.order import Order
 
 __author__ = 'dvpermyakov'
+
+
+def orders_exist_for_phone(phone):
+    customers = Customer.query(Customer.phone == phone).fetch(keys_only=True)
+    orders = [o
+              for lst in [Order.query(Order.customer == c,
+                                      Order.status.IN((Order.NOT_APPROVED,
+                                                       Order.APPROVED,
+                                                       Order.CLOSED))
+                                      ) for c in customers]
+              for o in lst]
+    return bool(orders)
 
 
 def set_discounts_bonuses_gifts(order, order_dict, discount_sum, bonus_sum, gifts):

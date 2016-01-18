@@ -17,7 +17,7 @@ from methods.iiko.order import prepare_order, place_order
 from methods.iiko.order import pre_check_order
 from methods.iiko.promo import calc_sum
 from methods.orders.create import pay_by_card
-from methods.orders.precheck import set_discounts_bonuses_gifts
+from methods.orders.precheck import set_discounts_bonuses_gifts, orders_exist_for_phone
 from methods.orders.validation import validate_order
 from methods.rendering import parse_iiko_time, filter_phone, parse_str_date, prepare_address
 from methods.sms import send_confirmation
@@ -144,17 +144,12 @@ class PlaceOrderHandler(BaseHandler):
                 comment = u"Заказ с Android. " + comment
             else:
                 comment = u"Заказ с iOS. " + comment
+
+        is_repeated_order = None
         if company.iiko_org_id in _FIRST_ORDER_COMMENTS:
             comment_first, comment_repeated = _FIRST_ORDER_COMMENTS[company.iiko_org_id]
-            customers = iiko.Customer.query(iiko.Customer.phone == customer.phone).fetch(keys_only=True)
-            orders = [o
-                      for lst in [iiko.Order.query(iiko.Order.customer == c,
-                                                   iiko.Order.status.IN((iiko.Order.NOT_APPROVED,
-                                                                         iiko.Order.APPROVED,
-                                                                         iiko.Order.CLOSED))
-                                                   ) for c in customers]
-                      for o in lst]
-            comment = (comment_repeated if orders else comment_first) + comment
+            is_repeated_order = orders_exist_for_phone(customer.phone)
+            comment = (comment_repeated if is_repeated_order else comment_first) + comment
 
         order.comment = comment
         delivery_type = self.request.get_range('deliveryType')
@@ -197,6 +192,16 @@ class PlaceOrderHandler(BaseHandler):
             if not success:
                 self.abort(409)
             order.sum -= order.bonus_sum + order.discount_sum
+        elif company.iiko_org_id == CompanyNew.CHAIHANA_LOUNGE:
+            assert is_repeated_order is not None
+            if is_repeated_order:
+                order.discount_sum = 0.05 * order.sum
+            else:
+                order.discount_sum = 0.25 * order.sum
+            if order.payment_type == PaymentType.COURIER_CARD:
+                for payment in order_dict['order']['paymentItems']:
+                    if payment['paymentType']['code'] == 'CARD':
+                        payment['sum'] -= order.discount_sum
 
         if order.payment_type == PaymentType.CASH and not order.is_delivery:
             payments_list = order_dict['order']['paymentItems']

@@ -11,6 +11,7 @@ from methods.iiko.customer import get_customer_by_id
 from methods.iiko.menu import get_product_from_menu, prepare_items
 from methods.iiko.order import prepare_order
 from methods.iiko.promo import get_order_promos, set_discounts
+from methods.orders.precheck import orders_exist_for_phone
 from methods.orders.validation import validate_order
 from methods.rendering import filter_phone
 from models import iiko
@@ -51,6 +52,7 @@ class CheckOrderHandler(BaseHandler):
 
             if not phone:
                 return self.send_error(u'Введите номер телефона')
+            phone = filter_phone(phone)
 
             items = prepare_items(company, json.loads(self.request.get('items')))
 
@@ -126,6 +128,12 @@ class CheckOrderHandler(BaseHandler):
                 max_bonus_payment = 0.0
                 gifts = []
                 accumulated_gifts = discount_gifts = 0
+
+                if company.iiko_org_id == CompanyNew.CHAIHANA_LOUNGE:
+                    if orders_exist_for_phone(phone):
+                        discount_sum = 0.05 * order.sum
+                    else:
+                        discount_sum = 0.25 * order.sum
 
             iiko_customer = get_customer_by_id(company, customer.customer_id)
 
