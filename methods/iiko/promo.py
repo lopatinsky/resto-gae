@@ -65,27 +65,28 @@ def set_discounts(order, order_from_dict, promos):
     if order.venue_id == CompanyNew.HLEB:
         apply_lpq_discounts(order)
 
-    def get_item(product_code):
-        for item in order.items:
-            if item['code'] == product_code:
-                return item
+    def get_items(product_code):
+        return [item for item in order.items if item['code'] == product_code]
 
     non_platius_discount = order.discount_sum
 
     for dis_info in promos.get('discountInfo', []):
         for detail in dis_info.get('details', []):
             if detail.get('discountSum'):
-                item = get_item(detail.get('code'))
-                if not item:
-                    logging.error('discounts not found!')
-                    continue
-                item.setdefault('discount_sum', 0)
-                item_discount = detail['discountSum']
-                if item_discount > item['sum']:
-                    item_discount = item['sum']
-                item['discount_sum'] += item_discount
-                item['sum'] -= item_discount
-                order.discount_sum += item_discount
+                items = get_items(detail.get('code'))
+                discount_for_code = detail['discountSum']
+                for item in items:
+                    item.setdefault('discount_sum', 0)
+                    item_discount = min(item['sum'], discount_for_code)
+                    if item_discount > item['sum']:
+                        item_discount = item['sum']
+                    item['discount_sum'] += item_discount
+                    item['sum'] -= item_discount
+                    order.discount_sum += item_discount
+                    discount_for_code -= item_discount
+                if discount_for_code > 0:
+                    logging.warning('discounts not found!')
+
     if non_platius_discount:
         add_bonus_to_payment(order_from_dict, non_platius_discount, True, False)
     ret = add_bonus_to_payment(order_from_dict, order.discount_sum - non_platius_discount, True)
