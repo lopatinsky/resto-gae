@@ -50,6 +50,8 @@ def get_order_email_address(order):
         return "univerfoods@mail.ru"
     elif order.venue_id == CompanyNew.BURGER_CLUB:
         return "astra-burgerclub@mail.ru"
+    elif order.venue_id == CompanyNew.GIOTTO:
+        return "zakaz@giottoclub.ru"
     return None
 
 
