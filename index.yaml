@@ -48,3 +48,8 @@ indexes:
   - name: order_id
   - name: created
     direction: desc
+
+- kind: Order
+  properties:
+  - name: status
+  - name: created

@@ -32,6 +32,7 @@ class OrderChangeLog(ndb.Model):
 
 class Order(ndb.Model):
     # statuses
+    CREATING = -2
     UNKNOWN = -1
     NOT_APPROVED = 1
     APPROVED = 2
@@ -64,6 +65,9 @@ class Order(ndb.Model):
         CANCELED: [
             u'отменена',
             'cancelled',
+        ],
+        CREATING: [
+            u'создается'
         ]
     }
 
@@ -88,12 +92,13 @@ class Order(ndb.Model):
     customer = ndb.KeyProperty()
     order_id = ndb.StringProperty()
     number = ndb.StringProperty()
-    status = ndb.IntegerProperty()
+    status = ndb.IntegerProperty(default=CREATING)
     comment = ndb.StringProperty(indexed=False)
     payment_type = ndb.StringProperty(indexed=False)
     alfa_order_id = ndb.StringProperty(indexed=False)
     source = ndb.StringProperty(choices=SOURCE_CHOICES, default=APP_SOURCE)
     created_in_iiko = ndb.DateTimeProperty()
+    created = ndb.DateTimeProperty(auto_now_add=True)
     updated = ndb.DateTimeProperty(auto_now=True)
     cancel_requested = ndb.BooleanProperty(default=False, indexed=False)
     rate = ndb.LocalStructuredProperty(OrderRate)

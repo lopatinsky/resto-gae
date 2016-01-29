@@ -3,6 +3,7 @@ import json
 import logging
 import datetime
 import random
+import uuid
 
 from google.appengine.api.urlfetch_errors import DownloadError
 from google.appengine.ext import deferred
@@ -16,7 +17,7 @@ from methods.iiko.menu import prepare_items
 from methods.iiko.order import prepare_order, place_order
 from methods.iiko.order import pre_check_order
 from methods.iiko.promo import calc_sum
-from methods.orders.create import pay_by_card
+from methods.orders.create import check_binding_id, create_payment, perform_payment
 from methods.orders.precheck import set_discounts_bonuses_gifts, orders_exist_for_phone
 from methods.orders.validation import validate_order
 from methods.rendering import parse_iiko_time, filter_phone, parse_str_date, prepare_address
@@ -44,7 +45,12 @@ _FIRST_ORDER_COMMENTS = {
 
 
 class PlaceOrderHandler(BaseHandler):
+    order = None
+
     def send_error(self, description, error_code=GENERAL_ERROR):
+        if self.order and self.order.key:
+            self.order.key.delete()
+
         self.response.set_status(400)
         logging.warning(description)
         send_error("order", "Our pre check failed", description)
@@ -94,7 +100,7 @@ class PlaceOrderHandler(BaseHandler):
                           custom_data)
         update_customer_id(company, customer)
 
-        order = iiko.Order()
+        self.order = order = iiko.Order(order_id=str(uuid.uuid4()))
         if source == AUTO_APP_SOURCE:
             if not company.auto_token:
                 return self.send_error(u"Неизвестная системная ошибка, попробуйте позже")
@@ -213,10 +219,19 @@ class PlaceOrderHandler(BaseHandler):
         # pay after pre check
         order_id = None
         if order.payment_type == PaymentType.CARD:
-            success, order_id = pay_by_card(company, order, order_dict, binding_id, alpha_client_id)
+            binding_id = check_binding_id(company, alpha_client_id, binding_id)
+
+            success, result = create_payment(company, order, alpha_client_id)
             if not success:
-                self.abort(400)
-        order.alfa_order_id = order_id
+                self.send_error(result)
+                return
+            order.alfa_order_id = result
+            order.put()
+
+            success, result = perform_payment(company, order, order_dict, order.alfa_order_id, binding_id)
+            if not success:
+                self.send_error(u"Не удалось произвести оплату. " + result)
+                return
 
         result = place_order(company, order_dict)
 

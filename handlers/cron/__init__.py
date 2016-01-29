@@ -2,6 +2,7 @@
 
 import webapp2
 
+from handlers.cron.creating_orders import CheckCreatingOrdersHandler
 from handlers.cron.fast_updates import FastUpdatesHandler
 from .build_square_table import BuildSquareTableHandler
 from .inactive_clients import InactiveClientsWithPromo
@@ -23,4 +24,5 @@ app = webapp2.WSGIApplication([
     ('/cron/build_recommendations', BuildRecommendationsHandler),
     ('/cron/update_stop_lists', UpdateStopListsHandler),
     ('/cron/fast_updates', FastUpdatesHandler),
+    ('/cron/creating_orders', CheckCreatingOrdersHandler),
 ])

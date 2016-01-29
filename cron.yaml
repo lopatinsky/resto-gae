@@ -47,3 +47,7 @@ cron:
 - description: fast updates for some companies
   url: /cron/fast_updates
   schedule: every 1 minutes synchronized
+
+- description: check creating orders
+  url: /cron/creating_orders
+  schedule: every 10 minutes synchronized

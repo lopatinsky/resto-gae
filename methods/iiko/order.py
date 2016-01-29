@@ -20,6 +20,7 @@ def prepare_order(order, customer, payment_type):
             'phone': customer.phone,
         },
         'order': {
+            'id': order.order_id,
             'date': local_date.strftime('%Y-%m-%d %H:%M:%S'),
             'isSelfService': 0 if order.is_delivery else 1,
             'fullSum': order.sum,
