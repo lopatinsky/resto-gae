@@ -29,6 +29,7 @@
              <th>Client Id</th>
              <th>Client Name</th>
              <th>Client Phone</th>
+             <th>Comment</th>
              <th>Item Name</th>
              <th>Item Amount</th>
          </tr>
@@ -45,6 +46,7 @@
                  <td rowspan="{{ icount }}">{{ order.customer_id }}</td>
                  <td rowspan="{{ icount }}">{{ order.customer_name }}</td>
                  <td rowspan="{{ icount }}">{{ order.customer_phone }}</td>
+                 <td rowspan="{{ icount }}">{{ order.comment }}</td>
                  {% for item in order.new_items %}
                      {% if loop.index0 > 0 %}
                         </tr>
