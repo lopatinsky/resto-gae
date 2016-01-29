@@ -26,12 +26,12 @@ def set_discounts_bonuses_gifts(order, order_dict, discount_sum, bonus_sum, gift
     logging.info('gifts %s' % gifts)
 
     promos = get_order_promos(order, order_dict)
-    if discount_sum != 0:
-        set_discounts(order, order_dict['order'], promos)
-        if order.discount_sum != discount_sum:
-            logging.info('conflict_discount: app(%s), iiko(%s)' % (discount_sum, order.discount_sum))
-            return False
-        promos = get_order_promos(order, order_dict)
+    set_discounts(order, order_dict['order'], promos)
+    if discount_sum and order.discount_sum != discount_sum:
+        logging.info('conflict_discount: app(%s), iiko(%s)' % (discount_sum, order.discount_sum))
+        return False
+    promos = get_order_promos(order, order_dict)
+
     if bonus_sum != 0:
         if bonus_sum != promos['maxPaymentSum']:
             logging.info('conflict_max_bonus: app(%s), iiko(%s)' % (bonus_sum, promos['maxPaymentSum']))
