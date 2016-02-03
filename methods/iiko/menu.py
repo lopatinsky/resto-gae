@@ -182,6 +182,9 @@ def _load_menu(company):
         # TODO beer in sushilar
         if company.iiko_org_id == CompanyNew.SUSHILAR and cat['id'] == '6e4b8c9c-df45-40f6-8356-ac8039e3f630':
             continue
+        # ingredients in giotto
+        if company.iiko_org_id == CompanyNew.GIOTTO and cat['id'] == '1f62d74f-79fb-43e3-86e1-8e90ffc956bf':
+            continue
         if not cat['isIncludedInMenu']:
             continue
         if company.iiko_org_id == CompanyNew.COFFEE_CITY and cat['id'] == CAT_GIFTS_GROUP_ID:
