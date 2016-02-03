@@ -30,7 +30,7 @@ def _check_company_schedule(company, order):
 
 
 def _check_min_sum(company, order):
-    if company.min_order_sum and order.sum < company.min_order_sum:
+    if order.is_delivery and company.min_order_sum and order.sum < company.min_order_sum:
         return False, u"Минимальная сумма заказа %s рублей!" % company.min_order_sum
     return True, None
 
