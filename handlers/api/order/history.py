@@ -65,8 +65,9 @@ class HistoryHandler(BaseHandler):
                         resto_order_id = resto_order.key.id()
                         resto_status = resto_order.status
                         resto_payment_type = resto_order.payment_type
+                        resto_delivery_terminal_id = resto_order.delivery_terminal_id
                     else:
-                        resto_order_id = resto_status = resto_payment_type = None
+                        resto_order_id = resto_status = resto_payment_type = resto_delivery_terminal_id = None
 
                     orders_history.append({
                         'self': order['isSelfService'],
@@ -81,7 +82,7 @@ class HistoryHandler(BaseHandler):
                         'sum': order['sum'],
                         'items': items_list,
                         'gifts': gift_list,
-                        'venue_id': delivery_terminal.key.id(),
+                        'venue_id': resto_delivery_terminal_id or delivery_terminal.key.id(),
 
                         'resto_id': resto_order_id,
                         'status': resto_status,
