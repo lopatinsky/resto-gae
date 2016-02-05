@@ -76,7 +76,10 @@ def do_load(order, order_id, org_id, iiko_order=None):
     created_time = parse_iiko_time(iiko_order['createdTime'], company)
     _attr('created_in_iiko', created_time)
 
-    _attr('status', Order.parse_status(iiko_order['status']))
+    status = Order.parse_status(iiko_order['status'])
+    if status == Order.CLOSED and iiko_order['sum'] < 0.005:
+        status = Order.CANCELED
+    _attr('status', status)
 
     logging.debug("changes in %s: %s", order_id, changes.keys())
     if changes and order.source in [APP_SOURCE, AUTO_APP_SOURCE]:
