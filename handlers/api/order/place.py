@@ -53,7 +53,6 @@ class PlaceOrderHandler(BaseHandler):
 
         self.response.set_status(400)
         logging.warning(description)
-        send_error("order", "Our pre check failed", description)
         self.render_json({
             'error': True,
             'error_code': error_code,
@@ -103,6 +102,7 @@ class PlaceOrderHandler(BaseHandler):
         self.order = order = iiko.Order(order_id=str(uuid.uuid4()))
         if source == AUTO_APP_SOURCE:
             if not company.auto_token:
+                send_error("order", u"Компания %s не настроена для работы с автоматизацией" % company.name, "")
                 return self.send_error(u"Неизвестная системная ошибка, попробуйте позже")
             order.source = source
         order.date = datetime.datetime.utcfromtimestamp(int(self.request.get('date')))
@@ -165,9 +165,7 @@ class PlaceOrderHandler(BaseHandler):
                 self.abort(400)
             try:
                 order.address = json.loads(address)
-                success = prepare_address(order)
-                if not success:
-                    send_error("address", "Address is not valid", order.address['comment'])
+                prepare_address(order)
             except Exception as e:
                 logging.exception(e)
                 self.abort(400)

@@ -28,10 +28,8 @@ def _handle(order_id):
                 logging.info(iiko_order)
                 order.order_id = iiko_order['orderId']
                 do_load(order, order.order_id, order.venue_id, iiko_order)
-                send_error("oe_move", "OE move checker: success %s" % order.number, "")
                 break
         else:
-            send_error("oe_move", "OE move checker: not found %s" % order.number, "")
             if order.payment_type == PaymentType.CARD:
                 message = u"№ заказа: %s<br/>" \
                           u"Сумма: %s<br/>" \
@@ -44,7 +42,7 @@ def _handle(order_id):
                                     message)
             send_order_status_push(order)
     except Exception as e:
-        send_error("oe_move", "OE move checker: exception on %s" % order.number, repr(e))
+        send_error("order", "OE move checker: exception on %s" % order.number, repr(e))
 
 
 def handle_cancel(order):

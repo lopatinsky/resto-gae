@@ -15,7 +15,6 @@ class ProductionConfig(RestoConfig):
     ERROR_EMAILS = {
         "server": "admins",
         "iiko": "admins",
-        "address": "admins"
     }
 
 
@@ -25,7 +24,6 @@ class TestingConfig(RestoConfig):
     DEBUG = True
 
     ERROR_EMAILS = {
-        "address": "admins"
     }
 
 
