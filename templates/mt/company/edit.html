@@ -119,7 +119,7 @@
             <legend>Специальные категории</legend>
             <textarea name="additional_categories" cols="30" rows="10">
                 {%- for c in company.additional_categories -%}
-                    {{- c.title }}{{ '\n' -}}
+                    {{- c.title }}{% if c.image_url %}|{{ c.image_url }}{% endif %}{{ '\n' -}}
                     {%- for item_id in c.item_ids -%}
                         {{- item_id }}{{ '\n' -}}
                     {%- endfor -%}

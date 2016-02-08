@@ -92,6 +92,10 @@ def parse_additional_categories(str_categories):
                 result.append(AdditionalCategory(title=u'Популярное'))
             result[-1].item_ids.append(line)
         else:
-            logging.info('New category with title %s', line)
-            result.append(AdditionalCategory(title=line))
+            if "|" in line:
+                title, url = line.rsplit("|", 1)
+            else:
+                title, url = line, None
+            logging.info('New category with title %s', title)
+            result.append(AdditionalCategory(title=title, image_url=url))
     return [c for c in result if c.item_ids]

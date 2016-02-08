@@ -409,6 +409,7 @@ def add_additional_categories(company, menu):
     for i, c in enumerate(company.additional_categories):
         products = [get_product_from_menu(company.iiko_org_id, product_id=item_id) for item_id in c.item_ids]
         products = filter(None, products)
+        images = [{'imageUrl': c.image_url}] if c.image_url else []
         if products:
             additional_dicts.append({
                 "name": c.title,
@@ -416,7 +417,7 @@ def add_additional_categories(company, menu):
                 "parent": None,
                 "hasChildren": False,
                 "children": [],
-                "image": [],
+                "image": images,
                 "order": starting_order + i,
                 "products": products
             })

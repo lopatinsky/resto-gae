@@ -79,6 +79,7 @@ class InvitationSettings(ndb.Model):
 
 class AdditionalCategory(ndb.Model):
     title = ndb.StringProperty(indexed=False)
+    image_url = ndb.StringProperty(indexed=False)
     item_ids = ndb.StringProperty(indexed=False, repeated=True)
 
 
