@@ -86,9 +86,7 @@ def prepare_order(order, customer, payment_type):
         elif order.venue_id == CompanyNew.PANDA:
             #obj['deliveryTerminalId'] = "9d55b8d9-7b71-aa53-0144-4da56c249760"  # DOSTAVKA48
             obj['deliveryTerminalId'] = "12c99191-4e48-67cc-014d-0ef17725d974"  # PANDA
-        elif order.venue_id == CompanyNew.BURGER_CLUB:
-            obj['deliveryTerminalId'] = DeliveryTerminal.get_any(order.venue_id).key.id()
-        elif order.venue_id == CompanyNew.CHAIHANA_LOUNGE:
+        elif order.venue_id in (CompanyNew.BURGER_CLUB, CompanyNew.CHAIHANA_LOUNGE, CompanyNew.DEMO_SOFT_BUSINESS):
             obj['deliveryTerminalId'] = DeliveryTerminal.get_any(order.venue_id).key.id()
 
     customer_id = customer.customer_id

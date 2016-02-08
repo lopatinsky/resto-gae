@@ -102,6 +102,7 @@ class CompanyNew(ndb.Model):
     HLEB = "72ea832b-7631-11e5-80c1-d8d385655247"
     CHAIHANA_LOUNGE = "d40c6833-6dda-11e5-80c1-d8d385655247"
     GIOTTO = "01e35456-40f8-11e5-80d2-d8d38565926f"
+    DEMO_SOFT_BUSINESS = "485fc486-c3ed-11e5-80c3-d8d385655247"
 
     iiko_login = ndb.StringProperty()
     platius_login = ndb.StringProperty()
