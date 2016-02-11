@@ -15,6 +15,15 @@ from models.square_table import PickleStorage
 __author__ = 'dvpermyakov'
 
 
+_LPQ_HARDCODE_MODIFIERS = {
+    "648233a6-9dcf-41a7-99e4-7076e69cb1f7": "c03aab7a-3683-4d18-aa7f-1101902b7d8a",
+    "e39018c5-e595-45f2-91df-252962c3c8f9": "4f0112da-fb9b-47f6-9b78-77e65de7df62",
+    "d94cb9b0-5a51-4333-ba5a-db9457bee308": "f62500e3-0039-46b6-90d3-dcb71fd70865",
+    "f6249857-2e89-4de5-8817-26eb33adbcd3": "346a4734-9325-43f2-abc1-a4db02822d71",
+    "96c4c6ab-dce4-4245-83e2-e9d453f05f34": "ddfb64cf-eb40-466e-8eff-45db524c3ce6",
+}
+
+
 def _load_stop_list(company):
     result = get_request(company, '/stopLists/getDeliveryStopList', {
         'organization': company.iiko_org_id,
@@ -239,12 +248,16 @@ def _load_menu(company):
     return menu
 
 
-def _filter_menu(menu):
+def _filter_menu(org_id, menu):
     def process_category(category):
         for p in category['products']:
             p['single_modifiers'] = [m
                                      for m in p['single_modifiers']
                                      if m['minAmount'] == 0]
+            if org_id == CompanyNew.HLEB:
+                p['modifiers'] = [m
+                                  for m in p['modifiers']
+                                  if m['groupId'] not in _LPQ_HARDCODE_MODIFIERS]
         category['products'] = [p
                                 for p in category['products']
                                 if p['price'] > 0 or p['single_modifiers'] or p['modifiers']]
@@ -270,7 +283,7 @@ def get_menu(org_id, force_reload=False, filtered=True):
         menu = _load_menu(company)
         PickleStorage.save("iiko_menu_%s" % org_id, menu)
     if filtered:
-        _filter_menu(menu)
+        _filter_menu(org_id, menu)
     return menu
 
 
@@ -342,7 +355,8 @@ def get_group_modifier(org_id, group_id, modifier_id):
 
 def _fix_modifier_amount(org_id, items):
     menu = list_menu(org_id)
-    modifiers = {item['productId']: item['single_modifiers'] for item in menu}
+    group_modifiers = {item['productId']: item['modifiers'] for item in menu}
+    single_modifiers = {item['productId']: item['single_modifiers'] for item in menu}
 
     for item in items:
             item.setdefault("modifiers", [])
@@ -353,13 +367,24 @@ def _fix_modifier_amount(org_id, items):
             # 2: remove modifiers with zero amount
             item["modifiers"] = [mod for mod in item["modifiers"] if mod["amount"]]
             # 3: add required single modifiers
-            item_modifiers = modifiers[item["id"]]
+            item_modifiers = single_modifiers[item["id"]]
             for mod in item_modifiers:
                 if mod["minAmount"] > 0:
                     item["modifiers"].append({
                         "id": mod["id"],
                         "amount": mod["minAmount"]
                     })
+            # 4: add hardcoded modifiers
+            if org_id == CompanyNew.HLEB:
+                existing_modifiers = set(m['groupId'] for m in item['modifiers'])
+                for mod in group_modifiers[item['id']]:
+                    if mod['groupId'] in _LPQ_HARDCODE_MODIFIERS and mod['groupId'] not in existing_modifiers:
+                        item['modifiers'].append({
+                            "groupId": mod['groupId'],
+                            "groupName": "",
+                            "id": _LPQ_HARDCODE_MODIFIERS[mod['groupId']],
+                            "amount": 1
+                        })
 
 
 def _fill_item_info(org_id, items):
