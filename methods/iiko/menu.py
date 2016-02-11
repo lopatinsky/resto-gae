@@ -376,7 +376,7 @@ def _fix_modifier_amount(org_id, items):
                     })
             # 4: add hardcoded modifiers
             if org_id == CompanyNew.HLEB:
-                existing_modifiers = set(m['groupId'] for m in item['modifiers'])
+                existing_modifiers = set(m.get('groupId') for m in item['modifiers'])
                 for mod in group_modifiers[item['id']]:
                     if mod['groupId'] in _LPQ_HARDCODE_MODIFIERS and mod['groupId'] not in existing_modifiers:
                         item['modifiers'].append({
