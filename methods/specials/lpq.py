@@ -16,14 +16,18 @@ _EVENING_CATEGORIES = [
 ]
 _EVENING_PRODUCT_CODES = ["501188", "501187", "103085"]
 _EVENING_SCHEDULE = {
-    "0d4c107d-d5a9-68c1-0150-89f22773aeed": {  # Lesnaya 5
+    "dc12db4e-f192-c4d2-0152-d2c383885e4f": {  # Lesnaya 5
         "days": [1, 2, 3, 4, 5, 6, 7],
         "hours": "21-23"
     },
-    "9f5086d8-547b-3609-0152-a45dcbaa4e39": {  # Novinskiy 7
+    "dc12db4e-f192-c4d2-0152-d2c383885f6f": {  # Novinskiy 7
         "days": [1, 2, 3, 4, 5, 6, 7],
         "hours": "21-23"
     },
+    "ce1b7218-7925-b427-0152-e0cb68223988": {  # Kuznetsky most
+        "days": [1, 2, 3, 4, 5, 6, 7],
+        "hours": "21-23"
+    }
 }
 
 
