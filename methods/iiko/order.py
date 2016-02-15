@@ -77,12 +77,6 @@ def prepare_order(order, customer, payment_type):
                 u"Авиагородок": "1bb4d840-045f-e28c-014f-b6a61cea9a39",
             }
             obj['deliveryTerminalId'] = dt_mapping.get(order.address.get('city'))
-        elif order.venue_id == CompanyNew.DIMASH:
-            dt_mapping = {
-                u"Азов": "19f93854-08b3-9a01-014f-ff67378c3c95",
-                u"Ростов-на-Дону": "1ed5add4-a920-555c-0151-ae18ae4caa35",
-            }
-            obj['deliveryTerminalId'] = dt_mapping.get(order.address.get('city'))
         elif order.venue_id == CompanyNew.PANDA:
             #obj['deliveryTerminalId'] = "9d55b8d9-7b71-aa53-0144-4da56c249760"  # DOSTAVKA48
             obj['deliveryTerminalId'] = "12c99191-4e48-67cc-014d-0ef17725d974"  # PANDA
