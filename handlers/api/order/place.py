@@ -37,7 +37,7 @@ NOT_VALID_TIME_ERROR = 1
 
 _GIFT_COMMENT_TEMPLATE = u'Первый заказ, %s в подарок. '
 _FIRST_ORDER_COMMENTS = {
-    CompanyNew.OMNOMNOM: (_GIFT_COMMENT_TEMPLATE % u'Саке маки', ''),
+    CompanyNew.OMNOMNOM: (_GIFT_COMMENT_TEMPLATE % u'Унаги запеченный', ''),
     CompanyNew.TYKANO: (_GIFT_COMMENT_TEMPLATE % u'ролл Калифорния', ''),
     CompanyNew.ORANGE_EXPRESS: (u'Первый заказ из приложения. ', u'Повторный заказ из приложения. '),
     CompanyNew.CHAIHANA_LOUNGE: (u'Первый заказ, скидка 25%. ', u'Повторный заказ, скидка 5%. '),
