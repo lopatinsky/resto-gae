@@ -10,6 +10,8 @@ class OrderInfoHandler(BaseHandler):
             order = iiko.Order.get_by_id(int(order_id))
         except ValueError:
             order = iiko.Order.order_by_id(order_id)
+        if not order:
+            self.abort(404)
         order.reload()
 
         self.render_json({
