@@ -11,7 +11,8 @@ class OrderInfoHandler(BaseHandler):
         except ValueError:
             order = iiko.Order.order_by_id(order_id)
         if not order:
-            self.abort(404)
+            self.response.set_status(404)
+            return self.render_json({'order': None})
         order.reload()
 
         self.render_json({
