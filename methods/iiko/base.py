@@ -9,7 +9,7 @@ from models.iiko.company import CompanyNew
 
 __author__ = 'dvpermyakov'
 
-PLATIUS_BASE_URL = 'https://iiko.net:9900/api/0'
+PLATIUS_BASE_URL = 'https://platius.ru:9900/api/0'
 IIKO_BIZ_BASE_URL = 'https://iiko.biz:9900/api/0'
 
 CAT_GIFTS_GROUP_ID = 'fca63e6b-b622-4d99-9453-b8c3372c6179'

@@ -99,7 +99,8 @@ class PlaceOrderHandler(BaseHandler):
                           custom_data)
         update_customer_id(company, customer)
 
-        self.order = order = iiko.Order(order_id=str(uuid.uuid4()))
+        self.order = order = iiko.Order()
+        order.order_id = self.request.get('id') or str(uuid.uuid4())
         if source == AUTO_APP_SOURCE:
             if not company.auto_token:
                 send_error("order", u"Компания %s не настроена для работы с автоматизацией" % company.name, "")

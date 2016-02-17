@@ -124,7 +124,11 @@ class Order(ndb.Model):
         return cls.query(cls.order_id == order_id).get()
 
     def to_dict(self):
+        customer = self.customer.get()
+        customer_id = customer.customer_id if customer else None
         serialized = {
+            'customerId': customer_id,
+            'restoId': self.key.id(),
             'orderId': self.order_id,
             'number': self.number,
             'status': self.status,
