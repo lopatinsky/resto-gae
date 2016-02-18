@@ -84,27 +84,39 @@ def _check_iiko_stop_list(company, delivery_terminal, order):
         return True, None
 
     quantity_dict = defaultdict(lambda: 0)
-    name_dict = {}
-    modifiers = set()
     for item in order.items:
         quantity_dict[item['id']] += item['amount']
-        name_dict[item['id']] = item['name']
         for modifier in item['modifiers']:
-            name_dict[modifier['id']] = modifier['name']
             quantity_dict[modifier['id']] += modifier['amount'] * item['amount']
-            modifiers.add(modifier['id'])
 
-    for item_id, amount in quantity_dict.iteritems():
-        stop_list_amount = stop_list.get(item_id)
-        if stop_list_amount is not None:
-            stop_list_amount = int(floor(stop_list_amount))
-            if stop_list_amount <= 0:
-                if item_id in modifiers:
-                    return False, u'К сожалению, наименование "%s" отсутствует, ' \
-                                  u'выберите другое из списка' % name_dict[item_id]
-                return False, u'Продукт "%s" закончился или недоступен в этом заведении' % name_dict[item_id]
-            elif amount > stop_list_amount:
-                return False, u'В этом заведении осталось только %sшт. "%s"' % (stop_list_amount, name_dict[item_id])
+    def _check(sl, item_id, name, amount, is_modifier):
+        sl_amount = sl.get(item_id)
+        if sl_amount is None:
+            return True, None
+        sl_amount = int(floor(sl_amount))
+        if sl_amount <= 0:
+            if is_modifier:
+                return False, u'К сожалению, наименование "%s" отсутствует, ' \
+                              u'выберите другое из списка' % name
+            return False, u'Продукт "%s" закончился или недоступен в этом заведении' % name
+        elif amount > sl_amount:
+            return False, u'В этом заведении осталось только %sшт. "%s"' % (sl_amount, name)
+        return True, None
+
+    all_errors = []
+
+    for item in order.items:
+        success, error = _check(stop_list, item['id'], item['name'], quantity_dict[item['id']], False)
+        if not success:
+            item['errors'].append(error)
+            all_errors.append(error)
+        for modifier in item['modifiers']:
+            success, error = _check(stop_list, modifier['id'], modifier['name'], quantity_dict[modifier['id']], True)
+            if not success:
+                item['errors'].append(error)
+                all_errors.append(error)
+    if all_errors:
+        return False, all_errors[0]
     return True, None
 
 

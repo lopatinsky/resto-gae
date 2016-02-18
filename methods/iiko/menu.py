@@ -398,6 +398,7 @@ def _fill_item_info(org_id, items):
         item['sum'] = product['price'] * item['amount']
         item['category'] = product['iikoCatName']
         item['ext_category_id'] = product['extCatId']
+        item['errors'] = []
 
         for m in item.get('modifiers', []):
             mod_item = get_modifier_item(org_id, product_code=item['code'], order_mod_id=m.get('id'))

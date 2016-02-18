@@ -24,11 +24,12 @@ __author__ = 'dvpermyakov'
 
 class CheckOrderHandler(BaseHandler):
 
-    def send_error(self, description):
+    def send_error(self, description, items=None):
         logging.warning(description)
         self.render_json({
             'error': True,
-            'description': description
+            'description': description,
+            'items': items,
         })
 
     def post(self):
@@ -75,7 +76,7 @@ class CheckOrderHandler(BaseHandler):
 
             validation_result = validate_order(company, delivery_terminal, order, customer)
             if not validation_result['valid']:
-                return self.send_error(validation_result['errors'][0])
+                return self.send_error(validation_result['errors'][0], order.items)
 
             if company.is_iiko_system and order.items:
                 promos = get_order_promos(order, order_dict)
