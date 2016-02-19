@@ -103,7 +103,7 @@ class PlaceOrderHandler(BaseHandler):
         order.order_id = self.request.get('id') or str(uuid.uuid4())
         if source == AUTO_APP_SOURCE:
             if not company.auto_token:
-                send_error("order", u"Компания %s не настроена для работы с автоматизацией" % company.name, "")
+                send_error("order", u"Компания %s не настроена для работы с автоматизацией" % company.app_title, "")
                 return self.send_error(u"Неизвестная системная ошибка, попробуйте позже")
             order.source = source
         order.date = datetime.datetime.utcfromtimestamp(int(self.request.get('date')))
