@@ -56,6 +56,10 @@
         <fieldset>
             <legend>Настройки доставки</legend>
             <div>
+                <label for="email_for_orders">Email для отправки заказов:</label>
+                <input type="text" name="email_for_orders" id="email_for_orders" value="{{ company.email_for_orders or '' }}">
+            </div>
+            <div>
                 <label for="cities">Города доставки, через запятую:</label>
                 <input type="text" name="cities" id="cities" value="{{ ','.join(company.cities) }}">
             </div>

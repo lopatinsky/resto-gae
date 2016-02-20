@@ -147,8 +147,6 @@ def _load_menu(company):
             except ValueError:
                 add_info_str = None  # don't pass through raw info if cannot parse JSON
 
-        if company.iiko_org_id == CompanyNew.VENEZIA:
-            product['name'] = product['name'].lstrip("0123456789. ")
         if company.iiko_org_id == CompanyNew.COFFEE_CITY:
             product['weight'] = 0
 

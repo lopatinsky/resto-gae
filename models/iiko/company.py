@@ -85,25 +85,20 @@ class AdditionalCategory(ndb.Model):
 
 class CompanyNew(ndb.Model):
     COFFEE_CITY = "02b1b1f7-4ec8-11e4-80cc-0025907e32e9"
-    COFFEE_CITY_DEMO = "3507a5da-5314-11e5-80c1-d8d385655247"
     EMPATIKA_OLD = "95e4a970-b4ea-11e3-8bac-50465d4d1d14"
     EMPATIKA = "5cae16f4-4039-11e5-80d2-d8d38565926f"
     MIVAKO = "6a05d004-e03d-11e3-bae4-001b21b8a590"
     ORANGE_EXPRESS = "768c213e-5bc1-4135-baa3-45f719dbad7e"
     SUSHILAR = "a9d16dff-7680-43f1-b1a1-74784bc75f60"
-    VENEZIA = "b4c224da-b1d2-11e4-80d8-002590dc3769"
     DIMASH = "d3b9ba12-ee62-11e4-80cf-d8d38565926f"
-    BON_APPETIT = "610ebd80-ada9-11e3-bae4-001b21b8a590"
     TYKANO = "a637b109-218f-11e5-80c1-d8d385655247"
     BURGER_CLUB = "e7985b2c-a21b-11e4-80d2-0025907e32e9"
     PANDA = "09ac1efb-2578-11e5-80d2-d8d38565926f"
-    PIZZA_HUT = "107662a7-39d5-11e5-80c1-d8d385655247"
     SUSHI_TIME = "8b939502-9ec3-11e3-bae4-001b21b8a590"
     OMNOMNOM = "f3417644-308b-11e5-80c1-d8d385655247"
     HLEB = "986a6089-d0d7-11e5-80d8-d8d38565926f"
     CHAIHANA_LOUNGE = "d40c6833-6dda-11e5-80c1-d8d385655247"
     GIOTTO = "01e35456-40f8-11e5-80d2-d8d38565926f"
-    DEMO_SOFT_BUSINESS = "485fc486-c3ed-11e5-80c3-d8d385655247"
 
     iiko_login = ndb.StringProperty()
     platius_login = ndb.StringProperty()
@@ -158,6 +153,8 @@ class CompanyNew(ndb.Model):
     additional_categories = ndb.LocalStructuredProperty(AdditionalCategory, repeated=True)
 
     iiko_stop_lists_enabled = ndb.BooleanProperty(default=False)
+
+    email_for_orders = ndb.StringProperty(indexed=False)
 
     @classmethod
     def get_payment_types(cls, venue_id):

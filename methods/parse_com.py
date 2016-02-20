@@ -14,7 +14,6 @@ parse_accs = [
             CompanyNew.MIVAKO,
             CompanyNew.ORANGE_EXPRESS,
             CompanyNew.SUSHILAR,
-            CompanyNew.VENEZIA,
             CompanyNew.DIMASH,
             CompanyNew.COFFEE_CITY,
         }
@@ -29,7 +28,6 @@ parse_accs = [
             CompanyNew.SUSHI_TIME,
             CompanyNew.BURGER_CLUB,
             CompanyNew.PANDA,
-            CompanyNew.PIZZA_HUT,
             CompanyNew.ORANGE_EXPRESS,  # thx Nikita
         }
     },

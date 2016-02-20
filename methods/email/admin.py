@@ -39,24 +39,14 @@ _EXPRESS_CITY_MAPPING = {
 }
 
 
-def get_order_email_address(order):
+def get_order_email_address(order, company):
     if order.venue_id == CompanyNew.ORANGE_EXPRESS:
         return _EXPRESS_CITY_MAPPING.get(order.address['city'])
-    elif order.venue_id == CompanyNew.MIVAKO:
-        return "delivery@mivako.ru"
-    elif order.venue_id == CompanyNew.SUSHI_TIME:
-        return "stdostavka@mail.ru"
-    elif order.venue_id == CompanyNew.OMNOMNOM:
-        return "univerfoods@mail.ru"
-    elif order.venue_id == CompanyNew.BURGER_CLUB:
-        return "astra-burgerclub@mail.ru"
-    elif order.venue_id == CompanyNew.GIOTTO:
-        return "zakaz@giottoclub.ru"
-    return None
+    return company.email_for_orders
 
 
 def send_order_email(order, customer, company):
-    address = get_order_email_address(order)
+    address = get_order_email_address(order, company)
     if not address:
         return None
 
