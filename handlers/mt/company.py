@@ -2,11 +2,15 @@
 import ast
 import logging
 import time
-from methods.company import create, parse_additional_categories
+
+from google.appengine.ext import ndb
+
+from methods.company import create, parse_additional_categories, _load_delivery_terminals
 from methods.iiko.organization import get_orgs
 from methods.maps import get_address_coordinates
 from models.iiko.company import CompanyNew, IikoApiLogin, PlatiusLogin
 from base import BaseHandler
+from models.iiko.delivery_terminal import DeliveryTerminal
 
 __author__ = 'dvpermyakov'
 
@@ -98,3 +102,40 @@ class CompanyEditHandler(BaseHandler):
         c.put()
         platius_logins = [key.id() for key in PlatiusLogin.query().fetch(keys_only=True)]
         self.render('company/edit.html', company=c, platius_logins=platius_logins, success=True)
+
+
+class TerminalListHandler(BaseHandler):
+    def get(self, company_id):
+        c = CompanyNew.get_by_id(int(company_id))
+        dts = DeliveryTerminal.query(DeliveryTerminal.company_id == c.key.id()).fetch()
+        self.render('company/terminals/list.html', company=c, dts=dts)
+
+    def post(self, company_id):
+        c = CompanyNew.get_by_id(int(company_id))
+        if 'reload' in self.request.params:
+            dts = _load_delivery_terminals(c)
+        else:
+            dts = DeliveryTerminal.query(DeliveryTerminal.company_id == c.key.id()).fetch()
+            for dt in dts:
+                param_name = 'active_%s' % dt.key.id()
+                dt.active = bool(self.request.get(param_name))
+            ndb.put_multi(dts)
+        self.render('company/terminals/list.html', company=c, dts=dts)
+
+
+class TerminalEditHandler(BaseHandler):
+    def get(self, company_id, terminal_id):
+        dt = DeliveryTerminal.get_by_id(terminal_id)
+        assert dt.company_id == int(company_id)
+        self.render('company/terminals/edit.html', dt=dt)
+
+    def post(self, company_id, terminal_id):
+        dt = DeliveryTerminal.get_by_id(terminal_id)
+        assert dt.company_id == int(company_id)
+        dt.name = self.request.get('name')
+        dt.address = self.request.get('address')
+        dt.location = ndb.GeoPt(self.request.get('location'))
+        dt.phone = self.request.get('phone')
+        dt.active = bool(self.request.get('active'))
+        dt.put()
+        self.redirect('/mt/company/%s/terminals' % company_id)

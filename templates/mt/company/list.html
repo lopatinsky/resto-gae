@@ -6,14 +6,36 @@
 </head>
 <body>
     <h1>Список компаний</h1>
-    <ul>
-        {% for company in companies %}
-            <li>
-                <a href="/mt/company/{{ company.key.id() }}">{{ company.app_title }}</a>
-                id {{ company.key.id() }}
-            </li>
-        {% endfor %}
-    </ul>
+    <table border="1" cellspacing="0" cellpadding="2" style="border-collapse: collapse; width: 100%;">
+        <thead>
+            <tr>
+                <th>Название</th>
+                <th>ID</th>
+                <th>iiko ID</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for company in companies|sort(attribute='app_title') %}
+                <tr>
+                    <td>{{ company.app_title }}</td>
+                    <td>{{ company.key.id() }}</td>
+                    <td>{{ company.iiko_org_id }}</td>
+                    <td>
+                        <a href="/mt/company/{{ company.key.id() }}">Редактировать</a>
+                    </td>
+                    <td>
+                        <a href="/mt/company/{{ company.key.id() }}/terminals">Точки</a>
+                    </td>
+                    <td>
+                        <a href="/api/company/{{ company.key.id() }}/menu?reload" target="_blank">Обновить меню</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
     <form method="get" action="/mt/company/create">
         <fieldset>
             <legend>Создать компанию</legend>

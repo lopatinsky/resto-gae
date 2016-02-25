@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <h1>Терминал {{ dt.name }}</h1>
+
+    <form method="post">
+        <div>
+            <label for="name">Название</label>
+            <input type="text" name="name" id="name" value="{{ dt.name }}">
+        </div>
+        <div>
+            <label for="address">Адрес</label>
+            <input type="text" name="address" id="address" value="{{ dt.address }}">
+        </div>
+        <div>
+            <label for="location">Координаты</label>
+            <input type="text" name="location" id="location" value="{{ dt.location }}">
+        </div>
+        <div>
+            <label for="phone">Телефон</label>
+            <input type="text" name="phone" id="phone" value="{{ dt.phone }}">
+        </div>
+        <div>
+            <label>
+                Включено
+                <input type="checkbox" name="active" {% if dt.active %}checked{% endif %}>
+            </label>
+        </div>
+        <input type="submit" value="Сохранить">
+    </form>
+</body>
+</html>

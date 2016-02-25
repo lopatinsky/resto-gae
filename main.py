@@ -133,6 +133,10 @@ app = WSGIApplication([
             Route('/list', mt_company.CompanyListHandler),
             Route('/create', mt_company.CompanyCreateHandler),
             Route('/<company_id:\d+>', mt_company.CompanyEditHandler),
+            PathPrefixRoute('/<company_id:\d+>', [
+                Route('/terminals', mt_company.TerminalListHandler),
+                Route('/terminals/<terminal_id>', mt_company.TerminalEditHandler),
+            ]),
         ]),
         PathPrefixRoute('/push', [
             Route('/send', push.PushSendingHandler),

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Терминалы {{ company.app_title }}</title>
+</head>
+<body>
+    <h1>Список терминалов {{ company.app_title }}</h1>
+    <form method="post">
+        <table border="1" cellspacing="0" cellpadding="2" style="border-collapse: collapse; width: 100%;">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Название</th>
+                    <th>ID</th>
+                    <th>Адрес</th>
+                    <th>Координаты</th>
+                    <th>Телефон</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dt in dts|sort(attribute='name') %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="active_{{ dt.key.id() }}" {% if dt.active %}checked{% endif %}>
+                        </td>
+                        <td>{{ dt.name }}</td>
+                        <td>{{ dt.key.id() }}</td>
+                        <td>{{ dt.address }}</td>
+                        <td>{{ dt.location }}</td>
+                        <td>{{ dt.phone }}</td>
+                        <td>
+                            <a href="/mt/company/{{ dt.company_id }}/terminals/{{ dt.key.id() }}">Редактировать</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <input type="submit" value="Сохранить">
+    </form>
+    <form method="post">
+        <button name="reload">Выгрузить</button>
+    </form>
+</body>
+</html>
