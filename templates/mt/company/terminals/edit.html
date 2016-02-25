@@ -25,6 +25,10 @@
             <input type="text" name="phone" id="phone" value="{{ dt.phone }}">
         </div>
         <div>
+            <label for="schedule">Расписание</label>
+            <input type="text" name="schedule" id="schedule" value="{{ dt.schedule or [] }}">
+        </div>
+        <div>
             <label>
                 Включено
                 <input type="checkbox" name="active" {% if dt.active %}checked{% endif %}>
@@ -32,5 +36,6 @@
         </div>
         <input type="submit" value="Сохранить">
     </form>
+    <a href="/mt/company/{{ dt.company_id }}/terminals">Назад к списку</a>
 </body>
 </html>

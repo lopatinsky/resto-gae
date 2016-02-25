@@ -17,15 +17,23 @@ def _check_customer(customer):
     return True, None
 
 
-def _check_company_schedule(company, order):
+def _check_company_schedule(company, delivery_terminal, order):
     local_time = order.date + timedelta(seconds=company.get_timezone_offset())
+    schedule = None
+    holiday_schedule = None
     if company.schedule:
-        if not working_hours.is_datetime_valid(company.schedule, local_time, order.is_delivery,
-                                               company.holiday_schedule):
-            start, end = working_hours.parse_company_schedule(company.schedule, local_time.date(),
-                                                              order.is_delivery, company.holiday_schedule)
-            return False, u'Вы выбрали некорректное время доставки. ' \
-                          u'Пожалуйста, выберите время между %s:00 и %s:00.' % (start, end)
+        schedule = company.schedule
+        holiday_schedule = company.holiday_schedule
+    if delivery_terminal and delivery_terminal.schedule:
+        schedule = delivery_terminal.schedule
+        holiday_schedule = delivery_terminal.holiday_schedule
+    if schedule:
+        if not working_hours.is_datetime_valid(schedule, local_time, order.is_delivery, holiday_schedule):
+            start, end = working_hours.parse_company_schedule(schedule, local_time.date(), order.is_delivery,
+                                                              holiday_schedule)
+            order_type_str = u'доставки' if order.is_delivery else u'получения заказа'
+            return False, u'Вы выбрали некорректное время %s. ' \
+                          u'Пожалуйста, выберите время между %s:00 и %s:00.' % (order_type_str, start, end)
     return True, None
 
 
@@ -132,7 +140,7 @@ def _check_stop_list(company, delivery_terminal, order):
 def validate_order(company, delivery_terminal, order, customer):
     valid = True
     errors = []
-    valid_condition, error = _check_company_schedule(company, order)
+    valid_condition, error = _check_company_schedule(company, delivery_terminal, order)
     if not valid_condition:
         valid = False
         errors.append(error)

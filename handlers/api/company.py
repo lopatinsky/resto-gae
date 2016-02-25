@@ -64,8 +64,13 @@ class CompanyMenuHandler(BaseHandler):
 class CompanyVenuesHandler(BaseHandler):
     def get(self, company_id):
         company = CompanyNew.get_by_id(int(company_id))
-        venues = DeliveryTerminal.query(DeliveryTerminal.company_id == company.key.id(),
-                                        DeliveryTerminal.active == True).fetch()
+
+        qry = DeliveryTerminal.query(DeliveryTerminal.company_id == company.key.id())
+        active_only = 'all' not in self.request.params
+        if active_only:
+            qry = qry.filter(DeliveryTerminal.active == True)
+        venues = qry.fetch()
+
         self.render_json({
             'venues': [venue.to_dict() for venue in venues]
         })

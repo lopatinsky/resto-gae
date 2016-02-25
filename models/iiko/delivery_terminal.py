@@ -12,6 +12,8 @@ class DeliveryTerminal(ndb.Model):
     phone = ndb.StringProperty(indexed=False)
     address = ndb.StringProperty(indexed=False)
     location = ndb.GeoPtProperty(indexed=False)
+    schedule = ndb.JsonProperty()
+    holiday_schedule = ndb.StringProperty(indexed=False, default='')
 
     item_stop_list = ndb.StringProperty(repeated=True)
 
@@ -25,6 +27,7 @@ class DeliveryTerminal(ndb.Model):
     def to_dict(self):
         company = CompanyNew.get_by_id(self.company_id)
         return {
+            'active': self.active,
             'venueId': self.key.id(),
             'name': self.name,
             'address': self.address,
@@ -32,7 +35,8 @@ class DeliveryTerminal(ndb.Model):
             'longitude': self.location.lon,
             'logoUrl': '',
             'phone': self.phone,
-            'payment_types': [x.to_dict() for x in ndb.get_multi(company.payment_types)]
+            'payment_types': [x.to_dict() for x in ndb.get_multi(company.payment_types)],
+            'schedule': self.schedule or company.schedule,
         }
 
     @classmethod

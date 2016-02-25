@@ -16,6 +16,7 @@
                     <th>Адрес</th>
                     <th>Координаты</th>
                     <th>Телефон</th>
+                    <th>Расписание</th>
                     <th></th>
                 </tr>
             </thead>
@@ -30,6 +31,7 @@
                         <td>{{ dt.address }}</td>
                         <td>{{ dt.location }}</td>
                         <td>{{ dt.phone }}</td>
+                        <td>{{ dt.schedule }}</td>
                         <td>
                             <a href="/mt/company/{{ dt.company_id }}/terminals/{{ dt.key.id() }}">Редактировать</a>
                         </td>
@@ -42,5 +44,6 @@
     <form method="post">
         <button name="reload">Выгрузить</button>
     </form>
+    <a href="/mt/company/list">Назад к компаниям</a>
 </body>
 </html>

@@ -137,5 +137,6 @@ class TerminalEditHandler(BaseHandler):
         dt.location = ndb.GeoPt(self.request.get('location'))
         dt.phone = self.request.get('phone')
         dt.active = bool(self.request.get('active'))
+        dt.schedule = ast.literal_eval(self.request.get('schedule'))
         dt.put()
         self.redirect('/mt/company/%s/terminals' % company_id)
