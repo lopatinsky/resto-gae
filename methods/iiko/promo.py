@@ -141,17 +141,29 @@ def get_venue_promos(org_id):
     url = '/organization/%s/marketing_campaigns' % org_id
     company = CompanyNew.get_by_iiko_id(org_id)
     promos = json.loads(get_request(company, url, {}, force_platius=True))
-    return [{
-        'id': promo['id'],
-        'name': promo['name'] if promo['name'] else '',
-        'description': promo['description'] if promo['description'] else '',
-        'image_url': promo['imageUrl'],
-        'display_type': 3,
-        'start': (datetime.strptime(promo['start'], '%Y-%m-%d') - datetime(1970, 1, 1)).total_seconds()
-        if promo['start'] else None,
-        'end': (datetime.strptime(promo['end'], '%Y-%m-%d') - datetime(1970, 1, 1)).total_seconds()
-        if promo['end'] else None
-    } for i, promo in enumerate(promos)]
+    result = []
+    for promo in promos:
+        if not promo['name']:
+            continue
+        promo_start = promo_end = None
+        if promo['start']:
+            promo_start = datetime.strptime(promo['start'], '%Y-%m-%d')
+            if datetime.now() < promo_start:
+                continue
+        if promo['end']:
+            promo_end = datetime.strptime(promo['end'], '%Y-%m-%d')
+            if datetime.now() > promo_end:
+                continue
+        result.append({
+            'id': promo['id'],
+            'name': promo['name'] if promo['name'] else '',
+            'description': promo['description'] if promo['description'] else '',
+            'image_url': promo['imageUrl'],
+            'display_type': 3,
+            'start': (promo_start - datetime(1970, 1, 1)).total_seconds() if promo_start else None,
+            'end': (promo_end - datetime(1970, 1, 1)).total_seconds() if promo_end else None
+        })
+    return result
 
 
 def get_promo_by_id(org_id, promo_id):
