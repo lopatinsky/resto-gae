@@ -29,6 +29,14 @@
             <input type="text" name="schedule" id="schedule" value="{{ dt.schedule or [] }}">
         </div>
         <div>
+            <label for="alpha_login">Логин альфы</label>
+            <input type="text" name="alpha_login" id="alpha_login" value="{{ dt.alpha_login or '' }}">
+        </div>
+        <div>
+            <label for="alpha_pass">Пароль альфы</label>
+            <input type="text" name="alpha_pass" id="alpha_pass" value="{{ dt.alpha_pass or '' }}">
+        </div>
+        <div>
             <label>
                 Включено
                 <input type="checkbox" name="active" {% if dt.active %}checked{% endif %}>

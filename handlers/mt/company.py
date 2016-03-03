@@ -138,5 +138,7 @@ class TerminalEditHandler(BaseHandler):
         dt.phone = self.request.get('phone')
         dt.active = bool(self.request.get('active'))
         dt.schedule = ast.literal_eval(self.request.get('schedule'))
+        dt.alpha_login = self.request.get('alpha_login')
+        dt.alpha_pass = self.request.get('alpha_pass')
         dt.put()
         self.redirect('/mt/company/%s/terminals' % company_id)

@@ -17,6 +17,9 @@ class DeliveryTerminal(ndb.Model):
 
     item_stop_list = ndb.StringProperty(repeated=True)
 
+    alpha_login = ndb.StringProperty(indexed=False)
+    alpha_pass = ndb.StringProperty(indexed=False)
+
     def dynamic_dict(self):
         return {
             'stop_list': {
