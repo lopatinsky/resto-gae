@@ -181,7 +181,8 @@ class PlaceOrderHandler(BaseHandler):
         order_dict = prepare_order(order, customer, order.payment_type)
         if delivery_terminal_id != order.delivery_terminal_id:
             delivery_terminal_id = order.delivery_terminal_id
-            delivery_terminal = DeliveryTerminal.get_by_id(delivery_terminal_id)
+            delivery_terminal = DeliveryTerminal.get_by_id(delivery_terminal_id) \
+                if delivery_terminal_id else None
 
         validation_result = validate_order(company, delivery_terminal, order, customer)
         if not validation_result['valid']:
