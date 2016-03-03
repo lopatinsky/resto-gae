@@ -6,6 +6,7 @@ from methods.auto.request import close_order
 from methods.parse_com import send_order_status_push
 from methods.versions import supports_review
 from models.iiko import CompanyNew, PaymentType
+from models.iiko.delivery_terminal import DeliveryTerminal
 from models.iiko.order import AUTO_APP_SOURCE
 from models.specials import SharedBonus
 
@@ -17,7 +18,9 @@ def close(order):
     if company.auto_token and order.source == AUTO_APP_SOURCE:
         close_order(order, company.auto_token)
     if order.payment_type == PaymentType.CARD:
-        pay_result = pay_by_card(company, order.alfa_order_id, 0)
+        delivery_terminal = DeliveryTerminal.get_by_id(order.delivery_terminal_id) \
+            if order.delivery_terminal_id else None
+        pay_result = pay_by_card(company, delivery_terminal, order.alfa_order_id, 0)
         logging.info("pay result: %s" % str(pay_result))
         success = 'errorCode' not in pay_result.keys() or str(pay_result['errorCode']) == '0'
         if not success:

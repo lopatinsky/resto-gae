@@ -30,7 +30,7 @@ class PreCheckHandler(AlfaBaseHandler):
         return_url = self.request.get('returnUrl')
 
         order_number = random.randrange(1000000000000, 9999999999999)
-        tie = tie_card(self.company, amount, order_number, return_url, client_id, 'MOBILE')
+        tie = tie_card(self.company, None, amount, order_number, return_url, client_id, 'MOBILE')
         logging.info(str(tie))
         return self.render_json({
             'result': {
@@ -44,25 +44,8 @@ class PreCheckHandler(AlfaBaseHandler):
 class CheckStatusHandler(AlfaBaseHandler):
     def post(self):
         order_id = self.request.get('orderId')
-        check = check_status(self.company, order_id)
+        check = check_status(self.company, None, order_id)
         logging.info(str(check))
-        # if check['ErrorCode'] == "2":
-        #     sender_email = "Empatika-resto Support <info@resto.com>"
-        #     subject = "Error on binding"
-        #     client = Customer.customer_by_customer_id(check['clientId'])
-        #     body = """
-        #
-        #     Error on binding card %s.
-        #
-        #     Message: %s
-        #
-        #     Client id: %s
-        #
-        #     Client phone: %s
-        #     Client name: %s
-        #     """ % (check['Pan'][-4:], check['ErrorMessage'], check['clientId'], client.phone, client.name)
-        #
-        #     mail.send_mail(sender_email, 'ramazanovrustem@gmail.com', subject, body)
 
         if check.get('ErrorCode', '0') == '0':
             return self.render_json({
@@ -84,7 +67,7 @@ class CreateByCardHandler(AlfaBaseHandler):
     def post(self):
         order_id = self.request.get('orderId')
         binding_id = self.request.get('bindingId')
-        pay = create_pay(self.company, binding_id, order_id)
+        pay = create_pay(self.company, None, binding_id, order_id)
         logging.info(str(pay))
         return self.render_json({
             'result': {},
@@ -95,7 +78,7 @@ class CreateByCardHandler(AlfaBaseHandler):
 class ResetBlockedSumHandler(AlfaBaseHandler):
     def post(self):
         order_id = self.request.get('orderId')
-        tie = get_back_blocked_sum(self.company, order_id)
+        tie = get_back_blocked_sum(self.company, None, order_id)
         logging.info(str(tie))
         return self.render_json({
             'result': {},
@@ -107,7 +90,7 @@ class PayByCardHandler(AlfaBaseHandler):
     def post(self):
         order_id = self.request.get('orderId')
         amount = self.request.get('amount', 0)
-        pay = pay_by_card(self.company, order_id, amount)
+        pay = pay_by_card(self.company, None, order_id, amount)
         logging.info(str(pay))
         return self.render_json({'result': pay})
 

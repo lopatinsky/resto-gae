@@ -24,20 +24,21 @@ def check_binding_id(company, alpha_client_id, binding_id):
     return binding_id
 
 
-def create_payment(company, order, alpha_client_id):
+def create_payment(company, delivery_terminal, order, alpha_client_id):
     order_number = order.order_id.replace('-', '')
-    result = tie_card(company, int(order.sum * 100), order_number, 'returnUrl', alpha_client_id, 'MOBILE')
+    result = tie_card(company, delivery_terminal, int(order.sum * 100), order_number, 'returnUrl', alpha_client_id,
+                      'MOBILE')
     if 'errorCode' not in result or str(result['errorCode']) == '0':
         return True, result['orderId']
     return False, result['errorMessage'] or result['error'] or ''
 
 
-def perform_payment(company, order, order_dict, payment_id, binding_id):
-    create_result = create_pay(company, binding_id, payment_id)
+def perform_payment(company, delivery_terminal, order, order_dict, payment_id, binding_id):
+    create_result = create_pay(company, delivery_terminal, binding_id, payment_id)
     if str(create_result.get('errorCode')) != '0':
         return False, create_result['errorMessage']
 
-    check_result = check_extended_status(company, payment_id)['alfa_response']
+    check_result = check_extended_status(company, delivery_terminal, payment_id)['alfa_response']
     if str(check_result.get('errorCode')) != '0':
         return False, check_result['errorMessage']
 

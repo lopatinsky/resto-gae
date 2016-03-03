@@ -8,6 +8,7 @@ from methods.email import admin
 from methods.iiko.order import order_info1
 from models.iiko import Order
 from models.iiko.company import CompanyNew, PaymentType
+from models.iiko.delivery_terminal import DeliveryTerminal
 
 MINUTES_INTERVAL = 5
 
@@ -35,8 +36,11 @@ class CheckCreatingOrdersHandler(RequestHandler):
                     if order.payment_type == PaymentType.CARD:
                         try:
                             company = CompanyNew.get_by_iiko_id(order.venue_id)
+                            delivery_terminal = DeliveryTerminal.get_by_id(order.delivery_terminal_id) \
+                                if order.delivery_terminal_id else None
                             # check payment status
-                            status = alfa_bank.check_extended_status(company, order.alfa_order_id)["alfa_response"]
+                            status = alfa_bank.check_extended_status(
+                                company, delivery_terminal, order.alfa_order_id)["alfa_response"]
                             info.append(("status check result", status))
 
                             # if status check was successful:
@@ -46,7 +50,8 @@ class CheckCreatingOrdersHandler(RequestHandler):
                                     info.append(("ERROR", "deposited"))
                                 # money approved -- reverse
                                 elif status['orderStatus'] == 1:
-                                    reverse_result = alfa_bank.get_back_blocked_sum(company, order.alfa_order_id)
+                                    reverse_result = alfa_bank.get_back_blocked_sum(
+                                        company, delivery_terminal, order.alfa_order_id)
                                     info.append(("reverse result", reverse_result))
                                     if str(reverse_result.get('errorCode', '0')) == '0':
                                         to_delete = True

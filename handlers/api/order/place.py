@@ -177,12 +177,16 @@ class PlaceOrderHandler(BaseHandler):
             if company_delivery_type.delivery_id == delivery_type:
                 order.delivery_type = company_delivery_type
 
+        # this resets order.delivery_terminal_id if it is delivery (not takeout)
+        order_dict = prepare_order(order, customer, order.payment_type)
+        if delivery_terminal_id != order.delivery_terminal_id:
+            delivery_terminal_id = order.delivery_terminal_id
+            delivery_terminal = DeliveryTerminal.get_by_id(delivery_terminal_id)
+
         validation_result = validate_order(company, delivery_terminal, order, customer)
         if not validation_result['valid']:
             return self.send_error(validation_result['errors'][0])
 
-        # this resets order.delivery_terminal_id if it is delivery (not takeout)
-        order_dict = prepare_order(order, customer, order.payment_type)
         pre_check_result = pre_check_order(company, order_dict)
         if 'code' in pre_check_result:
             logging.warning('iiko pre check failed')
@@ -217,18 +221,17 @@ class PlaceOrderHandler(BaseHandler):
                     break
 
         # pay after pre check
-        order_id = None
         if order.payment_type == PaymentType.CARD:
             binding_id = check_binding_id(company, alpha_client_id, binding_id)
 
-            success, result = create_payment(company, order, alpha_client_id)
+            success, result = create_payment(company, delivery_terminal, order, alpha_client_id)
             if not success:
                 self.send_error(result)
                 return
             order.alfa_order_id = result
             order.put()
 
-            success, result = perform_payment(company, order, order_dict, order.alfa_order_id, binding_id)
+            success, result = perform_payment(company, delivery_terminal, order, order_dict, order.alfa_order_id, binding_id)
             if not success:
                 self.send_error(u"Не удалось произвести оплату. " + result)
                 return
@@ -239,7 +242,7 @@ class PlaceOrderHandler(BaseHandler):
             logging.error('iiko failure')
             if order.payment_type == PaymentType.CARD:
                 # return money
-                return_result = get_back_blocked_sum(company, order_id)
+                return_result = get_back_blocked_sum(company, delivery_terminal, order.alfa_order_id)
                 logging.info('return')
                 logging.info(return_result)
             msg = result["description"] or result["message"]

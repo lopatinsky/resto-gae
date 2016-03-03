@@ -13,8 +13,7 @@ class OrdersLiteReportHandler(BaseReportHandler):
             org_id = None
 
         start, end = self.get_date_range()
-        query = iiko.Order.query(iiko.Order.date > start, iiko.Order.date < end,
-                                 iiko.Order.status == iiko.Order.CLOSED)
+        query = iiko.Order.query(iiko.Order.date > start, iiko.Order.date < end)
         if org_id:
             query = query.filter(iiko.Order.venue_id == org_id)
         orders = query.fetch()
