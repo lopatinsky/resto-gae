@@ -113,7 +113,9 @@ class TerminalListHandler(BaseHandler):
     def post(self, company_id):
         c = CompanyNew.get_by_id(int(company_id))
         if 'reload' in self.request.params:
-            dts = _load_delivery_terminals(c)
+            _load_delivery_terminals(c)
+            time.sleep(0.5)
+            dts = DeliveryTerminal.query(DeliveryTerminal.company_id == c.key.id()).fetch()
         else:
             dts = DeliveryTerminal.query(DeliveryTerminal.company_id == c.key.id()).fetch()
             for dt in dts:
