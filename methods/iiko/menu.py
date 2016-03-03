@@ -393,9 +393,8 @@ def _fill_item_info(org_id, items):
             continue
         item['name'] = product['name']
         item['code'] = product['code']
-        item['sum'] = product['price'] * item['amount']
+        item['baseSum'] = item['sum'] = product['price'] * item['amount']
         item['category'] = product['iikoCatName']
-        item['ext_category_id'] = product['extCatId']
         item['errors'] = []
 
         for m in item.get('modifiers', []):

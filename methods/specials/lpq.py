@@ -31,7 +31,7 @@ _EVENING_SCHEDULE = {
 
 
 def _add_discount(order, item, discount_fraction):
-    discount = discount_fraction * item['sum']
+    discount = discount_fraction * item['baseSum']
     item['discount_sum'] = discount
     item['sum'] -= discount
     order.discount_sum += discount
