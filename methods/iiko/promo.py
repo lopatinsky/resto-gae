@@ -140,6 +140,8 @@ def get_venue_promos(org_id):
 
     url = '/organization/%s/marketing_campaigns' % org_id
     company = CompanyNew.get_by_iiko_id(org_id)
+    if not company.is_iiko_system:
+        return []
     promos = json.loads(get_request(company, url, {}, force_platius=True))
     result = []
     for promo in promos:
