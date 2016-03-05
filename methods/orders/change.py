@@ -23,6 +23,9 @@ def ___create_change_log(order, changes):
 def __handle_changes(order, changes):
     ___create_change_log(order, changes)
 
+    if 'number' in changes and order.source == AUTO_APP_SOURCE:
+        update_number_in_auto(order)
+
     if 'status' in changes:
         if order.status == Order.CLOSED:
             close(order)
