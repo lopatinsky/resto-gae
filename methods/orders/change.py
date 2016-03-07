@@ -1,4 +1,6 @@
 import logging
+
+from methods.auto.request import update_number_in_auto
 from methods.iiko.order import order_info1
 from methods.orders.approve import approve
 from methods.rendering import parse_iiko_time

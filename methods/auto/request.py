@@ -15,9 +15,9 @@ def _request(path, params):
     url = '%s%s' % (BASE_URL, path)
     response = urlfetch.fetch(url, method='POST', payload=urllib.urlencode(params), deadline=10)
     if response.status_code >= 400:
-        body = "\n".join((response.status_code, url, str(params), response.content))
+        body = "\n".join((str(response.status_code), url, str(params), response.content))
         logging.error(body)
-        send_error('auto', 'Error in automation request' % response.status_code, body)
+        send_error('auto', 'Error in automation request', body)
 
 
 def cancel_order(order, auto_token):
