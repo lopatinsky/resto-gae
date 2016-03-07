@@ -62,7 +62,8 @@ def do_load(order, order_id, org_id, iiko_order=None):
 
     new_sum = iiko_order['sum']
     for payment in iiko_order['payments']:
-        if 'INET' in payment['paymentType']['code']:
+        if payment['paymentType']['code'] is not None and \
+                'INET' in payment['paymentType']['code']:
             new_sum -= payment['sum']
     _attr('sum', new_sum)
 
