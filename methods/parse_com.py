@@ -5,6 +5,7 @@ import logging
 from google.appengine.api import urlfetch
 from models.iiko.company import CompanyNew
 from models.iiko.customer import IOS_DEVICE, ANDROID_DEVICE
+from models.iiko.order import APP_SOURCE
 
 parse_accs = [
     {
@@ -145,6 +146,8 @@ def make_mass_push_data(text, full_text, device, head=None):
 
 
 def send_order_status_push(order):
+    if order.source != APP_SOURCE:
+        return
     customer = order.customer.get()
     data = _make_order_push_data(order, customer)
     send_push(channels=["order_%s" % order.order_id], data=data, device_type=customer.get_device(), order=order)
