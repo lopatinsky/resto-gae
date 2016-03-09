@@ -117,4 +117,6 @@ HARDCODED_PROMOS = {
             "display_type": 3
         },
     ],
+    CompanyNew.HLEB: [
+    ],
 }
