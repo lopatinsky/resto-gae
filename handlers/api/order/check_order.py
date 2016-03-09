@@ -98,7 +98,7 @@ class CheckOrderHandler(BaseHandler):
                             'weight': gift['weight']
                         })
                 accumulated_gifts = 0
-                if company.iiko_org_id in (CompanyNew.EMPATIKA, CompanyNew.COFFEE_CITY):
+                if company.iiko_org_id in (CompanyNew.EMPATIKA,):
                     free_codes = CAT_FREE_CUP_CODES[company.iiko_org_id]
                     free_cup = get_product_from_menu(company.iiko_org_id, product_code=free_codes[0])
                     FREE_CUP_IN_ORDER = 10
@@ -116,7 +116,7 @@ class CheckOrderHandler(BaseHandler):
                     accumulated_gifts = int(mock_order.discount_sum / free_cup['price']) - FREE_CUP_IN_ORDER
 
                 discount_gifts = 0
-                if company.iiko_org_id in (CompanyNew.EMPATIKA, CompanyNew.COFFEE_CITY):
+                if company.iiko_org_id in (CompanyNew.EMPATIKA,):
                     for item in order.items:
                         free_codes = CAT_FREE_CUP_CODES[company.iiko_org_id]
                         if item['code'] in free_codes:
