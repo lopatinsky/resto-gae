@@ -42,11 +42,12 @@ def check_modifiers_amount(items, org_id):
 
         if 'modifiers' in item:
             for modifier in item['modifiers']:
-                total_amount += modifier['amount']
-                if max_amounts[modifier['groupId']] < total_amount:
-                    return False, u"Для модификатора {0} превышено максимальное значение".format(modifier['name'])
-                if min_amounts[modifier['groupId']] > total_amount:
-                    return False, u"Для модификатора {0} недостаточно элементов".format(modifier['name'])
+                if 'groupId' in modifier:
+                    total_amount += modifier['amount']
+                    if max_amounts[modifier['groupId']] < total_amount:
+                        return False, u"Для модификатора {0} превышено максимальное значение".format(modifier['name'])
+                    if min_amounts[modifier['groupId']] > total_amount:
+                        return False, u"Для модификатора {0} недостаточно элементов".format(modifier['name'])
 
         return True, None
 
