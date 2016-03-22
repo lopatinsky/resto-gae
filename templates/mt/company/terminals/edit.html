@@ -37,6 +37,10 @@
             <input type="text" name="alpha_pass" id="alpha_pass" value="{{ dt.alpha_pass or '' }}">
         </div>
         <div>
+            <label for="platius_payment_code">Код типа оплаты platius</label>
+            <input type="text" name="platius_payment_code" id="platius_payment_code" value="{{ dt.platius_payment_code or '' }}">
+        </div>
+        <div>
             <label>
                 Включено
                 <input type="checkbox" name="active" {% if dt.active %}checked{% endif %}>

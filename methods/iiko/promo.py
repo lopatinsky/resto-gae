@@ -5,9 +5,10 @@ from datetime import datetime
 
 from handlers.api.specials.hardcoded_promos import HARDCODED_PROMOS
 from methods.iiko.base import get_request, post_request
-from methods.iiko.menu import get_product_from_menu, list_menu, get_modifier_item
+from methods.iiko.menu import get_product_from_menu, list_menu
 from methods.specials.lpq import apply_lpq_discounts
 from models.iiko import CompanyNew
+from models.iiko.delivery_terminal import DeliveryTerminal
 
 __author__ = 'dvpermyakov'
 
@@ -40,6 +41,10 @@ def get_iikonet_payment_type(order):
             return 'AO'
         else:
             return 'PA'  # default
+    if not order.is_delivery:
+        dt = DeliveryTerminal.get_by_id(order.delivery_terminal_id)
+        if dt.platius_payment_code:
+            return dt.platius_payment_code
     return _default
 
 

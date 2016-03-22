@@ -142,5 +142,6 @@ class TerminalEditHandler(BaseHandler):
         dt.schedule = ast.literal_eval(self.request.get('schedule'))
         dt.alpha_login = self.request.get('alpha_login')
         dt.alpha_pass = self.request.get('alpha_pass')
+        dt.platius_payment_code = self.request.get('platius_payment_code')
         dt.put()
         self.redirect('/mt/company/%s/terminals' % company_id)

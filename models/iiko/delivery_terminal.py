@@ -20,6 +20,8 @@ class DeliveryTerminal(ndb.Model):
     alpha_login = ndb.StringProperty(indexed=False)
     alpha_pass = ndb.StringProperty(indexed=False)
 
+    platius_payment_code = ndb.StringProperty(indexed=False)
+
     def dynamic_dict(self):
         return {
             'stop_list': {
