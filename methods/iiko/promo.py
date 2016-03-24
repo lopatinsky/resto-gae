@@ -189,9 +189,12 @@ def get_order_promos(order, order_dict, set_info=False):
     result = json.loads(post_request(company, url, {}, payload, force_platius=True))
     logging.info(result)
 
+    menu_list = list_menu(order.venue_id)
+
     if result.get('availableFreeProducts'):
         for free_product in result['availableFreeProducts'][:]:
-            product = get_product_from_menu(order.venue_id, product_code=free_product.get('productCode'))
+            product = get_product_from_menu(order.venue_id, product_code=free_product.get('productCode'),
+                                            menu_list=menu_list)
             if product:
                 free_product['id'] = product['productId']
                 free_product['name'] = product['name']
@@ -212,17 +215,14 @@ def get_order_promos(order, order_dict, set_info=False):
             if dis_info.get('details'):
                 for detail in dis_info.get('details'):
                     if detail.get('productCode'):
-                        product = get_product_from_menu(order.venue_id, product_code=detail.get('productCode'))
+                        product = get_product_from_menu(order.venue_id, product_code=detail.get('productCode'),
+                                                        menu_list=menu_list)
                         if product:
                             detail['id'] = product['productId'] if product.get('productId') else product.get('id')
                             detail['name'] = product['name']
                             detail['code'] = product['code']
                         else:
                             logging.error('product from iiko.biz not found!')
-                        product = get_product_from_menu(order.venue_id, product_code=detail.get('productCode'))
-                        detail['id'] = product['productId']
-                        detail['name'] = product['name']
-                        detail['code'] = product['code']
             if set_info:
                 promo = get_promo_by_id(order.venue_id, dis_info.get('id'))
                 dis_info['description'] = promo['description']
