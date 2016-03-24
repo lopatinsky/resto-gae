@@ -314,9 +314,10 @@ def list_menu(org_id):
     return products
 
 
-def get_product_from_menu(org_id, product_code=None, product_id=None):
-    menu = list_menu(org_id)
-    for product in menu:
+def get_product_from_menu(org_id, product_code=None, product_id=None, menu_list=None):
+    if not menu_list:
+        menu_list = list_menu(org_id)
+    for product in menu_list:
         if product['productId'] == product_id or product['code'] == product_code:
             return product
 
@@ -330,8 +331,9 @@ def get_product_by_modifier_item(org_id, id_modifier):
                     return product
 
 
-def get_modifier_item(org_id, product_code=None, product_id=None, order_mod_code=None, order_mod_id=None):
-    product = get_product_from_menu(org_id, product_code=product_code, product_id=product_id)
+def get_modifier_item(org_id, product_code=None, product_id=None, product=None, order_mod_code=None, order_mod_id=None):
+    if not product:
+        product = get_product_from_menu(org_id, product_code=product_code, product_id=product_id)
     for mod in product.get('modifiers', []):
         for m_item in mod.get('items', []):
             if m_item.get('code') == order_mod_code or m_item.get('id') == order_mod_id:
@@ -386,8 +388,9 @@ def _fix_modifier_amount(org_id, items):
 
 
 def _fill_item_info(org_id, items):
+    menu_list = list_menu(org_id)
     for item in items:
-        product = get_product_from_menu(org_id, product_id=item['id'])
+        product = get_product_from_menu(org_id, product_id=item['id'], menu_list=menu_list)
         if not product:
             logging.error('product is not found in menu!')
             continue
@@ -398,7 +401,7 @@ def _fill_item_info(org_id, items):
         item['errors'] = []
 
         for m in item.get('modifiers', []):
-            mod_item = get_modifier_item(org_id, product_code=item['code'], order_mod_id=m.get('id'))
+            mod_item = get_modifier_item(org_id, product=product, order_mod_id=m.get('id'))
             m['name'] = mod_item.get('name')
             m['code'] = mod_item.get('code')
             m['sum'] = mod_item.get('price', 0) * m.get('amount', 0) * item['amount']
