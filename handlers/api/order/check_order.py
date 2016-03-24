@@ -24,6 +24,7 @@ __author__ = 'dvpermyakov'
 
 
 def check_modifiers_amount(items, org_id):
+    return True, None  # TODO CHECK EVERYTHING
     menu = list_menu(org_id)
     group_modifiers = {item['productId']: item['modifiers'] for item in menu}
 
