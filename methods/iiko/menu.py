@@ -147,6 +147,9 @@ def _load_menu(company):
             except ValueError:
                 add_info_str = None  # don't pass through raw info if cannot parse JSON
 
+        if company.iiko_org_id == CompanyNew.ORANGE_EXPRESS:
+            product['weight'] = product['energyAmount'] = 0
+
         if company.iiko_org_id == CompanyNew.COFFEE_CITY:
             product['weight'] = 0
 
