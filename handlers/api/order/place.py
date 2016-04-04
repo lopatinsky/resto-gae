@@ -31,7 +31,6 @@ from models.iiko.order import AUTO_APP_SOURCE
 
 __author__ = 'dvpermyakov'
 
-
 GENERAL_ERROR = -1
 MIN_SUM_ERROR = 0
 NOT_VALID_TIME_ERROR = 1
@@ -233,7 +232,8 @@ class PlaceOrderHandler(BaseHandler):
             order.alfa_order_id = result
             order.put()
 
-            success, result = perform_payment(company, delivery_terminal, order, order_dict, order.alfa_order_id, binding_id)
+            success, result = perform_payment(company, delivery_terminal, order, order_dict, order.alfa_order_id,
+                                              binding_id)
             if not success:
                 self.send_error(u"Не удалось произвести оплату. " + result)
                 return
@@ -298,7 +298,7 @@ class PlaceOrderHandler(BaseHandler):
                 'venue_id': response_delivery_terminal_id,
                 'address': order.address,
                 'date': int(self.request.get('date')),
-                },
+            },
             'error': False,
             'error_code': 0,
         }

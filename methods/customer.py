@@ -17,6 +17,7 @@ def set_iiko_customer_to_memcache(iiko_org_id, phone, iiko_customer):
     return
 
 
+
 def delete_iiko_customer_from_memcache(iiko_org_id, phone):
     memcache.delete(iiko_org_id + phone)
     return
