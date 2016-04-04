@@ -8,7 +8,8 @@ import uuid
 from google.appengine.api.urlfetch_errors import DownloadError
 from google.appengine.ext import deferred
 from handlers.api.base import BaseHandler
-from methods.customer import get_resto_customer, set_customer_info, update_customer_id
+from methods.customer import get_resto_customer, set_customer_info, update_customer_id, \
+    delete_iiko_customer_from_memcache
 
 from methods.email.admin import send_error, send_order_email
 from methods.alfa_bank import get_back_blocked_sum
@@ -302,5 +303,7 @@ class PlaceOrderHandler(BaseHandler):
             'error_code': 0,
         }
         logging.info(resp)
+
+        delete_iiko_customer_from_memcache(company.iiko_org_id, customer.phone)
 
         self.render_json(resp)
