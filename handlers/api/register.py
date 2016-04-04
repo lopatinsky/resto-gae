@@ -24,7 +24,7 @@ class RegisterHandler(BaseHandler):
             share_data = json.loads(share_data)
             share_id = share_data.get('share_id')
             if share_id:
-                share = Share.get_by_id(share_id)
+                share = Share.get_by_id(int(share_id))
                 if share.share_type == INVITATION:
                     if not customer_id:
                         SharedBonus(sender=share.sender, recipient=customer.key, share_id=share.key.id()).put()
