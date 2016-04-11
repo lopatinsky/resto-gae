@@ -155,7 +155,7 @@ class CompanyNew(ndb.Model):
 
     iiko_stop_lists_enabled = ndb.BooleanProperty(default=False)
 
-    email_for_orders = ndb.StringProperty(indexed=False)
+    email_for_orders = ndb.StringProperty(indexed=False, repeated=True)
 
     @classmethod
     def get_payment_types(cls, venue_id):

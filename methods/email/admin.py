@@ -39,15 +39,15 @@ _EXPRESS_CITY_MAPPING = {
 }
 
 
-def get_order_email_address(order, company):
+def get_order_email_addresses(order, company):
     if order.venue_id == CompanyNew.ORANGE_EXPRESS:
         return _EXPRESS_CITY_MAPPING.get(order.address['city'])
     return company.email_for_orders
 
 
 def send_order_email(order, customer, company):
-    address = get_order_email_address(order, company)
-    if not address:
+    addresses = get_order_email_addresses(order, company)
+    if not addresses:
         return None
 
     time = (order.date + timedelta(seconds=company.get_timezone_offset())).strftime("%d.%m.%Y %H:%M")
@@ -55,7 +55,7 @@ def send_order_email(order, customer, company):
                                                order=order, customer=customer, time=time)
     return mandrill.send_email(
         "noreply-order@ru-beacon.ru",
-        [address],
+        addresses,
         [],
         u"Новый заказ",
         body)
