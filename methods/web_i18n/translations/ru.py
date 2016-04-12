@@ -3,7 +3,7 @@ from . import TEXTS
 
 TEXTS["ru"] = {
     "MENU_CLIENTS": u"Клиенты",
-    "MENU_PRICING": u"Стоимость",
+    "MENU_PRICING": u"Стоимость:",
     "MENU_SCHEME": u"Схема работы",
     "MENU_CREATE": u"Создать приложение",
 
@@ -53,12 +53,13 @@ TEXTS["ru"] = {
 
     "PRICING_HEADING": u"Стоимость",
 
-    "PRICING_DELIVERY": u"Доставка",
+    "PRICING_DELIVERY": u"Доставка:",
     "PRICING_PLAN1": u"Стандарт",
     "PRICING_PLAN2": u"Профи",
     "PRICING_PLAN3": u"Премиум",
     "PRICING_CAFE_1": u"Решение для",
     "PRICING_CAFE_2": u"кофеен",
+    "PRICING_CAFE": u"Решение для кофеен:",
 
     "PRICING_PLAN1_INFO": [u"Стилизация:",
                            u"Логотип и фирменный стиль",
@@ -92,7 +93,7 @@ TEXTS["ru"] = {
                        u"2 платформы",
                        u"мобильная версия сайта",
                        u"интеграция с кассовыми системами iiko/R-keeper (при желании)"],
-    "FACILITES_INFO": [u"массовые и персонализированные рассылки",
+    "FACILITIES_INFO": [u"массовые и персонализированные рассылки",
                         u"push-уведомления",
                         u"специальные акции и комбо-предложения",
                         u"счастливые часы",
@@ -101,6 +102,9 @@ TEXTS["ru"] = {
                         u"оплата online",
                         u"статистика по продажам",
                         u"геолокационные уведомления тем, кто проходит рядом с кафе"],
+    "FACILITIES" : u"Функционал:",
+    "FEE_3000": u"3000 + 5% с заказа",
+    "FEE_DEAL": u"От 3000 в месяц",
     "PRICING_ORDERS": u"До %s заказов/мес.",
     "PRICING_ORDERS_UNLIMITED": u"Без ограничений",
     "PRICING_PERCENT": u"%s комиссия за эквайринг",
