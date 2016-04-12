@@ -47,3 +47,5 @@ class ViewMenuHandler(BaseHandler):
             process_category(cat, [], result)
 
         self.render('/mt/reports/view_menu.html', menu=result)
+
+
