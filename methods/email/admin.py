@@ -41,7 +41,7 @@ _EXPRESS_CITY_MAPPING = {
 
 def get_order_email_addresses(order, company):
     if order.venue_id == CompanyNew.ORANGE_EXPRESS:
-        return _EXPRESS_CITY_MAPPING.get(order.address['city'])
+        return [_EXPRESS_CITY_MAPPING.get(order.address['city'])]
     return company.email_for_orders
 
 
