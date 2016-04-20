@@ -121,6 +121,8 @@ class CheckOrderHandler(BaseHandler):
             discount_sum = order.discount_sum
 
             max_bonus_payment = promos['maxPaymentSum']
+            if company.iiko_org_id == CompanyNew.BON_APPETIT:
+                max_bonus_payment = 0.0
 
             gifts = []
             if promos.get('availableFreeProducts'):

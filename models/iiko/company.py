@@ -100,6 +100,7 @@ class CompanyNew(ndb.Model):
     CHAIHANA_LOUNGE = "d40c6833-6dda-11e5-80c1-d8d385655247"
     GIOTTO = "01e35456-40f8-11e5-80d2-d8d38565926f"
     HOUSE_MAFIA = "4a4b5985-a977-11e5-80d2-d8d38565926f"
+    BON_APPETIT = "610ebd80-ada9-11e3-bae4-001b21b8a590"
 
     iiko_login = ndb.StringProperty()
     platius_login = ndb.StringProperty()
