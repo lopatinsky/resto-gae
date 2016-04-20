@@ -191,6 +191,10 @@ def get_order_promos(order, order_dict, set_info=False):
 
     menu_list = list_menu(order.venue_id)
 
+    # TODO gifts in LPQ are disabled!
+    if order.venue_id == CompanyNew.HLEB:
+        result['availableFreeProducts'] = []
+
     if result.get('availableFreeProducts'):
         for free_product in result['availableFreeProducts'][:]:
             product = get_product_from_menu(order.venue_id, product_code=free_product.get('productCode'),
