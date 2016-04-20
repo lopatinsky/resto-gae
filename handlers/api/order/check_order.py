@@ -8,7 +8,7 @@ from handlers.api.base import BaseHandler
 from handlers.api.promos import CAT_FREE_CUP_CODES
 from handlers.api.promos import CUPS_BEFORE_FREE_CUP
 from methods.customer import get_resto_customer, update_customer_id, set_customer_info
-from methods.iiko.customer import get_customer_by_id
+from methods.iiko.customer import get_customer_by_id, create_or_update_customer
 from methods.iiko.menu import get_product_from_menu, prepare_items, list_menu
 from methods.iiko.order import prepare_order
 from methods.iiko.promo import get_order_promos, set_discounts
@@ -72,9 +72,15 @@ class CheckOrderHandler(BaseHandler):
             company = CompanyNew.get_by_id(delivery_terminal.company_id)
         else:
             company = CompanyNew.get_by_iiko_id(delivery_terminal_id)
-
         customer = get_resto_customer(company, self.request.get('customer_id'))
         phone = self.request.get('phone')
+
+        if company.iiko_org_id == CompanyNew.COFFEE_CITY:
+            logging.debug("cat is here lol")
+            logging.debug(create_or_update_customer(company, {'phone': filter_phone(phone)}))
+        else:
+            logging.debug("wow so boring such cat")
+
         set_customer_info(company, customer,
                           self.request.get('name').strip(),
                           self.request.headers,
@@ -121,6 +127,8 @@ class CheckOrderHandler(BaseHandler):
             discount_sum = order.discount_sum
 
             max_bonus_payment = promos['maxPaymentSum']
+            if company.iiko_org_id == CompanyNew.BON_APPETIT:
+                max_bonus_payment = 0
 
             gifts = []
             if promos.get('availableFreeProducts'):
