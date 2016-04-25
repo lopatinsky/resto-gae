@@ -9,6 +9,8 @@ _TEN_PERCENT_ALWAYS_CATEGORIES = [
 ]
 _TEN_PERCENT_EXCLUDED_VENUES = {
     "f1516ef4-6224-a808-0153-3e5b7ba2af5b",
+    "19776457-cf5e-73b9-0154-2b93e702d5c0",     # Moscow City
+    "f1516ef4-6224-a808-0153-3e5b7ba2af5b",     # Park
 }
 
 _EVENING_CATEGORIES = [
