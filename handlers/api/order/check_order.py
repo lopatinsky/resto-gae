@@ -7,6 +7,7 @@ import logging
 from handlers.api.base import BaseHandler
 from handlers.api.promos import CAT_FREE_CUP_CODES
 from handlers.api.promos import CUPS_BEFORE_FREE_CUP
+from handlers.api.specials import kuksu_delivery
 from methods.customer import get_resto_customer, update_customer_id, set_customer_info
 from methods.iiko.customer import get_customer_by_id, create_or_update_customer
 from methods.iiko.menu import get_product_from_menu, prepare_items, list_menu
@@ -178,10 +179,16 @@ class CheckOrderHandler(BaseHandler):
                 else:
                     discount_sum = 0.25 * order.sum
 
+        delivery_sum = 0
+        if company.iiko_org_id == CompanyNew.KUKSU:
+            if kuksu_delivery.check_delivery(order):
+                delivery_sum = kuksu_delivery.get_delivery_sum()
+
         iiko_customer = get_customer_by_id(company, customer.customer_id)
 
         result = {
             "order_discounts": discount_sum,
+            "delivery_sum": delivery_sum,
             "max_bonus_payment": max_bonus_payment if max_bonus_payment > 0 else 0,
             "gifts": gifts,
             "error": False,

@@ -8,6 +8,7 @@ import uuid
 from google.appengine.api.urlfetch_errors import DownloadError
 from google.appengine.ext import deferred
 from handlers.api.base import BaseHandler
+from handlers.api.specials import kuksu_delivery
 from methods.customer import get_resto_customer, set_customer_info, update_customer_id, \
     delete_iiko_customer_from_memcache
 
@@ -176,6 +177,9 @@ class PlaceOrderHandler(BaseHandler):
             company_delivery_type = company_delivery_type.get()
             if company_delivery_type.delivery_id == delivery_type:
                 order.delivery_type = company_delivery_type
+
+        if order.venue_id == CompanyNew.KUKSU:
+            kuksu_delivery.check_and_add_delivery(company, order)
 
         # this resets order.delivery_terminal_id if it is delivery (not takeout)
         order_dict = prepare_order(order, customer, order.payment_type)

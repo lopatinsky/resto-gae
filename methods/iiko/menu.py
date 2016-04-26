@@ -259,6 +259,9 @@ def _filter_menu(org_id, menu):
         category['products'] = [p
                                 for p in category['products']
                                 if p['price'] > 0 or p['single_modifiers'] or p['modifiers']]
+        if org_id == CompanyNew.KUKSU:
+            category['products'] = [p for p in category['products']
+                                    if p['productId'] != '910c67ce-976c-4b26-b42a-1fd3124e1354']
 
         for sub in category['children']:
             process_category(sub)
